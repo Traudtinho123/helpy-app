@@ -5,6 +5,7 @@ import type {
   VoiceCallStatus,
   VoiceIntent,
 } from "@/features/voice/types/voice-types";
+import { VOICE_INTENT_LABELS } from "@/features/voice/types/voice-types";
 
 type VoiceCallRow = {
   id: string;
@@ -52,6 +53,8 @@ function rowToRecord(row: VoiceCallRow): VoiceCallRecord {
     transcriptTurns: turns,
     startedAt: row.started_at,
     endedAt: row.ended_at,
+    clientAckAt: row.client_ack_at,
+    hasPreparedVorgang: Boolean(row.processed_payload && row.vorgang_id),
   };
 }
 
@@ -332,6 +335,13 @@ export type VoiceCallStats = {
   today: number;
   thisWeek: number;
   total: number;
+  avgDurationSeconds: number;
+};
+
+export type VoiceIntentStat = {
+  intent: VoiceIntent | "unbekannt";
+  label: string;
+  count: number;
 };
 
 function startOfLocalDay(date: Date): number {
@@ -357,9 +367,46 @@ export async function getVoiceCallStatsForCompany(
   const dayStart = startOfLocalDay(new Date(now));
   const weekStart = startOfLocalWeek(new Date(now));
 
+  const completedWithDuration = calls.filter(
+    (call) => call.durationSeconds != null && call.durationSeconds > 0
+  );
+  const avgDurationSeconds =
+    completedWithDuration.length > 0
+      ? Math.round(
+          completedWithDuration.reduce(
+            (sum, call) => sum + (call.durationSeconds ?? 0),
+            0
+          ) / completedWithDuration.length
+        )
+      : 0;
+
   return {
     today: calls.filter((call) => Date.parse(call.startedAt) >= dayStart).length,
     thisWeek: calls.filter((call) => Date.parse(call.startedAt) >= weekStart).length,
     total: calls.length,
+    avgDurationSeconds,
   };
+}
+
+export async function getVoiceIntentStatsForCompany(
+  companyId: string
+): Promise<VoiceIntentStat[]> {
+  const calls = await listVoiceCallsForCompany(companyId, 200);
+  const counts = new Map<string, number>();
+
+  for (const call of calls) {
+    const key = call.intent ?? "unbekannt";
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .map(([intent, count]) => ({
+      intent: intent as VoiceIntent | "unbekannt",
+      label:
+        intent === "unbekannt"
+          ? "Unbekannt"
+          : VOICE_INTENT_LABELS[intent as VoiceIntent] ?? intent,
+      count,
+    }))
+    .sort((a, b) => b.count - a.count);
 }

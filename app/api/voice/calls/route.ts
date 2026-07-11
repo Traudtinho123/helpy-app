@@ -49,6 +49,13 @@ export async function GET() {
       ...call,
       callerPhoneMasked: maskPhoneNumber(call.callerPhone),
       intentLabel: call.intent ? VOICE_INTENT_LABELS[call.intent] : null,
+      workflowStatus: call.clientAckAt
+        ? "erledigt"
+        : call.hasPreparedVorgang
+          ? "vorgang_vorbereitet"
+          : call.status === "completed"
+            ? "offen"
+            : "offen",
     })),
   });
 }

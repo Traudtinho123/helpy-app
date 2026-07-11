@@ -3,6 +3,7 @@ import type {
   VoiceSettings,
   VoiceSimulateRequest,
 } from "@/features/voice/types/voice-types";
+import type { VoiceStandardResponse } from "@/features/voice/types/voice-standard-response-types";
 
 export async function fetchVoiceSettings(): Promise<VoiceSettings | null> {
   const response = await fetch("/api/voice/settings", { cache: "no-store" });
@@ -115,10 +116,15 @@ export type TwilioSetupInfo = {
   businessHoursSummary: string;
 };
 
-export type VoiceCallListItem = VoiceProcessedCall["call"] & {
+export type VoiceCallWorkflowStatus = "erledigt" | "vorgang_vorbereitet" | "offen";
+
+export type VoiceCallListItem = VoiceCallRecord & {
   callerPhoneMasked?: string;
   intentLabel?: string | null;
+  workflowStatus?: VoiceCallWorkflowStatus;
 };
+
+type VoiceCallRecord = VoiceProcessedCall["call"];
 
 export type VoiceCallsDashboardPayload = {
   connection: {
@@ -147,4 +153,72 @@ export async function fetchTwilioSetup(): Promise<TwilioSetupInfo | null> {
   const response = await fetch("/api/voice/twilio/setup", { cache: "no-store" });
   if (!response.ok) return null;
   return (await response.json()) as TwilioSetupInfo;
+}
+
+export type VoiceOverviewPayload = {
+  companyName: string;
+  connection: {
+    twilioConfigured: boolean;
+    openAiConfigured: boolean;
+    voiceEnabled: boolean;
+    provider: VoiceSettings["provider"];
+    phoneNumber: string | null;
+    phoneNumberDisplay: string;
+    ready: boolean;
+    connectedSince: string;
+  };
+  numbers: Array<{
+    phoneNumber: string;
+    phoneNumberDisplay: string;
+    provider: VoiceSettings["provider"];
+    providerLabel: string;
+    active: boolean;
+    companyName: string;
+    connectedSince: string;
+    stats: { today: number; thisWeek: number; total: number };
+  }>;
+  stats: {
+    today: number;
+    thisWeek: number;
+    total: number;
+    avgDurationSeconds: number;
+  };
+  intentStats: Array<{ intent: string; label: string; count: number }>;
+};
+
+export async function fetchVoiceOverview(): Promise<VoiceOverviewPayload | null> {
+  const response = await fetch("/api/voice/overview", { cache: "no-store" });
+  if (!response.ok) return null;
+  return (await response.json()) as VoiceOverviewPayload;
+}
+
+export async function fetchVoiceStandardResponses(): Promise<VoiceStandardResponse[]> {
+  const response = await fetch("/api/voice/standard-responses", { cache: "no-store" });
+  if (!response.ok) return [];
+  const payload = (await response.json()) as { responses?: VoiceStandardResponse[] };
+  return payload.responses ?? [];
+}
+
+export async function saveVoiceStandardResponse(input: {
+  id?: string;
+  triggerText: string;
+  responseText: string;
+  category: VoiceStandardResponse["category"];
+  enabled: boolean;
+}): Promise<VoiceStandardResponse | null> {
+  const response = await fetch("/api/voice/standard-responses", {
+    method: input.id ? "PATCH" : "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) return null;
+  const payload = (await response.json()) as { response?: VoiceStandardResponse };
+  return payload.response ?? null;
+}
+
+export async function deleteVoiceStandardResponse(id: string): Promise<boolean> {
+  const response = await fetch(`/api/voice/standard-responses?id=${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+  return response.ok;
 }

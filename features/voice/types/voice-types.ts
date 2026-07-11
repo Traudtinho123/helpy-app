@@ -57,6 +57,8 @@ export type VoiceCallRecord = {
   transcriptTurns?: VoiceTranscriptTurn[];
   startedAt: string;
   endedAt: string | null;
+  clientAckAt?: string | null;
+  hasPreparedVorgang?: boolean;
 };
 
 export type VoiceIntentResult = {
