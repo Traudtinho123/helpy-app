@@ -1,11 +1,13 @@
 import { createAdminClient, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import type { Json } from "@/lib/database/types";
 import type {
+  VoiceCallClassification,
   VoiceCallRecord,
   VoiceCallStatus,
   VoiceIntent,
 } from "@/features/voice/types/voice-types";
 import { VOICE_INTENT_LABELS } from "@/features/voice/types/voice-types";
+import { normalizeTranscriptTurns } from "@/lib/voice/voice-call-transcript";
 
 type VoiceCallRow = {
   id: string;
@@ -33,10 +35,35 @@ function generateDevId(): string {
   return `dev-voice-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
+function extractProcessedMeta(processedPayload: Json | null): {
+  requestedDateTime: string | null;
+  classification: VoiceCallClassification | null;
+} {
+  if (!processedPayload || typeof processedPayload !== "object") {
+    return { requestedDateTime: null, classification: null };
+  }
+
+  const payload = processedPayload as {
+    requestedDateTime?: unknown;
+    classification?: unknown;
+  };
+
+  return {
+    requestedDateTime:
+      typeof payload.requestedDateTime === "string" &&
+      payload.requestedDateTime.trim()
+        ? payload.requestedDateTime.trim()
+        : null,
+    classification:
+      typeof payload.classification === "string"
+        ? (payload.classification as VoiceCallClassification)
+        : null,
+  };
+}
+
 function rowToRecord(row: VoiceCallRow): VoiceCallRecord {
-  const turns = Array.isArray(row.transcript_turns)
-    ? (row.transcript_turns as VoiceCallRecord["transcriptTurns"])
-    : undefined;
+  const turns = normalizeTranscriptTurns(row.transcript_turns);
+  const processedMeta = extractProcessedMeta(row.processed_payload);
 
   return {
     id: row.id,
@@ -50,11 +77,13 @@ function rowToRecord(row: VoiceCallRow): VoiceCallRecord {
     summary: row.summary,
     intent: (row.intent as VoiceIntent | null) ?? null,
     vorgangId: row.vorgang_id,
-    transcriptTurns: turns,
+    transcriptTurns: turns.length > 0 ? turns : undefined,
     startedAt: row.started_at,
     endedAt: row.ended_at,
     clientAckAt: row.client_ack_at,
     hasPreparedVorgang: Boolean(row.processed_payload && row.vorgang_id),
+    requestedDateTime: processedMeta.requestedDateTime,
+    classification: processedMeta.classification,
   };
 }
 
@@ -184,6 +213,27 @@ export async function updateVoiceCall(
   }
 
   return data ? rowToRecord(data as VoiceCallRow) : null;
+}
+
+export async function getVoiceCallById(
+  callId: string
+): Promise<VoiceCallRecord | null> {
+  if (!isSupabaseAdminConfigured()) {
+    const row = devCalls.get(callId);
+    return row ? rowToRecord(row) : null;
+  }
+
+  const admin = createAdminClient();
+  if (!admin) return null;
+
+  const { data, error } = await admin
+    .from("voice_calls")
+    .select("*")
+    .eq("id", callId)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return rowToRecord(data as VoiceCallRow);
 }
 
 export async function listVoiceCallsForCompany(

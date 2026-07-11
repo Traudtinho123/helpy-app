@@ -121,6 +121,7 @@ export type VoiceCallWorkflowStatus = "erledigt" | "vorgang_vorbereitet" | "offe
 export type VoiceCallListItem = VoiceCallRecord & {
   callerPhoneMasked?: string;
   intentLabel?: string | null;
+  classificationLabel?: string | null;
   workflowStatus?: VoiceCallWorkflowStatus;
 };
 
@@ -147,6 +148,26 @@ export async function fetchVoiceCallsDashboard(): Promise<VoiceCallsDashboardPay
   const response = await fetch("/api/voice/calls", { cache: "no-store" });
   if (!response.ok) return null;
   return (await response.json()) as VoiceCallsDashboardPayload;
+}
+
+export async function generateVoiceCallSummary(
+  callId: string
+): Promise<{ summary: string } | { error: string }> {
+  const response = await fetch(`/api/voice/calls/${callId}/summary`, {
+    method: "POST",
+  });
+
+  const payload = (await response.json()) as { summary?: string; error?: string };
+
+  if (!response.ok) {
+    return { error: payload.error ?? "Zusammenfassung fehlgeschlagen." };
+  }
+
+  if (!payload.summary?.trim()) {
+    return { error: "Zusammenfassung fehlgeschlagen." };
+  }
+
+  return { summary: payload.summary.trim() };
 }
 
 export async function fetchTwilioSetup(): Promise<TwilioSetupInfo | null> {

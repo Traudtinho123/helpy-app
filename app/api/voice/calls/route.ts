@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { VOICE_INTENT_LABELS } from "@/features/voice/types/voice-types";
+import {
+  VOICE_CALL_CLASSIFICATION_LABELS,
+  VOICE_INTENT_LABELS,
+} from "@/features/voice/types/voice-types";
 import { maskPhoneNumber } from "@/lib/voice/mask-phone";
 import {
   createDevVoiceContext,
@@ -48,7 +51,14 @@ export async function GET() {
     calls: calls.map((call) => ({
       ...call,
       callerPhoneMasked: maskPhoneNumber(call.callerPhone),
-      intentLabel: call.intent ? VOICE_INTENT_LABELS[call.intent] : null,
+      intentLabel: call.intent
+        ? VOICE_INTENT_LABELS[call.intent]
+        : call.classification
+          ? VOICE_CALL_CLASSIFICATION_LABELS[call.classification]
+          : null,
+      classificationLabel: call.classification
+        ? VOICE_CALL_CLASSIFICATION_LABELS[call.classification]
+        : null,
       workflowStatus: call.clientAckAt
         ? "erledigt"
         : call.hasPreparedVorgang

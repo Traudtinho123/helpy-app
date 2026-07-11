@@ -38,6 +38,11 @@ import {
   upsertVoiceCallSession,
 } from "@/lib/voice/voice-call-session-store";
 import {
+  ensureVoiceCallSessionWithDbTurns,
+  persistVoiceCallTranscript,
+  pickLatestTranscriptTurns,
+} from "@/lib/voice/voice-call-transcript";
+import {
   createVoiceCall,
   findVoiceCallByExternalId,
   updateVoiceCall,
@@ -132,10 +137,9 @@ export async function handleTwilioIncomingCall(
 
   if (dbCallId) {
     const session = getVoiceCallSession(callSid);
-    await updateVoiceCall(dbCallId, {
+    await persistVoiceCallTranscript(dbCallId, session?.turns ?? [], {
       status: "in_progress",
-      transcript: flattenVoiceTranscript(session?.turns ?? []),
-      transcript_turns: (session?.turns ?? []) as unknown as Json,
+      callerPhone,
     });
   }
 
@@ -172,13 +176,11 @@ export async function handleTwilioGatherSpeech(
     return twimlResponse(buildTwilioNoSpeechTwiml({ gatherActionUrl }));
   }
 
-  let session =
-    getVoiceCallSession(callSid) ??
-    createVoiceCallSession({
-      callSid,
-      companyId,
-      callerPhone: resolveCallerPhone(params),
-    });
+  let { session, callId } = await ensureVoiceCallSessionWithDbTurns({
+    callSid,
+    companyId,
+    callerPhone: resolveCallerPhone(params),
+  });
 
   appendVoiceCallTurn(callSid, {
     role: "caller",
@@ -187,8 +189,23 @@ export async function handleTwilioGatherSpeech(
   });
 
   session = getVoiceCallSession(callSid)!;
-  const promptContext = await resolveVoiceCallPromptContext(callSid, companyId);
 
+  if (!callId) {
+    const created = await createVoiceCall(companyId, {
+      externalCallId: callSid,
+      callerPhone: session.callerPhone,
+      status: "in_progress",
+    });
+    callId = created.id;
+    upsertVoiceCallSession(callSid, { dbCallId: callId });
+  }
+
+  await persistVoiceCallTranscript(callId, session.turns, {
+    status: "in_progress",
+    callerPhone: session.callerPhone,
+  });
+
+  const promptContext = await resolveVoiceCallPromptContext(callSid, companyId);
   const priorTurns = session.turns.slice(0, -1);
   const reply = await generateHelpyPhoneReply({
     promptContext,
@@ -204,31 +221,10 @@ export async function handleTwilioGatherSpeech(
 
   session = getVoiceCallSession(callSid)!;
 
-  const dbCall =
-    (session.dbCallId
-      ? await findVoiceCallByExternalId(callSid)
-      : null) ?? null;
-
-  const flatTranscript = flattenVoiceTranscript(session.turns);
-  const callId =
-    session.dbCallId ??
-    dbCall?.id ??
-    (
-      await createVoiceCall(companyId, {
-        externalCallId: callSid,
-        callerPhone: session.callerPhone,
-        status: "in_progress",
-      })
-    ).id;
-
-  upsertVoiceCallSession(callSid, { dbCallId: callId });
-
-  await updateVoiceCall(callId, {
+  await persistVoiceCallTranscript(callId, session.turns, {
     status: "in_progress",
-    caller_phone: session.callerPhone,
-    transcript: flatTranscript,
-    transcript_turns: session.turns as unknown as Json,
-    assistant_reply: reply,
+    callerPhone: session.callerPhone,
+    assistantReply: reply,
   });
 
   if (shouldEndVoiceCall(session)) {
@@ -271,12 +267,22 @@ export async function handleTwilioCallStatus(
     return new Response("OK", { status: 200 });
   }
 
+  const turns = pickLatestTranscriptTurns(session?.turns, existing?.transcriptTurns);
+  const flatTranscript =
+    turns.length > 0
+      ? flattenVoiceTranscript(turns)
+      : existing?.transcript ?? "";
+
   if (callStatus === "completed" || callStatus === "busy" || callStatus === "failed" || callStatus === "no-answer") {
-    const turns = session?.turns ?? [];
-    const flatTranscript =
-      turns.length > 0
-        ? flattenVoiceTranscript(turns)
-        : existing?.transcript ?? "";
+    await persistVoiceCallTranscript(callId, turns, {
+      status:
+        callStatus === "completed"
+          ? flatTranscript.length >= 8
+            ? "completed"
+            : "missed"
+          : "failed",
+      callerPhone: session?.callerPhone ?? existing?.callerPhone ?? null,
+    });
 
     if (flatTranscript.length >= 8) {
       const promptContext = await resolveVoiceCallPromptContext(callSid, companyId);
@@ -368,7 +374,6 @@ export async function handleTwilioCallStatus(
       await updateVoiceCall(callId, {
         status: callStatus === "completed" ? "missed" : "failed",
         duration_seconds: durationSeconds ?? existing?.durationSeconds,
-        transcript_turns: turns as unknown as Json,
         ended_at: new Date().toISOString(),
       });
       clearVoiceCallPromptContext(callSid);

@@ -183,7 +183,7 @@ export async function generateHelpyCallSummary(input: {
     {
       role: "system",
       content:
-        "Fasse das Telefonat in einem kurzen deutschen Satz (max. 25 Wörter) zusammen. Nur die Zusammenfassung, nichts anderes.",
+        "Fasse dieses Telefongespräch in 2-3 Sätzen zusammen. Erwähne: Anliegen, ob ein Termin vereinbart wurde, ob ein Rückruf gewünscht wurde. Antworte auf Deutsch. Nur die Zusammenfassung, nichts anderes.",
     },
     {
       role: "user",
@@ -191,8 +191,8 @@ export async function generateHelpyCallSummary(input: {
     },
   ];
 
-  const summary = await callOpenAiChat(messages, { maxTokens: 120 });
-  return summary?.slice(0, 280) ?? fallback;
+  const summary = await callOpenAiChat(messages, { maxTokens: 220 });
+  return summary?.slice(0, 480) ?? fallback;
 }
 
 function parseVoiceCallAnalysis(raw: string | null): VoiceCallAnalysis | null {

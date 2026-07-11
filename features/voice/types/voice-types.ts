@@ -75,6 +75,8 @@ export type VoiceCallRecord = {
   endedAt: string | null;
   clientAckAt?: string | null;
   hasPreparedVorgang?: boolean;
+  requestedDateTime?: string | null;
+  classification?: VoiceCallClassification | null;
 };
 
 export type VoiceIntentResult = {

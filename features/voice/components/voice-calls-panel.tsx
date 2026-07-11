@@ -2,14 +2,22 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Loader2, Mic, PhoneIncoming, Sparkles } from "lucide-react";
+import {
+  CalendarDays,
+  CheckCircle2,
+  ChevronDown,
+  Loader2,
+  PhoneIncoming,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/Modal";
 import {
   fetchVoiceCallsDashboard,
+  generateVoiceCallSummary,
   type VoiceCallListItem,
   type VoiceCallWorkflowStatus,
 } from "@/features/voice/services/voice-settings-client";
+import type { VoiceTranscriptTurn } from "@/features/voice/types/voice-types";
 import { cn } from "@/lib/utils";
 
 function formatDuration(seconds: number | null): string {
@@ -42,6 +50,7 @@ function formatTime(iso: string): string {
   return new Intl.DateTimeFormat("de-CH", {
     hour: "2-digit",
     minute: "2-digit",
+    second: "2-digit",
   }).format(new Date(iso));
 }
 
@@ -67,76 +76,177 @@ function workflowClass(status: VoiceCallWorkflowStatus | undefined): string {
   }
 }
 
+function TranscriptTurnItem({ turn }: { turn: VoiceTranscriptTurn }) {
+  const isHelpy = turn.role === "helpy";
+
+  return (
+    <li className="flex gap-3">
+      <span className="mt-0.5 shrink-0 text-[16px]" aria-hidden>
+        {isHelpy ? "🤖" : "🎙"}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[11px] font-semibold text-[var(--text-muted)]">
+          {isHelpy ? "HELPY" : "Anrufer"} ({formatTime(turn.at)})
+        </p>
+        <p className="mt-1 text-[13px] leading-relaxed text-[var(--text-primary)]">
+          &ldquo;{turn.text}&rdquo;
+        </p>
+      </div>
+    </li>
+  );
+}
+
 function CallDetailModal({
   call,
   onClose,
+  onSummaryGenerated,
 }: {
   call: VoiceCallListItem | null;
   onClose: () => void;
+  onSummaryGenerated: (callId: string, summary: string) => void;
 }) {
+  const [showTranscript, setShowTranscript] = useState(false);
+  const [summary, setSummary] = useState<string | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!call) return;
+    setShowTranscript(false);
+    setSummary(call.summary?.trim() ?? null);
+    setSummaryError(null);
+    setSummaryLoading(false);
+  }, [call]);
+
+  useEffect(() => {
+    if (!call || summary?.trim()) return;
+
+    let cancelled = false;
+
+    const run = async () => {
+      setSummaryLoading(true);
+      setSummaryError(null);
+
+      const result = await generateVoiceCallSummary(call.id);
+
+      if (cancelled) return;
+
+      if ("summary" in result) {
+        setSummary(result.summary);
+        onSummaryGenerated(call.id, result.summary);
+      } else {
+        setSummaryError(result.error);
+      }
+
+      setSummaryLoading(false);
+    };
+
+    void run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [call, summary, onSummaryGenerated]);
+
   if (!call) return null;
 
   const turns = call.transcriptTurns ?? [];
   const vorgangHref = call.vorgangId ? `/workspace/${call.vorgangId}` : null;
+  const anliegenLabel =
+    call.classificationLabel ?? call.intentLabel ?? "Allgemeine Anfrage";
 
   return (
     <Modal
       open={Boolean(call)}
-      title={`Anruf vom ${formatDate(call.startedAt)} um ${formatTime(call.startedAt)}`}
-      description={`Dauer: ${formatDuration(call.durationSeconds)} · Anliegen: ${call.intentLabel ?? "—"}`}
+      title="Anrufdetails"
       onClose={onClose}
       maxWidth="lg"
     >
       <div className="space-y-6">
-        {call.summary ? (
-          <section>
+        <section className="rounded-[16px] border border-[var(--card-border)] bg-[var(--background-secondary)]/40 px-4 py-4">
+          <p className="text-[14px] font-semibold text-[var(--text-primary)]">
+            📞 Anruf vom {formatDate(call.startedAt)} um {formatTime(call.startedAt)}
+          </p>
+          <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
+            Dauer: {formatDuration(call.durationSeconds)} | Anliegen: {anliegenLabel}
+          </p>
+
+          <div className="mt-4 border-t border-[var(--card-border)] pt-4">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
               Zusammenfassung
             </p>
-            <p className="mt-2 text-[14px] leading-relaxed text-[var(--text-secondary)]">
-              {call.summary}
+            {summaryLoading ? (
+              <div className="mt-2 flex items-center gap-2 text-[13px] text-[var(--text-secondary)]">
+                <Loader2 className="size-4 animate-spin" />
+                Zusammenfassung wird erstellt…
+              </div>
+            ) : summary ? (
+              <p className="mt-2 text-[14px] leading-relaxed text-[var(--text-secondary)]">
+                {summary}
+              </p>
+            ) : (
+              <p className="mt-2 text-[13px] text-[var(--text-secondary)]">
+                {summaryError ?? "Keine Zusammenfassung verfügbar."}
+              </p>
+            )}
+          </div>
+
+          {vorgangHref ? (
+            <p className="mt-3 text-[13px] text-[var(--text-secondary)]">
+              <CheckCircle2 className="mr-1 inline size-4 text-[var(--success)]" />
+              Vorgang wurde erstellt —{" "}
+              <Link
+                href={vorgangHref}
+                className="font-semibold text-[var(--primary)] hover:underline"
+              >
+                Zum Vorgang
+              </Link>
             </p>
-          </section>
-        ) : null}
+          ) : null}
+
+          {call.requestedDateTime ? (
+            <p className="mt-2 flex items-start gap-2 text-[13px] text-[var(--text-secondary)]">
+              <CalendarDays className="mt-0.5 size-4 shrink-0 text-[var(--primary)]" />
+              <span>
+                <span className="font-semibold text-[var(--text-primary)]">
+                  Terminwunsch:
+                </span>{" "}
+                {call.requestedDateTime}
+              </span>
+            </p>
+          ) : null}
+        </section>
 
         <section>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
-            Vollständiges Transkript
-          </p>
-          {turns.length > 0 ? (
-            <ul className="mt-3 space-y-3">
-              {turns.map((turn, index) => (
-                <li
-                  key={`${turn.at}-${index}`}
-                  className={cn(
-                    "rounded-[14px] px-4 py-3 text-[13px] leading-relaxed",
-                    turn.role === "helpy"
-                      ? "helpy-chat-bubble"
-                      : "bg-[var(--background-secondary)] text-[var(--text-secondary)]"
-                  )}
-                >
-                  <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
-                    {turn.role === "helpy" ? (
-                      <>
-                        <Sparkles className="size-3" />
-                        HELPY
-                      </>
-                    ) : (
-                      <>
-                        <Mic className="size-3" />
-                        Anrufer
-                      </>
-                    )}
-                  </p>
-                  <p className="mt-1 text-[var(--text-primary)]">{turn.text}</p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-3 whitespace-pre-wrap text-[13px] leading-relaxed text-[var(--text-secondary)]">
-              {call.transcript ?? "Kein Transkript vorhanden."}
-            </p>
-          )}
+          <button
+            type="button"
+            onClick={() => setShowTranscript((value) => !value)}
+            className="flex w-full items-center justify-between rounded-[12px] border border-[var(--card-border)] px-4 py-3 text-left text-[13px] font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--background-secondary)]"
+          >
+            Vollständiges Transkript anzeigen
+            <ChevronDown
+              className={cn(
+                "size-4 text-[var(--text-muted)] transition-transform",
+                showTranscript && "rotate-180"
+              )}
+            />
+          </button>
+
+          {showTranscript ? (
+            <div className="mt-3 rounded-[14px] border border-[var(--card-border)] bg-white px-4 py-4">
+              {turns.length > 0 ? (
+                <ul className="space-y-4">
+                  {turns.map((turn, index) => (
+                    <TranscriptTurnItem key={`${turn.at}-${index}`} turn={turn} />
+                  ))}
+                </ul>
+              ) : (
+                <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-[var(--text-secondary)]">
+                  {call.transcript ?? "Kein Transkript vorhanden."}
+                </p>
+              )}
+            </div>
+          ) : null}
         </section>
 
         <div className="flex flex-wrap gap-2 border-t border-[var(--card-border)] pt-4">
@@ -174,6 +284,15 @@ export function VoiceCallsPanel() {
     const payload = await fetchVoiceCallsDashboard();
     setCalls(payload?.calls ?? []);
     setLoading(false);
+  }, []);
+
+  const handleSummaryGenerated = useCallback((callId: string, summary: string) => {
+    setCalls((current) =>
+      current.map((item) => (item.id === callId ? { ...item, summary } : item))
+    );
+    setSelectedCall((current) =>
+      current?.id === callId ? { ...current, summary } : current
+    );
   }, []);
 
   useEffect(() => {
@@ -247,7 +366,11 @@ export function VoiceCallsPanel() {
         ))}
       </ul>
 
-      <CallDetailModal call={selectedCall} onClose={() => setSelectedCall(null)} />
+      <CallDetailModal
+        call={selectedCall}
+        onClose={() => setSelectedCall(null)}
+        onSummaryGenerated={handleSummaryGenerated}
+      />
     </>
   );
 }
