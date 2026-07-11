@@ -7,6 +7,7 @@ import {
   deleteVoiceStandardResponse,
   listVoiceStandardResponses,
   upsertVoiceStandardResponse,
+  VoiceStandardResponsesError,
 } from "@/lib/voice/voice-standard-responses-repository";
 import type { VoiceStandardResponseCategory } from "@/features/voice/types/voice-standard-response-types";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -18,6 +19,18 @@ const CATEGORIES: VoiceStandardResponseCategory[] = [
   "preise",
 ];
 
+function voiceErrorResponse(error: unknown, fallback: string) {
+  const message =
+    error instanceof VoiceStandardResponsesError
+      ? error.message
+      : error instanceof Error
+        ? error.message
+        : fallback;
+
+  console.error("[voice/standard-responses]", message);
+  return NextResponse.json({ error: message }, { status: 503 });
+}
+
 export async function GET() {
   const auth = await requireVoiceContext();
   const context = auth.ok ? auth.context : createDevVoiceContext();
@@ -26,8 +39,12 @@ export async function GET() {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const responses = await listVoiceStandardResponses(context.companyId);
-  return NextResponse.json({ responses });
+  try {
+    const responses = await listVoiceStandardResponses(context.companyId);
+    return NextResponse.json({ responses });
+  } catch (error) {
+    return voiceErrorResponse(error, "Standard-Antworten konnten nicht geladen werden.");
+  }
 }
 
 export async function POST(request: Request) {
@@ -38,24 +55,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const body = (await request.json()) as Record<string, unknown>;
-  const category = CATEGORIES.includes(body.category as VoiceStandardResponseCategory)
-    ? (body.category as VoiceStandardResponseCategory)
-    : "allgemein";
+  try {
+    const body = (await request.json()) as Record<string, unknown>;
+    const category = CATEGORIES.includes(body.category as VoiceStandardResponseCategory)
+      ? (body.category as VoiceStandardResponseCategory)
+      : "allgemein";
 
-  const response = await upsertVoiceStandardResponse(context.companyId, {
-    triggerText: String(body.triggerText ?? ""),
-    responseText: String(body.responseText ?? ""),
-    category,
-    enabled: body.enabled !== false,
-    sortOrder: typeof body.sortOrder === "number" ? body.sortOrder : undefined,
-  });
+    const response = await upsertVoiceStandardResponse(context.companyId, {
+      triggerText: String(body.triggerText ?? ""),
+      responseText: String(body.responseText ?? ""),
+      category,
+      enabled: body.enabled !== false,
+      sortOrder: typeof body.sortOrder === "number" ? body.sortOrder : undefined,
+    });
 
-  if (!response) {
-    return NextResponse.json({ error: "Speichern fehlgeschlagen." }, { status: 503 });
+    return NextResponse.json({ response, ok: true });
+  } catch (error) {
+    return voiceErrorResponse(error, "Speichern fehlgeschlagen.");
   }
-
-  return NextResponse.json({ response });
 }
 
 export async function PATCH(request: Request) {
@@ -66,30 +83,30 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const body = (await request.json()) as Record<string, unknown>;
-  const id = typeof body.id === "string" ? body.id : null;
-  if (!id) {
-    return NextResponse.json({ error: "id fehlt." }, { status: 400 });
+  try {
+    const body = (await request.json()) as Record<string, unknown>;
+    const id = typeof body.id === "string" ? body.id : null;
+    if (!id) {
+      return NextResponse.json({ error: "id fehlt." }, { status: 400 });
+    }
+
+    const category = CATEGORIES.includes(body.category as VoiceStandardResponseCategory)
+      ? (body.category as VoiceStandardResponseCategory)
+      : "allgemein";
+
+    const response = await upsertVoiceStandardResponse(context.companyId, {
+      id,
+      triggerText: String(body.triggerText ?? ""),
+      responseText: String(body.responseText ?? ""),
+      category,
+      enabled: body.enabled !== false,
+      sortOrder: typeof body.sortOrder === "number" ? body.sortOrder : undefined,
+    });
+
+    return NextResponse.json({ response, ok: true });
+  } catch (error) {
+    return voiceErrorResponse(error, "Aktualisieren fehlgeschlagen.");
   }
-
-  const category = CATEGORIES.includes(body.category as VoiceStandardResponseCategory)
-    ? (body.category as VoiceStandardResponseCategory)
-    : "allgemein";
-
-  const response = await upsertVoiceStandardResponse(context.companyId, {
-    id,
-    triggerText: String(body.triggerText ?? ""),
-    responseText: String(body.responseText ?? ""),
-    category,
-    enabled: body.enabled !== false,
-    sortOrder: typeof body.sortOrder === "number" ? body.sortOrder : undefined,
-  });
-
-  if (!response) {
-    return NextResponse.json({ error: "Aktualisieren fehlgeschlagen." }, { status: 503 });
-  }
-
-  return NextResponse.json({ response });
 }
 
 export async function DELETE(request: Request) {
@@ -100,16 +117,16 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const url = new URL(request.url);
-  const id = url.searchParams.get("id");
-  if (!id) {
-    return NextResponse.json({ error: "id fehlt." }, { status: 400 });
-  }
+  try {
+    const url = new URL(request.url);
+    const id = url.searchParams.get("id");
+    if (!id) {
+      return NextResponse.json({ error: "id fehlt." }, { status: 400 });
+    }
 
-  const ok = await deleteVoiceStandardResponse(context.companyId, id);
-  if (!ok) {
-    return NextResponse.json({ error: "Löschen fehlgeschlagen." }, { status: 503 });
+    await deleteVoiceStandardResponse(context.companyId, id);
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    return voiceErrorResponse(error, "Löschen fehlgeschlagen.");
   }
-
-  return NextResponse.json({ ok: true });
 }

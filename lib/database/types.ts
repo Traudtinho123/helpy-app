@@ -298,6 +298,50 @@ export type Database = {
           },
         ];
       };
+      voice_standard_responses: {
+        Row: {
+          id: string;
+          company_id: string;
+          trigger_text: string;
+          response_text: string;
+          category: string;
+          enabled: boolean;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          company_id: string;
+          trigger_text: string;
+          response_text: string;
+          category?: string;
+          enabled?: boolean;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          company_id?: string;
+          trigger_text?: string;
+          response_text?: string;
+          category?: string;
+          enabled?: boolean;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "voice_standard_responses_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           id: string;
@@ -1004,6 +1048,9 @@ export type VoiceSettingsUpdate = TablesUpdate<"voice_settings">;
 export type VoiceCallRow = Tables<"voice_calls">;
 export type VoiceCallInsert = TablesInsert<"voice_calls">;
 export type VoiceCallUpdate = TablesUpdate<"voice_calls">;
+export type VoiceStandardResponseRow = Tables<"voice_standard_responses">;
+export type VoiceStandardResponseInsert = TablesInsert<"voice_standard_responses">;
+export type VoiceStandardResponseUpdate = TablesUpdate<"voice_standard_responses">;
 export type WhatsappConnectionRow = Tables<"whatsapp_connections">;
 export type WhatsappConnectionInsert = TablesInsert<"whatsapp_connections">;
 export type WhatsappConnectionUpdate = TablesUpdate<"whatsapp_connections">;

@@ -1,29 +1,22 @@
 import { createAdminClient, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import type { VoiceStandardResponseRow } from "@/lib/database/types";
 import {
   DEFAULT_VOICE_STANDARD_RESPONSES,
   type VoiceStandardResponse,
   type VoiceStandardResponseCategory,
 } from "@/features/voice/types/voice-standard-response-types";
 
-type VoiceStandardResponseRow = {
-  id: string;
-  company_id: string;
-  trigger_text: string;
-  response_text: string;
-  category: string;
-  enabled: boolean;
-  sort_order: number;
-  updated_at: string;
-};
-
 const devResponses = new Map<string, VoiceStandardResponseRow[]>();
 
-function standardResponsesTable(admin: NonNullable<ReturnType<typeof createAdminClient>>) {
-  return (
-    admin as unknown as {
-      from: (table: string) => ReturnType<typeof admin.from>;
-    }
-  ).from("voice_standard_responses");
+export class VoiceStandardResponsesError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "VoiceStandardResponsesError";
+  }
+}
+
+function isDraftOrDevId(id: string | undefined): boolean {
+  return !id || id.startsWith("draft-") || id.startsWith("dev-");
 }
 
 function rowToResponse(row: VoiceStandardResponseRow): VoiceStandardResponse {
@@ -49,8 +42,26 @@ function defaultDevRows(companyId: string): VoiceStandardResponseRow[] {
     category: item.category,
     enabled: item.enabled,
     sort_order: item.sortOrder,
+    created_at: now,
     updated_at: now,
   }));
+}
+
+function requireAdminClient() {
+  const admin = createAdminClient();
+  if (!admin) {
+    throw new VoiceStandardResponsesError(
+      "Supabase Admin-Client nicht konfiguriert. Bitte SUPABASE_SERVICE_ROLE_KEY prüfen."
+    );
+  }
+  return admin;
+}
+
+function mapPostgresError(error: { message: string; code?: string }): string {
+  if (error.code === "42P01") {
+    return "Tabelle voice_standard_responses fehlt. Bitte Migration in Supabase ausführen.";
+  }
+  return error.message;
 }
 
 export async function listVoiceStandardResponses(
@@ -65,26 +76,23 @@ export async function listVoiceStandardResponses(
       .map(rowToResponse);
   }
 
-  const admin = createAdminClient();
-  if (!admin) {
-    return defaultDevRows(companyId).map(rowToResponse);
-  }
+  const admin = requireAdminClient();
 
-  const { data, error } = await standardResponsesTable(admin)
+  const { data, error } = await admin
+    .from("voice_standard_responses")
     .select("*")
     .eq("company_id", companyId)
     .order("sort_order", { ascending: true });
 
   if (error) {
-    console.error("[voice] list standard responses failed:", error.message);
-    return defaultDevRows(companyId).map(rowToResponse);
+    throw new VoiceStandardResponsesError(mapPostgresError(error));
   }
 
   if (!data || data.length === 0) {
     return seedDefaultVoiceStandardResponses(companyId);
   }
 
-  return (data as unknown as VoiceStandardResponseRow[]).map(rowToResponse);
+  return (data as VoiceStandardResponseRow[]).map(rowToResponse);
 }
 
 export async function seedDefaultVoiceStandardResponses(
@@ -95,8 +103,7 @@ export async function seedDefaultVoiceStandardResponses(
     return listVoiceStandardResponses(companyId);
   }
 
-  const admin = createAdminClient();
-  if (!admin) return defaultDevRows(companyId).map(rowToResponse);
+  const admin = requireAdminClient();
 
   const insertRows = DEFAULT_VOICE_STANDARD_RESPONSES.map((item) => ({
     company_id: companyId,
@@ -107,10 +114,10 @@ export async function seedDefaultVoiceStandardResponses(
     sort_order: item.sortOrder,
   }));
 
-  const { error } = await standardResponsesTable(admin).insert(insertRows);
+  const { error } = await admin.from("voice_standard_responses").insert(insertRows);
+
   if (error) {
-    console.error("[voice] seed standard responses failed:", error.message);
-    return defaultDevRows(companyId).map(rowToResponse);
+    throw new VoiceStandardResponsesError(mapPostgresError(error));
   }
 
   return listVoiceStandardResponses(companyId);
@@ -126,48 +133,61 @@ export async function upsertVoiceStandardResponse(
     enabled: boolean;
     sortOrder?: number;
   }
-): Promise<VoiceStandardResponse | null> {
+): Promise<VoiceStandardResponse> {
+  const triggerText = input.triggerText.trim();
+  const responseText = input.responseText.trim();
+
+  if (!triggerText || !responseText) {
+    throw new VoiceStandardResponsesError("Trigger und Antwort dürfen nicht leer sein.");
+  }
+
   const now = new Date().toISOString();
 
   if (!isSupabaseAdminConfigured()) {
-    const store = devResponses.get(companyId) ?? defaultDevRows(companyId);
-    if (input.id) {
+    const store = [...(devResponses.get(companyId) ?? defaultDevRows(companyId))];
+
+    if (input.id && !isDraftOrDevId(input.id)) {
       const index = store.findIndex((row) => row.id === input.id);
-      if (index >= 0) {
-        store[index] = {
-          ...store[index],
-          trigger_text: input.triggerText.trim(),
-          response_text: input.responseText.trim(),
-          category: input.category,
-          enabled: input.enabled,
-          sort_order: input.sortOrder ?? store[index].sort_order,
-          updated_at: now,
-        };
+      if (index < 0) {
+        throw new VoiceStandardResponsesError("Standard-Antwort nicht gefunden.");
       }
-    } else {
-      store.push({
-        id: `dev-vsr-${companyId}-${Date.now()}`,
-        company_id: companyId,
-        trigger_text: input.triggerText.trim(),
-        response_text: input.responseText.trim(),
+      store[index] = {
+        ...store[index],
+        trigger_text: triggerText,
+        response_text: responseText,
         category: input.category,
         enabled: input.enabled,
-        sort_order: input.sortOrder ?? store.length + 1,
+        sort_order: input.sortOrder ?? store[index].sort_order,
         updated_at: now,
-      });
+      };
+      devResponses.set(companyId, store);
+      return rowToResponse(store[index]);
     }
+
+    const created: VoiceStandardResponseRow = {
+      id: `dev-vsr-${companyId}-${Date.now()}`,
+      company_id: companyId,
+      trigger_text: triggerText,
+      response_text: responseText,
+      category: input.category,
+      enabled: input.enabled,
+      sort_order: input.sortOrder ?? store.length + 1,
+      created_at: now,
+      updated_at: now,
+    };
+    store.push(created);
     devResponses.set(companyId, store);
-    return rowToResponse(store.find((row) => row.updated_at === now) ?? store.at(-1)!);
+    return rowToResponse(created);
   }
 
-  const admin = createAdminClient();
-  if (!admin) return null;
+  const admin = requireAdminClient();
 
-  if (input.id) {
-    const { data, error } = await standardResponsesTable(admin)
+  if (input.id && !isDraftOrDevId(input.id)) {
+    const { data, error } = await admin
+      .from("voice_standard_responses")
       .update({
-        trigger_text: input.triggerText.trim(),
-        response_text: input.responseText.trim(),
+        trigger_text: triggerText,
+        response_text: responseText,
         category: input.category,
         enabled: input.enabled,
         sort_order: input.sortOrder,
@@ -178,29 +198,34 @@ export async function upsertVoiceStandardResponse(
       .select("*")
       .maybeSingle();
 
-    if (error || !data) {
-      console.error("[voice] update standard response failed:", error?.message);
-      return null;
+    if (error) {
+      throw new VoiceStandardResponsesError(mapPostgresError(error));
+    }
+    if (!data) {
+      throw new VoiceStandardResponsesError("Standard-Antwort nicht gefunden.");
     }
 
-    return rowToResponse(data as unknown as VoiceStandardResponseRow);
+    return rowToResponse(data as VoiceStandardResponseRow);
   }
 
-  const { data, error } = await standardResponsesTable(admin)
+  const { data, error } = await admin
+    .from("voice_standard_responses")
     .insert({
       company_id: companyId,
-      trigger_text: input.triggerText.trim(),
-      response_text: input.responseText.trim(),
+      trigger_text: triggerText,
+      response_text: responseText,
       category: input.category,
       enabled: input.enabled,
       sort_order: input.sortOrder ?? 99,
+      updated_at: now,
     })
     .select("*")
     .single();
 
   if (error || !data) {
-    console.error("[voice] create standard response failed:", error?.message);
-    return null;
+    throw new VoiceStandardResponsesError(
+      error ? mapPostgresError(error) : "Speichern fehlgeschlagen."
+    );
   }
 
   return rowToResponse(data as VoiceStandardResponseRow);
@@ -209,30 +234,31 @@ export async function upsertVoiceStandardResponse(
 export async function deleteVoiceStandardResponse(
   companyId: string,
   responseId: string
-): Promise<boolean> {
+): Promise<void> {
+  if (isDraftOrDevId(responseId)) {
+    throw new VoiceStandardResponsesError("Ungültige Standard-Antwort-ID.");
+  }
+
   if (!isSupabaseAdminConfigured()) {
     const store = devResponses.get(companyId) ?? [];
     devResponses.set(
       companyId,
       store.filter((row) => row.id !== responseId)
     );
-    return true;
+    return;
   }
 
-  const admin = createAdminClient();
-  if (!admin) return false;
+  const admin = requireAdminClient();
 
-  const { error } = await standardResponsesTable(admin)
+  const { error } = await admin
+    .from("voice_standard_responses")
     .delete()
     .eq("id", responseId)
     .eq("company_id", companyId);
 
   if (error) {
-    console.error("[voice] delete standard response failed:", error.message);
-    return false;
+    throw new VoiceStandardResponsesError(mapPostgresError(error));
   }
-
-  return true;
 }
 
 export async function listActiveVoiceStandardResponsesForPrompt(

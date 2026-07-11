@@ -213,11 +213,28 @@ export async function fetchVoiceOverview(): Promise<VoiceOverviewPayload | null>
   return (await response.json()) as VoiceOverviewPayload;
 }
 
-export async function fetchVoiceStandardResponses(): Promise<VoiceStandardResponse[]> {
+export type VoiceStandardResponseSaveResult =
+  | { ok: true; response: VoiceStandardResponse }
+  | { ok: false; error: string };
+
+export async function fetchVoiceStandardResponses(): Promise<{
+  responses: VoiceStandardResponse[];
+  error?: string;
+}> {
   const response = await fetch("/api/voice/standard-responses", { cache: "no-store" });
-  if (!response.ok) return [];
-  const payload = (await response.json()) as { responses?: VoiceStandardResponse[] };
-  return payload.responses ?? [];
+  const payload = (await response.json()) as {
+    responses?: VoiceStandardResponse[];
+    error?: string;
+  };
+
+  if (!response.ok) {
+    return {
+      responses: [],
+      error: payload.error ?? "Standard-Antworten konnten nicht geladen werden.",
+    };
+  }
+
+  return { responses: payload.responses ?? [] };
 }
 
 export async function saveVoiceStandardResponse(input: {
@@ -226,22 +243,45 @@ export async function saveVoiceStandardResponse(input: {
   responseText: string;
   category: VoiceStandardResponse["category"];
   enabled: boolean;
-}): Promise<VoiceStandardResponse | null> {
+}): Promise<VoiceStandardResponseSaveResult> {
   const response = await fetch("/api/voice/standard-responses", {
     method: input.id ? "PATCH" : "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
-  if (!response.ok) return null;
-  const payload = (await response.json()) as { response?: VoiceStandardResponse };
-  return payload.response ?? null;
+
+  const payload = (await response.json()) as {
+    response?: VoiceStandardResponse;
+    error?: string;
+  };
+
+  if (!response.ok || !payload.response) {
+    return {
+      ok: false,
+      error: payload.error ?? "Speichern fehlgeschlagen.",
+    };
+  }
+
+  return { ok: true, response: payload.response };
 }
 
-export async function deleteVoiceStandardResponse(id: string): Promise<boolean> {
+export async function deleteVoiceStandardResponse(
+  id: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
   const response = await fetch(`/api/voice/standard-responses?id=${encodeURIComponent(id)}`, {
     method: "DELETE",
   });
-  return response.ok;
+
+  const payload = (await response.json()) as { error?: string };
+
+  if (!response.ok) {
+    return {
+      ok: false,
+      error: payload.error ?? "Löschen fehlgeschlagen.",
+    };
+  }
+
+  return { ok: true };
 }
 
 export async function syncVoicePortfolioObjects(
