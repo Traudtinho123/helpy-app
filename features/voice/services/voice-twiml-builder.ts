@@ -38,22 +38,26 @@ export function buildTwilioRateLimitTwiml(): string {
   <Hangup/>`.trim());
 }
 
-/** Begrüßung + Speech-Gather (Twilio STT, de-DE). */
+/** Begrüßung → optional KI-Hinweis → Speech-Gather (Twilio STT, de-DE). */
 export function buildTwilioIncomingTwiml(input: {
   companyName: string;
-  settings: Pick<VoiceSettings, "disclosureText">;
+  settings: Pick<VoiceSettings, "greetingText" | "disclosureText">;
   gatherActionUrl: string;
 }): string {
-  const greeting = `Willkommen bei ${input.companyName}. Ich bin HELPY, Ihr KI-Assistent. Wie kann ich Ihnen helfen?`;
+  const greeting =
+    input.settings.greetingText?.trim() ||
+    `Herzlich willkommen bei ${input.companyName}. Wie kann ich Ihnen helfen?`;
   const disclosure = input.settings.disclosureText?.trim();
-  const opening = disclosure ? `${greeting} ${disclosure}` : greeting;
+
+  const spokenParts = [say(greeting)];
+  if (disclosure) {
+    spokenParts.push(say(disclosure));
+  }
 
   return wrapResponse(`
-  ${say(opening)}
+  ${spokenParts.join("\n  ")}
   <Pause length="1"/>
-  <Gather input="speech" language="${TWILIO_GATHER_LANG}" speechTimeout="auto" timeout="5" action="${escapeXml(input.gatherActionUrl)}" method="POST">
-    ${say("Bitte schildern Sie kurz Ihr Anliegen.")}
-  </Gather>
+  <Gather input="speech" language="${TWILIO_GATHER_LANG}" speechTimeout="auto" timeout="8" action="${escapeXml(input.gatherActionUrl)}" method="POST"/>
   ${say("Ich habe Sie leider nicht verstanden. Bitte rufen Sie erneut an.")}
   <Hangup/>`.trim());
 }

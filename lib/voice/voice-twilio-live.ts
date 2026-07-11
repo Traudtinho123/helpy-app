@@ -32,6 +32,7 @@ import {
 } from "@/lib/voice/voice-call-repository";
 import { isVoiceRateLimitExceeded } from "@/lib/voice/voice-rate-limit";
 import { getVoiceSettings } from "@/lib/voice/voice-settings-repository";
+import { listActiveVoiceStandardResponsesForPrompt } from "@/lib/voice/voice-standard-responses-repository";
 import { buildVoiceWebhookUrl, isTwilioConfigured } from "@/lib/voice/twilio-env";
 
 function twimlResponse(xml: string): Response {
@@ -102,6 +103,29 @@ export async function handleTwilioIncomingCall(
   });
 
   const company = await loadVoiceCompanyContext(companyId);
+  const greetingText =
+    settings.greetingText?.trim() ||
+    `Herzlich willkommen bei ${company.greetingCompanyLine}. Wie kann ich Ihnen helfen?`;
+  const disclosureText = settings.disclosureText?.trim();
+  const spokenOpening = disclosureText
+    ? `${greetingText} ${disclosureText}`
+    : greetingText;
+
+  appendVoiceCallTurn(callSid, {
+    role: "helpy",
+    text: spokenOpening,
+    at: new Date().toISOString(),
+  });
+
+  if (dbCallId) {
+    const session = getVoiceCallSession(callSid);
+    await updateVoiceCall(dbCallId, {
+      status: "in_progress",
+      transcript: flattenVoiceTranscript(session?.turns ?? []),
+      transcript_turns: (session?.turns ?? []) as unknown as Json,
+    });
+  }
+
   const gatherActionUrl = buildVoiceWebhookUrl(
     "/api/voice/webhook/twilio/gather",
     companyId
@@ -151,12 +175,14 @@ export async function handleTwilioGatherSpeech(
 
   session = getVoiceCallSession(callSid)!;
   const company = await loadVoiceCompanyContext(companyId);
+  const standardResponses = await listActiveVoiceStandardResponsesForPrompt(companyId);
 
   const priorTurns = session.turns.slice(0, -1);
   const reply = await generateHelpyPhoneReply({
     systemContext: company.systemContext,
     priorTurns,
     callerMessage: speechResult,
+    standardResponses,
   });
 
   appendVoiceCallTurn(callSid, {
