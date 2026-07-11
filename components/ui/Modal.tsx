@@ -67,7 +67,7 @@ function Modal({
         className={cn(
           "flex max-h-[90vh] w-full flex-col overflow-hidden",
           maxWidthClass[maxWidth],
-          surfaces.card.replace("backdrop-blur-xl", ""),
+          surfaces.modalCard,
           "rounded-[24px] shadow-[0_24px_64px_rgba(15,23,42,0.18)]",
           className
         )}

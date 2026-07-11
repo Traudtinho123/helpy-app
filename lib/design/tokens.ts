@@ -27,9 +27,19 @@ export const tokens = {
   cardPaddingSm,
 } as const;
 
+/** Glass card ohne Backdrop-Blur (z. B. Modals — Overlay blur reicht). */
+const CARD_BASE_CLASSES =
+  "rounded-[16px] border border-white/60 bg-[rgba(255,255,255,0.75)] shadow-[0_4px_6px_rgba(0,0,0,0.04),0_10px_40px_rgba(99,102,241,0.08)]";
+
+const CARD_BLUR_CLASSES =
+  "backdrop-blur-[20px] [-webkit-backdrop-filter:blur(20px)]";
+
 /** Vorgefertigte HELPY-Oberflächen (Premium Glassmorphism). */
 export const surfaces = {
-  card: "rounded-[16px] border border-white/60 bg-[rgba(255,255,255,0.75)] shadow-[0_4px_6px_rgba(0,0,0,0.04),0_10px_40px_rgba(99,102,241,0.08)] backdrop-blur-[20px] [-webkit-backdrop-filter:blur(20px)]",
+  cardBase: CARD_BASE_CLASSES,
+  card: `${CARD_BASE_CLASSES} ${CARD_BLUR_CLASSES}`,
+  /** Modals: undurchsichtiger als Glass-Cards, ohne eigenen backdrop-blur. */
+  modalCard: `${CARD_BASE_CLASSES} bg-[rgba(255,255,255,0.95)]`,
   cardHover:
     "transition-all duration-200 hover:shadow-[0_8px_12px_rgba(0,0,0,0.06),0_20px_60px_rgba(99,102,241,0.12)] hover:-translate-y-px",
   panelAside:

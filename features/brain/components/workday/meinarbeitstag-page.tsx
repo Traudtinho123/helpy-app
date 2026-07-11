@@ -50,18 +50,23 @@ function TagesuebersichtCard({
   isLoading?: boolean;
 }) {
   return (
-    <Card className="relative overflow-hidden py-0">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#2563EB]/8 to-transparent" />
+    <Card
+      className={cn(
+        "relative overflow-hidden rounded-[24px] py-0",
+        "border border-[var(--card-border)] bg-[rgba(255,255,255,0.9)]",
+        "shadow-[0_2px_8px_rgba(0,0,0,0.04),0_12px_40px_rgba(99,102,241,0.08)]",
+        "ring-1 ring-white/80 backdrop-blur-[20px] [-webkit-backdrop-filter:blur(20px)]"
+      )}
+    >
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[var(--primary)]/10 to-transparent" />
       <CardContent className="relative p-7 lg:p-8">
         <div className="mb-6 flex items-start gap-4">
-          <div className="flex size-12 shrink-0 items-center justify-center rounded-[16px] bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] shadow-[0_4px_20px_rgba(37,99,235,0.35)]">
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-[16px] bg-gradient-to-br from-[var(--button-primary-from)] to-[var(--button-primary-to)] shadow-[var(--button-primary-shadow)]">
             <Sparkles className="size-5 text-white" strokeWidth={2} />
           </div>
           <div>
-            <h2 className="text-[1.25rem] font-semibold tracking-[-0.02em] text-[#0F172A]">
-              Tagesübersicht
-            </h2>
-            <p className="mt-1 text-[13px] text-[#64748B]">
+            <h2 className="helpy-h2 text-[1.25rem]">Tagesübersicht</h2>
+            <p className="mt-1 text-[13px] text-[var(--text-secondary)]">
               {isLoading
                 ? "HELPY lädt deine Gmail-Vorgänge…"
                 : plan.summary}
@@ -73,19 +78,19 @@ function TagesuebersichtCard({
           {plan.statusMetrics.map(({ label, value }) => (
             <li
               key={label}
-              className="flex items-center gap-3.5 rounded-[16px] border border-[#CBD5E1]/40 bg-[#F8FAFC]/80 px-4 py-3.5 backdrop-blur-sm"
+              className="flex items-center gap-3.5 rounded-[16px] border border-[var(--card-border)] bg-[var(--background-secondary)]/80 px-4 py-3.5 backdrop-blur-sm"
             >
               <div className="min-w-0">
                 <p
                   className={cn(
-                    "text-[1.375rem] font-bold leading-none tracking-[-0.03em] text-[#0F172A]",
+                    "text-[1.375rem] font-bold leading-none tracking-[-0.03em] text-[var(--text-primary)]",
                     isLoading &&
-                      "inline-block min-w-[2ch] animate-pulse rounded-md bg-[#E2E8F0]/80 text-transparent"
+                      "inline-block min-w-[2ch] animate-pulse rounded-md bg-[var(--background-secondary)] text-transparent"
                   )}
                 >
                   {isLoading ? "0" : value}
                 </p>
-                <p className="mt-1 text-[12px] font-medium text-[#64748B]">
+                <p className="mt-1 text-[12px] font-medium text-[var(--text-secondary)]">
                   {label}
                 </p>
               </div>
