@@ -9,12 +9,24 @@ import {
   buildTwilioReplyAndGatherTwiml,
 } from "@/features/voice/services/voice-twiml-builder";
 import { isWithinBusinessHours } from "@/features/voice/services/voice-business-hours";
+import {
+  detectVoiceCallClassification,
+  shouldCreateVoiceVorgang,
+} from "@/features/voice/services/voice-intent-engine";
 import type { Json } from "@/lib/database/types";
 import {
+  analyzeVoiceCallTranscript,
   generateHelpyCallSummary,
   generateHelpyPhoneReply,
   isOpenAiConfigured,
 } from "@/lib/voice/openai-voice-assistant";
+import { dispatchVoiceCallAlert } from "@/lib/voice/voice-call-alerts";
+import {
+  cacheVoiceCallPromptContext,
+  clearVoiceCallPromptContext,
+  loadVoiceCallPromptContext,
+  resolveVoiceCallPromptContext,
+} from "@/lib/voice/voice-call-prompt-context";
 import { loadVoiceCompanyContext } from "@/lib/voice/voice-company-context";
 import {
   appendVoiceCallTurn,
@@ -32,7 +44,6 @@ import {
 } from "@/lib/voice/voice-call-repository";
 import { isVoiceRateLimitExceeded } from "@/lib/voice/voice-rate-limit";
 import { getVoiceSettings } from "@/lib/voice/voice-settings-repository";
-import { listActiveVoiceStandardResponsesForPrompt } from "@/lib/voice/voice-standard-responses-repository";
 import { buildVoiceWebhookUrl, isTwilioConfigured } from "@/lib/voice/twilio-env";
 
 function twimlResponse(xml: string): Response {
@@ -103,6 +114,8 @@ export async function handleTwilioIncomingCall(
   });
 
   const company = await loadVoiceCompanyContext(companyId);
+  const promptContext = await loadVoiceCallPromptContext(companyId);
+  cacheVoiceCallPromptContext(callSid, promptContext);
   const greetingText =
     settings.greetingText?.trim() ||
     `Herzlich willkommen bei ${company.greetingCompanyLine}. Wie kann ich Ihnen helfen?`;
@@ -174,15 +187,13 @@ export async function handleTwilioGatherSpeech(
   });
 
   session = getVoiceCallSession(callSid)!;
-  const company = await loadVoiceCompanyContext(companyId);
-  const standardResponses = await listActiveVoiceStandardResponsesForPrompt(companyId);
+  const promptContext = await resolveVoiceCallPromptContext(callSid, companyId);
 
   const priorTurns = session.turns.slice(0, -1);
   const reply = await generateHelpyPhoneReply({
-    systemContext: company.systemContext,
+    promptContext,
     priorTurns,
     callerMessage: speechResult,
-    standardResponses,
   });
 
   appendVoiceCallTurn(callSid, {
@@ -268,9 +279,18 @@ export async function handleTwilioCallStatus(
         : existing?.transcript ?? "";
 
     if (flatTranscript.length >= 8) {
-      const company = await loadVoiceCompanyContext(companyId);
+      const promptContext = await resolveVoiceCallPromptContext(callSid, companyId);
+      const analysis =
+        (await analyzeVoiceCallTranscript({
+          promptContext,
+          transcript: flatTranscript,
+        })) ?? null;
+
+      const classification =
+        analysis?.classification ?? detectVoiceCallClassification(flatTranscript);
+
       const summary = await generateHelpyCallSummary({
-        systemContext: company.systemContext,
+        systemContext: promptContext.systemContext,
         transcript: flatTranscript,
       });
 
@@ -280,7 +300,7 @@ export async function handleTwilioCallStatus(
           companyId,
           externalCallId: callSid,
           callerPhone: session?.callerPhone ?? null,
-          callerName: null,
+          callerName: analysis?.callerName ?? null,
           status: "completed" as const,
           durationSeconds: null,
           transcript: null,
@@ -292,25 +312,58 @@ export async function handleTwilioCallStatus(
         }),
         transcript: flatTranscript,
         callerPhone: session?.callerPhone ?? existing?.callerPhone ?? null,
+        callerName: analysis?.callerName ?? existing?.callerName ?? null,
       };
 
-      const processed = processVoiceCall({
-        call: callRecord,
-        transcript: flatTranscript,
-      });
+      const shouldProcess =
+        shouldCreateVoiceVorgang(classification) &&
+        (analysis?.createVorgang !== false || flatTranscript.length >= 8);
 
-      await updateVoiceCall(callId, {
-        status: callStatus === "completed" ? "completed" : "failed",
-        duration_seconds: durationSeconds ?? existing?.durationSeconds,
-        transcript: flatTranscript,
-        transcript_turns: turns as unknown as Json,
-        summary: summary || processed.call.summary,
-        intent: processed.call.intent,
-        vorgang_id: processed.vorgangId,
-        assistant_reply: processed.assistantReply,
-        processed_payload: processed as unknown as Json,
-        ended_at: new Date().toISOString(),
-      });
+      if (shouldProcess) {
+        const processed = processVoiceCall({
+          call: callRecord,
+          transcript: flatTranscript,
+          classification,
+          callerName: analysis?.callerName ?? null,
+          objectReference: analysis?.objectReference ?? null,
+          requestedDateTime: analysis?.requestedDateTime ?? null,
+          summaryOverride: analysis?.summaryHint ?? summary,
+        });
+
+        await dispatchVoiceCallAlert({
+          companyId,
+          companyName: promptContext.companyName,
+          callerPhone: callRecord.callerPhone,
+          classification,
+          summary: summary || processed.call.summary || "",
+          transcript: flatTranscript,
+        });
+
+        await updateVoiceCall(callId, {
+          status: callStatus === "completed" ? "completed" : "failed",
+          duration_seconds: durationSeconds ?? existing?.durationSeconds,
+          transcript: flatTranscript,
+          transcript_turns: turns as unknown as Json,
+          summary: summary || processed.call.summary,
+          intent: processed.call.intent,
+          vorgang_id: processed.vorgangId,
+          caller_name: processed.callerName ?? null,
+          assistant_reply: processed.assistantReply,
+          processed_payload: processed as unknown as Json,
+          ended_at: new Date().toISOString(),
+        });
+      } else {
+        await updateVoiceCall(callId, {
+          status: callStatus === "completed" ? "completed" : "failed",
+          duration_seconds: durationSeconds ?? existing?.durationSeconds,
+          transcript: flatTranscript,
+          transcript_turns: turns as unknown as Json,
+          summary,
+          ended_at: new Date().toISOString(),
+        });
+      }
+
+      clearVoiceCallPromptContext(callSid);
     } else {
       await updateVoiceCall(callId, {
         status: callStatus === "completed" ? "missed" : "failed",
@@ -318,6 +371,7 @@ export async function handleTwilioCallStatus(
         transcript_turns: turns as unknown as Json,
         ended_at: new Date().toISOString(),
       });
+      clearVoiceCallPromptContext(callSid);
     }
 
     return new Response("OK", { status: 200 });

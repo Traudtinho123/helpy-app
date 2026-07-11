@@ -1,13 +1,17 @@
 import {
   buildAssistantReply,
+  detectVoiceCallClassification,
   detectVoiceIntent,
+  mapVoiceClassificationToIntent,
   mapVoiceIntentToVorgangTyp,
 } from "@/features/voice/services/voice-intent-engine";
 import { buildVoiceCallSummary } from "@/features/voice/services/voice-summary-engine";
 import type {
+  VoiceCallClassification,
   VoiceCallRecord,
   VoiceProcessedCall,
 } from "@/features/voice/types/voice-types";
+import { VOICE_CALL_CLASSIFICATION_LABELS } from "@/features/voice/types/voice-types";
 import { getSkillConfig } from "@/features/workspace/services/workspace/skills";
 import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
 import type { Vorgang as ListeVorgang } from "@/features/workspace/services/vorgaenge/types";
@@ -50,34 +54,77 @@ export function buildVoiceListeVorgang(input: {
   callerPhone?: string | null;
   skill?: HelpySkill;
   receivedAt?: string;
+  classification?: VoiceCallClassification;
+  objectReference?: string | null;
+  requestedDateTime?: string | null;
 }): ListeVorgang {
   const receivedAt = input.receivedAt ?? new Date().toISOString();
   const receivedLabel = formatReceivedLabel(receivedAt);
+  const classification =
+    input.classification ?? detectVoiceCallClassification(input.transcript);
+  const intent = mapVoiceClassificationToIntent(classification);
   const intentResult = detectVoiceIntent(input.transcript);
-  const typ = mapVoiceIntentToVorgangTyp(intentResult.intent);
+  const typ = mapVoiceIntentToVorgangTyp(intent);
   const skill = input.skill ?? "real-estate";
   const skillConfig = getSkillConfig(skill);
   const kunde =
     input.callerName?.trim() ||
     (input.callerPhone?.trim() ? input.callerPhone.trim() : "Unbekannter Anrufer");
 
+  const prioritaet =
+    classification === "notfall"
+      ? "hoch"
+      : classification === "rueckruf_wunsch" || classification === "besichtigung_anfrage"
+        ? "hoch"
+        : "mittel";
+
+  const recommendedNextStep =
+    classification === "besichtigung_anfrage"
+      ? input.requestedDateTime
+        ? `Terminwunsch prüfen (${input.requestedDateTime}).`
+        : "Besichtigungstermin bestätigen."
+      : classification === "notfall"
+        ? "Dringenden Notfall sofort bearbeiten."
+        : "Anrufer zurückrufen oder Anliegen prüfen.";
+
+  const preparedActions =
+    classification === "besichtigung_anfrage"
+      ? [
+          "Terminwunsch bestätigen",
+          input.objectReference ? `Objekt prüfen: ${input.objectReference}` : "Objekt klären",
+        ]
+      : classification === "notfall"
+        ? ["Sofort zurückrufen", "Notfall dokumentieren"]
+        : ["Rückruf vorbereiten", "Kundenakte prüfen"];
+
   return {
     id: input.vorgangId,
     typ,
-    intent: intentResult.intent,
-    intentLabel: intentResult.intentLabel,
-    titel: buildVorgangTitle(intentResult.intentLabel, input.callerName, input.callerPhone),
-    emoji: "☎",
+    intent,
+    intentLabel: VOICE_CALL_CLASSIFICATION_LABELS[classification],
+    titel: buildVorgangTitle(
+      VOICE_CALL_CLASSIFICATION_LABELS[classification],
+      input.callerName,
+      input.callerPhone
+    ),
+    emoji: classification === "notfall" ? "🚨" : "☎",
     kunde,
     quelle: VOICE_QUELLE,
-    prioritaet: intentResult.intent === "rueckruf" ? "hoch" : "mittel",
+    prioritaet,
     status: "neu",
     summary: input.summary,
-    detectedContext: intentResult.detectedKeywords,
-    recommendedNextStep: "Anrufer zurückrufen oder Anliegen prüfen.",
-    preparedActions: ["Rückruf vorbereiten", "Kundenakte prüfen"],
-    helpyEmpfehlung: "Telefonanruf von HELPY erfasst — bitte Anliegen bestätigen.",
-    helpyMessage: buildAssistantReply(intentResult.intent, input.callerName ?? undefined),
+    detectedContext: [
+      ...intentResult.detectedKeywords,
+      ...(input.objectReference ? [input.objectReference] : []),
+      ...(input.requestedDateTime ? [input.requestedDateTime] : []),
+    ],
+    recommendedNextStep,
+    preparedActions,
+    helpyEmpfehlung:
+      classification === "notfall"
+        ? "Notfall-Anruf — bitte umgehend bearbeiten."
+        : "Telefonanruf von HELPY erfasst — bitte Anliegen bestätigen.",
+    helpyMessage: buildAssistantReply(intent, input.callerName ?? undefined),
     receivedAt,
     receivedLabel,
     href: `/workspace/${input.vorgangId}`,
@@ -112,36 +159,46 @@ export function processVoiceCall(input: {
   call: VoiceCallRecord;
   transcript: string;
   skill?: HelpySkill;
+  classification?: VoiceCallClassification;
+  callerName?: string | null;
+  objectReference?: string | null;
+  requestedDateTime?: string | null;
+  summaryOverride?: string | null;
 }): VoiceProcessedCall {
+  const classification =
+    input.classification ?? detectVoiceCallClassification(input.transcript);
   const intentResult = detectVoiceIntent(input.transcript);
-  const summary = buildVoiceCallSummary(
-    input.transcript,
-    intentResult,
-    input.call.callerName
-  );
+  const summary =
+    input.summaryOverride?.trim() ||
+    buildVoiceCallSummary(input.transcript, intentResult, input.callerName ?? input.call.callerName);
   const vorgangId = input.call.vorgangId ?? `voice-${input.call.id}`;
+  const callerName = input.callerName ?? input.call.callerName;
 
   const liste = buildVoiceListeVorgang({
     vorgangId,
     transcript: input.transcript,
     summary,
-    callerName: input.call.callerName,
+    callerName,
     callerPhone: input.call.callerPhone,
     skill: input.skill,
     receivedAt: input.call.startedAt,
+    classification,
+    objectReference: input.objectReference,
+    requestedDateTime: input.requestedDateTime,
   });
 
   const workspace = buildVoiceWorkspaceVorgang(liste, input.transcript);
   const assistantReply = buildAssistantReply(
-    intentResult.intent,
-    input.call.callerName ?? undefined
+    mapVoiceClassificationToIntent(classification),
+    callerName ?? undefined
   );
 
   const completedCall: VoiceCallRecord = {
     ...input.call,
+    callerName,
     vorgangId,
     summary,
-    intent: intentResult.intent,
+    intent: mapVoiceClassificationToIntent(classification),
     status: "completed",
     transcript: input.transcript,
     endedAt: input.call.endedAt ?? new Date().toISOString(),
@@ -154,5 +211,10 @@ export function processVoiceCall(input: {
     assistantReply,
     liste,
     workspace,
+    classification,
+    callerName,
+    objectReference: input.objectReference ?? null,
+    requestedDateTime: input.requestedDateTime ?? null,
+    createVorgang: true,
   };
 }

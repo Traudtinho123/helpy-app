@@ -222,3 +222,22 @@ export async function deleteVoiceStandardResponse(id: string): Promise<boolean> 
   });
   return response.ok;
 }
+
+export async function syncVoicePortfolioObjects(
+  objects: Array<{
+    objectId: string;
+    titel: string;
+    adresse: string;
+    ort: string;
+    zimmer: string | null;
+    preis: string | null;
+    status: string;
+  }>
+): Promise<boolean> {
+  const response = await fetch("/api/voice/portfolio/sync", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ objects }),
+  });
+  return response.ok;
+}

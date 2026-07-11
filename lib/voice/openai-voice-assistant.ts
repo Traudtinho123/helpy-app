@@ -1,7 +1,18 @@
+import type { VoiceCallClassification } from "@/features/voice/types/voice-types";
 import type { VoiceTranscriptTurn } from "@/lib/voice/voice-call-session-store";
+import type { VoiceCallPromptContext } from "@/lib/voice/voice-call-prompt-context";
 
 const OPENAI_CHAT_URL = "https://api.openai.com/v1/chat/completions";
 const MODEL = "gpt-4o";
+
+export type VoiceCallAnalysis = {
+  classification: VoiceCallClassification;
+  callerName: string | null;
+  objectReference: string | null;
+  requestedDateTime: string | null;
+  createVorgang: boolean;
+  summaryHint: string | null;
+};
 
 function getOpenAiApiKey(): string | null {
   const key = process.env.OPENAI_API_KEY?.trim();
@@ -12,39 +23,84 @@ export function isOpenAiConfigured(): boolean {
   return Boolean(getOpenAiApiKey());
 }
 
-function buildHelpyPhoneSystemPrompt(
-  systemContext: string,
-  standardResponses: Array<{ triggerText: string; responseText: string }> = []
+function formatPortfolioBlock(
+  objects: VoiceCallPromptContext["portfolioObjects"]
 ): string {
-  const cannedBlock =
-    standardResponses.length > 0
-      ? `\n\nStandard-Antworten (bevorzugt verwenden wenn die Frage passt):\n${standardResponses
-          .map(
-            (item) =>
-              `- Trigger «${item.triggerText}»: «${item.responseText}»`
-          )
-          .join("\n")}`
-      : "";
+  if (objects.length === 0) {
+    return "Keine Objekte in der Datenbank hinterlegt. Bei Objektfragen Rückruf anbieten.";
+  }
 
-  return `Du bist HELPY, der KI-Telefonassistent des Unternehmens.
-Du nimmst Anrufe entgegen und hilfst Anrufern professionell und freundlich.
+  return objects
+    .map((object, index) => {
+      const parts = [
+        `${index + 1}. ${object.titel}`,
+        object.adresse ? object.adresse : null,
+        object.ort ? object.ort : null,
+        object.zimmer ? `${object.zimmer} Zimmer` : null,
+        object.preis ? `Preis: ${object.preis}` : null,
+      ].filter(Boolean);
+      return `- ${parts.join(", ")}`;
+    })
+    .join("\n");
+}
 
-Firmeninfos:
-${systemContext}${cannedBlock}
+function formatStandardResponsesBlock(
+  responses: VoiceCallPromptContext["standardResponses"]
+): string {
+  if (responses.length === 0) {
+    return "Keine Standard-Antworten hinterlegt.";
+  }
 
-Deine Aufgaben am Telefon:
-- Besichtigungstermine anfragen und vormerken
-- Allgemeine Fragen zu Objekten und Dienstleistungen beantworten
-- Rückruf-Wünsche aufnehmen
-- Dringendes klar anerkennen und weiterleiten
+  return responses
+    .map(
+      (item) =>
+        `- Wenn jemand nach «${item.triggerText}» fragt, antworte: «${item.responseText}»`
+    )
+    .join("\n");
+}
 
-Wichtige Regeln:
-- Antworte IMMER auf Deutsch (Schweizerdeutsch-freundlich, aber Hochdeutsch)
-- Halte Antworten kurz (max. 2-3 Sätze) — am Telefon will niemand lange Texte hören
-- Sei freundlich aber professionell
-- Falls du etwas nicht weisst: "Ich notiere Ihre Anfrage und jemand meldet sich bei Ihnen."
-- NIEMALS erfundene Infos nennen
-- Keine Markdown-Formatierung, nur gesprochener Fliesstext`;
+export function buildHelpyPhoneSystemPrompt(context: VoiceCallPromptContext): string {
+  return `1. ROLLE & PERSÖNLICHKEIT
+Du bist HELPY, der KI-Telefonassistent von ${context.companyName}.
+Freundlich, professionell, auf Deutsch (Hochdeutsch).
+
+2. FIRMENWISSEN
+${context.systemContext}
+
+3. STANDARD-ANTWORTEN
+${formatStandardResponsesBlock(context.standardResponses)}
+
+4. VERFÜGBARE OBJEKTE (max. 5, nur diese Infos nennen)
+${formatPortfolioBlock(context.portfolioObjects)}
+
+5. ENTSCHEIDUNGSREGELN
+Fall A — Standard-Antwort passt (Trigger/Thema erkannt):
+→ Nutze die hinterlegte Standard-Antwort wörtlich oder sinngemäss.
+→ Frage danach: "Kann ich Ihnen noch anderweitig helfen?"
+
+Fall B — Objekt-/Immobilien-Anfrage:
+→ Suche in den verfügbaren Objekten nach passenden Infos (Adresse, Zimmer, Preis).
+→ Gib nur bekannte Infos weiter. Nichts erfinden.
+→ Frage ob ein Besichtigungstermin gewünscht ist.
+
+Fall C — Besichtigungstermin:
+→ Frage: "Für welches Objekt interessieren Sie sich?"
+→ Frage: "Wann würde es Ihnen passen?" (Datum/Uhrzeit)
+→ Bestätige: "Ich habe Ihren Terminwunsch notiert. Jemand aus unserem Team meldet sich zur Bestätigung."
+
+Fall D — Unbekannte/spezielle Anfrage:
+→ Sage: "Das ist eine sehr gute Frage. Ich notiere Ihr Anliegen und ein Mitarbeiter meldet sich so schnell wie möglich bei Ihnen zurück."
+→ Frage nach dem Namen, falls unbekannt.
+
+Fall E — Dringend/Notfall (Keywords: dringend, Notfall, sofort, Wasserschaden, Einbruch, Leck, Brand):
+→ Sage: "Ich verstehe, das ist dringend. Ich leite Ihren Anruf als Notfall weiter und jemand meldet sich umgehend bei Ihnen."
+
+6. ANTWORT-REGELN
+- Max. 2-3 Sätze pro Antwort
+- Niemals erfundene Infos
+- Bei Unsicherheit: Rückruf anbieten
+- Immer höflich
+- Nur gesprochener Fliesstext, kein Markdown`;
 }
 
 function turnsToMessages(turns: VoiceTranscriptTurn[]) {
@@ -54,7 +110,10 @@ function turnsToMessages(turns: VoiceTranscriptTurn[]) {
   }));
 }
 
-async function callOpenAiChat(messages: Array<{ role: string; content: string }>): Promise<string | null> {
+async function callOpenAiChat(
+  messages: Array<{ role: string; content: string }>,
+  options?: { maxTokens?: number; temperature?: number; jsonMode?: boolean }
+): Promise<string | null> {
   const apiKey = getOpenAiApiKey();
   if (!apiKey) return null;
 
@@ -67,8 +126,9 @@ async function callOpenAiChat(messages: Array<{ role: string; content: string }>
       },
       body: JSON.stringify({
         model: MODEL,
-        temperature: 0.4,
-        max_tokens: 180,
+        temperature: options?.temperature ?? 0.4,
+        max_tokens: options?.maxTokens ?? 180,
+        ...(options?.jsonMode ? { response_format: { type: "json_object" } } : {}),
         messages,
       }),
     });
@@ -94,22 +154,15 @@ async function callOpenAiChat(messages: Array<{ role: string; content: string }>
 }
 
 export async function generateHelpyPhoneReply(input: {
-  systemContext: string;
+  promptContext: VoiceCallPromptContext;
   priorTurns: VoiceTranscriptTurn[];
   callerMessage: string;
-  standardResponses?: Array<{ triggerText: string; responseText: string }>;
 }): Promise<string> {
   const fallback =
     "Vielen Dank für Ihre Nachricht. Ich habe Ihr Anliegen notiert und unser Team meldet sich bei Ihnen.";
 
   const messages = [
-    {
-      role: "system",
-      content: buildHelpyPhoneSystemPrompt(
-        input.systemContext,
-        input.standardResponses ?? []
-      ),
-    },
+    { role: "system", content: buildHelpyPhoneSystemPrompt(input.promptContext) },
     ...turnsToMessages(input.priorTurns),
     { role: "user", content: input.callerMessage },
   ];
@@ -138,6 +191,89 @@ export async function generateHelpyCallSummary(input: {
     },
   ];
 
-  const summary = await callOpenAiChat(messages);
+  const summary = await callOpenAiChat(messages, { maxTokens: 120 });
   return summary?.slice(0, 280) ?? fallback;
+}
+
+function parseVoiceCallAnalysis(raw: string | null): VoiceCallAnalysis | null {
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw) as Partial<VoiceCallAnalysis>;
+    const classification = parsed.classification;
+    const valid: VoiceCallClassification[] = [
+      "besichtigung_anfrage",
+      "info_anfrage",
+      "rueckruf_wunsch",
+      "notfall",
+      "sonstiges",
+    ];
+
+    if (!classification || !valid.includes(classification)) {
+      return null;
+    }
+
+    return {
+      classification,
+      callerName:
+        typeof parsed.callerName === "string" && parsed.callerName.trim()
+          ? parsed.callerName.trim()
+          : null,
+      objectReference:
+        typeof parsed.objectReference === "string" && parsed.objectReference.trim()
+          ? parsed.objectReference.trim()
+          : null,
+      requestedDateTime:
+        typeof parsed.requestedDateTime === "string" && parsed.requestedDateTime.trim()
+          ? parsed.requestedDateTime.trim()
+          : null,
+      createVorgang: parsed.createVorgang !== false,
+      summaryHint:
+        typeof parsed.summaryHint === "string" && parsed.summaryHint.trim()
+          ? parsed.summaryHint.trim()
+          : null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function analyzeVoiceCallTranscript(input: {
+  promptContext: VoiceCallPromptContext;
+  transcript: string;
+}): Promise<VoiceCallAnalysis | null> {
+  const messages = [
+    {
+      role: "system",
+      content: `Analysiere das Telefonat und antworte NUR als JSON:
+{
+  "classification": "besichtigung_anfrage|info_anfrage|rueckruf_wunsch|notfall|sonstiges",
+  "callerName": string|null,
+  "objectReference": string|null,
+  "requestedDateTime": string|null,
+  "createVorgang": boolean,
+  "summaryHint": string|null
+}
+
+Regeln:
+- besichtigung_anfrage: Termin/Besichtigung vereinbaren
+- info_anfrage: Frage zu Objekt/Preis/Info
+- rueckruf_wunsch: Rückruf/Mitarbeiter gewünscht
+- notfall: dringend, Wasserschaden, Einbruch, sofort
+- sonstiges: alles andere
+- createVorgang: true bei besichtigung_anfrage, rueckruf_wunsch, notfall; bei info_anfrage wenn Follow-up nötig; sonstiges wenn Anliegen offen`,
+    },
+    {
+      role: "user",
+      content: `Firma: ${input.promptContext.companyName}\n\nTranskript:\n${input.transcript}`,
+    },
+  ];
+
+  const raw = await callOpenAiChat(messages, {
+    maxTokens: 220,
+    temperature: 0.2,
+    jsonMode: true,
+  });
+
+  return parseVoiceCallAnalysis(raw);
 }

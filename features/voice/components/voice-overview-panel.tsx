@@ -3,10 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { Loader2, PhoneCall } from "lucide-react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { getAllRealEstateObjects } from "@/features/real-estate/object/object-memory";
 import { VoiceTwilioSetupSection } from "@/features/voice/components/voice-twilio-setup-section";
 import {
   fetchVoiceOverview,
   fetchVoiceSettings,
+  syncVoicePortfolioObjects,
   type VoiceOverviewPayload,
 } from "@/features/voice/services/voice-settings-client";
 import type { VoiceSettings } from "@/features/voice/types/voice-types";
@@ -50,6 +52,22 @@ export function VoiceOverviewPanel() {
 
   const reload = useCallback(async () => {
     setLoading(true);
+
+    const activeObjects = getAllRealEstateObjects()
+      .filter((object) => object.status === "aktiv")
+      .slice(0, 5)
+      .map((object) => ({
+        objectId: object.objectId,
+        titel: object.titel,
+        adresse: object.adresse,
+        ort: object.ort,
+        zimmer: object.zimmer,
+        preis: object.preis,
+        status: object.status,
+      }));
+
+    await syncVoicePortfolioObjects(activeObjects);
+
     const [overviewResult, settingsResult] = await Promise.all([
       fetchVoiceOverview(),
       fetchVoiceSettings(),

@@ -1,4 +1,5 @@
 import type {
+  VoiceCallClassification,
   VoiceIntent,
   VoiceIntentResult,
 } from "@/features/voice/types/voice-types";
@@ -10,6 +11,21 @@ type IntentRule = {
   keywords: string[];
 };
 
+const NOTFALL_KEYWORDS = [
+  "dringend",
+  "notfall",
+  "sofort",
+  "wasserschaden",
+  "wasser schaden",
+  "einbruch",
+  "brand",
+  "gasgeruch",
+  "leck",
+  "ueberschwemmung",
+  "überschwemmung",
+  "notruf",
+];
+
 const INTENT_RULES: IntentRule[] = [
   {
     intent: "rueckruf",
@@ -20,6 +36,8 @@ const INTENT_RULES: IntentRule[] = [
       "zurueckrufen",
       "rufen sie mich",
       "bitte anrufen",
+      "mitarbeiter",
+      "zurückmelden",
     ],
   },
   {
@@ -85,6 +103,74 @@ function normalizeText(text: string): string {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+export function detectVoiceCallClassification(
+  transcript: string
+): VoiceCallClassification {
+  const normalized = normalizeText(transcript);
+
+  if (NOTFALL_KEYWORDS.some((keyword) => normalized.includes(normalizeText(keyword)))) {
+    return "notfall";
+  }
+
+  const intent = detectVoiceIntent(transcript).intent;
+
+  if (intent === "besichtigung" || intent === "terminwunsch") {
+    return "besichtigung_anfrage";
+  }
+  if (intent === "rueckruf") {
+    return "rueckruf_wunsch";
+  }
+  if (intent === "angebotsanfrage" || intent === "rechnung") {
+    return "info_anfrage";
+  }
+
+  return "sonstiges";
+}
+
+export function mapVoiceClassificationToIntent(
+  classification: VoiceCallClassification
+): VoiceIntent {
+  switch (classification) {
+    case "besichtigung_anfrage":
+      return "besichtigung";
+    case "info_anfrage":
+      return "sonstiges";
+    case "rueckruf_wunsch":
+    case "notfall":
+      return "rueckruf";
+    default:
+      return "sonstiges";
+  }
+}
+
+export function shouldCreateVoiceVorgang(
+  classification: VoiceCallClassification
+): boolean {
+  return (
+    classification === "besichtigung_anfrage" ||
+    classification === "rueckruf_wunsch" ||
+    classification === "notfall" ||
+    classification === "sonstiges"
+  );
+}
+
+export function matchStandardResponseTrigger(
+  message: string,
+  triggers: Array<{ triggerText: string; responseText: string }>
+): { triggerText: string; responseText: string } | null {
+  const normalized = normalizeText(message);
+
+  for (const item of triggers) {
+    const trigger = normalizeText(item.triggerText);
+    if (!trigger) continue;
+    if (normalized.includes(trigger)) {
+      return item;
+    }
+  }
+
+  return null;
 }
 
 /** Regelbasierte Intent-Erkennung für Phase 1 (DE). */

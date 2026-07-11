@@ -18,6 +18,22 @@ export type VoiceIntent =
   | "rechnung"
   | "sonstiges";
 
+/** Post-Call Klassifikation für HELPY Phone Entscheidungslogik. */
+export type VoiceCallClassification =
+  | "besichtigung_anfrage"
+  | "info_anfrage"
+  | "rueckruf_wunsch"
+  | "notfall"
+  | "sonstiges";
+
+export const VOICE_CALL_CLASSIFICATION_LABELS: Record<VoiceCallClassification, string> = {
+  besichtigung_anfrage: "Besichtigungsanfrage",
+  info_anfrage: "Info-Anfrage",
+  rueckruf_wunsch: "Rückruf gewünscht",
+  notfall: "Notfall / Dringend",
+  sonstiges: "Allgemeine Anfrage",
+};
+
 export type VoiceBusinessHours = {
   /** ISO-Wochentag 1=Mo … 7=So */
   weekday: number;
@@ -75,6 +91,11 @@ export type VoiceProcessedCall = {
   assistantReply: string;
   liste: import("@/features/workspace/services/vorgaenge/types").Vorgang;
   workspace: import("@/features/workspace/services/workspace/types").Vorgang;
+  classification?: VoiceCallClassification;
+  callerName?: string | null;
+  objectReference?: string | null;
+  requestedDateTime?: string | null;
+  createVorgang?: boolean;
 };
 
 export type VoiceSimulateRequest = {
