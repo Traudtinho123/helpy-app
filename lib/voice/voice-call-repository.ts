@@ -25,6 +25,7 @@ type VoiceCallRow = {
   assistant_reply: string | null;
   processed_payload: Json | null;
   client_ack_at: string | null;
+  empty_result_count?: number;
   started_at: string;
   ended_at: string | null;
 };
@@ -84,6 +85,7 @@ function rowToRecord(row: VoiceCallRow): VoiceCallRecord {
     hasPreparedVorgang: Boolean(row.processed_payload && row.vorgang_id),
     requestedDateTime: processedMeta.requestedDateTime,
     classification: processedMeta.classification,
+    emptyResultCount: row.empty_result_count ?? 0,
   };
 }
 

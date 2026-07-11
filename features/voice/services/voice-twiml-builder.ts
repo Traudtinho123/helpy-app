@@ -2,6 +2,20 @@ import type { VoiceSettings } from "@/features/voice/types/voice-types";
 
 const TWILIO_SAY_VOICE = 'voice="Polly.Marlene" language="de-DE"';
 const TWILIO_GATHER_LANG = "de-DE";
+const TWILIO_GATHER_TIMEOUT = "8";
+const TWILIO_SPEECH_TIMEOUT = "3";
+
+export const VOICE_EMPTY_RESULT_MESSAGES = {
+  first:
+    "Entschuldigung, ich habe Sie nicht verstanden. Könnten Sie das bitte wiederholen?",
+  second:
+    "Ich höre Sie leider nicht gut. Bitte sprechen Sie etwas lauter oder langsamer.",
+  final:
+    "Ich konnte Sie leider nicht verstehen. Ich notiere Ihren Anruf und jemand aus unserem Team meldet sich bei Ihnen. Auf Wiederhören.",
+} as const;
+
+export const VOICE_FAREWELL_MESSAGE =
+  "Danke für Ihren Anruf. Auf Wiedersehen und einen schönen Tag!";
 
 function escapeXml(value: string): string {
   return value
@@ -18,6 +32,10 @@ function wrapResponse(body: string): string {
 
 function say(text: string): string {
   return `<Say ${TWILIO_SAY_VOICE}>${escapeXml(text)}</Say>`;
+}
+
+function buildGatherTag(gatherActionUrl: string): string {
+  return `<Gather input="speech" language="${TWILIO_GATHER_LANG}" speechTimeout="${TWILIO_SPEECH_TIMEOUT}" timeout="${TWILIO_GATHER_TIMEOUT}" actionOnEmptyResult="true" action="${escapeXml(gatherActionUrl)}" method="POST"/>`;
 }
 
 export function buildTwilioClosedTwiml(): string {
@@ -57,12 +75,10 @@ export function buildTwilioIncomingTwiml(input: {
   return wrapResponse(`
   ${spokenParts.join("\n  ")}
   <Pause length="1"/>
-  <Gather input="speech" language="${TWILIO_GATHER_LANG}" speechTimeout="auto" timeout="8" action="${escapeXml(input.gatherActionUrl)}" method="POST"/>
-  ${say("Ich habe Sie leider nicht verstanden. Bitte rufen Sie erneut an.")}
-  <Hangup/>`.trim());
+  ${buildGatherTag(input.gatherActionUrl)}`.trim());
 }
 
-/** HELPY-Antwort + weiteres Gather für Multi-Turn-Gespräch. */
+/** HELPY-Antwort + stilles Gather (Anrufer meldet sich bei Bedarf selbst). */
 export function buildTwilioReplyAndGatherTwiml(input: {
   reply: string;
   gatherActionUrl: string;
@@ -72,19 +88,37 @@ export function buildTwilioReplyAndGatherTwiml(input: {
   return wrapResponse(`
   ${say(safe)}
   <Pause length="1"/>
-  <Gather input="speech" language="${TWILIO_GATHER_LANG}" speechTimeout="auto" timeout="5" action="${escapeXml(input.gatherActionUrl)}" method="POST">
-    ${say("Gibt es noch etwas, womit ich Ihnen helfen kann?")}
-  </Gather>
-  ${say("Vielen Dank für Ihren Anruf. Auf Wiederhören.")}
+  ${buildGatherTag(input.gatherActionUrl)}`.trim());
+}
+
+/** Leeres SpeechResult — abwechselnde Fallback-Texte je Versuch. */
+export function buildTwilioEmptySpeechTwiml(input: {
+  gatherActionUrl: string;
+  attempt: 1 | 2;
+}): string {
+  const message =
+    input.attempt === 1
+      ? VOICE_EMPTY_RESULT_MESSAGES.first
+      : VOICE_EMPTY_RESULT_MESSAGES.second;
+
+  return wrapResponse(`
+  ${say(message)}
+  ${buildGatherTag(input.gatherActionUrl)}`.trim());
+}
+
+/** Dritter leerer Versuch — Rückruf notieren und auflegen. */
+export function buildTwilioMaxEmptyResultsTwiml(): string {
+  return wrapResponse(`
+  ${say(VOICE_EMPTY_RESULT_MESSAGES.final)}
   <Hangup/>`.trim());
 }
 
-/** Keine Sprache erkannt — nochmal fragen. */
-export function buildTwilioNoSpeechTwiml(input: { gatherActionUrl: string }): string {
+/** Natürliches Gesprächsende. */
+export function buildTwilioFarewellTwiml(
+  message: string = VOICE_FAREWELL_MESSAGE
+): string {
   return wrapResponse(`
-  ${say("Ich habe Sie leider nicht verstanden. Könnten Sie das bitte wiederholen?")}
-  <Gather input="speech" language="${TWILIO_GATHER_LANG}" speechTimeout="auto" timeout="5" action="${escapeXml(input.gatherActionUrl)}" method="POST"/>
-  ${say("Auf Wiederhören.")}
+  ${say(message)}
   <Hangup/>`.trim());
 }
 

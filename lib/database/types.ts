@@ -241,6 +241,7 @@ export type Database = {
           assistant_reply: string | null;
           processed_payload: Json | null;
           client_ack_at: string | null;
+          empty_result_count: number;
           started_at: string;
           ended_at: string | null;
           created_at: string;
@@ -261,6 +262,7 @@ export type Database = {
           assistant_reply?: string | null;
           processed_payload?: Json | null;
           client_ack_at?: string | null;
+          empty_result_count?: number;
           started_at?: string;
           ended_at?: string | null;
           created_at?: string;
@@ -281,6 +283,7 @@ export type Database = {
           assistant_reply?: string | null;
           processed_payload?: Json | null;
           client_ack_at?: string | null;
+          empty_result_count?: number;
           started_at?: string;
           ended_at?: string | null;
           created_at?: string;

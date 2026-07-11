@@ -76,7 +76,6 @@ ${formatPortfolioBlock(context.portfolioObjects)}
 5. ENTSCHEIDUNGSREGELN
 Fall A — Standard-Antwort passt (Trigger/Thema erkannt):
 → Nutze die hinterlegte Standard-Antwort wörtlich oder sinngemäss.
-→ Frage danach: "Kann ich Ihnen noch anderweitig helfen?"
 
 Fall B — Objekt-/Immobilien-Anfrage:
 → Suche in den verfügbaren Objekten nach passenden Infos (Adresse, Zimmer, Preis).
@@ -100,7 +99,8 @@ Fall E — Dringend/Notfall (Keywords: dringend, Notfall, sofort, Wasserschaden,
 - Niemals erfundene Infos
 - Bei Unsicherheit: Rückruf anbieten
 - Immer höflich
-- Nur gesprochener Fliesstext, kein Markdown`;
+- Nur gesprochener Fliesstext, kein Markdown
+- Frage NICHT am Ende jeder Antwort "Kann ich noch etwas für Sie tun?" oder ähnliche Nachfragen — antworte nur auf das Anliegen`;
 }
 
 function turnsToMessages(turns: VoiceTranscriptTurn[]) {

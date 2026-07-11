@@ -2,11 +2,15 @@ import { processVoiceCall } from "@/features/voice/services/voice-call-processor
 import {
   buildTwilioClosedTwiml,
   buildTwilioDisabledTwiml,
+  buildTwilioEmptySpeechTwiml,
+  buildTwilioFarewellTwiml,
   buildTwilioGoodbyeTwiml,
   buildTwilioIncomingTwiml,
-  buildTwilioNoSpeechTwiml,
+  buildTwilioMaxEmptyResultsTwiml,
   buildTwilioRateLimitTwiml,
   buildTwilioReplyAndGatherTwiml,
+  VOICE_EMPTY_RESULT_MESSAGES,
+  VOICE_FAREWELL_MESSAGE,
 } from "@/features/voice/services/voice-twiml-builder";
 import { isWithinBusinessHours } from "@/features/voice/services/voice-business-hours";
 import {
@@ -34,14 +38,19 @@ import {
   deleteVoiceCallSession,
   flattenVoiceTranscript,
   getVoiceCallSession,
+  incrementEmptyResultCount,
+  resetEmptyResultCount,
   shouldEndVoiceCall,
   upsertVoiceCallSession,
+  type VoiceCallSession,
 } from "@/lib/voice/voice-call-session-store";
 import {
   ensureVoiceCallSessionWithDbTurns,
+  persistVoiceCallSessionState,
   persistVoiceCallTranscript,
   pickLatestTranscriptTurns,
 } from "@/lib/voice/voice-call-transcript";
+import { isCallerFarewell } from "@/lib/voice/voice-farewell-detector";
 import {
   createVoiceCall,
   findVoiceCallByExternalId,
@@ -64,6 +73,122 @@ function resolveCallSid(params: Record<string, string>): string | null {
 
 function resolveCallerPhone(params: Record<string, string>): string | null {
   return params.From?.trim() || params.Caller?.trim() || null;
+}
+
+async function resolveCallIdForSession(input: {
+  companyId: string;
+  callSid: string;
+  session: VoiceCallSession;
+}): Promise<string> {
+  if (input.session.dbCallId) return input.session.dbCallId;
+
+  const created = await createVoiceCall(input.companyId, {
+    externalCallId: input.callSid,
+    callerPhone: input.session.callerPhone,
+    status: "in_progress",
+  });
+
+  upsertVoiceCallSession(input.callSid, { dbCallId: created.id });
+  return created.id;
+}
+
+async function finalizeCallWithCallbackVorgang(input: {
+  companyId: string;
+  callSid: string;
+  callId: string;
+  goodbyeText: string;
+}): Promise<Response> {
+  const existing = await findVoiceCallByExternalId(input.callSid);
+  const session = getVoiceCallSession(input.callSid);
+
+  appendVoiceCallTurn(input.callSid, {
+    role: "helpy",
+    text: input.goodbyeText,
+    at: new Date().toISOString(),
+  });
+
+  const activeSession = getVoiceCallSession(input.callSid);
+  const turns = pickLatestTranscriptTurns(
+    activeSession?.turns,
+    existing?.transcriptTurns
+  );
+  const flatTranscript = flattenVoiceTranscript(turns);
+  const promptContext = await resolveVoiceCallPromptContext(input.callSid, input.companyId);
+
+  const summary =
+    (await generateHelpyCallSummary({
+      systemContext: promptContext.systemContext,
+      transcript: flatTranscript,
+    })) ||
+    "Anrufer konnte nicht verstanden werden — Rückruf erbeten.";
+
+  const callRecord = {
+    ...(existing ?? {
+      id: input.callId,
+      companyId: input.companyId,
+      externalCallId: input.callSid,
+      callerPhone: session?.callerPhone ?? null,
+      callerName: null,
+      status: "completed" as const,
+      durationSeconds: null,
+      transcript: null,
+      summary: null,
+      intent: null,
+      vorgangId: null,
+      startedAt: new Date().toISOString(),
+      endedAt: null,
+    }),
+    transcript: flatTranscript,
+    callerPhone: session?.callerPhone ?? existing?.callerPhone ?? null,
+  };
+
+  const processed = processVoiceCall({
+    call: callRecord,
+    transcript: flatTranscript,
+    classification: "rueckruf_wunsch",
+    summaryOverride: summary,
+  });
+
+  if (activeSession) {
+    await persistVoiceCallSessionState(input.callId, activeSession, {
+      status: "completed",
+      callerPhone: activeSession.callerPhone,
+      assistantReply: input.goodbyeText,
+    });
+  } else {
+    await persistVoiceCallTranscript(input.callId, turns, {
+      status: "completed",
+      assistantReply: input.goodbyeText,
+    });
+    await updateVoiceCall(input.callId, { empty_result_count: 3 });
+  }
+
+  await dispatchVoiceCallAlert({
+    companyId: input.companyId,
+    companyName: promptContext.companyName,
+    callerPhone: callRecord.callerPhone,
+    classification: "rueckruf_wunsch",
+    summary,
+    transcript: flatTranscript,
+  });
+
+  await updateVoiceCall(input.callId, {
+    status: "completed",
+    transcript: flatTranscript,
+    transcript_turns: turns as unknown as Json,
+    summary: processed.call.summary ?? summary,
+    intent: processed.call.intent,
+    vorgang_id: processed.vorgangId,
+    assistant_reply: input.goodbyeText,
+    processed_payload: processed as unknown as Json,
+    empty_result_count: 3,
+    ended_at: new Date().toISOString(),
+  });
+
+  deleteVoiceCallSession(input.callSid);
+  clearVoiceCallPromptContext(input.callSid);
+
+  return twimlResponse(buildTwilioMaxEmptyResultsTwiml());
 }
 
 export async function handleTwilioIncomingCall(
@@ -171,16 +296,67 @@ export async function handleTwilioGatherSpeech(
     companyId
   );
 
-  const speechResult = params.SpeechResult?.trim() ?? "";
-  if (speechResult.length < 2) {
-    return twimlResponse(buildTwilioNoSpeechTwiml({ gatherActionUrl }));
-  }
-
   let { session, callId } = await ensureVoiceCallSessionWithDbTurns({
     callSid,
     companyId,
     callerPhone: resolveCallerPhone(params),
   });
+
+  if (!callId) {
+    callId = await resolveCallIdForSession({ companyId, callSid, session });
+    session = getVoiceCallSession(callSid)!;
+  }
+
+  const speechResult = params.SpeechResult?.trim() ?? "";
+
+  if (speechResult.length < 2) {
+    const attempt = incrementEmptyResultCount(callSid);
+    session = getVoiceCallSession(callSid)!;
+    await updateVoiceCall(callId, { empty_result_count: attempt });
+
+    if (attempt >= 3) {
+      return finalizeCallWithCallbackVorgang({
+        companyId,
+        callSid,
+        callId,
+        goodbyeText: VOICE_EMPTY_RESULT_MESSAGES.final,
+      });
+    }
+
+    return twimlResponse(
+      buildTwilioEmptySpeechTwiml({
+        gatherActionUrl,
+        attempt: attempt === 1 ? 1 : 2,
+      })
+    );
+  }
+
+  resetEmptyResultCount(callSid);
+  await updateVoiceCall(callId, { empty_result_count: 0 });
+  session = getVoiceCallSession(callSid)!;
+
+  if (isCallerFarewell(speechResult)) {
+    appendVoiceCallTurn(callSid, {
+      role: "caller",
+      text: speechResult,
+      at: new Date().toISOString(),
+    });
+
+    appendVoiceCallTurn(callSid, {
+      role: "helpy",
+      text: VOICE_FAREWELL_MESSAGE,
+      at: new Date().toISOString(),
+    });
+
+    session = getVoiceCallSession(callSid)!;
+    await persistVoiceCallSessionState(callId, session, {
+      status: "in_progress",
+      callerPhone: session.callerPhone,
+      assistantReply: VOICE_FAREWELL_MESSAGE,
+    });
+
+    return twimlResponse(buildTwilioFarewellTwiml());
+  }
 
   appendVoiceCallTurn(callSid, {
     role: "caller",
@@ -190,17 +366,7 @@ export async function handleTwilioGatherSpeech(
 
   session = getVoiceCallSession(callSid)!;
 
-  if (!callId) {
-    const created = await createVoiceCall(companyId, {
-      externalCallId: callSid,
-      callerPhone: session.callerPhone,
-      status: "in_progress",
-    });
-    callId = created.id;
-    upsertVoiceCallSession(callSid, { dbCallId: callId });
-  }
-
-  await persistVoiceCallTranscript(callId, session.turns, {
+  await persistVoiceCallSessionState(callId, session, {
     status: "in_progress",
     callerPhone: session.callerPhone,
   });
@@ -221,7 +387,7 @@ export async function handleTwilioGatherSpeech(
 
   session = getVoiceCallSession(callSid)!;
 
-  await persistVoiceCallTranscript(callId, session.turns, {
+  await persistVoiceCallSessionState(callId, session, {
     status: "in_progress",
     callerPhone: session.callerPhone,
     assistantReply: reply,
@@ -274,6 +440,16 @@ export async function handleTwilioCallStatus(
       : existing?.transcript ?? "";
 
   if (callStatus === "completed" || callStatus === "busy" || callStatus === "failed" || callStatus === "no-answer") {
+    if (existing?.hasPreparedVorgang) {
+      await updateVoiceCall(callId, {
+        status: callStatus === "completed" ? "completed" : "failed",
+        duration_seconds: durationSeconds ?? existing.durationSeconds,
+        ended_at: existing.endedAt ?? new Date().toISOString(),
+      });
+      clearVoiceCallPromptContext(callSid);
+      return new Response("OK", { status: 200 });
+    }
+
     await persistVoiceCallTranscript(callId, turns, {
       status:
         callStatus === "completed"

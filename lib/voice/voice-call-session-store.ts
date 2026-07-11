@@ -11,6 +11,7 @@ export type VoiceCallSession = {
   dbCallId: string | null;
   turns: VoiceTranscriptTurn[];
   turnCount: number;
+  emptyResultCount: number;
   createdAt: number;
   updatedAt: number;
 };
@@ -39,6 +40,7 @@ export function createVoiceCallSession(input: {
   companyId: string;
   callerPhone?: string | null;
   dbCallId?: string | null;
+  emptyResultCount?: number;
 }): VoiceCallSession {
   pruneExpiredSessions();
   const now = Date.now();
@@ -49,6 +51,7 @@ export function createVoiceCallSession(input: {
     dbCallId: input.dbCallId ?? null,
     turns: [],
     turnCount: 0,
+    emptyResultCount: input.emptyResultCount ?? 0,
     createdAt: now,
     updatedAt: now,
   };
@@ -58,16 +61,36 @@ export function createVoiceCallSession(input: {
 
 export function upsertVoiceCallSession(
   callSid: string,
-  patch: Partial<Pick<VoiceCallSession, "dbCallId" | "callerPhone">>
+  patch: Partial<Pick<VoiceCallSession, "dbCallId" | "callerPhone" | "emptyResultCount">>
 ): VoiceCallSession | null {
   const session = getVoiceCallSession(callSid);
   if (!session) return null;
 
   if (patch.dbCallId !== undefined) session.dbCallId = patch.dbCallId;
   if (patch.callerPhone !== undefined) session.callerPhone = patch.callerPhone;
+  if (patch.emptyResultCount !== undefined) {
+    session.emptyResultCount = patch.emptyResultCount;
+  }
   session.updatedAt = Date.now();
   sessions.set(callSid, session);
   return session;
+}
+
+export function incrementEmptyResultCount(callSid: string): number {
+  const session = getVoiceCallSession(callSid);
+  if (!session) return 1;
+  session.emptyResultCount += 1;
+  session.updatedAt = Date.now();
+  sessions.set(callSid, session);
+  return session.emptyResultCount;
+}
+
+export function resetEmptyResultCount(callSid: string): void {
+  const session = getVoiceCallSession(callSid);
+  if (!session) return;
+  session.emptyResultCount = 0;
+  session.updatedAt = Date.now();
+  sessions.set(callSid, session);
 }
 
 export function appendVoiceCallTurn(

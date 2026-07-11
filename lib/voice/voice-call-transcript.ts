@@ -82,6 +82,7 @@ export async function ensureVoiceCallSessionWithDbTurns(input: {
       companyId: input.companyId,
       callerPhone: input.callerPhone ?? dbCall?.callerPhone ?? null,
       dbCallId: dbCall?.id ?? null,
+      emptyResultCount: dbCall?.emptyResultCount ?? 0,
     });
   }
 
@@ -92,11 +93,30 @@ export async function ensureVoiceCallSessionWithDbTurns(input: {
     session.dbCallId = dbCall.id;
   }
 
+  if ((dbCall?.emptyResultCount ?? 0) > session.emptyResultCount) {
+    session.emptyResultCount = dbCall?.emptyResultCount ?? 0;
+  }
+
   return {
     session,
     callId: session.dbCallId ?? dbCall?.id ?? null,
     turns: mergedTurns,
   };
+}
+
+export async function persistVoiceCallSessionState(
+  callId: string,
+  session: VoiceCallSession,
+  patch?: {
+    status?: "ringing" | "in_progress" | "completed" | "failed" | "missed";
+    callerPhone?: string | null;
+    assistantReply?: string | null;
+  }
+): Promise<void> {
+  await persistVoiceCallTranscript(callId, session.turns, patch);
+  await updateVoiceCall(callId, {
+    empty_result_count: session.emptyResultCount,
+  });
 }
 
 /** Schreibt transcript + transcript_turns sofort in die DB. */
