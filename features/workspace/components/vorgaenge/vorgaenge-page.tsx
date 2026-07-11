@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Bot, Phone } from "lucide-react";
+import { Bot, Phone, Plus } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
+import { Button } from "@/components/ui/button";
+import { CreateVorgangModal } from "@/features/vorgaenge/components/create-vorgang-modal";
+import { loadDbVorgaengeFromApi } from "@/features/vorgaenge/services/db-vorgaenge-store";
+import { getDbKundenCustomers, setDbKundenCustomers } from "@/features/customers/services/kunden-store";
 import { HelpyReportCard } from "@/features/workspace/components/vorgaenge/helpy-report-card";
 import { HelpyVorgaengePanel } from "@/features/workspace/components/vorgaenge/helpy-vorgaenge-panel";
 import { VorgangCard } from "@/features/workspace/components/vorgaenge/vorgang-card";
@@ -62,6 +66,9 @@ export function VorgaengePage() {
   const [mailReady, setMailReady] = useState(false);
   const [panelMessage, setPanelMessage] = useState<string | null>(null);
   const [countsRevision, setCountsRevision] = useState(0);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [customersRevision, setCustomersRevision] = useState(0);
 
   useEffect(() => {
     setMounted(true);
@@ -116,6 +123,19 @@ export function VorgaengePage() {
       }
 
       setMailReady(true);
+      void loadDbVorgaengeFromApi().then(() => {
+        setMailRevision((tick) => tick + 1);
+      });
+
+      void fetch("/api/kunden", { cache: "no-store" })
+        .then((response) => response.json())
+        .then((payload: { customers?: import("@/features/customers/mock/mock-customers").Customer[] }) => {
+          if (payload.customers) {
+            setDbKundenCustomers(payload.customers);
+            setCustomersRevision((tick) => tick + 1);
+          }
+        })
+        .catch(() => undefined);
     });
   }, []);
 
@@ -164,6 +184,11 @@ export function VorgaengePage() {
     return sortDeduplicatedVorgaenge(vorgaenge);
   }, [activeFilter, allVorgaenge]);
 
+  const customers = useMemo(
+    () => getDbKundenCustomers(),
+    [customersRevision, createModalOpen]
+  );
+
   const isLoading = mounted && (!mailReady || isMailSyncLoading());
 
   return (
@@ -179,18 +204,33 @@ export function VorgaengePage() {
       }
     >
       <div className="mx-auto max-w-4xl px-8 py-12 lg:px-12 lg:py-14">
-        <header className="mb-8">
-          <p className="text-[11px] font-semibold tracking-[0.06em] text-[#2563EB] uppercase">
-            Arbeit zentral
-          </p>
-          <h1 className="mt-2 text-[2rem] font-semibold tracking-[-0.035em] text-[#0F172A] lg:text-[2.25rem]">
-            Vorgänge
-          </h1>
-          <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[#64748B]">
-            Alle von HELPY erkannten Arbeiten — sortiert nach Tätigkeit, nicht
-            nach Plattform. Bitte prüfen und bestätigen.
-          </p>
+        <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-semibold tracking-[0.06em] text-[#2563EB] uppercase">
+              Arbeit zentral
+            </p>
+            <h1 className="mt-2 text-[2rem] font-semibold tracking-[-0.035em] text-[#0F172A] lg:text-[2.25rem]">
+              Vorgänge
+            </h1>
+            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[#64748B]">
+              Alle von HELPY erkannten Arbeiten — sortiert nach Tätigkeit, nicht
+              nach Plattform. Bitte prüfen und bestätigen.
+            </p>
+          </div>
+          <Button
+            className="shrink-0"
+            onClick={() => setCreateModalOpen(true)}
+          >
+            <Plus className="mr-2 size-4" />
+            Neuen Vorgang erstellen
+          </Button>
         </header>
+
+        {successMessage ? (
+          <p className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-[13px] text-emerald-800">
+            {successMessage}
+          </p>
+        ) : null}
 
         <div className="mb-6 flex flex-wrap gap-1.5">
           {filterOrder.map((filter) => {
@@ -272,6 +312,17 @@ export function VorgaengePage() {
           )}
         </div>
       </div>
+
+      <CreateVorgangModal
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        customers={customers}
+        onCreated={(message) => {
+          setSuccessMessage(message);
+          setMailRevision((tick) => tick + 1);
+          window.setTimeout(() => setSuccessMessage(null), 4000);
+        }}
+      />
     </DashboardShell>
   );
 }

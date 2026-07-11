@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
+import { detectVoiceCallClassification } from "@/features/voice/services/voice-intent-engine";
 import { buildVoiceProcessedCallFromRecord } from "@/features/voice/services/voice-vorgang-factory";
+import {
+  buildHelpyPhoneVorgangCreateInput,
+  createVorgang,
+} from "@/lib/vorgaenge/create-vorgang";
 import {
   createDevVoiceContext,
   requireVoiceContext,
@@ -53,10 +58,25 @@ export async function POST(_request: Request, context: RouteContext) {
     );
   }
 
+  const classification =
+    call.classification ?? detectVoiceCallClassification(transcript);
+
+  const vorgangResult = await createVorgang(
+    buildHelpyPhoneVorgangCreateInput({
+      companyId: voiceContext.companyId,
+      callId: call.id,
+      classification,
+      summary: call.summary?.trim() || transcript.slice(0, 280),
+      callerNumber: call.callerPhone,
+      terminDatum: call.terminDatum ?? null,
+      terminUhrzeit: call.terminUhrzeit ?? null,
+    })
+  );
+
   const processed = buildVoiceProcessedCallFromRecord({
-    call,
+    call: { ...call, vorgangId: vorgangResult.id },
     transcript,
-    classification: call.classification ?? "sonstiges",
+    classification,
     callerName: call.callerName,
     requestedDateTime: call.requestedDateTime ?? null,
     summaryOverride: call.summary,
@@ -64,7 +84,7 @@ export async function POST(_request: Request, context: RouteContext) {
   });
 
   await updateVoiceCall(call.id, {
-    vorgang_id: processed.vorgangId,
+    vorgang_id: vorgangResult.id,
     summary: call.summary ?? processed.liste.summary,
     intent: processed.call.intent,
     processed_payload: processed as unknown as Json,
@@ -72,7 +92,7 @@ export async function POST(_request: Request, context: RouteContext) {
 
   return NextResponse.json({
     ok: true,
-    vorgangId: processed.vorgangId,
+    vorgangId: vorgangResult.id,
     processed,
   });
 }

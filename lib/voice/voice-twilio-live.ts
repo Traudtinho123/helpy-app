@@ -1,5 +1,9 @@
 import { buildVoiceProcessedCallFromRecord } from "@/features/voice/services/voice-vorgang-factory";
 import {
+  buildHelpyPhoneVorgangCreateInput,
+  createVorgang,
+} from "@/lib/vorgaenge/create-vorgang";
+import {
   buildTwilioClosedTwiml,
   buildTwilioDisabledTwiml,
   buildTwilioEmptySpeechTwiml,
@@ -551,8 +555,31 @@ export async function handleTwilioCallStatus(
       };
 
       if (shouldAutoCreateVorgang) {
+        const vorgangResult = await createVorgang(
+          buildHelpyPhoneVorgangCreateInput({
+            companyId,
+            callId,
+            classification,
+            summary: analysis?.summaryHint ?? summary,
+            callerNumber: callRecord.callerPhone,
+            terminDatum: analysis?.terminDatum ?? null,
+            terminUhrzeit: analysis?.terminUhrzeit ?? null,
+          })
+        );
+
+        console.log(
+          "VORGANG DB:",
+          vorgangResult.created ? "neu erstellt" : "bereits vorhanden",
+          vorgangResult.id
+        );
+
+        const callRecordWithVorgang = {
+          ...callRecord,
+          vorgangId: vorgangResult.id,
+        };
+
         const processed = buildVoiceProcessedCallFromRecord({
-          call: callRecord,
+          call: callRecordWithVorgang,
           transcript: flatTranscript,
           classification,
           callerName: analysis?.callerName ?? analysis?.anruferName ?? null,
@@ -579,7 +606,7 @@ export async function handleTwilioCallStatus(
           transcript_turns: turns as unknown as Json,
           summary: summary || processed.call.summary,
           intent: processed.call.intent,
-          vorgang_id: processed.vorgangId,
+          vorgang_id: vorgangResult.id,
           caller_name: processed.callerName ?? null,
           assistant_reply: processed.assistantReply,
           processed_payload: processed as unknown as Json,

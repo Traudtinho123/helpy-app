@@ -310,6 +310,77 @@ export type Database = {
           },
         ];
       };
+      vorgaenge: {
+        Row: {
+          id: string;
+          company_id: string;
+          source: string;
+          titel: string;
+          inhalt: string;
+          prioritaet: string;
+          status: string;
+          kunden_id: string | null;
+          objekt_id: string | null;
+          gmail_message_id: string | null;
+          gmail_thread_id: string | null;
+          voice_call_id: string | null;
+          anrufer_nummer: string | null;
+          termin_datum: string | null;
+          termin_uhrzeit: string | null;
+          whatsapp_message_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          company_id: string;
+          source: string;
+          titel: string;
+          inhalt: string;
+          prioritaet?: string;
+          status?: string;
+          kunden_id?: string | null;
+          objekt_id?: string | null;
+          gmail_message_id?: string | null;
+          gmail_thread_id?: string | null;
+          voice_call_id?: string | null;
+          anrufer_nummer?: string | null;
+          termin_datum?: string | null;
+          termin_uhrzeit?: string | null;
+          whatsapp_message_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          company_id?: string;
+          source?: string;
+          titel?: string;
+          inhalt?: string;
+          prioritaet?: string;
+          status?: string;
+          kunden_id?: string | null;
+          objekt_id?: string | null;
+          gmail_message_id?: string | null;
+          gmail_thread_id?: string | null;
+          voice_call_id?: string | null;
+          anrufer_nummer?: string | null;
+          termin_datum?: string | null;
+          termin_uhrzeit?: string | null;
+          whatsapp_message_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "vorgaenge_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       voice_standard_responses: {
         Row: {
           id: string;
@@ -1063,6 +1134,9 @@ export type VoiceSettingsUpdate = TablesUpdate<"voice_settings">;
 export type VoiceCallRow = Tables<"voice_calls">;
 export type VoiceCallInsert = TablesInsert<"voice_calls">;
 export type VoiceCallUpdate = TablesUpdate<"voice_calls">;
+export type VorgangRow = Tables<"vorgaenge">;
+export type VorgangInsert = TablesInsert<"vorgaenge">;
+export type VorgangUpdate = TablesUpdate<"vorgaenge">;
 export type VoiceStandardResponseRow = Tables<"voice_standard_responses">;
 export type VoiceStandardResponseInsert = TablesInsert<"voice_standard_responses">;
 export type VoiceStandardResponseUpdate = TablesUpdate<"voice_standard_responses">;

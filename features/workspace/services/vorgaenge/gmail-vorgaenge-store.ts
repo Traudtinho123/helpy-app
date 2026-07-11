@@ -7,6 +7,7 @@ import { mapGmailMessageToUnifiedMail } from "@/features/mail/services/unified-m
 import { buildAllMailVorgangBundles } from "@/features/mail/mail-vorgang-bundles";
 import { isHelpySystemMail } from "@/features/workspace/services/vorgaenge/helpy-report-detector";
 import { buildHelpyReportBundleFromGmailMessage } from "@/features/workspace/services/vorgaenge/helpy-report-vorgang";
+import { persistMailBundleToDb } from "@/features/vorgaenge/services/create-vorgang-client";
 import { isHelpyReportVorgang } from "@/features/workspace/services/vorgaenge/helpy-report-detector";
 import {
   dedupeUnifiedMailAttachments,
@@ -445,6 +446,10 @@ function seedNewBundles(bundles: GmailVorgangBundle[]): void {
   seedPipelineFromGmailBundles(customerBundles);
   notifyFromGmailVorgangBundles(customerBundles);
   ingestGmailVorgangBundles(customerBundles);
+
+  for (const bundle of customerBundles) {
+    void persistMailBundleToDb(bundle);
+  }
 
   for (const bundle of customerBundles) {
     if (shouldPrepareArchive(bundle.liste)) {

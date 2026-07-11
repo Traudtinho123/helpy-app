@@ -1,4 +1,10 @@
 import {
+  getDbListeVorgang,
+  getDbVorgaenge,
+  getDbWorkspaceVorgang,
+  subscribeDbVorgaenge,
+} from "@/features/vorgaenge/services/db-vorgaenge-store";
+import {
   getGmailListeVorgang,
   getGmailVorgaenge,
   getGmailWorkspaceVorgang,
@@ -30,6 +36,7 @@ export function getAllMailVorgaenge(): Vorgang[] {
     ...getGmailVorgaenge(),
     ...getOutlookVorgaenge(),
     ...getVoiceVorgaenge(),
+    ...getDbVorgaenge(),
   ];
   const { vorgaenge } = deduplicateVorgaenge(combined);
   return filterVisibleVorgaenge(sortDeduplicatedVorgaenge(vorgaenge));
@@ -40,6 +47,7 @@ export function subscribeAllMailVorgaenge(listener: () => void): () => void {
     subscribeGmailVorgaenge(listener),
     subscribeOutlookVorgaenge(listener),
     subscribeVoiceVorgaenge(listener),
+    subscribeDbVorgaenge(listener),
   ];
   return () => unsubs.forEach((unsub) => unsub());
 }
@@ -55,7 +63,8 @@ export function getMailListeVorgang(id: string): Vorgang | null {
   return (
     getGmailListeVorgang(id) ??
     getOutlookListeVorgang(id) ??
-    getVoiceListeVorgang(id)
+    getVoiceListeVorgang(id) ??
+    getDbListeVorgang(id)
   );
 }
 
@@ -63,6 +72,7 @@ export function getMailWorkspaceVorgang(id: string): WorkspaceVorgang | null {
   return (
     getGmailWorkspaceVorgang(id) ??
     getOutlookWorkspaceVorgang(id) ??
-    getVoiceWorkspaceVorgang(id)
+    getVoiceWorkspaceVorgang(id) ??
+    getDbWorkspaceVorgang(id)
   );
 }
