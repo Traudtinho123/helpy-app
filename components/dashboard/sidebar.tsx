@@ -42,33 +42,32 @@ function NavItem({
     <Link
       href={item.href}
       className={cn(
-        "group flex items-center gap-2.5 rounded-[10px] px-2.5 py-[7px] text-[13px] font-medium transition-colors duration-200",
+        "group relative flex items-center gap-3 rounded-[10px] px-3 py-2 text-[13px] font-medium transition-all duration-150",
         isActive
-          ? "bg-white/[0.12] text-white shadow-sm ring-1 ring-white/[0.08]"
-          : "text-slate-300/90 hover:bg-white/[0.06] hover:text-white"
+          ? "bg-[var(--sidebar-active)] text-white"
+          : "text-[var(--text-sidebar-muted)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-sidebar)]"
       )}
     >
+      {isActive ? (
+        <span
+          aria-hidden
+          className="absolute top-1/2 left-0 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[var(--primary)]"
+        />
+      ) : null}
       <span
         className={cn(
-          "flex size-7 shrink-0 items-center justify-center rounded-[8px] text-[14px] transition-colors",
-          isActive ? "bg-white/[0.1]" : "bg-transparent"
+          "flex size-7 shrink-0 items-center justify-center rounded-[8px] text-[15px] transition-colors duration-150",
+          isActive ? "text-[var(--primary)]" : "text-[var(--text-sidebar-muted)] group-hover:text-[var(--text-sidebar)]"
         )}
       >
         {item.emoji}
       </span>
-      <span className="flex-1 truncate tracking-[-0.01em]">{item.label}</span>
-      {count !== undefined && (
-        <span
-          className={cn(
-            "flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-semibold tabular-nums",
-            isActive
-              ? "bg-[#3B82F6] text-white"
-              : "bg-white/10 text-slate-300"
-          )}
-        >
+      <span className="flex-1 truncate tracking-[-0.02em]">{item.label}</span>
+      {count !== undefined ? (
+        <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[var(--primary)] px-1.5 text-[10px] font-semibold tabular-nums text-white">
           {count}
         </span>
-      )}
+      ) : null}
     </Link>
   );
 }
@@ -118,12 +117,12 @@ export function Sidebar({ activeHref }: SidebarProps) {
   };
 
   return (
-    <aside className="relative z-10 flex h-screen w-[248px] shrink-0 flex-col border-r border-black/20 bg-[#1C1C1E] shadow-[inset_-1px_0_0_rgba(255,255,255,0.04)]">
-      <div className="flex h-[3.75rem] shrink-0 items-center px-5">
-        <HelpyLogo size="md" variant="light" />
+    <aside className="relative z-10 flex h-screen w-[260px] shrink-0 flex-col bg-[var(--sidebar-bg)] shadow-[inset_-1px_0_0_rgba(255,255,255,0.04)]">
+      <div className="flex shrink-0 items-center px-5 pt-6 pb-5">
+        <HelpyLogo size="sidebar" variant="light" />
       </div>
 
-      <nav className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-3 pt-1 pb-2">
+      <nav className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-3 pb-2">
         {CORE_NAV_GROUPS.map((group) => {
           const groupItems = primaryItems.filter(
             (item) => item.navGroup === group.id
@@ -132,7 +131,7 @@ export function Sidebar({ activeHref }: SidebarProps) {
 
           return (
             <section key={group.id}>
-              <p className="mb-1.5 px-2.5 text-[11px] font-semibold tracking-[-0.01em] text-slate-500">
+              <p className="mb-2 px-3 text-[11px] font-semibold tracking-[0.08em] text-[var(--text-sidebar-muted)] uppercase">
                 {group.label}
               </p>
               <div className="space-y-0.5">
@@ -143,15 +142,17 @@ export function Sidebar({ activeHref }: SidebarProps) {
         })}
 
         <section className="mt-auto pt-2">
-          <p className="mb-1.5 px-2.5 text-[11px] font-semibold tracking-[-0.01em] text-slate-500">
+          <p className="mb-2 px-3 text-[11px] font-semibold tracking-[0.08em] text-[var(--text-sidebar-muted)] uppercase">
             System
           </p>
           <div className="space-y-0.5">{settingsItems.map(renderNavItem)}</div>
         </section>
       </nav>
 
-      <SidebarSkillStatus />
-      <DataPrivacySidebarHint />
+      <div className="shrink-0 border-t border-[var(--sidebar-divider)]">
+        <SidebarSkillStatus />
+        <DataPrivacySidebarHint />
+      </div>
     </aside>
   );
 }

@@ -1,14 +1,16 @@
-/** HELPY Typografie. */
+/** HELPY Typografie — nutzt CSS Custom Properties aus globals.css */
 
 export const typography = {
-  pageTitle: "text-[2rem] font-semibold tracking-[-0.035em] text-[#0F172A] lg:text-[2.25rem]",
-  sectionTitle: "text-[1.375rem] font-semibold tracking-[-0.02em] text-[#0F172A]",
-  cardTitle: "text-[14px] font-semibold tracking-[-0.01em] text-[#0F172A]",
-  panelTitle: "text-sm font-semibold tracking-[-0.01em] text-[#0F172A]",
-  label: "text-[11px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase",
-  body: "text-[13px] leading-[1.65] text-[#334155]",
-  bodySm: "text-[12px] leading-relaxed text-[#334155]",
-  muted: "text-[12px] leading-relaxed text-[#64748B]",
-  caption: "text-[11px] font-medium text-[#64748B]",
+  pageTitle: "helpy-h1 lg:text-[2rem]",
+  sectionTitle: "helpy-h2",
+  cardTitle: "text-[14px] font-semibold tracking-[-0.02em] text-[var(--text-primary)]",
+  panelTitle: "text-sm font-semibold tracking-[-0.02em] text-[var(--text-primary)]",
+  label: "helpy-label",
+  body: "text-[13px] leading-[1.65] text-[var(--text-secondary)]",
+  bodySm: "text-[12px] leading-relaxed text-[var(--text-secondary)]",
+  muted: "text-[12px] leading-relaxed text-[var(--text-muted)]",
+  caption: "text-[11px] font-medium text-[var(--text-muted)]",
   badge: "text-[11px] font-semibold tracking-[-0.01em]",
+  greeting: "helpy-h1",
+  greetingSub: "helpy-greeting-sub",
 } as const;

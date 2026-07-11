@@ -1,91 +1,85 @@
+"use client";
+
 import {
-  ArrowUpRight,
   Calendar,
   FileText,
   Inbox,
   type LucideIcon,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Card, CardContent } from "@/components/ui/card";
+import type { KpiAccent } from "@/components/dashboard/stripe-kpi-tile";
 import { cn } from "@/lib/utils";
 
 type KpiCardProps = {
   label: string;
   value: number;
   trend: string;
+  trendDirection?: "up" | "down" | "neutral";
   icon: LucideIcon;
-  accent: "blue" | "emerald" | "amber";
+  accent: KpiAccent;
 };
 
-const accentStyles = {
-  blue: {
-    icon: "from-[#2563EB] to-[#1E40AF] shadow-[#2563EB]/30",
-    iconBg: "bg-[#EFF6FF]",
-    glow: "from-[#2563EB]/10 to-transparent",
-    badge: "border-[#BFDBFE] bg-[#EFF6FF] text-[#1D4ED8]",
-    value: "text-[#2563EB]",
+const accentStyles: Record<
+  KpiAccent,
+  { iconColor: string; iconBg: string }
+> = {
+  primary: {
+    iconColor: "text-[var(--primary)]",
+    iconBg: "bg-[var(--primary-light)]",
   },
-  emerald: {
-    icon: "from-[#10B981] to-[#047857] shadow-[#10B981]/30",
-    iconBg: "bg-[#ECFDF5]",
-    glow: "from-[#10B981]/10 to-transparent",
-    badge: "border-[#A7F3D0] bg-[#ECFDF5] text-[#047857]",
-    value: "text-[#059669]",
+  success: {
+    iconColor: "text-[var(--success)]",
+    iconBg: "bg-[var(--success-light)]",
   },
-  amber: {
-    icon: "from-[#F59E0B] to-[#B45309] shadow-[#F59E0B]/30",
-    iconBg: "bg-[#FFFBEB]",
-    glow: "from-[#F59E0B]/10 to-transparent",
-    badge: "border-[#FDE68A] bg-[#FFFBEB] text-[#B45309]",
-    value: "text-[#D97706]",
+  warning: {
+    iconColor: "text-[var(--warning)]",
+    iconBg: "bg-[var(--warning-light)]",
   },
-} as const;
+};
 
-function KpiCard({ label, value, trend, icon: Icon, accent }: KpiCardProps) {
+function KpiCard({
+  label,
+  value,
+  trend,
+  trendDirection = "up",
+  icon: Icon,
+  accent,
+}: KpiCardProps) {
   const styles = accentStyles[accent];
 
   return (
-    <Card
-      className="group relative overflow-hidden rounded-[24px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-[0_2px_8px_rgba(15,23,42,0.04),0_12px_40px_rgba(15,23,42,0.06)] ring-1 ring-white backdrop-blur-xl transition-all duration-500 ease-out hover:-translate-y-1.5 hover:shadow-[0_8px_24px_rgba(15,23,42,0.08),0_24px_56px_rgba(37,99,235,0.08)]"
-    >
-      <div
-        className={cn(
-          "pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b opacity-0 transition-opacity duration-500 group-hover:opacity-100",
-          styles.glow
-        )}
-      />
-      <CardContent className="relative p-7">
-        <div className="mb-5 flex items-start justify-between">
-          <div
-            className={cn(
-              "flex size-14 items-center justify-center rounded-[18px] bg-gradient-to-br shadow-xl transition-transform duration-500 ease-out group-hover:scale-110",
-              styles.icon
-            )}
-          >
-            <Icon className="size-7 text-white" strokeWidth={1.75} />
-          </div>
-          <Badge
-            variant="outline"
-            className={cn(
-              "h-6 gap-0.5 rounded-full border px-2.5 text-[10px] font-bold",
-              styles.badge
-            )}
-          >
-            <ArrowUpRight className="size-3" strokeWidth={2.5} />
-            {trend}
-          </Badge>
-        </div>
-        <p
+    <Card className="helpy-glass-card helpy-glass-card-interactive helpy-fade-in-slide py-0">
+      <CardContent className="p-5">
+        <div
           className={cn(
-            "text-[3rem] leading-none font-bold tracking-[-0.04em]",
-            styles.value
+            "flex size-11 items-center justify-center rounded-full",
+            styles.iconBg
           )}
         >
-          {value}
-        </p>
-        <p className="mt-3 text-[14px] font-medium leading-snug tracking-[-0.01em] text-[#475569]">
-          {label}
-        </p>
+          <Icon className={cn("size-5", styles.iconColor)} strokeWidth={2} />
+        </div>
+
+        <div className="mt-4">
+          <AnimatedNumber
+            value={value}
+            className="text-[32px] font-extrabold leading-none tracking-[-0.03em] text-[var(--text-primary)]"
+          />
+          <p className="mt-1.5 text-[13px] font-medium text-[var(--text-secondary)]">
+            {label}
+          </p>
+          <p
+            className={cn(
+              "mt-2 text-[12px] font-semibold",
+              trendDirection === "up" && "text-[var(--success)]",
+              trendDirection === "down" && "text-[var(--danger)]",
+              trendDirection === "neutral" && "text-[var(--text-muted)]"
+            )}
+          >
+            {trendDirection === "up" ? "↑ " : trendDirection === "down" ? "↓ " : ""}
+            {trend}
+          </p>
+        </div>
       </CardContent>
     </Card>
   );
@@ -96,28 +90,31 @@ const kpis: KpiCardProps[] = [
     label: "E-Mails analysiert",
     value: 18,
     trend: "+12 %",
+    trendDirection: "up",
     icon: Inbox,
-    accent: "blue",
+    accent: "warning",
   },
   {
     label: "Termine erkannt",
     value: 4,
     trend: "+2",
+    trendDirection: "up",
     icon: Calendar,
-    accent: "emerald",
+    accent: "primary",
   },
   {
     label: "Angebote vorbereitet",
     value: 2,
     trend: "Bereit",
+    trendDirection: "neutral",
     icon: FileText,
-    accent: "amber",
+    accent: "success",
   },
 ];
 
 export function KpiCards() {
   return (
-    <div className="grid gap-6 sm:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-3">
       {kpis.map((kpi) => (
         <KpiCard key={kpi.label} {...kpi} />
       ))}

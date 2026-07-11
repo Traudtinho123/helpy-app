@@ -14,13 +14,12 @@ export function DashboardShell({
   rightPanel,
 }: DashboardShellProps) {
   return (
-    <div className="relative flex h-screen overflow-hidden bg-[#EEF4FC] text-[#0F172A]">
-      <div className="pointer-events-none fixed inset-0 bg-gradient-to-br from-[#EEF4FC] via-[#E8F0FA] to-[#DBEAFE]/40" />
+    <div className="relative flex h-screen overflow-hidden bg-[var(--background)] text-[var(--text-primary)]">
+      <div className="pointer-events-none fixed inset-0 bg-gradient-to-br from-[var(--background)] via-[var(--background-secondary)] to-[var(--primary-light)]/30" />
 
-      <div className="pointer-events-none fixed -top-40 -left-20 size-[600px] rounded-full bg-[#2563EB]/15 blur-[130px]" />
-      <div className="pointer-events-none fixed top-1/4 -right-32 size-[550px] rounded-full bg-[#3B82F6]/12 blur-[120px]" />
-      <div className="pointer-events-none fixed -bottom-32 left-1/4 size-[480px] rounded-full bg-[#60A5FA]/18 blur-[110px]" />
-      <div className="pointer-events-none fixed top-2/3 left-1/2 size-[360px] -translate-x-1/2 rounded-full bg-white/50 blur-[90px]" />
+      <div className="pointer-events-none fixed -top-40 -left-20 size-[600px] rounded-full bg-[var(--primary-glow)] blur-[130px]" />
+      <div className="pointer-events-none fixed top-1/4 -right-32 size-[550px] rounded-full bg-[rgba(99,102,241,0.12)] blur-[120px]" />
+      <div className="pointer-events-none fixed -bottom-32 left-1/4 size-[480px] rounded-full bg-[rgba(139,92,246,0.1)] blur-[110px]" />
 
       <Sidebar activeHref={activeHref} />
 

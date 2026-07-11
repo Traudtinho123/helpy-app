@@ -236,7 +236,7 @@ function PriorityGroup({
       </div>
       <ul className="space-y-3">
         {items.map((item) => (
-          <li key={item.id}>
+          <li key={item.id} className="helpy-fade-in-slide">
             <PriorityCard item={item} />
           </li>
         ))}
@@ -275,10 +275,8 @@ function PrioritiesSection({ items }: { items: PrioritizedWorkdayItem[] }) {
     <section>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 className="text-[1.375rem] font-semibold tracking-[-0.02em] text-[#0F172A]">
-            Prioritäten
-          </h2>
-          <p className="mt-1.5 text-sm text-[#64748B]">
+          <h2 className="helpy-h2">Prioritäten</h2>
+          <p className="mt-1.5 text-[13px] text-[var(--text-secondary)]">
             Nur kritische und hohe Vorgänge — sortiert nach Dringlichkeit
           </p>
         </div>
@@ -343,10 +341,8 @@ function TermineVonHeuteSection({
           <CalendarDays className="size-5 text-[#047857]" strokeWidth={2} />
         </div>
         <div>
-          <h2 className="text-[1.375rem] font-semibold tracking-[-0.02em] text-[#0F172A]">
-            Termine von heute
-          </h2>
-          <p className="mt-1 text-sm text-[#64748B]">
+          <h2 className="helpy-h2">Termine von heute</h2>
+          <p className="mt-1 text-[13px] text-[var(--text-secondary)]">
             Termine aus deiner verbundenen Kalender-Plattform
           </p>
         </div>
@@ -418,13 +414,9 @@ export function MeinArbeitstagPage({
   return (
     <div className="mx-auto max-w-6xl px-8 py-12 lg:px-12 lg:py-14">
       <header className="mb-12">
-        <p className="text-sm font-medium tracking-[-0.01em] text-[#94A3B8]">
-          {today}
-        </p>
-        <h1 className="mt-3 text-[2.25rem] leading-[1.2] font-semibold tracking-[-0.035em] text-[#0F172A] lg:text-[2.5rem]">
-          {greeting}
-        </h1>
-        <p className="mt-4 max-w-2xl text-[1.125rem] leading-relaxed tracking-[-0.01em] text-[#475569]">
+        <p className="helpy-label">{today}</p>
+        <h1 className="helpy-h1 mt-3">{greeting}</h1>
+        <p className="helpy-greeting-sub mt-4 max-w-2xl">
           Ich habe deinen Arbeitstag organisiert — fokussiert auf das, was heute
           zählt.
         </p>

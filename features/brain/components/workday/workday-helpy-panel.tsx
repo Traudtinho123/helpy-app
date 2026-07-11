@@ -20,6 +20,21 @@ type WorkdayHelpyPanelProps = {
   isMailLoading?: boolean;
 };
 
+function OnlineBadge() {
+  return (
+    <Badge
+      variant="outline"
+      className="h-6 gap-1.5 rounded-full border-[color-mix(in_srgb,var(--success)_30%,transparent)] bg-[var(--success-light)] px-2.5 text-[10px] font-semibold text-[var(--success)]"
+    >
+      <span
+        aria-hidden
+        className="helpy-online-pulse size-1.5 rounded-full bg-[var(--success)]"
+      />
+      Online
+    </Badge>
+  );
+}
+
 export function WorkdayHelpyPanel({
   intake,
   workflow,
@@ -33,22 +48,15 @@ export function WorkdayHelpyPanel({
     <Panel variant="sidebar">
       <PanelHeader className="px-5">
         <div className="flex items-center gap-3">
-          <HelpyAvatar />
+          <HelpyAvatar size="lg" />
           <div>
-            <h2 className="text-sm font-semibold tracking-[-0.01em] text-[#0F172A]">
-              HELPY
-            </h2>
-            <p className="text-[11px] font-medium text-[#64748B]">
+            <h2 className="helpy-h2 text-sm">HELPY</h2>
+            <p className="text-[11px] font-medium text-[var(--text-secondary)]">
               Dein KI-Bürokollege
             </p>
           </div>
         </div>
-        <Badge
-          variant="outline"
-          className="h-6 rounded-full border-[#A7F3D0] bg-[#ECFDF5] px-2.5 text-[10px] font-semibold text-[#047857]"
-        >
-          Online
-        </Badge>
+        <OnlineBadge />
       </PanelHeader>
 
       <PanelBody className="overflow-y-visible py-0 pb-5">
@@ -65,22 +73,23 @@ export function WorkdayHelpyPanel({
         </div>
 
         <div className="mt-5 space-y-3">
-          <p className="px-1 text-[12px] font-semibold tracking-[-0.01em] text-[#475569]">
+          <p className="helpy-label px-1 normal-case tracking-normal">
             Was soll ich als Nächstes tun?
           </p>
-          <div className="rounded-[24px] border border-[#CBD5E1]/50 bg-white p-2.5 shadow-[0_4px_32px_rgba(15,23,42,0.08)] transition-all duration-300 focus-within:border-[#2563EB]/30 focus-within:shadow-[0_8px_40px_rgba(37,99,235,0.12)]">
+          <div className="helpy-glass-card rounded-[20px] p-2.5 transition-all duration-200 focus-within:shadow-[var(--button-primary-shadow)]">
             <textarea
               rows={2}
               placeholder="Frag HELPY…"
-              className="w-full resize-none bg-transparent px-3.5 py-2.5 text-[13px] leading-relaxed text-[#0F172A] placeholder:text-[#94A3B8] outline-none"
+              className="w-full resize-none bg-transparent px-3.5 py-2.5 text-[13px] leading-relaxed text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none"
             />
             <div className="flex items-center justify-between px-2 pb-1">
-              <p className="text-[10px] font-medium text-[#94A3B8]">
+              <p className="text-[10px] font-medium text-[var(--text-muted)]">
                 Eingabe zum Senden
               </p>
               <Button
                 size="icon-sm"
-                className="size-8 rounded-[12px] bg-[#2563EB] shadow-[0_4px_12px_rgba(37,99,235,0.35)] transition-all duration-300 hover:bg-[#1D4ED8] hover:shadow-[0_4px_16px_rgba(37,99,235,0.45)]"
+                variant="primary"
+                className="size-8 rounded-[8px]"
                 aria-label="Nachricht senden"
               >
                 <ArrowUp className="size-4" strokeWidth={2.5} />

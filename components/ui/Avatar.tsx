@@ -8,8 +8,8 @@ type AvatarSize = "sm" | "md" | "lg";
 
 const sizeClass: Record<AvatarSize, string> = {
   sm: "size-8",
-  md: "size-9",
-  lg: "size-11",
+  md: "size-10",
+  lg: "size-12",
 };
 
 const iconClass: Record<AvatarSize, string> = {
@@ -50,14 +50,13 @@ function Avatar({
     return (
       <div
         className={cn(
-          "relative flex shrink-0 items-center justify-center bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] shadow-[0_4px_16px_rgba(37,99,235,0.3)]",
-          radiusClass.sm,
+          "relative flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[var(--button-primary-from)] to-[var(--button-primary-to)] shadow-[var(--button-primary-shadow)]",
           sizeClass[size],
           className
         )}
       >
         <Bot className={cn("text-white", iconClass[size])} strokeWidth={2.25} />
-        <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full border-2 border-white bg-[#22D3EE]" />
+        <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full border-2 border-[var(--helpy-panel-bg)] bg-[var(--accent-violet)]" />
       </div>
     );
   }
@@ -72,7 +71,7 @@ function Avatar({
   return (
     <div
       className={cn(
-        "flex shrink-0 items-center justify-center bg-[#EFF6FF] text-[11px] font-semibold text-[#2563EB]",
+        "flex shrink-0 items-center justify-center bg-[var(--primary-light)] text-[11px] font-semibold text-[var(--primary)]",
         radiusClass.sm,
         sizeClass[size],
         className

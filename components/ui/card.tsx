@@ -8,17 +8,23 @@ type CardVariant = "default" | "workspace" | "info" | "action";
 const cardVariants: Record<CardVariant, string> = {
   default: surfaces.card,
   workspace: `${surfaces.card} py-0`,
-  info: "rounded-[20px] border border-[#BFDBFE]/50 bg-[#EFF6FF]/50 shadow-sm backdrop-blur-sm",
-  action:
-    "rounded-[16px] border border-[#CBD5E1]/45 bg-white/90 transition-all duration-300 hover:border-[#BFDBFE]/60 hover:shadow-[0_4px_16px_rgba(37,99,235,0.06)]",
+  info: "helpy-glass-card rounded-[16px] border border-[var(--primary)]/20 bg-[var(--primary-light)]/60",
+  action: `${surfaces.card} ${surfaces.cardHover} helpy-glass-card-interactive cursor-pointer`,
 };
 
 type CardProps = React.ComponentProps<"div"> & {
   variant?: CardVariant;
   size?: "default" | "sm";
+  interactive?: boolean;
 };
 
-function Card({ className, variant = "default", size = "default", ...props }: CardProps) {
+function Card({
+  className,
+  variant = "default",
+  size = "default",
+  interactive,
+  ...props
+}: CardProps) {
   return (
     <div
       data-slot="card"
@@ -26,6 +32,7 @@ function Card({ className, variant = "default", size = "default", ...props }: Ca
       className={cn(
         "group/card flex flex-col text-sm text-card-foreground",
         cardVariants[variant],
+        interactive && "helpy-glass-card-interactive cursor-pointer",
         size === "sm" && "rounded-[16px]",
         className
       )}
@@ -39,7 +46,7 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-header"
       className={cn(
-        "flex flex-col gap-1 border-b border-[#CBD5E1]/30 px-5 py-4",
+        "flex flex-col gap-1 border-b border-[var(--card-border)] px-5 py-4",
         className
       )}
       {...props}
@@ -51,7 +58,10 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-title"
-      className={cn("text-[14px] font-semibold tracking-[-0.01em] text-[#0F172A]", className)}
+      className={cn(
+        "text-[14px] font-semibold tracking-[-0.02em] text-[var(--text-primary)]",
+        className
+      )}
       {...props}
     />
   );
@@ -61,7 +71,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-description"
-      className={cn("text-[12px] text-[#64748B]", className)}
+      className={cn("text-[12px] text-[var(--text-secondary)]", className)}
       {...props}
     />
   );
@@ -88,7 +98,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-footer"
       className={cn(
-        "flex items-center border-t border-[#CBD5E1]/30 bg-[#F8FAFC]/50 px-5 py-4",
+        "flex items-center border-t border-[var(--card-border)] bg-[var(--background-secondary)]/50 px-5 py-4",
         className
       )}
       {...props}

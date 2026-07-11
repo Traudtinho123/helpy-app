@@ -144,29 +144,29 @@ export function WorkdayHelpyMessages({
       <div className="flex gap-3.5">
         <HelpyAvatar size="sm" />
         <div className="min-w-0 flex-1 space-y-3">
-          <p className="text-[11px] font-semibold text-[#64748B]">HELPY</p>
+          <p className="helpy-label normal-case tracking-normal">HELPY</p>
 
           {isLoading && (
             <>
-              <div className="helpy-fade-in rounded-[20px] rounded-tl-[8px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/80 px-5 py-4 shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
-                <p className="text-[13px] leading-[1.65] text-[#334155]">
+              <div className="helpy-fade-in-slide helpy-chat-bubble-system rounded-[20px] rounded-tl-[8px] px-5 py-4">
+                <p className="text-[13px] leading-[1.65] text-[var(--text-secondary)]">
                   {isMailLoading
                     ? "Ich prüfe deine E-Mail-Nachrichten…"
                     : getLoadingMessage(intake, workflow)}
                 </p>
                 {workflow.currentStepLabel && workflow.phase === "preparing" && (
-                  <p className="mt-2 text-[12px] font-medium text-[#2563EB]">
+                  <p className="mt-2 text-[12px] font-medium text-[var(--primary)]">
                     {workflow.currentStepLabel}
                   </p>
                 )}
               </div>
               <div className="flex items-center gap-2 px-1">
-                <Loader2 className="size-3.5 animate-spin text-[#2563EB]" />
+                <Loader2 className="size-3.5 animate-spin text-[var(--primary)]" />
                 <div className="flex gap-1">
                   {[0, 1, 2].map((i) => (
                     <span
                       key={i}
-                      className="helpy-pulse-dot size-1.5 rounded-full bg-[#2563EB]"
+                      className="helpy-pulse-dot size-1.5 rounded-full bg-[var(--primary)]"
                       style={{ animationDelay: `${i * 0.2}s` }}
                     />
                   ))}
@@ -176,30 +176,30 @@ export function WorkdayHelpyMessages({
           )}
 
           {isReady && (
-            <div className="helpy-fade-in space-y-3">
-              <div className="rounded-[20px] rounded-tl-[8px] border border-[#BFDBFE]/60 bg-gradient-to-br from-[#EFF6FF] to-white px-5 py-5 shadow-[0_4px_20px_rgba(37,99,235,0.1)]">
-                <p className="text-[13px] leading-[1.65] text-[#334155]">
+            <div className="helpy-fade-in-slide space-y-3">
+              <div className="helpy-chat-bubble rounded-[20px] rounded-tl-[8px] px-5 py-5">
+                <p className="text-[13px] leading-[1.65] text-[var(--text-secondary)]">
                   {panelIntro}
                 </p>
               </div>
 
               {useMailSource && workdaySummary && (
                 <>
-                  <div className="rounded-[16px] border border-[#BFDBFE]/50 bg-[#EFF6FF]/50 px-4 py-3.5">
-                    <p className="text-[12px] leading-relaxed text-[#334155]">
+                  <div className="helpy-fade-in-slide helpy-chat-bubble-system rounded-[16px] px-4 py-3.5">
+                    <p className="text-[12px] leading-relaxed text-[var(--text-secondary)]">
                       {workdaySummary.panelPriorityHint}
                     </p>
                   </div>
                   {workdaySummary.panelArchiveHint && (
-                    <div className="rounded-[16px] border border-[#E2E8F0]/70 bg-[#F8FAFC]/80 px-4 py-3.5">
-                      <p className="text-[12px] leading-relaxed text-[#64748B]">
+                    <div className="helpy-fade-in-slide helpy-chat-bubble rounded-[16px] px-4 py-3.5">
+                      <p className="text-[12px] leading-relaxed text-[var(--text-muted)]">
                         {workdaySummary.panelArchiveHint}
                       </p>
                     </div>
                   )}
                   {hasOpenFollowUps && (
-                    <div className="rounded-[16px] border border-[#BFDBFE]/50 bg-[#EFF6FF]/50 px-4 py-3.5">
-                      <p className="text-[12px] leading-relaxed text-[#334155]">
+                    <div className="helpy-fade-in-slide helpy-chat-bubble-system rounded-[16px] px-4 py-3.5">
+                      <p className="text-[12px] leading-relaxed text-[var(--text-secondary)]">
                         {HELPY_FOLLOWUP_MONITORING_MESSAGE}
                       </p>
                     </div>
@@ -210,7 +210,7 @@ export function WorkdayHelpyMessages({
               {primaryAction && (
                 <Link
                   href={primaryAction.href}
-                  className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-[12px] bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-[13px] font-semibold text-white shadow-[0_4px_16px_rgba(37,99,235,0.32)] transition-all duration-300 hover:scale-[1.01] hover:shadow-[0_6px_20px_rgba(37,99,235,0.4)] active:scale-[0.99]"
+                  className="helpy-btn-primary inline-flex h-10 w-full items-center justify-center gap-2 rounded-[8px] text-[13px]"
                 >
                   {primaryAction.label}
                   <ArrowRight className="size-4" strokeWidth={2.25} />
@@ -220,16 +220,16 @@ export function WorkdayHelpyMessages({
           )}
 
           {visibleDetections.length > 0 && isLoading && (
-            <div className="rounded-[16px] border border-[#CBD5E1]/40 bg-white/90 p-4 shadow-sm">
+            <div className="helpy-glass-card rounded-[16px] p-4">
               <ul className="space-y-2">
                 {visibleDetections.map((detection) => (
                   <li
                     key={detection.id}
-                    className="flex items-center gap-2.5 text-[12px] text-[#334155]"
+                    className="helpy-fade-in-slide flex items-center gap-2.5 text-[12px] text-[var(--text-secondary)]"
                   >
-                    <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[#ECFDF5]">
+                    <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[var(--success-light)]">
                       <Check
-                        className="size-3 text-[#059669]"
+                        className="size-3 text-[var(--success)]"
                         strokeWidth={2.5}
                       />
                     </span>
@@ -241,10 +241,10 @@ export function WorkdayHelpyMessages({
           )}
 
           {openingMessage && (
-            <div className="helpy-fade-in rounded-[16px] border border-[#C4B5FD]/60 bg-[#F5F3FF]/80 px-4 py-3.5">
+            <div className="helpy-fade-in-slide helpy-chat-bubble-system rounded-[16px] px-4 py-3.5">
               <div className="flex items-center gap-2">
-                <Loader2 className="size-3.5 animate-spin text-[#7C3AED]" />
-                <p className="text-[12px] font-medium text-[#5B21B6]">
+                <Loader2 className="size-3.5 animate-spin text-[var(--primary)]" />
+                <p className="text-[12px] font-medium text-[var(--primary)]">
                   {openingMessage}
                 </p>
               </div>
@@ -252,8 +252,8 @@ export function WorkdayHelpyMessages({
           )}
 
           {feedback && (
-            <div className="helpy-fade-in rounded-[16px] border border-[#A7F3D0]/60 bg-[#ECFDF5]/80 px-4 py-3.5">
-              <p className="text-[12px] leading-relaxed text-[#334155]">
+            <div className="helpy-fade-in-slide rounded-[16px] border border-[color-mix(in_srgb,var(--success)_30%,transparent)] bg-[var(--success-light)] px-4 py-3.5">
+              <p className="text-[12px] leading-relaxed text-[var(--text-secondary)]">
                 {feedback.message}
               </p>
             </div>

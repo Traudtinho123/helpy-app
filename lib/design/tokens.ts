@@ -27,18 +27,17 @@ export const tokens = {
   cardPaddingSm,
 } as const;
 
-/** Vorgefertigte HELPY-Oberflächen (RC1-kompatibel). */
+/** Vorgefertigte HELPY-Oberflächen (Premium Glassmorphism). */
 export const surfaces = {
-  card: `${radiusClass.lg} border border-[#CBD5E1]/40 bg-white/90 ${shadowClass.sm} backdrop-blur-xl`,
+  card: "helpy-glass-card",
   cardHover:
-    "transition-all duration-300 hover:border-[#BFDBFE]/60 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)]",
+    "transition-all duration-200 hover:shadow-[0_8px_12px_rgba(0,0,0,0.06),0_20px_60px_rgba(99,102,241,0.12)] hover:-translate-y-px",
   panelAside:
-    "flex h-full shrink-0 flex-col border-l border-[#CBD5E1]/50 bg-white/85 backdrop-blur-2xl",
+    "flex h-full shrink-0 flex-col border-l border-[var(--card-border)] helpy-glass-card rounded-none border-y-0 border-r-0",
   panelGlass:
-    `border border-[#CBD5E1]/50 bg-white/80 ${shadowClass.panel} backdrop-blur-2xl`,
-  infoBox: `${radiusClass.md} border border-[#BFDBFE]/50 bg-[#EFF6FF]/50`,
-  primaryButton:
-    "rounded-[12px] bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white shadow-sm transition-all duration-300 hover:shadow-md",
+    "helpy-glass-card border border-[var(--card-border)] shadow-[var(--card-shadow)]",
+  infoBox: "rounded-[16px] border border-[var(--primary)]/20 bg-[var(--primary-light)]/60",
+  primaryButton: "helpy-btn-primary",
 } as const;
 
 export type HelpySurface = keyof typeof surfaces;

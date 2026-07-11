@@ -45,16 +45,24 @@ import { tokens, surfaces, typography } from "@/lib/design";
 4. **Deutsche UI** — Alle sichtbaren Texte auf Deutsch.
 5. **Prüfen & Bestätigen** — Keine Automatik-Sprache in Buttons oder Labels.
 
-## Farbsystem
+## Farbsystem (Premium v2 — Indigo / Glass)
 
 | Token | Wert | Verwendung |
 |---|---|---|
-| `colors.brand.primary` | `#2563EB` | Primäraktionen, Links |
-| `colors.text.primary` | `#0F172A` | Überschriften |
-| `colors.text.muted` | `#64748B` | Hilfstext |
-| `colors.border.default` | `#CBD5E1` | Karten, Panels |
+| `--background` | `#F4F4F8` | Hauptbereich (warmes Grau-Weiss) |
+| `--background-secondary` | `#EEEEF4` | Sections, Card-Footer |
+| `--sidebar-bg` | `#0F0E17` | Sidebar-Hintergrund |
+| `--primary` | `#6366F1` | Indigo — Hauptakzent |
+| `--primary-hover` | `#4F46E5` | Hover auf Primary |
+| `--primary-light` | `#EEF2FF` | Helle Indigo-Flächen |
+| `--card-bg` | `rgba(255,255,255,0.75)` | Glassmorphism Cards |
+| `--text-primary` | `#0F0E17` | Überschriften |
+| `--text-secondary` | `#6B7280` | Labels, Untertitel |
+| `--text-sidebar` | `#E5E7EB` | Sidebar-Text |
 
 Statusfarben: `lib/design/colors.ts` → `colors.status.*`
+
+Glassmorphism: `.helpy-glass-card` in `app/globals.css`
 
 ## Spacing
 
