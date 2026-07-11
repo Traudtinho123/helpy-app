@@ -174,33 +174,46 @@ export function VoiceCallsDashboard() {
               <PhoneCall className="size-3.5" />
               Verbindungsstatus
             </p>
-            <div className="mt-3 flex flex-wrap items-center gap-3">
+            <div className="mt-3 space-y-1.5">
               <ConnectionBadge ready={Boolean(connection?.ready)} />
-              <span className="text-[12px] text-[var(--text-secondary)]">
+              <p className="text-[13px] text-[var(--text-secondary)]">
                 Nummer: {connection?.phoneNumber ?? "—"}
-              </span>
+              </p>
+              <p className="text-[13px] text-[var(--text-secondary)]">
+                Status:{" "}
+                <span
+                  className={cn(
+                    "font-semibold",
+                    connection?.ready
+                      ? "text-[var(--success)]"
+                      : "text-[var(--text-muted)]"
+                  )}
+                >
+                  {connection?.ready ? "Aktiv" : "Inaktiv"}
+                </span>
+              </p>
             </div>
-            {!connection?.openAiConfigured ? (
+            {!connection?.ready && !connection?.openAiConfigured ? (
               <p className="mt-2 text-[12px] text-[var(--warning)]">
                 OPENAI_API_KEY fehlt in der Umgebung.
               </p>
             ) : null}
-            {!connection?.twilioConfigured ? (
+            {!connection?.ready && !connection?.twilioConfigured ? (
               <p className="mt-2 text-[12px] text-[var(--warning)]">
                 Twilio-Umgebungsvariablen fehlen.
               </p>
             ) : null}
-            {connection?.twilioConfigured &&
-            connection.openAiConfigured &&
-            !connection.voiceEnabled ? (
+            {!connection?.ready &&
+            connection?.twilioConfigured &&
+            connection.openAiConfigured ? (
               <p className="mt-2 text-[12px] text-[var(--text-secondary)]">
-                Bitte HELPY Phone in den Einstellungen aktivieren und Twilio als Provider wählen.
+                Twilio ist konfiguriert — bitte unten aktivieren.
               </p>
             ) : null}
           </div>
         </div>
 
-        {settings ? (
+        {settings && !connection?.ready ? (
           <div className="mt-5">
             <VoiceTwilioSetupSection
               settings={settings}

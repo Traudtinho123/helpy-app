@@ -11,6 +11,17 @@ export const DEFAULT_VOICE_BUSINESS_HOURS: VoiceBusinessHours[] = [
   { weekday: 5, start: "09:00", end: "17:00" },
 ];
 
+/** Mo–So 00:00–24:00 (end exklusiv → deckt ganzen Tag ab). */
+export const ALWAYS_OPEN_VOICE_BUSINESS_HOURS: VoiceBusinessHours[] = [
+  { weekday: 1, start: "00:00", end: "24:00" },
+  { weekday: 2, start: "00:00", end: "24:00" },
+  { weekday: 3, start: "00:00", end: "24:00" },
+  { weekday: 4, start: "00:00", end: "24:00" },
+  { weekday: 5, start: "00:00", end: "24:00" },
+  { weekday: 6, start: "00:00", end: "24:00" },
+  { weekday: 7, start: "00:00", end: "24:00" },
+];
+
 const TIMEZONE = "Europe/Zurich";
 
 function parseHm(value: string): number {
