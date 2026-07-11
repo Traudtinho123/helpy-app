@@ -50,7 +50,7 @@ function TagesuebersichtCard({
   isLoading?: boolean;
 }) {
   return (
-    <Card className="relative overflow-hidden rounded-[24px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-[0_2px_8px_rgba(15,23,42,0.04),0_12px_40px_rgba(15,23,42,0.06)] ring-1 ring-white backdrop-blur-xl">
+    <Card className="relative overflow-hidden py-0">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#2563EB]/8 to-transparent" />
       <CardContent className="relative p-7 lg:p-8">
         <div className="mb-6 flex items-start gap-4">

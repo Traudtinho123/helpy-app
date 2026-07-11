@@ -27,7 +27,7 @@ export function DashboardShell({
         <DashboardHeader />
 
         <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
-          <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
+          <main className="relative min-w-0 flex-1 overflow-x-hidden overflow-y-auto bg-transparent">
             {children}
           </main>
           <div className="hidden min-w-0 shrink-0 xl:flex">

@@ -29,27 +29,38 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const body = (await request.json()) as Record<string, unknown>;
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Ungültiger Request-Body." }, { status: 400 });
+  }
+
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return NextResponse.json({ error: "Ungültiger Request-Body." }, { status: 400 });
+  }
+
+  const payload = body as Record<string, unknown>;
 
   const settings = await updateVoiceSettings(context.companyId, {
-    enabled: typeof body.enabled === "boolean" ? body.enabled : undefined,
+    enabled: typeof payload.enabled === "boolean" ? payload.enabled : undefined,
     provider:
-      body.provider === "mock" ||
-      body.provider === "simulation" ||
-      body.provider === "twilio" ||
-      body.provider === "telnyx" ||
-      body.provider === "teams" ||
-      body.provider === "sip"
-        ? body.provider
+      payload.provider === "mock" ||
+      payload.provider === "simulation" ||
+      payload.provider === "twilio" ||
+      payload.provider === "telnyx" ||
+      payload.provider === "teams" ||
+      payload.provider === "sip"
+        ? payload.provider
         : undefined,
     phoneNumber:
-      typeof body.phoneNumber === "string" ? body.phoneNumber : undefined,
+      typeof payload.phoneNumber === "string" ? payload.phoneNumber : undefined,
     greetingText:
-      typeof body.greetingText === "string" ? body.greetingText : undefined,
+      typeof payload.greetingText === "string" ? payload.greetingText : undefined,
     disclosureText:
-      typeof body.disclosureText === "string" ? body.disclosureText : undefined,
-    businessHours: Array.isArray(body.businessHours)
-      ? (body.businessHours as import("@/features/voice/types/voice-types").VoiceSettings["businessHours"])
+      typeof payload.disclosureText === "string" ? payload.disclosureText : undefined,
+    businessHours: Array.isArray(payload.businessHours)
+      ? (payload.businessHours as import("@/features/voice/types/voice-types").VoiceSettings["businessHours"])
       : undefined,
   });
 

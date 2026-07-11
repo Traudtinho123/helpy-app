@@ -63,7 +63,7 @@ function KpiCard({
         <div className="mt-4">
           <AnimatedNumber
             value={value}
-            className="text-[32px] font-extrabold leading-none tracking-[-0.03em] text-[var(--text-primary)]"
+            className="text-[36px] font-extrabold leading-none tracking-[-0.03em] text-[var(--text-primary)]"
           />
           <p className="mt-1.5 text-[13px] font-medium text-[var(--text-secondary)]">
             {label}

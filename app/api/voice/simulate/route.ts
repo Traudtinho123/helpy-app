@@ -17,8 +17,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const body = (await request.json()) as VoiceSimulateRequest;
-  const transcript = body.transcript?.trim();
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "Ungültiger Request-Body." },
+      { status: 400 }
+    );
+  }
+
+  const payload = body as VoiceSimulateRequest;
+  const transcript = payload.transcript?.trim();
 
   if (!transcript || transcript.length < 8) {
     return NextResponse.json(
@@ -40,8 +50,8 @@ export async function POST(request: Request) {
 
   const startedAt = new Date().toISOString();
   const call = await createVoiceCall(context.companyId, {
-    callerPhone: body.callerPhone ?? "+41 79 000 00 00",
-    callerName: body.callerName ?? null,
+    callerPhone: payload.callerPhone ?? "+41 79 000 00 00",
+    callerName: payload.callerName ?? null,
     status: "in_progress",
     startedAt,
   });
@@ -49,8 +59,8 @@ export async function POST(request: Request) {
   const { processed, conversation } = runMockConversationServer({
     transcript,
     call,
-    callerName: body.callerName,
-    callerPhone: body.callerPhone,
+    callerName: payload.callerName,
+    callerPhone: payload.callerPhone,
     providerId: "mock",
   });
 
@@ -60,7 +70,7 @@ export async function POST(request: Request) {
     summary: processed.call.summary,
     intent: processed.call.intent,
     vorgang_id: processed.vorgangId,
-    duration_seconds: body.durationSeconds ?? 45,
+    duration_seconds: payload.durationSeconds ?? 45,
     ended_at: processed.call.endedAt,
   });
 

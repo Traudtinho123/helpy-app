@@ -14,8 +14,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const body = (await request.json()) as { callIds?: string[] };
-  const callIds = Array.isArray(body.callIds) ? body.callIds : [];
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "Ungültiger Request-Body." },
+      { status: 400 }
+    );
+  }
+
+  const callIds = Array.isArray((body as { callIds?: unknown }).callIds)
+    ? (body as { callIds: string[] }).callIds
+    : [];
 
   if (callIds.length === 0) {
     return NextResponse.json({ ok: false, error: "Keine callIds." }, { status: 400 });

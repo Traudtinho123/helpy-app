@@ -1,15 +1,21 @@
 import * as React from "react";
 
-import { surfaces } from "@/lib/design/tokens";
 import { cn } from "@/lib/utils";
+
+/**
+ * Glassmorphism direkt als Tailwind-Klassen — nicht nur über .helpy-glass-card,
+ * damit Styles garantiert greifen (Custom-Utilities in @layer können überschrieben werden).
+ */
+const GLASS_CARD_CLASSES =
+  "rounded-[16px] border border-white/60 bg-[rgba(255,255,255,0.75)] shadow-[0_4px_6px_rgba(0,0,0,0.04),0_10px_40px_rgba(99,102,241,0.08)] backdrop-blur-[20px] [-webkit-backdrop-filter:blur(20px)]";
 
 type CardVariant = "default" | "workspace" | "info" | "action";
 
 const cardVariants: Record<CardVariant, string> = {
-  default: surfaces.card,
-  workspace: `${surfaces.card} py-0`,
-  info: "helpy-glass-card rounded-[16px] border border-[var(--primary)]/20 bg-[var(--primary-light)]/60",
-  action: `${surfaces.card} ${surfaces.cardHover} helpy-glass-card-interactive cursor-pointer`,
+  default: GLASS_CARD_CLASSES,
+  workspace: `${GLASS_CARD_CLASSES} py-0`,
+  info: `${GLASS_CARD_CLASSES} border-[color-mix(in_srgb,var(--primary)_20%,transparent)] bg-[color-mix(in_srgb,var(--primary-light)_60%,transparent)]`,
+  action: `${GLASS_CARD_CLASSES} helpy-glass-card-interactive cursor-pointer transition-all duration-200 hover:-translate-y-px hover:shadow-[0_8px_12px_rgba(0,0,0,0.06),0_20px_60px_rgba(99,102,241,0.12)]`,
 };
 
 type CardProps = React.ComponentProps<"div"> & {

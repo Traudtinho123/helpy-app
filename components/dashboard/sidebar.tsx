@@ -44,16 +44,10 @@ function NavItem({
       className={cn(
         "group relative flex items-center gap-3 rounded-[10px] px-3 py-2 text-[13px] font-medium transition-all duration-150",
         isActive
-          ? "bg-[var(--sidebar-active)] text-white"
+          ? "border-l-[3px] border-l-[var(--primary)] bg-[var(--sidebar-active)] pl-[calc(0.75rem-3px)] text-white"
           : "text-[var(--text-sidebar-muted)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-sidebar)]"
       )}
     >
-      {isActive ? (
-        <span
-          aria-hidden
-          className="absolute top-1/2 left-0 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[var(--primary)]"
-        />
-      ) : null}
       <span
         className={cn(
           "flex size-7 shrink-0 items-center justify-center rounded-[8px] text-[15px] transition-colors duration-150",
@@ -131,7 +125,7 @@ export function Sidebar({ activeHref }: SidebarProps) {
 
           return (
             <section key={group.id}>
-              <p className="mb-2 px-3 text-[11px] font-semibold tracking-[0.08em] text-[var(--text-sidebar-muted)] uppercase">
+              <p className="mb-2 px-3 text-[11px] font-semibold tracking-[0.08em] text-[var(--text-secondary)] uppercase">
                 {group.label}
               </p>
               <div className="space-y-0.5">
@@ -142,7 +136,7 @@ export function Sidebar({ activeHref }: SidebarProps) {
         })}
 
         <section className="mt-auto pt-2">
-          <p className="mb-2 px-3 text-[11px] font-semibold tracking-[0.08em] text-[var(--text-sidebar-muted)] uppercase">
+          <p className="mb-2 px-3 text-[11px] font-semibold tracking-[0.08em] text-[var(--text-secondary)] uppercase">
             System
           </p>
           <div className="space-y-0.5">{settingsItems.map(renderNavItem)}</div>

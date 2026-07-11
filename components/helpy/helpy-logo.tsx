@@ -24,11 +24,11 @@ const sizeStyles = {
     gap: "gap-3",
   },
   sidebar: {
-    icon: "size-10 rounded-[14px]",
-    bot: "size-5",
-    title: "text-[24px] leading-none",
+    icon: "size-12 rounded-[16px]",
+    bot: "size-6",
+    title: "text-[26px] leading-none",
     subtitle: "text-[11px]",
-    gap: "gap-3",
+    gap: "gap-3.5",
   },
   lg: {
     icon: "size-12 rounded-[16px]",

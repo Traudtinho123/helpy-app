@@ -79,7 +79,7 @@
 
   /* Cards / Glass */
   --card-bg: rgba(255, 255, 255, 0.75);
-  --card-border: rgba(255, 255, 255, 0.5);
+  --card-border: rgba(255, 255, 255, 0.6);
   --card-shadow: 0 8px 32px rgba(99, 102, 241, 0.08);
   --card: var(--card-bg);
   --card-foreground: #0f0e17;
@@ -378,27 +378,27 @@
     border: 1px solid color-mix(in srgb, var(--primary) 15%, transparent);
   }
 
-  /* Glassmorphism Cards */
-  .helpy-glass-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--card-border);
-    border-radius: 16px;
-    box-shadow:
-      0 4px 6px rgba(0, 0, 0, 0.04),
-      0 10px 40px rgba(99, 102, 241, 0.06);
-    transition:
-      box-shadow 0.2s ease,
-      transform 0.2s ease;
-  }
-
   .helpy-glass-card-interactive:hover {
     box-shadow:
       0 8px 12px rgba(0, 0, 0, 0.06),
       0 20px 60px rgba(99, 102, 241, 0.12);
     transform: translateY(-1px);
   }
+}
+
+/* Glassmorphism — AUSSERHALB von @layer, damit Tailwind-Utilities nicht überschreiben */
+.helpy-glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.04),
+    0 10px 40px rgba(99, 102, 241, 0.08);
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 @layer base {

@@ -120,13 +120,7 @@ export function StripeKpiTile({
   const styles = accentStyles[accent];
 
   return (
-    <Card
-      className={cn(
-        "helpy-glass-card helpy-fade-in-slide py-0",
-        className
-      )}
-      style={style}
-    >
+    <Card className={cn("helpy-fade-in-slide py-0", className)} style={style}>
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-3">
           <div
@@ -143,10 +137,10 @@ export function StripeKpiTile({
           {animate ? (
             <AnimatedNumber
               value={metric.current}
-              className="text-[32px] font-extrabold leading-none tracking-[-0.03em] text-[var(--text-primary)]"
+              className="text-[36px] font-extrabold leading-none tracking-[-0.03em] text-[var(--text-primary)]"
             />
           ) : (
-            <p className="text-[32px] font-extrabold leading-none tracking-[-0.03em] text-[var(--text-primary)]">
+            <p className="text-[36px] font-extrabold leading-none tracking-[-0.03em] text-[var(--text-primary)]">
               {metric.current}
             </p>
           )}
