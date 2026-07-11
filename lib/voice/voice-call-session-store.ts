@@ -41,16 +41,37 @@ export function createVoiceCallSession(input: {
   callerPhone?: string | null;
   dbCallId?: string | null;
   emptyResultCount?: number;
+  /** Bestehende Turns beim Wiederherstellen (z. B. aus DB). */
+  turns?: VoiceTranscriptTurn[];
 }): VoiceCallSession {
   pruneExpiredSessions();
+  const existing = sessions.get(input.callSid);
+  if (existing) {
+    if (input.dbCallId !== undefined) existing.dbCallId = input.dbCallId;
+    if (input.callerPhone !== undefined) {
+      existing.callerPhone = input.callerPhone ?? existing.callerPhone;
+    }
+    if (input.emptyResultCount !== undefined) {
+      existing.emptyResultCount = input.emptyResultCount;
+    }
+    if (input.turns && input.turns.length > existing.turns.length) {
+      existing.turns = [...input.turns];
+      existing.turnCount = existing.turns.filter((turn) => turn.role === "caller").length;
+    }
+    existing.updatedAt = Date.now();
+    sessions.set(input.callSid, existing);
+    return existing;
+  }
+
   const now = Date.now();
+  const turns = input.turns ?? [];
   const session: VoiceCallSession = {
     callSid: input.callSid,
     companyId: input.companyId,
     callerPhone: input.callerPhone ?? null,
     dbCallId: input.dbCallId ?? null,
-    turns: [],
-    turnCount: 0,
+    turns: [...turns],
+    turnCount: turns.filter((turn) => turn.role === "caller").length,
     emptyResultCount: input.emptyResultCount ?? 0,
     createdAt: now,
     updatedAt: now,
@@ -106,6 +127,7 @@ export function appendVoiceCallTurn(
   }
   session.updatedAt = Date.now();
   sessions.set(callSid, session);
+  console.log("[voice] SESSION TURNS:", JSON.stringify(session.turns));
   return session;
 }
 

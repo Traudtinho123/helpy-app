@@ -1,6 +1,7 @@
 import { getDailyStatusSummary, subscribeStatus } from "@/features/workspace/services/status";
 import type { DailyStatusSummary } from "@/features/workspace/services/status/types";
 import { subscribeCompletedVorgaenge } from "@/features/workspace/services/vorgaenge/completed-vorgaenge-store";
+import { isHelpyPhoneVorgang } from "@/features/voice/services/helpy-phone-detector";
 import { isHelpyReportVorgang } from "@/features/workspace/services/vorgaenge/helpy-report-detector";
 import {
   countUnreadHelpyReports,
@@ -37,9 +38,12 @@ export type VorgaengeCentralSummary = {
 };
 
 function buildFilterCounts(vorgaenge: Vorgang[]): VorgaengeFilterCounts {
-  const customerVorgaenge = vorgaenge.filter((item) => !isHelpyReportVorgang(item));
+  const customerVorgaenge = vorgaenge.filter(
+    (item) => !isHelpyReportVorgang(item) && !isHelpyPhoneVorgang(item)
+  );
   const activeOpen = customerVorgaenge.filter((item) => isVorgangActiveOpen(item));
   const helpyReports = vorgaenge.filter((item) => isHelpyReportVorgang(item));
+  const helpyPhone = vorgaenge.filter((item) => isHelpyPhoneVorgang(item));
 
   return {
     alle: activeOpen.length,
@@ -52,6 +56,7 @@ function buildFilterCounts(vorgaenge: Vorgang[]): VorgaengeFilterCounts {
     wartend: customerVorgaenge.filter((item) => isVorgangAwaitingCustomerReply(item))
       .length,
     helpy_reports: helpyReports.length,
+    helpy_phone: helpyPhone.length,
     helpy_reports_unread: countUnreadHelpyReports(
       helpyReports.map((item) => item.id)
     ),

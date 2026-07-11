@@ -32,6 +32,7 @@ export const EMPTY_MAIL_SUMMARY: MailSummary = {
     erledigt: 0,
     wartend: 0,
     helpy_reports: 0,
+    helpy_phone: 0,
     helpy_reports_unread: 0,
   },
   dailyStatus: EMPTY_DAILY_STATUS,

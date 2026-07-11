@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Bot } from "lucide-react";
+import { Bot, Phone } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { HelpyReportCard } from "@/features/workspace/components/vorgaenge/helpy-report-card";
 import { HelpyVorgaengePanel } from "@/features/workspace/components/vorgaenge/helpy-vorgaenge-panel";
@@ -52,6 +52,7 @@ const filterOrder: VorgangFilter[] = [
   "wartend",
   "erledigt",
   "helpy_reports",
+  "helpy_phone",
 ];
 
 export function VorgaengePage() {
@@ -157,6 +158,9 @@ export function VorgaengePage() {
     if (activeFilter === "helpy_reports") {
       return vorgaenge;
     }
+    if (activeFilter === "helpy_phone") {
+      return vorgaenge;
+    }
     return sortDeduplicatedVorgaenge(vorgaenge);
   }, [activeFilter, allVorgaenge]);
 
@@ -209,6 +213,12 @@ export function VorgaengePage() {
               >
                 {filter === "helpy_reports" && (
                   <Bot
+                    className="mr-1.5 inline size-3.5 -translate-y-px align-middle"
+                    strokeWidth={2.25}
+                  />
+                )}
+                {filter === "helpy_phone" && (
+                  <Phone
                     className="mr-1.5 inline size-3.5 -translate-y-px align-middle"
                     strokeWidth={2.25}
                   />

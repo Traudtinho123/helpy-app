@@ -13,7 +13,9 @@ export type VorgangTyp =
   | "geschaeftsanfrage"
   | "bestandskunde"
   /** HELPY-System-Mails (Wochenbericht, Benachrichtigungen). */
-  | "helpy_report";
+  | "helpy_report"
+  /** Telefon-Vorgänge aus HELPY Phone. */
+  | "helpy_phone";
 
 /** @deprecated Use "anfrage" — kept for migration/compat checks. */
 export type LegacyVorgangTyp = "immobilien_anfrage";
@@ -26,7 +28,7 @@ export type VorgangStatus =
   | "erledigt"
   | "wartend";
 
-export type VorgangFilter = VorgangStatus | "alle" | "helpy_reports";
+export type VorgangFilter = VorgangStatus | "alle" | "helpy_reports" | "helpy_phone";
 
 export type Vorgang = {
   id: string;
@@ -95,6 +97,7 @@ export const VORGANG_TYP_LABELS: Record<VorgangTyp, string> = {
   geschaeftsanfrage: "Geschäftsanfrage",
   bestandskunde: "Bestandskunden-Kommunikation",
   helpy_report: "HELPY Report",
+  helpy_phone: "HELPY Phone",
 };
 
 /** True for inquiry-like Vorgänge (incl. legacy immobilien_anfrage string). */
@@ -123,4 +126,5 @@ export const VORGANG_FILTER_LABELS: Record<VorgangFilter, string> = {
   erledigt: "Erledigt",
   wartend: "Warten auf Antwort",
   helpy_reports: "HELPY Reports",
+  helpy_phone: "HELPY Phone",
 };

@@ -2,21 +2,27 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   CalendarDays,
   CheckCircle2,
   ChevronDown,
+  ExternalLink,
   Loader2,
   PhoneIncoming,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/Modal";
+import { VoiceNewCustomerModal } from "@/features/voice/components/voice-new-customer-modal";
 import {
+  createVoiceCallVorgang,
   fetchVoiceCallsDashboard,
   generateVoiceCallSummary,
   type VoiceCallListItem,
   type VoiceCallWorkflowStatus,
 } from "@/features/voice/services/voice-settings-client";
+import { findKundenakteByPhone } from "@/features/voice/services/voice-vorgang-factory";
+import { ingestVoiceProcessedCall } from "@/features/voice/services/voice-vorgaenge-store";
 import type { VoiceTranscriptTurn } from "@/features/voice/types/voice-types";
 import { cn } from "@/lib/utils";
 
@@ -100,15 +106,23 @@ function CallDetailModal({
   call,
   onClose,
   onSummaryGenerated,
+  onVorgangCreated,
 }: {
   call: VoiceCallListItem | null;
   onClose: () => void;
   onSummaryGenerated: (callId: string, summary: string) => void;
+  onVorgangCreated: (callId: string, vorgangId: string) => void;
 }) {
+  const router = useRouter();
   const [showTranscript, setShowTranscript] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryError, setSummaryError] = useState<string | null>(null);
+  const [vorgangId, setVorgangId] = useState<string | null>(null);
+  const [vorgangLoading, setVorgangLoading] = useState(false);
+  const [vorgangError, setVorgangError] = useState<string | null>(null);
+  const [customerModalOpen, setCustomerModalOpen] = useState(false);
+  const [autoCreated, setAutoCreated] = useState(false);
 
   useEffect(() => {
     if (!call) return;
@@ -116,6 +130,13 @@ function CallDetailModal({
     setSummary(call.summary?.trim() ?? null);
     setSummaryError(null);
     setSummaryLoading(false);
+    setVorgangId(call.vorgangId ?? null);
+    setVorgangError(null);
+    setVorgangLoading(false);
+    setAutoCreated(
+      Boolean(call.vorgangId) &&
+        call.classification === "besichtigung_anfrage"
+    );
   }, [call]);
 
   useEffect(() => {
@@ -148,129 +169,216 @@ function CallDetailModal({
     };
   }, [call, summary, onSummaryGenerated]);
 
+  const handleCreateVorgang = useCallback(async () => {
+    if (!call || vorgangId) return;
+
+    setVorgangLoading(true);
+    setVorgangError(null);
+
+    const result = await createVoiceCallVorgang(call.id);
+
+    setVorgangLoading(false);
+
+    if (!result.ok) {
+      setVorgangError(result.error);
+      return;
+    }
+
+    if (result.processed) {
+      ingestVoiceProcessedCall(result.processed);
+    }
+
+    setVorgangId(result.vorgangId);
+    onVorgangCreated(call.id, result.vorgangId);
+  }, [call, onVorgangCreated, vorgangId]);
+
+  const handleCustomerAction = useCallback(() => {
+    if (!call?.callerPhone) return;
+
+    const existing = findKundenakteByPhone(call.callerPhone);
+    if (existing) {
+      router.push(
+        `/kunden?select=${encodeURIComponent(existing.id)}&phone=${encodeURIComponent(call.callerPhone)}`
+      );
+      return;
+    }
+
+    setCustomerModalOpen(true);
+  }, [call?.callerPhone, router]);
+
   if (!call) return null;
 
   const turns = call.transcriptTurns ?? [];
-  const vorgangHref = call.vorgangId ? `/workspace/${call.vorgangId}` : null;
+  const vorgangHref = vorgangId ? `/workspace/${vorgangId}` : null;
   const anliegenLabel =
     call.classificationLabel ?? call.intentLabel ?? "Allgemeine Anfrage";
+  const hasVorgang = Boolean(vorgangId);
 
   return (
-    <Modal
-      open={Boolean(call)}
-      title="Anrufdetails"
-      onClose={onClose}
-      maxWidth="lg"
-    >
-      <div className="space-y-6">
-        <section className="rounded-[16px] border border-[var(--card-border)] bg-[var(--background-secondary)]/40 px-4 py-4">
-          <p className="text-[14px] font-semibold text-[var(--text-primary)]">
-            📞 Anruf vom {formatDate(call.startedAt)} um {formatTime(call.startedAt)}
-          </p>
-          <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
-            Dauer: {formatDuration(call.durationSeconds)} | Anliegen: {anliegenLabel}
-          </p>
-
-          <div className="mt-4 border-t border-[var(--card-border)] pt-4">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
-              Zusammenfassung
+    <>
+      <Modal
+        open={Boolean(call)}
+        title="Anrufdetails"
+        onClose={onClose}
+        maxWidth="lg"
+      >
+        <div className="space-y-6">
+          <section className="rounded-[16px] border border-[var(--card-border)] bg-[var(--background-secondary)]/40 px-4 py-4">
+            <p className="text-[14px] font-semibold text-[var(--text-primary)]">
+              📞 Anruf vom {formatDate(call.startedAt)} um {formatTime(call.startedAt)}
             </p>
-            {summaryLoading ? (
-              <div className="mt-2 flex items-center gap-2 text-[13px] text-[var(--text-secondary)]">
-                <Loader2 className="size-4 animate-spin" />
-                Zusammenfassung wird erstellt…
-              </div>
-            ) : summary ? (
-              <p className="mt-2 text-[14px] leading-relaxed text-[var(--text-secondary)]">
-                {summary}
+            <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
+              Dauer: {formatDuration(call.durationSeconds)} | Anliegen: {anliegenLabel}
+            </p>
+
+            <div className="mt-4 border-t border-[var(--card-border)] pt-4">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+                Zusammenfassung
               </p>
-            ) : (
-              <p className="mt-2 text-[13px] text-[var(--text-secondary)]">
-                {summaryError ?? "Keine Zusammenfassung verfügbar."}
-              </p>
-            )}
-          </div>
-
-          {vorgangHref ? (
-            <p className="mt-3 text-[13px] text-[var(--text-secondary)]">
-              <CheckCircle2 className="mr-1 inline size-4 text-[var(--success)]" />
-              Vorgang wurde erstellt —{" "}
-              <Link
-                href={vorgangHref}
-                className="font-semibold text-[var(--primary)] hover:underline"
-              >
-                Zum Vorgang
-              </Link>
-            </p>
-          ) : null}
-
-          {call.requestedDateTime ? (
-            <p className="mt-2 flex items-start gap-2 text-[13px] text-[var(--text-secondary)]">
-              <CalendarDays className="mt-0.5 size-4 shrink-0 text-[var(--primary)]" />
-              <span>
-                <span className="font-semibold text-[var(--text-primary)]">
-                  Terminwunsch:
-                </span>{" "}
-                {call.requestedDateTime}
-              </span>
-            </p>
-          ) : null}
-        </section>
-
-        <section>
-          <button
-            type="button"
-            onClick={() => setShowTranscript((value) => !value)}
-            className="flex w-full items-center justify-between rounded-[12px] border border-[var(--card-border)] px-4 py-3 text-left text-[13px] font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--background-secondary)]"
-          >
-            Vollständiges Transkript anzeigen
-            <ChevronDown
-              className={cn(
-                "size-4 text-[var(--text-muted)] transition-transform",
-                showTranscript && "rotate-180"
-              )}
-            />
-          </button>
-
-          {showTranscript ? (
-            <div className="mt-3 rounded-[14px] border border-[var(--card-border)] bg-white px-4 py-4">
-              {turns.length > 0 ? (
-                <ul className="space-y-4">
-                  {turns.map((turn, index) => (
-                    <TranscriptTurnItem key={`${turn.at}-${index}`} turn={turn} />
-                  ))}
-                </ul>
+              {summaryLoading ? (
+                <div className="mt-2 flex items-center gap-2 text-[13px] text-[var(--text-secondary)]">
+                  <Loader2 className="size-4 animate-spin" />
+                  Zusammenfassung wird erstellt…
+                </div>
+              ) : summary ? (
+                <p className="mt-2 text-[14px] leading-relaxed text-[var(--text-secondary)]">
+                  {summary}
+                </p>
               ) : (
-                <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-[var(--text-secondary)]">
-                  {call.transcript ?? "Kein Transkript vorhanden."}
+                <p className="mt-2 text-[13px] text-[var(--text-secondary)]">
+                  {summaryError ?? "Keine Zusammenfassung verfügbar."}
                 </p>
               )}
             </div>
-          ) : null}
-        </section>
 
-        <div className="flex flex-wrap gap-2 border-t border-[var(--card-border)] pt-4">
-          {vorgangHref ? (
-            <Link
-              href={vorgangHref}
-              className="inline-flex h-8 items-center justify-center rounded-lg bg-[var(--primary)] px-3 text-[12px] font-semibold text-white"
+            {hasVorgang ? (
+              <p className="mt-3 text-[13px] text-[var(--text-secondary)]">
+                <CheckCircle2 className="mr-1 inline size-4 text-[var(--success)]" />
+                {autoCreated
+                  ? "Vorgang automatisch erstellt — "
+                  : "Vorgang erstellt — "}
+                <Link
+                  href={vorgangHref!}
+                  className="font-semibold text-[var(--primary)] hover:underline"
+                >
+                  → Vorgang öffnen
+                </Link>
+              </p>
+            ) : null}
+
+            {call.requestedDateTime ? (
+              <p className="mt-2 flex items-start gap-2 text-[13px] text-[var(--text-secondary)]">
+                <CalendarDays className="mt-0.5 size-4 shrink-0 text-[var(--primary)]" />
+                <span>
+                  <span className="font-semibold text-[var(--text-primary)]">
+                    Terminwunsch:
+                  </span>{" "}
+                  {call.requestedDateTime}
+                </span>
+              </p>
+            ) : null}
+          </section>
+
+          <section>
+            <button
+              type="button"
+              onClick={() => setShowTranscript((value) => !value)}
+              className="flex w-full items-center justify-between rounded-[12px] border border-[var(--card-border)] px-4 py-3 text-left text-[13px] font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--background-secondary)]"
             >
-              Vorgang erstellen
-            </Link>
-          ) : (
-            <Button size="sm" disabled>
-              Vorgang erstellen
+              Vollständiges Transkript anzeigen
+              <ChevronDown
+                className={cn(
+                  "size-4 text-[var(--text-muted)] transition-transform",
+                  showTranscript && "rotate-180"
+                )}
+              />
+            </button>
+
+            {showTranscript ? (
+              <div className="mt-3 rounded-[14px] border border-[var(--card-border)] bg-white px-4 py-4">
+                {turns.length > 0 ? (
+                  <ul className="space-y-4">
+                    {turns.map((turn, index) => (
+                      <TranscriptTurnItem key={`${turn.at}-${index}`} turn={turn} />
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-[var(--text-secondary)]">
+                    {call.transcript ?? "Kein Transkript vorhanden."}
+                  </p>
+                )}
+              </div>
+            ) : null}
+          </section>
+
+          {vorgangError ? (
+            <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[13px] text-red-800">
+              {vorgangError}
+            </p>
+          ) : null}
+
+          <div className="flex flex-wrap gap-2 border-t border-[var(--card-border)] pt-4">
+            {hasVorgang && vorgangHref ? (
+              <Link
+                href={vorgangHref}
+                className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 text-[12px] font-semibold text-white"
+              >
+                <ExternalLink className="size-3.5" />
+                → Vorgang öffnen
+              </Link>
+            ) : null}
+
+            {hasVorgang ? null : (
+              <Button
+                size="sm"
+                disabled={vorgangLoading || call.status !== "completed"}
+                onClick={() => void handleCreateVorgang()}
+              >
+                {vorgangLoading ? (
+                  <>
+                    <Loader2 className="mr-1 size-3.5 animate-spin" />
+                    Wird erstellt…
+                  </>
+                ) : (
+                  "Vorgang erstellen"
+                )}
+              </Button>
+            )}
+
+            {hasVorgang ? (
+              <Button size="sm" variant="outline" disabled className="text-[var(--success)]">
+                <CheckCircle2 className="mr-1 size-3.5" />
+                Vorgang erstellt
+              </Button>
+            ) : null}
+
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={!call.callerPhone}
+              onClick={handleCustomerAction}
+            >
+              Kunde anlegen
             </Button>
-          )}
-          <Button size="sm" variant="outline" disabled>
-            Kunde anlegen
-          </Button>
-          <Button size="sm" variant="ghost" onClick={onClose}>
-            Schliessen
-          </Button>
+            <Button size="sm" variant="ghost" onClick={onClose}>
+              Schliessen
+            </Button>
+          </div>
         </div>
-      </div>
-    </Modal>
+      </Modal>
+
+      <VoiceNewCustomerModal
+        open={customerModalOpen}
+        phone={call.callerPhone ?? ""}
+        defaultName={call.callerName}
+        onClose={() => setCustomerModalOpen(false)}
+        onCreated={(kundenakte) => {
+          router.push(
+            `/kunden?select=${encodeURIComponent(kundenakte.id)}&phone=${encodeURIComponent(kundenakte.telefon)}`
+          );
+        }}
+      />
+    </>
   );
 }
 
@@ -292,6 +400,31 @@ export function VoiceCallsPanel() {
     );
     setSelectedCall((current) =>
       current?.id === callId ? { ...current, summary } : current
+    );
+  }, []);
+
+  const handleVorgangCreated = useCallback((callId: string, vorgangId: string) => {
+    setCalls((current) =>
+      current.map((item) =>
+        item.id === callId
+          ? {
+              ...item,
+              vorgangId,
+              hasPreparedVorgang: true,
+              workflowStatus: "vorgang_vorbereitet" as const,
+            }
+          : item
+      )
+    );
+    setSelectedCall((current) =>
+      current?.id === callId
+        ? {
+            ...current,
+            vorgangId,
+            hasPreparedVorgang: true,
+            workflowStatus: "vorgang_vorbereitet",
+          }
+        : current
     );
   }, []);
 
@@ -370,6 +503,7 @@ export function VoiceCallsPanel() {
         call={selectedCall}
         onClose={() => setSelectedCall(null)}
         onSummaryGenerated={handleSummaryGenerated}
+        onVorgangCreated={handleVorgangCreated}
       />
     </>
   );

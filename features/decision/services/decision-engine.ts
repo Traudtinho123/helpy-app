@@ -69,11 +69,18 @@ export function isConnectedMailVorgang(source: {
 
 export function isVoiceVorgang(source: {
   quelle?: string;
+  typ?: string;
   id?: string;
   kopfzeile?: { quelle?: string };
 }): boolean {
   const quelle = source.quelle ?? source.kopfzeile?.quelle ?? "";
-  return quelle === "Telefon" || Boolean(source.id?.startsWith("voice-"));
+  return (
+    source.typ === "helpy_phone" ||
+    quelle === "helpy_phone" ||
+    quelle === "Telefon" ||
+    quelle === "HELPY Phone" ||
+    Boolean(source.id?.startsWith("voice-"))
+  );
 }
 
 export function isHelpyIntakeVorgang(source: {

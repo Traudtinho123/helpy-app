@@ -1,4 +1,4 @@
-import { processVoiceCall } from "@/features/voice/services/voice-call-processor";
+import { buildVoiceProcessedCallFromRecord } from "@/features/voice/services/voice-vorgang-factory";
 import {
   buildTwilioClosedTwiml,
   buildTwilioDisabledTwiml,
@@ -15,7 +15,6 @@ import {
 import { isWithinBusinessHours } from "@/features/voice/services/voice-business-hours";
 import {
   detectVoiceCallClassification,
-  shouldCreateVoiceVorgang,
 } from "@/features/voice/services/voice-intent-engine";
 import type { Json } from "@/lib/database/types";
 import {
@@ -142,11 +141,12 @@ async function finalizeCallWithCallbackVorgang(input: {
     callerPhone: session?.callerPhone ?? existing?.callerPhone ?? null,
   };
 
-  const processed = processVoiceCall({
+  const processed = buildVoiceProcessedCallFromRecord({
     call: callRecord,
     transcript: flatTranscript,
     classification: "rueckruf_wunsch",
     summaryOverride: summary,
+    autoCreated: false,
   });
 
   if (activeSession) {
@@ -236,12 +236,16 @@ export async function handleTwilioIncomingCall(
     });
   }
 
-  createVoiceCallSession({
-    callSid,
-    companyId,
-    callerPhone,
-    dbCallId,
-  });
+  const { session: restoredSession, callId: restoredCallId } =
+    await ensureVoiceCallSessionWithDbTurns({
+      callSid,
+      companyId,
+      callerPhone,
+    });
+  dbCallId = restoredCallId ?? dbCallId;
+  if (dbCallId && !restoredSession.dbCallId) {
+    upsertVoiceCallSession(callSid, { dbCallId });
+  }
 
   const company = await loadVoiceCompanyContext(companyId);
   const promptContext = await loadVoiceCallPromptContext(companyId);
@@ -254,18 +258,25 @@ export async function handleTwilioIncomingCall(
     ? `${greetingText} ${disclosureText}`
     : greetingText;
 
-  appendVoiceCallTurn(callSid, {
-    role: "helpy",
-    text: spokenOpening,
-    at: new Date().toISOString(),
-  });
+  const sessionBeforeGreeting = getVoiceCallSession(callSid);
+  const hasGreeting = (sessionBeforeGreeting?.turns ?? []).some(
+    (turn) => turn.role === "helpy"
+  );
 
-  if (dbCallId) {
-    const session = getVoiceCallSession(callSid);
-    await persistVoiceCallTranscript(dbCallId, session?.turns ?? [], {
-      status: "in_progress",
-      callerPhone,
+  if (!hasGreeting) {
+    appendVoiceCallTurn(callSid, {
+      role: "helpy",
+      text: spokenOpening,
+      at: new Date().toISOString(),
     });
+
+    if (dbCallId) {
+      const session = getVoiceCallSession(callSid);
+      await persistVoiceCallTranscript(dbCallId, session?.turns ?? [], {
+        status: "in_progress",
+        callerPhone,
+      });
+    }
   }
 
   const gatherActionUrl = buildVoiceWebhookUrl(
@@ -365,6 +376,7 @@ export async function handleTwilioGatherSpeech(
   });
 
   session = getVoiceCallSession(callSid)!;
+  console.log("[voice] gather caller turn saved, callSid:", callSid);
 
   await persistVoiceCallSessionState(callId, session, {
     status: "in_progress",
@@ -386,6 +398,7 @@ export async function handleTwilioGatherSpeech(
   });
 
   session = getVoiceCallSession(callSid)!;
+  console.log("[voice] gather helpy reply saved, callSid:", callSid);
 
   await persistVoiceCallSessionState(callId, session, {
     status: "in_progress",
@@ -497,12 +510,12 @@ export async function handleTwilioCallStatus(
         callerName: analysis?.callerName ?? existing?.callerName ?? null,
       };
 
-      const shouldProcess =
-        shouldCreateVoiceVorgang(classification) &&
-        (analysis?.createVorgang !== false || flatTranscript.length >= 8);
+      const shouldAutoCreateVorgang =
+        classification === "besichtigung_anfrage" &&
+        analysis?.createVorgang !== false;
 
-      if (shouldProcess) {
-        const processed = processVoiceCall({
+      if (shouldAutoCreateVorgang) {
+        const processed = buildVoiceProcessedCallFromRecord({
           call: callRecord,
           transcript: flatTranscript,
           classification,
@@ -511,6 +524,7 @@ export async function handleTwilioCallStatus(
           requestedDateTime: analysis?.requestedDateTime ?? null,
           summaryOverride: analysis?.summaryHint ?? summary,
           analysis,
+          autoCreated: true,
         });
 
         await dispatchVoiceCallAlert({

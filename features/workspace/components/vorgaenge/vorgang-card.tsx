@@ -3,6 +3,7 @@
 import { HelpyPreparedActions } from "@/features/review/components/actions";
 import { HelpyEmpfiehltBox } from "@/features/decision/components/helpy-empfiehlt-box";
 import { isConnectedMailVorgang } from "@/features/decision/services/decision-engine";
+import { isHelpyPhoneVorgang } from "@/features/voice/services/helpy-phone-detector";
 import { isPlatformRealEstateVorgang } from "@/features/brain/services/platform-email-detector";
 import { HelpyReplyDraftCard } from "@/features/reply-drafts/components/helpy-reply-draft-card";
 import { HelpyArchiveCard } from "@/features/spam-handling/components/helpy-archive-card";
@@ -42,6 +43,7 @@ export function VorgangCard({ vorgang, onCompleted }: VorgangCardProps) {
   const workspacePath = resolveVorgangOpenPath(vorgang, getWorkspacePath);
   const { currentStatus } = useVorgangStatus(vorgang);
   const isConnectedMail = isConnectedMailVorgang(vorgang);
+  const isHelpyPhone = isHelpyPhoneVorgang(vorgang);
   const isPlatformInquiry = isPlatformRealEstateVorgang(vorgang);
   const isArchiveCandidate = isConnectedMail && shouldPrepareArchive(vorgang);
   const [completing, setCompleting] = useState(false);
@@ -98,7 +100,13 @@ export function VorgangCard({ vorgang, onCompleted }: VorgangCardProps) {
             <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] text-[#64748B]">
               <span>{vorgang.kunde}</span>
               <span className="text-[#CBD5E1]">·</span>
-              <span className="text-[#94A3B8]">{vorgang.quelle}</span>
+              {isHelpyPhone ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#ECFDF5] px-2 py-0.5 text-[10px] font-semibold text-[#047857]">
+                  📞 Via Telefon
+                </span>
+              ) : (
+                <span className="text-[#94A3B8]">{vorgang.quelle}</span>
+              )}
               {vorgang.skillLabel && (
                 <>
                   <span className="text-[#CBD5E1]">·</span>

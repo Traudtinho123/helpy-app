@@ -284,6 +284,39 @@ export async function deleteVoiceStandardResponse(
   return { ok: true };
 }
 
+export async function createVoiceCallVorgang(
+  callId: string
+): Promise<
+  | { ok: true; vorgangId: string; processed?: VoiceProcessedCall; alreadyExists?: boolean }
+  | { ok: false; error: string }
+> {
+  const response = await fetch(`/api/voice/calls/${callId}/create-vorgang`, {
+    method: "POST",
+  });
+
+  const payload = (await response.json()) as {
+    ok?: boolean;
+    vorgangId?: string;
+    processed?: VoiceProcessedCall;
+    alreadyExists?: boolean;
+    error?: string;
+  };
+
+  if (!response.ok || !payload.ok || !payload.vorgangId) {
+    return {
+      ok: false,
+      error: payload.error ?? "Vorgang konnte nicht erstellt werden.",
+    };
+  }
+
+  return {
+    ok: true,
+    vorgangId: payload.vorgangId,
+    processed: payload.processed,
+    alreadyExists: payload.alreadyExists,
+  };
+}
+
 export async function syncVoicePortfolioObjects(
   objects: Array<{
     objectId: string;

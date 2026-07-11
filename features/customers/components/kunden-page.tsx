@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { ArrowDownUp } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { CustomerProfile } from "@/features/customers/components/customer-profile";
@@ -18,9 +19,13 @@ import { useLeadScores } from "@/features/lead-scoring/hooks/use-lead-scores";
 import { sortCustomersByLeadScore } from "@/features/lead-scoring/services/lead-score-refresh";
 import { useConfirmedKundenakten } from "@/features/kundenakte/hooks/use-kundenakte";
 import { mergeCustomersWithConfirmedKundenakten } from "@/features/kundenakte/services/kundenakte-mapper";
+import { normalizePhone } from "@/features/crm/services/crm-merge";
 import { cn } from "@/lib/utils";
 
 export function KundenPage() {
+  const searchParams = useSearchParams();
+  const selectParam = searchParams.get("select");
+  const phoneParam = searchParams.get("phone");
   const confirmedKundenakten = useConfirmedKundenakten();
   const baseCustomers = useMemo(
     () => mergeCustomersWithConfirmedKundenakten(mockCustomers, confirmedKundenakten),
@@ -32,6 +37,23 @@ export function KundenPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedId, setSelectedId] = useState(customers[0]?.id ?? "");
   const [sortByScore, setSortByScore] = useState(false);
+
+  useEffect(() => {
+    if (selectParam && customers.some((customer) => customer.id === selectParam)) {
+      setSelectedId(selectParam);
+      return;
+    }
+
+    if (phoneParam) {
+      const normalized = normalizePhone(phoneParam);
+      const match = customers.find(
+        (customer) => normalizePhone(customer.phone) === normalized
+      );
+      if (match) {
+        setSelectedId(match.id);
+      }
+    }
+  }, [customers, phoneParam, selectParam]);
 
   const filterCounts = useMemo(() => getFilterCounts(customers), [customers]);
 

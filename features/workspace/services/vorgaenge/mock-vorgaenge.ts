@@ -1,5 +1,6 @@
 import { getBrainV2Items } from "@/features/brain/services/brain-v2";
 import { mapPreparedWorkItemsToVorgaenge } from "@/features/workspace/services/vorgaenge/brain-v2-mapper";
+import { isHelpyPhoneVorgang } from "@/features/voice/services/helpy-phone-detector";
 import { isHelpyReportVorgang } from "@/features/workspace/services/vorgaenge/helpy-report-detector";
 import {
   getEffectiveVorgangStatus,
@@ -26,6 +27,12 @@ export function sortHelpyReportVorgaenge(vorgaenge: Vorgang[]): Vorgang[] {
   );
 }
 
+export function sortHelpyPhoneVorgaenge(vorgaenge: Vorgang[]): Vorgang[] {
+  return [...vorgaenge].sort(
+    (a, b) => getReceivedTimestamp(b) - getReceivedTimestamp(a)
+  );
+}
+
 export function filterVorgaenge(
   vorgaenge: Vorgang[],
   filter: VorgangFilter
@@ -34,7 +41,13 @@ export function filterVorgaenge(
     return sortHelpyReportVorgaenge(vorgaenge.filter((v) => isHelpyReportVorgang(v)));
   }
 
-  const customerVorgaenge = vorgaenge.filter((v) => !isHelpyReportVorgang(v));
+  if (filter === "helpy_phone") {
+    return sortHelpyPhoneVorgaenge(vorgaenge.filter((v) => isHelpyPhoneVorgang(v)));
+  }
+
+  const customerVorgaenge = vorgaenge.filter(
+    (v) => !isHelpyReportVorgang(v) && !isHelpyPhoneVorgang(v)
+  );
 
   if (filter === "alle") {
     return customerVorgaenge.filter((v) => isVorgangActiveOpen(v));
@@ -50,7 +63,9 @@ export function filterVorgaenge(
 export function getVorgangFilterCounts(
   vorgaenge: Vorgang[]
 ): Record<VorgangFilter, number> {
-  const customerVorgaenge = vorgaenge.filter((v) => !isHelpyReportVorgang(v));
+  const customerVorgaenge = vorgaenge.filter(
+    (v) => !isHelpyReportVorgang(v) && !isHelpyPhoneVorgang(v)
+  );
   const activeOpen = customerVorgaenge.filter((v) => isVorgangActiveOpen(v));
 
   return {
@@ -65,6 +80,7 @@ export function getVorgangFilterCounts(
     wartend: customerVorgaenge.filter((v) => isVorgangAwaitingCustomerReply(v))
       .length,
     helpy_reports: vorgaenge.filter((v) => isHelpyReportVorgang(v)).length,
+    helpy_phone: vorgaenge.filter((v) => isHelpyPhoneVorgang(v)).length,
   };
 }
 
