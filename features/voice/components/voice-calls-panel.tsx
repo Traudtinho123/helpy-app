@@ -13,15 +13,22 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/Modal";
-import { VoiceNewCustomerModal } from "@/features/voice/components/voice-new-customer-modal";
+import { CreateCustomerModal } from "@/features/customers/components/create-customer-modal";
+import type { Customer } from "@/features/customers/mock/mock-customers";
+import {
+  lookupCustomerByPhone,
+} from "@/features/customers/services/kunden-client";
+import {
+  findDbCustomerByPhone,
+  prependDbKundeCustomer,
+} from "@/features/customers/services/kunden-store";
 import {
   createVoiceCallVorgang,
-  fetchVoiceCallsDashboard,
   generateVoiceCallSummary,
+  fetchVoiceCallsDashboard,
   type VoiceCallListItem,
   type VoiceCallWorkflowStatus,
 } from "@/features/voice/services/voice-settings-client";
-import { findKundenakteByPhone } from "@/features/voice/services/voice-vorgang-factory";
 import { ingestVoiceProcessedCall } from "@/features/voice/services/voice-vorgaenge-store";
 import type { VoiceTranscriptTurn } from "@/features/voice/types/voice-types";
 import { cn } from "@/lib/utils";
@@ -123,6 +130,10 @@ function CallDetailModal({
   const [vorgangError, setVorgangError] = useState<string | null>(null);
   const [customerModalOpen, setCustomerModalOpen] = useState(false);
   const [autoCreated, setAutoCreated] = useState(false);
+  const [linkedCustomer, setLinkedCustomer] = useState<Customer | null>(null);
+  const [customerCreatedInSession, setCustomerCreatedInSession] = useState(false);
+  const [customerLookupLoading, setCustomerLookupLoading] = useState(false);
+  const [customerCreatedMessage, setCustomerCreatedMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!call) return;
@@ -133,10 +144,41 @@ function CallDetailModal({
     setVorgangId(call.vorgangId ?? null);
     setVorgangError(null);
     setVorgangLoading(false);
+    setCustomerCreatedMessage(null);
+    setCustomerCreatedInSession(false);
     setAutoCreated(
       Boolean(call.vorgangId) &&
         call.classification === "besichtigung_anfrage"
     );
+
+    if (!call.callerPhone) {
+      setLinkedCustomer(null);
+      return;
+    }
+
+    const localMatch = findDbCustomerByPhone(call.callerPhone);
+    if (localMatch) {
+      setLinkedCustomer(localMatch);
+      return;
+    }
+
+    let cancelled = false;
+    setCustomerLookupLoading(true);
+
+    void lookupCustomerByPhone(call.callerPhone).then((remote) => {
+      if (cancelled) return;
+      if (remote) {
+        prependDbKundeCustomer(remote);
+        setLinkedCustomer(remote);
+      } else {
+        setLinkedCustomer(null);
+      }
+      setCustomerLookupLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [call]);
 
   useEffect(() => {
@@ -195,16 +237,27 @@ function CallDetailModal({
   const handleCustomerAction = useCallback(() => {
     if (!call?.callerPhone) return;
 
-    const existing = findKundenakteByPhone(call.callerPhone);
-    if (existing) {
+    if (linkedCustomer) {
       router.push(
-        `/kunden?select=${encodeURIComponent(existing.id)}&phone=${encodeURIComponent(call.callerPhone)}`
+        `/kunden?select=${encodeURIComponent(linkedCustomer.id)}&phone=${encodeURIComponent(call.callerPhone)}`
       );
       return;
     }
 
     setCustomerModalOpen(true);
-  }, [call?.callerPhone, router]);
+  }, [call?.callerPhone, linkedCustomer, router]);
+
+  const handleCustomerCreated = useCallback((customer: Customer) => {
+    prependDbKundeCustomer(customer);
+    setLinkedCustomer(customer);
+    setCustomerCreatedInSession(true);
+    setCustomerCreatedMessage(`✓ Kunde angelegt: ${customer.contactPerson}`);
+  }, []);
+
+  const customerHref = linkedCustomer
+    ? `/kunden?select=${encodeURIComponent(linkedCustomer.id)}${call?.callerPhone ? `&phone=${encodeURIComponent(call.callerPhone)}` : ""}`
+    : null;
+  const hasLinkedCustomer = Boolean(linkedCustomer);
 
   if (!call) return null;
 
@@ -317,6 +370,20 @@ function CallDetailModal({
             </p>
           ) : null}
 
+          {customerCreatedMessage ? (
+            <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[13px] text-emerald-800">
+              {customerCreatedMessage}
+              {customerHref ? (
+                <>
+                  {" "}
+                  <Link href={customerHref} className="font-semibold underline">
+                    Kundenakte öffnen
+                  </Link>
+                </>
+              ) : null}
+            </p>
+          ) : null}
+
           <div className="flex flex-wrap gap-2 border-t border-[var(--card-border)] pt-4">
             {hasVorgang && vorgangHref ? (
               <Link
@@ -352,14 +419,31 @@ function CallDetailModal({
               </Button>
             ) : null}
 
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={!call.callerPhone}
-              onClick={handleCustomerAction}
-            >
-              Kunde anlegen
-            </Button>
+            {hasLinkedCustomer && customerHref && !customerCreatedInSession ? (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => router.push(customerHref)}
+              >
+                Kundenakte öffnen
+              </Button>
+            ) : null}
+
+            {!hasLinkedCustomer ? (
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={!call.callerPhone || customerLookupLoading}
+                onClick={handleCustomerAction}
+              >
+                {customerLookupLoading ? "Prüfe Nummer…" : "Kunde anlegen"}
+              </Button>
+            ) : customerCreatedInSession ? (
+              <Button size="sm" variant="outline" disabled className="text-[var(--success)]">
+                <CheckCircle2 className="mr-1 size-3.5" />
+                Kunde angelegt
+              </Button>
+            ) : null}
             <Button size="sm" variant="ghost" onClick={onClose}>
               Schliessen
             </Button>
@@ -367,16 +451,19 @@ function CallDetailModal({
         </div>
       </Modal>
 
-      <VoiceNewCustomerModal
+      <CreateCustomerModal
         open={customerModalOpen}
-        phone={call.callerPhone ?? ""}
-        defaultName={call.callerName}
         onClose={() => setCustomerModalOpen(false)}
-        onCreated={(kundenakte) => {
-          router.push(
-            `/kunden?select=${encodeURIComponent(kundenakte.id)}&phone=${encodeURIComponent(kundenakte.telefon)}`
-          );
+        defaults={{
+          telefon: call.callerPhone ?? "",
+          ...(call.callerName
+            ? {
+                vorname: call.callerName.split(/\s+/)[0] ?? "",
+                nachname: call.callerName.split(/\s+/).slice(1).join(" ") || "",
+              }
+            : {}),
         }}
+        onCreated={handleCustomerCreated}
       />
     </>
   );

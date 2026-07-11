@@ -1,18 +1,28 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ArrowDownUp } from "lucide-react";
+import { ArrowDownUp, Plus } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { CustomerProfile } from "@/features/customers/components/customer-profile";
+import { CreateCustomerModal } from "@/features/customers/components/create-customer-modal";
 import { HelpyKundenPanel } from "@/features/customers/components/helpy-kunden-panel";
 import { KundenPicker } from "@/features/customers/components/kunden-picker";
 import { KundenToolbar } from "@/features/customers/components/kunden-toolbar";
+import { fetchKundenCustomers } from "@/features/customers/services/kunden-client";
+import {
+  getDbKundenCustomers,
+  mergeDbCustomersWithBase,
+  prependDbKundeCustomer,
+  setDbKundenCustomers,
+  subscribeDbKunden,
+} from "@/features/customers/services/kunden-store";
 import {
   filterCustomers,
   getFilterCounts,
   mockCustomers,
   searchCustomers,
+  type Customer,
   type CustomerFilter,
 } from "@/features/customers/mock/mock-customers";
 import { useLeadScores } from "@/features/lead-scoring/hooks/use-lead-scores";
@@ -27,10 +37,24 @@ export function KundenPage() {
   const selectParam = searchParams.get("select");
   const phoneParam = searchParams.get("phone");
   const confirmedKundenakten = useConfirmedKundenakten();
-  const baseCustomers = useMemo(
-    () => mergeCustomersWithConfirmedKundenakten(mockCustomers, confirmedKundenakten),
-    [confirmedKundenakten]
-  );
+  const [dbRevision, setDbRevision] = useState(0);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  useEffect(() => subscribeDbKunden(() => setDbRevision((tick) => tick + 1)), []);
+
+  useEffect(() => {
+    void fetchKundenCustomers().then(setDbKundenCustomers);
+  }, []);
+
+  const baseCustomers = useMemo(() => {
+    const mergedKundenakten = mergeCustomersWithConfirmedKundenakten(
+      mockCustomers,
+      confirmedKundenakten
+    );
+    return mergeDbCustomersWithBase(mergedKundenakten, getDbKundenCustomers());
+  }, [confirmedKundenakten, dbRevision]);
+
   const customers = useLeadScores(baseCustomers);
 
   const [activeFilter, setActiveFilter] = useState<CustomerFilter>("alle");
@@ -87,12 +111,42 @@ export function KundenPage() {
     }
   };
 
+  const handleCustomerCreated = useCallback((customer: Customer) => {
+    prependDbKundeCustomer(customer);
+    setSelectedId(customer.id);
+    setSuccessMessage("Kunde erfolgreich angelegt");
+    window.setTimeout(() => setSuccessMessage(null), 4000);
+  }, []);
+
   return (
     <DashboardShell
       activeHref="/kunden"
       rightPanel={<HelpyKundenPanel customer={selectedCustomer} />}
     >
       <div className="flex h-full min-h-0 flex-col overflow-hidden">
+        <div className="flex items-center justify-between gap-3 border-b border-[#E2E8F0]/80 px-4 py-3">
+          <div>
+            <h1 className="text-[1.125rem] font-semibold text-[#0F172A]">Kunden</h1>
+            <p className="text-[12px] text-[#64748B]">
+              Stammkunden verwalten und neue Kontakte anlegen
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setCreateModalOpen(true)}
+            className="inline-flex h-9 items-center gap-2 rounded-[12px] bg-gradient-to-r from-[#6366F1] to-[#4F46E5] px-4 text-[12px] font-semibold text-white shadow-[0_4px_16px_rgba(99,102,241,0.35)] transition-opacity hover:opacity-95"
+          >
+            <Plus className="size-4" />
+            Neuen Kunden anlegen
+          </button>
+        </div>
+
+        {successMessage ? (
+          <div className="mx-4 mt-3 rounded-[12px] border border-emerald-200 bg-emerald-50 px-3 py-2 text-[13px] font-medium text-emerald-800">
+            {successMessage}
+          </div>
+        ) : null}
+
         <KundenToolbar
           activeFilter={activeFilter}
           onFilterChange={handleFilterChange}
@@ -124,6 +178,12 @@ export function KundenPage() {
           <CustomerProfile customer={selectedCustomer} />
         </div>
       </div>
+
+      <CreateCustomerModal
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onCreated={handleCustomerCreated}
+      />
     </DashboardShell>
   );
 }

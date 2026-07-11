@@ -420,6 +420,7 @@ export type Database = {
           adresse: string | null;
           ust_id: string | null;
           notizen: string | null;
+          status: "interessent" | "aktiv" | "bestandskunde";
           erstellt_am: string;
         };
         Insert: {
@@ -433,6 +434,7 @@ export type Database = {
           adresse?: string | null;
           ust_id?: string | null;
           notizen?: string | null;
+          status?: "interessent" | "aktiv" | "bestandskunde";
           erstellt_am?: string;
         };
         Update: {
@@ -446,6 +448,7 @@ export type Database = {
           adresse?: string | null;
           ust_id?: string | null;
           notizen?: string | null;
+          status?: "interessent" | "aktiv" | "bestandskunde";
           erstellt_am?: string;
         };
         Relationships: [
