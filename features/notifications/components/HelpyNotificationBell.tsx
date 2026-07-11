@@ -11,6 +11,7 @@ import {
   FileText,
   Hammer,
   Mail,
+  Phone,
   Send,
   ShieldAlert,
   Sparkles,
@@ -41,6 +42,8 @@ const kindIcons: Record<HelpyNotificationKind, typeof Bell> = {
   kalender_termin: CalendarDays,
   followup_kunde_wartet: Clock,
   followup_angebot_offen: FileText,
+  voice_notfall: Phone,
+  voice_anruf: Phone,
 };
 
 function NotificationItem({

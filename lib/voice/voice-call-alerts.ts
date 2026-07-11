@@ -1,15 +1,21 @@
 import type { VoiceCallClassification } from "@/features/voice/types/voice-types";
+import { sendGmailMessage } from "@/features/gmail/services/gmail-drafts";
 import type { HelpyCompanyRoleDb } from "@/lib/database/types";
+import { getValidGoogleTokensForUser } from "@/lib/oauth/token-service";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-function getResendConfig(): { apiKey: string; from: string } | null {
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-  const from = process.env.RESEND_FROM_EMAIL?.trim();
-  if (!apiKey || !from) return null;
-  return { apiKey, from };
-}
-
 const ADMIN_ROLES: HelpyCompanyRoleDb[] = ["admin", "owner"];
+
+const GMAIL_ALERT_CLASSIFICATIONS: VoiceCallClassification[] = [
+  "notfall",
+  "rueckruf_wunsch",
+];
+
+type CompanyAdminContact = {
+  userId: string;
+  email: string;
+  role: HelpyCompanyRoleDb;
+};
 
 async function resolveUserEmail(
   admin: NonNullable<ReturnType<typeof createAdminClient>>,
@@ -20,8 +26,7 @@ async function resolveUserEmail(
   return userData.user.email.trim();
 }
 
-/** E-Mails der Unternehmens-Admins (role admin oder owner). */
-async function loadCompanyAdminEmails(companyId: string): Promise<string[]> {
+async function loadCompanyAdminContacts(companyId: string): Promise<CompanyAdminContact[]> {
   const admin = createAdminClient();
   if (!admin) return [];
 
@@ -42,81 +47,52 @@ async function loadCompanyAdminEmails(companyId: string): Promise<string[]> {
     return rank(a.role) - rank(b.role);
   });
 
-  const emails: string[] = [];
+  const contacts: CompanyAdminContact[] = [];
 
   for (const profile of sorted) {
     const email = await resolveUserEmail(admin, profile.id);
-    if (email && !emails.includes(email)) {
-      emails.push(email);
-    }
-  }
-
-  return emails;
-}
-
-async function sendResendEmail(input: {
-  to: string[];
-  subject: string;
-  text: string;
-}): Promise<boolean> {
-  const config = getResendConfig();
-  if (!config || input.to.length === 0) return false;
-
-  try {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${config.apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: config.from,
-        to: input.to,
-        subject: input.subject,
-        text: input.text,
-      }),
+    if (!email || contacts.some((item) => item.email === email)) continue;
+    contacts.push({
+      userId: profile.id,
+      email,
+      role: profile.role as HelpyCompanyRoleDb,
     });
-
-    if (!response.ok) {
-      const body = await response.text().catch(() => "");
-      console.error("[voice] resend alert failed:", response.status, body.slice(0, 200));
-      return false;
-    }
-
-    return true;
-  } catch (error) {
-    console.error(
-      "[voice] resend alert error:",
-      error instanceof Error ? error.message : "unknown"
-    );
-    return false;
   }
+
+  return contacts;
 }
 
-export async function dispatchVoiceCallAlert(input: {
-  companyId: string;
+function buildAlertSubject(
+  classification: VoiceCallClassification,
+  companyName: string
+): string {
+  if (classification === "notfall") {
+    return `🚨 HELPY Phone Notfall — ${companyName}`;
+  }
+  return `☎ HELPY Phone Rückrufwunsch — ${companyName}`;
+}
+
+function buildAlertBody(input: {
+  classification: VoiceCallClassification;
   companyName: string;
   callerPhone: string | null;
-  classification: VoiceCallClassification;
   summary: string;
   transcript: string;
-}): Promise<void> {
-  if (input.classification !== "notfall") return;
+}): string {
+  const headline =
+    input.classification === "notfall"
+      ? "NOTFALL — HELPY Phone"
+      : "RÜCKRUFWUNSCH — HELPY Phone";
 
-  const recipients = await loadCompanyAdminEmails(input.companyId);
+  const intro =
+    input.classification === "notfall"
+      ? "Ein Anrufer hat ein dringendes Anliegen gemeldet. Bitte umgehend reagieren."
+      : "Ein Anrufer möchte zurückgerufen werden.";
 
-  if (recipients.length === 0) {
-    console.error("[voice] notfall alert skipped — no admin/owner email for company", {
-      companyId: input.companyId,
-    });
-    return;
-  }
-
-  const subject = `🚨 HELPY Phone Notfall — ${input.companyName}`;
-  const text = [
-    "NOTFALL — HELPY Phone",
+  return [
+    headline,
     "",
-    "Ein Anrufer hat ein dringendes Anliegen gemeldet. Bitte umgehend reagieren.",
+    intro,
     "",
     `Unternehmen: ${input.companyName}`,
     `Anrufer: ${input.callerPhone ?? "Unbekannt"}`,
@@ -129,16 +105,75 @@ export async function dispatchVoiceCallAlert(input: {
     "",
     "→ Vorgang in HELPY prüfen und Anrufer zurückrufen.",
   ].join("\n");
+}
 
-  const emailed = await sendResendEmail({
-    to: recipients,
-    subject,
-    text,
-  });
+async function sendVoiceAdminGmailAlert(input: {
+  companyId: string;
+  companyName: string;
+  callerPhone: string | null;
+  classification: VoiceCallClassification;
+  summary: string;
+  transcript: string;
+}): Promise<boolean> {
+  const admins = await loadCompanyAdminContacts(input.companyId);
+  if (admins.length === 0) return false;
 
-  console.log("[voice] notfall alert", {
+  const primaryAdmin = admins[0];
+  const google = await getValidGoogleTokensForUser(
+    input.companyId,
+    primaryAdmin.userId,
+    primaryAdmin.email
+  );
+
+  if (!google?.tokens.accessToken) return false;
+
+  const subject = buildAlertSubject(input.classification, input.companyName);
+  const body = buildAlertBody(input);
+
+  let sent = false;
+
+  for (const admin of admins) {
+    const result = await sendGmailMessage({
+      accessToken: google.tokens.accessToken,
+      to: admin.email,
+      subject,
+      body,
+    });
+
+    if (result.ok) {
+      sent = true;
+    } else {
+      console.error("[voice] gmail alert failed:", {
+        to: admin.email,
+        error: result.error,
+      });
+    }
+  }
+
+  return sent;
+}
+
+/**
+ * Serverseitige Voice-Benachrichtigung nach Gesprächsende.
+ * Primär: Vorgang mit Priorität HOCH (processed_payload → Client-Sync + Push).
+ * Optional: Gmail an Unternehmens-Admin, wenn OAuth verbunden ist.
+ */
+export async function dispatchVoiceCallAlert(input: {
+  companyId: string;
+  companyName: string;
+  callerPhone: string | null;
+  classification: VoiceCallClassification;
+  summary: string;
+  transcript: string;
+}): Promise<void> {
+  if (!GMAIL_ALERT_CLASSIFICATIONS.includes(input.classification)) return;
+
+  const emailed = await sendVoiceAdminGmailAlert(input);
+
+  console.log("[voice] call alert", {
     companyId: input.companyId,
-    adminRecipients: recipients,
-    emailed,
+    classification: input.classification,
+    gmailSent: emailed,
+    fallback: emailed ? undefined : "vorgang_hoch_prioritaet_client_push",
   });
 }

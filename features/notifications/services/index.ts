@@ -18,6 +18,7 @@ export {
   notifyGmailSent,
   notifyFollowUpAngebotOffen,
   notifyFollowUpKundeWartet,
+  notifyVoiceIntake,
 } from "@/features/notifications/services/notification-emitter";
 
 export type {

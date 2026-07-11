@@ -13,6 +13,8 @@ import type { FollowUp } from "@/features/followup/types/followup-types";
 import { pushNotification } from "@/features/notifications/services/notification-store";
 import { shouldPrepareArchive } from "@/features/spam-handling/services/archive-handling-engine";
 import { getWorkspacePath } from "@/features/workspace/services/workspace";
+import type { VoiceProcessedCall } from "@/features/voice/types/voice-types";
+import { VOICE_CALL_CLASSIFICATION_LABELS } from "@/features/voice/types/voice-types";
 import type { Vorgang } from "@/features/workspace/services/vorgaenge/types";
 
 function extractSenderEmail(from: string): string {
@@ -190,6 +192,34 @@ export function notifyFollowUpKundeWartet(
     }),
     id: `followup_kunde_wartet-${followUp.vorgangId}-${days}`,
     href: followUp.href,
+  });
+}
+
+export function notifyVoiceIntake(processed: VoiceProcessedCall): void {
+  const classification = processed.classification ?? "sonstiges";
+  const kind =
+    classification === "notfall"
+      ? "voice_notfall"
+      : "voice_anruf";
+
+  const caller =
+    processed.callerName?.trim() ||
+    processed.call.callerPhone?.trim() ||
+    processed.liste.kunde;
+
+  const label =
+    VOICE_CALL_CLASSIFICATION_LABELS[classification] ??
+    processed.liste.intentLabel ??
+    "Telefonanruf";
+
+  pushNotification({
+    ...buildNotification({
+      kind,
+      vorgangId: processed.vorgangId,
+      message: caller ? `${caller} · ${label}` : label,
+      createdAt: processed.liste.receivedAt,
+    }),
+    id: `${kind}-${processed.vorgangId}-${Date.now()}`,
   });
 }
 

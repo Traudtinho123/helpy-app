@@ -8,7 +8,9 @@ export type HelpyNotificationKind =
   | "gmail_gesendet"
   | "kalender_termin"
   | "followup_kunde_wartet"
-  | "followup_angebot_offen";
+  | "followup_angebot_offen"
+  | "voice_notfall"
+  | "voice_anruf";
 
 export type HelpyNotification = {
   id: string;
@@ -40,4 +42,6 @@ export const NOTIFICATION_KIND_LABELS: Record<HelpyNotificationKind, string> = {
   kalender_termin: "Kalender Termin erkannt",
   followup_kunde_wartet: "Kunde wartet",
   followup_angebot_offen: "Angebot offen",
+  voice_notfall: "Notfall — Telefon",
+  voice_anruf: "Telefonanruf",
 };
