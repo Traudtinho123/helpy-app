@@ -78,6 +78,9 @@ export type VoiceCallRecord = {
   requestedDateTime?: string | null;
   classification?: VoiceCallClassification | null;
   emptyResultCount?: number;
+  terminDatum?: string | null;
+  terminUhrzeit?: string | null;
+  terminObjekt?: string | null;
 };
 
 export type VoiceIntentResult = {

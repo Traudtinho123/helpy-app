@@ -1,4 +1,5 @@
 import type { VoiceCallClassification } from "@/features/voice/types/voice-types";
+import { VOICE_CALL_CLASSIFICATION_LABELS } from "@/features/voice/types/voice-types";
 import type {
   VorgangPriority,
   VorgangTyp,
@@ -30,7 +31,7 @@ export function mapVoiceClassificationToPriority(
     case "rueckruf_wunsch":
       return "hoch";
     case "info_anfrage":
-      return "mittel";
+      return "niedrig";
     default:
       return "mittel";
   }
@@ -47,25 +48,22 @@ export function buildHelpyPhoneVorgangTitle(input: {
   summary?: string | null;
   autoCreated?: boolean;
 }): string {
-  if (input.autoCreated && input.classification === "besichtigung_anfrage") {
-    return "📞 Besichtigungsanfrage via Telefon";
-  }
+  const intentLabel = input.classification
+    ? VOICE_CALL_CLASSIFICATION_LABELS[input.classification]
+    : "Telefonanruf";
 
-  const summarySnippet = input.summary?.trim().slice(0, 60);
-  if (summarySnippet) {
-    return `📞 Telefonanruf - ${summarySnippet}${(input.summary?.length ?? 0) > 60 ? "…" : ""}`;
-  }
-
-  return "📞 Telefonanruf";
+  return `📞 ${intentLabel} - Telefonanruf`;
 }
 
 export function buildHelpyPhoneVorgangContent(input: {
   summary?: string | null;
   transcript?: string | null;
   callId?: string | null;
+  callerPhone?: string | null;
   appointmentDetails?: string[];
 }): string {
   const lines = [
+    input.callerPhone?.trim() ? `Anrufer: ${input.callerPhone.trim()}` : null,
     input.summary?.trim() ? `Zusammenfassung:\n${input.summary.trim()}` : null,
     ...(input.appointmentDetails ?? []),
     input.transcript?.trim()

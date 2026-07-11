@@ -15,6 +15,7 @@ import {
 import { isWithinBusinessHours } from "@/features/voice/services/voice-business-hours";
 import {
   detectVoiceCallClassification,
+  shouldAutoCreateVoiceVorgang,
 } from "@/features/voice/services/voice-intent-engine";
 import type { Json } from "@/lib/database/types";
 import {
@@ -53,6 +54,7 @@ import { isCallerFarewell } from "@/lib/voice/voice-farewell-detector";
 import {
   createVoiceCall,
   findVoiceCallByExternalId,
+  getVoiceCallById,
   updateVoiceCall,
 } from "@/lib/voice/voice-call-repository";
 import { isVoiceRateLimitExceeded } from "@/lib/voice/voice-rate-limit";
@@ -427,6 +429,8 @@ export async function handleTwilioCallStatus(
     return new Response("OK", { status: 200 });
   }
 
+  console.log("STATUS CALLBACK EMPFANGEN:", callSid);
+
   const callStatus = (params.CallStatus ?? "").toLowerCase();
   const durationRaw = params.CallDuration ?? params.Duration;
   const durationSeconds =
@@ -435,7 +439,12 @@ export async function handleTwilioCallStatus(
       : null;
 
   const session = deleteVoiceCallSession(callSid);
-  const existing = await findVoiceCallByExternalId(callSid);
+  let existing = await findVoiceCallByExternalId(callSid);
+
+  if (existing?.id) {
+    const fresh = await getVoiceCallById(existing.id);
+    if (fresh) existing = fresh;
+  }
 
   if (!existing && !session) {
     return new Response("OK", { status: 200 });
@@ -447,6 +456,8 @@ export async function handleTwilioCallStatus(
   }
 
   const turns = pickLatestTranscriptTurns(session?.turns, existing?.transcriptTurns);
+  console.log("TRANSCRIPT TURNS:", turns.length);
+
   const flatTranscript =
     turns.length > 0
       ? flattenVoiceTranscript(turns)
@@ -454,6 +465,7 @@ export async function handleTwilioCallStatus(
 
   if (callStatus === "completed" || callStatus === "busy" || callStatus === "failed" || callStatus === "no-answer") {
     if (existing?.hasPreparedVorgang) {
+      console.log("VORGANG ERSTELLT:", "ja (bereits vorhanden)");
       await updateVoiceCall(callId, {
         status: callStatus === "completed" ? "completed" : "failed",
         duration_seconds: durationSeconds ?? existing.durationSeconds,
@@ -484,6 +496,19 @@ export async function handleTwilioCallStatus(
       const classification =
         analysis?.classification ?? detectVoiceCallClassification(flatTranscript);
 
+      console.log("INTENT ERKANNT:", classification);
+
+      const hasTermin = Boolean(analysis?.terminDatum && analysis?.terminUhrzeit);
+      const terminDetails = hasTermin
+        ? {
+            datum: analysis!.terminDatum,
+            uhrzeit: analysis!.terminUhrzeit,
+            objekt: analysis!.objekt ?? analysis!.objectReference ?? null,
+          }
+        : null;
+
+      console.log("TERMIN ERKANNT:", terminDetails);
+
       const summary = await generateHelpyCallSummary({
         systemContext: promptContext.systemContext,
         transcript: flatTranscript,
@@ -507,20 +532,31 @@ export async function handleTwilioCallStatus(
         }),
         transcript: flatTranscript,
         callerPhone: session?.callerPhone ?? existing?.callerPhone ?? null,
-        callerName: analysis?.callerName ?? existing?.callerName ?? null,
+        callerName: analysis?.callerName ?? analysis?.anruferName ?? existing?.callerName ?? null,
       };
 
-      const shouldAutoCreateVorgang =
-        classification === "besichtigung_anfrage" &&
-        analysis?.createVorgang !== false;
+      const shouldAutoCreateVorgang = shouldAutoCreateVoiceVorgang({
+        classification,
+        createVorgang: analysis?.createVorgang,
+        hasTermin,
+      });
+
+      console.log("VORGANG ERSTELLT:", shouldAutoCreateVorgang ? "ja" : "nein");
+
+      const terminPatch = {
+        call_classification: classification,
+        termin_datum: analysis?.terminDatum ?? null,
+        termin_uhrzeit: analysis?.terminUhrzeit ?? null,
+        termin_objekt: analysis?.objekt ?? analysis?.objectReference ?? null,
+      };
 
       if (shouldAutoCreateVorgang) {
         const processed = buildVoiceProcessedCallFromRecord({
           call: callRecord,
           transcript: flatTranscript,
           classification,
-          callerName: analysis?.callerName ?? null,
-          objectReference: analysis?.objectReference ?? null,
+          callerName: analysis?.callerName ?? analysis?.anruferName ?? null,
+          objectReference: analysis?.objectReference ?? analysis?.objekt ?? null,
           requestedDateTime: analysis?.requestedDateTime ?? null,
           summaryOverride: analysis?.summaryHint ?? summary,
           analysis,
@@ -548,6 +584,7 @@ export async function handleTwilioCallStatus(
           assistant_reply: processed.assistantReply,
           processed_payload: processed as unknown as Json,
           ended_at: new Date().toISOString(),
+          ...terminPatch,
         });
       } else {
         await updateVoiceCall(callId, {
@@ -555,13 +592,16 @@ export async function handleTwilioCallStatus(
           duration_seconds: durationSeconds ?? existing?.durationSeconds,
           transcript: flatTranscript,
           transcript_turns: turns as unknown as Json,
-          summary,
+          summary: analysis?.summaryHint ?? summary,
+          caller_name: analysis?.callerName ?? analysis?.anruferName ?? existing?.callerName ?? null,
           ended_at: new Date().toISOString(),
+          ...terminPatch,
         });
       }
 
       clearVoiceCallPromptContext(callSid);
     } else {
+      console.log("TRANSCRIPT TURNS:", turns.length, "(zu kurz für Analyse)");
       await updateVoiceCall(callId, {
         status: callStatus === "completed" ? "missed" : "failed",
         duration_seconds: durationSeconds ?? existing?.durationSeconds,

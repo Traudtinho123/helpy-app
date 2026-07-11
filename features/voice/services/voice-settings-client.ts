@@ -317,6 +317,17 @@ export async function createVoiceCallVorgang(
   };
 }
 
+export async function fetchVoiceCallProcessed(
+  callId: string
+): Promise<{ processed: VoiceProcessedCall } | null> {
+  const response = await fetch(`/api/voice/calls/${callId}/processed`, {
+    cache: "no-store",
+  });
+  if (!response.ok) return null;
+  const payload = (await response.json()) as { processed?: VoiceProcessedCall };
+  return payload.processed ? { processed: payload.processed } : null;
+}
+
 export async function syncVoicePortfolioObjects(
   objects: Array<{
     objectId: string;

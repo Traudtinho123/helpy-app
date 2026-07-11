@@ -207,7 +207,6 @@ function parseVoiceCallAnalysis(raw: string | null): VoiceCallAnalysis | null {
 
   try {
     const parsed = JSON.parse(raw) as Record<string, unknown>;
-    const classification = parsed.classification as VoiceCallClassification | undefined;
     const valid: VoiceCallClassification[] = [
       "besichtigung_anfrage",
       "info_anfrage",
@@ -216,41 +215,78 @@ function parseVoiceCallAnalysis(raw: string | null): VoiceCallAnalysis | null {
       "sonstiges",
     ];
 
+    const intentRaw =
+      (typeof parsed.intent === "string" && parsed.intent.trim()) ||
+      (typeof parsed.classification === "string" && parsed.classification.trim()) ||
+      null;
+
+    let classification = intentRaw as VoiceCallClassification | undefined;
+    if (parsed.dringend === true && classification !== "notfall") {
+      classification = "notfall";
+    }
+
     if (!classification || !valid.includes(classification)) {
       return null;
     }
+
+    const termin =
+      parsed.termin && typeof parsed.termin === "object"
+        ? (parsed.termin as Record<string, unknown>)
+        : null;
+
+    const summaryHint =
+      typeof parsed.zusammenfassung === "string" && parsed.zusammenfassung.trim()
+        ? parsed.zusammenfassung.trim()
+        : typeof parsed.summaryHint === "string" && parsed.summaryHint.trim()
+          ? parsed.summaryHint.trim()
+          : null;
+
+    const terminDatum =
+      (typeof termin?.datum === "string" && termin.datum.trim()) ||
+      (typeof parsed.termin_datum === "string" && parsed.termin_datum.trim()) ||
+      (typeof parsed.terminDatum === "string" && parsed.terminDatum.trim()) ||
+      null;
+
+    const terminUhrzeit =
+      (typeof termin?.uhrzeit === "string" && termin.uhrzeit.trim()) ||
+      (typeof parsed.termin_uhrzeit === "string" && parsed.termin_uhrzeit.trim()) ||
+      (typeof parsed.terminUhrzeit === "string" && parsed.terminUhrzeit.trim()) ||
+      null;
+
+    const objekt =
+      (typeof termin?.objekt === "string" && termin.objekt.trim()) ||
+      (typeof parsed.objekt === "string" && parsed.objekt.trim()) ||
+      null;
+
+    const anruferName =
+      typeof parsed.anrufer_name === "string" && parsed.anrufer_name.trim()
+        ? parsed.anrufer_name.trim()
+        : typeof parsed.anruferName === "string" && parsed.anruferName.trim()
+          ? parsed.anruferName.trim()
+          : null;
+
+    const requestedDateTime =
+      terminDatum && terminUhrzeit
+        ? `${terminDatum} ${terminUhrzeit}`
+        : typeof parsed.requestedDateTime === "string" && parsed.requestedDateTime.trim()
+          ? parsed.requestedDateTime.trim()
+          : null;
 
     return {
       classification,
       callerName:
         typeof parsed.callerName === "string" && parsed.callerName.trim()
           ? parsed.callerName.trim()
-          : null,
+          : anruferName,
       objectReference:
         typeof parsed.objectReference === "string" && parsed.objectReference.trim()
           ? parsed.objectReference.trim()
-          : null,
-      requestedDateTime:
-        typeof parsed.requestedDateTime === "string" && parsed.requestedDateTime.trim()
-          ? parsed.requestedDateTime.trim()
-          : null,
+          : objekt,
+      requestedDateTime,
       createVorgang: parsed.createVorgang !== false,
-      summaryHint:
-        typeof parsed.summaryHint === "string" && parsed.summaryHint.trim()
-          ? parsed.summaryHint.trim()
-          : null,
-      terminDatum:
-        typeof parsed.termin_datum === "string" && parsed.termin_datum.trim()
-          ? parsed.termin_datum.trim()
-          : typeof parsed.terminDatum === "string" && parsed.terminDatum.trim()
-            ? parsed.terminDatum.trim()
-            : null,
-      terminUhrzeit:
-        typeof parsed.termin_uhrzeit === "string" && parsed.termin_uhrzeit.trim()
-          ? parsed.termin_uhrzeit.trim()
-          : typeof parsed.terminUhrzeit === "string" && parsed.terminUhrzeit.trim()
-            ? parsed.terminUhrzeit.trim()
-            : null,
+      summaryHint,
+      terminDatum,
+      terminUhrzeit,
       terminDauerMinuten:
         typeof parsed.termin_dauer === "number" && parsed.termin_dauer > 0
           ? parsed.termin_dauer
@@ -259,26 +295,18 @@ function parseVoiceCallAnalysis(raw: string | null): VoiceCallAnalysis | null {
             : typeof parsed.terminDauer === "number" && parsed.terminDauer > 0
               ? parsed.terminDauer
               : null,
-      objekt:
-        typeof parsed.objekt === "string" && parsed.objekt.trim()
-          ? parsed.objekt.trim()
-          : null,
+      objekt,
       objektAdresse:
         typeof parsed.objekt_adresse === "string" && parsed.objekt_adresse.trim()
           ? parsed.objekt_adresse.trim()
           : typeof parsed.objektAdresse === "string" && parsed.objektAdresse.trim()
             ? parsed.objektAdresse.trim()
             : null,
-      anruferName:
-        typeof parsed.anrufer_name === "string" && parsed.anrufer_name.trim()
-          ? parsed.anrufer_name.trim()
-          : typeof parsed.anruferName === "string" && parsed.anruferName.trim()
-            ? parsed.anruferName.trim()
-            : null,
+      anruferName,
       notizen:
         typeof parsed.notizen === "string" && parsed.notizen.trim()
           ? parsed.notizen.trim()
-          : null,
+          : summaryHint,
     };
   } catch {
     return null;
@@ -292,33 +320,27 @@ export async function analyzeVoiceCallTranscript(input: {
   const messages = [
     {
       role: "system",
-      content: `Analysiere das Telefonat und antworte NUR als JSON:
+      content: `Analysiere dieses Telefongespräch und extrahiere als JSON:
 {
-  "classification": "besichtigung_anfrage|info_anfrage|rueckruf_wunsch|notfall|sonstiges",
-  "callerName": string|null,
-  "objectReference": string|null,
-  "requestedDateTime": string|null,
-  "createVorgang": boolean,
-  "summaryHint": string|null,
-  "termin_datum": "YYYY-MM-DD"|null,
-  "termin_uhrzeit": "HH:MM"|null,
-  "termin_dauer": number|null,
-  "objekt": string|null,
-  "objekt_adresse": string|null,
-  "anrufer_name": string|null,
-  "notizen": string|null
+  "intent": "besichtigung_anfrage" | "info_anfrage" | "rueckruf_wunsch" | "notfall" | "sonstiges",
+  "zusammenfassung": "2-3 Sätze auf Deutsch",
+  "termin": {
+    "datum": "YYYY-MM-DD oder null",
+    "uhrzeit": "HH:MM oder null",
+    "objekt": "Objektname oder null"
+  },
+  "anrufer_name": "Name oder null",
+  "dringend": true/false
 }
+Antworte NUR mit dem JSON, kein Text davor/danach.
 
 Regeln:
-- besichtigung_anfrage: Termin/Besichtigung vereinbaren
-- info_anfrage: Frage zu Objekt/Preis/Info
-- rueckruf_wunsch: Rückruf/Mitarbeiter gewünscht (auch mit Terminwunsch)
-- notfall: dringend, Wasserschaden, Einbruch, sofort
+- besichtigung_anfrage: Besichtigung/Termin vereinbart oder gewünscht
+- info_anfrage: Frage zu Objekt/Preis/Info ohne konkreten Termin
+- rueckruf_wunsch: Rückruf/Mitarbeiter gewünscht
+- notfall: dringend, Wasserschaden, Einbruch, sofort — oder dringend=true
 - sonstiges: alles andere
-- termin_datum/termin_uhrzeit: nur setzen wenn im Gespräch genannt (ISO-Datum, 24h-Zeit)
-- termin_dauer: Minuten falls erkennbar, sonst null
-- notizen: 1 kurzer Satz zum Anliegen
-- createVorgang: true bei besichtigung_anfrage, rueckruf_wunsch, notfall; bei info_anfrage wenn Follow-up nötig; sonstiges wenn Anliegen offen`,
+- termin.datum/termin.uhrzeit: nur wenn im Gespräch genannt (ISO-Datum, 24h-Zeit)`,
     },
     {
       role: "user",
@@ -327,10 +349,15 @@ Regeln:
   ];
 
   const raw = await callOpenAiChat(messages, {
-    maxTokens: 320,
+    maxTokens: 400,
     temperature: 0.2,
     jsonMode: true,
   });
 
-  return parseVoiceCallAnalysis(raw);
+  console.log("[voice] GPT ANALYSIS RAW:", raw);
+
+  const parsed = parseVoiceCallAnalysis(raw);
+  console.log("[voice] GPT ANALYSIS PARSED:", parsed);
+
+  return parsed;
 }

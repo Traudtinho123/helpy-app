@@ -117,6 +117,7 @@ export function buildVoiceProcessedCallFromRecord(input: {
     summary,
     transcript: input.transcript,
     callId: input.call.id,
+    callerPhone: input.call.callerPhone,
     appointmentDetails,
   });
 

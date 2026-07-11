@@ -26,6 +26,10 @@ type VoiceCallRow = {
   processed_payload: Json | null;
   client_ack_at: string | null;
   empty_result_count?: number;
+  call_classification?: string | null;
+  termin_datum?: string | null;
+  termin_uhrzeit?: string | null;
+  termin_objekt?: string | null;
   started_at: string;
   ended_at: string | null;
 };
@@ -84,8 +88,11 @@ function rowToRecord(row: VoiceCallRow): VoiceCallRecord {
     clientAckAt: row.client_ack_at,
     hasPreparedVorgang: Boolean(row.processed_payload && row.vorgang_id),
     requestedDateTime: processedMeta.requestedDateTime,
-    classification: processedMeta.classification,
+    classification: processedMeta.classification ?? (row.call_classification as VoiceCallClassification | null) ?? null,
     emptyResultCount: row.empty_result_count ?? 0,
+    terminDatum: row.termin_datum ?? null,
+    terminUhrzeit: row.termin_uhrzeit ?? null,
+    terminObjekt: row.termin_objekt ?? null,
   };
 }
 
@@ -215,6 +222,43 @@ export async function updateVoiceCall(
   }
 
   return data ? rowToRecord(data as VoiceCallRow) : null;
+}
+
+export async function getVoiceCallProcessedPayload(
+  callId: string,
+  companyId: string
+): Promise<import("@/features/voice/types/voice-types").VoiceProcessedCall | null> {
+  if (!isSupabaseAdminConfigured()) {
+    const row = devCalls.get(callId);
+    if (!row || row.company_id !== companyId || !row.processed_payload) return null;
+    try {
+      const processed =
+        row.processed_payload as import("@/features/voice/types/voice-types").VoiceProcessedCall;
+      return processed?.vorgangId ? processed : null;
+    } catch {
+      return null;
+    }
+  }
+
+  const admin = createAdminClient();
+  if (!admin) return null;
+
+  const { data, error } = await admin
+    .from("voice_calls")
+    .select("processed_payload")
+    .eq("id", callId)
+    .eq("company_id", companyId)
+    .maybeSingle();
+
+  if (error || !data?.processed_payload) return null;
+
+  try {
+    const processed =
+      data.processed_payload as import("@/features/voice/types/voice-types").VoiceProcessedCall;
+    return processed?.vorgangId ? processed : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function getVoiceCallById(

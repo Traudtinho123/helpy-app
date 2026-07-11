@@ -24,12 +24,17 @@ import {
 } from "@/features/customers/services/kunden-store";
 import {
   createVoiceCallVorgang,
+  fetchVoiceCallProcessed,
   generateVoiceCallSummary,
   fetchVoiceCallsDashboard,
   type VoiceCallListItem,
   type VoiceCallWorkflowStatus,
 } from "@/features/voice/services/voice-settings-client";
-import { ingestVoiceProcessedCall } from "@/features/voice/services/voice-vorgaenge-store";
+import { VoicePhoneAppointmentCard } from "@/features/voice/components/voice-phone-appointment-card";
+import {
+  getVoiceVorgaenge,
+  ingestVoiceProcessedCall,
+} from "@/features/voice/services/voice-vorgaenge-store";
 import type { VoiceTranscriptTurn } from "@/features/voice/types/voice-types";
 import { cn } from "@/lib/utils";
 
@@ -65,6 +70,12 @@ function formatTime(iso: string): string {
     minute: "2-digit",
     second: "2-digit",
   }).format(new Date(iso));
+}
+
+function formatGermanDate(isoDate: string): string {
+  const [year, month, day] = isoDate.split("-").map(Number);
+  if (!year || !month || !day) return isoDate;
+  return `${String(day).padStart(2, "0")}.${String(month).padStart(2, "0")}.${year}`;
 }
 
 function workflowLabel(status: VoiceCallWorkflowStatus | undefined): string {
@@ -146,10 +157,20 @@ function CallDetailModal({
     setVorgangLoading(false);
     setCustomerCreatedMessage(null);
     setCustomerCreatedInSession(false);
-    setAutoCreated(
-      Boolean(call.vorgangId) &&
-        call.classification === "besichtigung_anfrage"
-    );
+    setAutoCreated(Boolean(call.vorgangId || call.hasPreparedVorgang));
+
+    if (call.vorgangId) {
+      const alreadyInStore = getVoiceVorgaenge().some(
+        (item) => item.id === call.vorgangId
+      );
+      if (!alreadyInStore) {
+        void fetchVoiceCallProcessed(call.id).then((payload) => {
+          if (payload?.processed) {
+            ingestVoiceProcessedCall(payload.processed);
+          }
+        });
+      }
+    }
 
     if (!call.callerPhone) {
       setLinkedCustomer(null);
@@ -266,6 +287,11 @@ function CallDetailModal({
   const anliegenLabel =
     call.classificationLabel ?? call.intentLabel ?? "Allgemeine Anfrage";
   const hasVorgang = Boolean(vorgangId);
+  const hasTermin = Boolean(call.terminDatum && call.terminUhrzeit);
+  const callerDisplay =
+    call.callerName?.trim() ||
+    (linkedCustomer ? linkedCustomer.contactPerson : null) ||
+    (call.callerPhone ? call.callerPhone : "Unbekannter Anrufer");
 
   return (
     <>
@@ -281,7 +307,8 @@ function CallDetailModal({
               📞 Anruf vom {formatDate(call.startedAt)} um {formatTime(call.startedAt)}
             </p>
             <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
-              Dauer: {formatDuration(call.durationSeconds)} | Anliegen: {anliegenLabel}
+              {callerDisplay} · Dauer: {formatDuration(call.durationSeconds)} | Anliegen:{" "}
+              {anliegenLabel}
             </p>
 
             <div className="mt-4 border-t border-[var(--card-border)] pt-4">
@@ -319,16 +346,25 @@ function CallDetailModal({
               </p>
             ) : null}
 
-            {call.requestedDateTime ? (
-              <p className="mt-2 flex items-start gap-2 text-[13px] text-[var(--text-secondary)]">
-                <CalendarDays className="mt-0.5 size-4 shrink-0 text-[var(--primary)]" />
-                <span>
-                  <span className="font-semibold text-[var(--text-primary)]">
-                    Terminwunsch:
-                  </span>{" "}
-                  {call.requestedDateTime}
-                </span>
-              </p>
+            {call.requestedDateTime || hasTermin ? (
+              <div className="mt-3 rounded-[12px] border border-[var(--card-border)] bg-white px-3 py-3">
+                <p className="flex items-start gap-2 text-[13px] text-[var(--text-secondary)]">
+                  <CalendarDays className="mt-0.5 size-4 shrink-0 text-[var(--primary)]" />
+                  <span>
+                    <span className="font-semibold text-[var(--text-primary)]">
+                      📅 Terminwunsch:
+                    </span>{" "}
+                    {hasTermin
+                      ? `${formatGermanDate(call.terminDatum!)} um ${call.terminUhrzeit}${call.terminObjekt ? ` — ${call.terminObjekt}` : ""}`
+                      : call.requestedDateTime}
+                  </span>
+                </p>
+                {hasVorgang && vorgangId && hasTermin ? (
+                  <div className="mt-3">
+                    <VoicePhoneAppointmentCard vorgangId={vorgangId} />
+                  </div>
+                ) : null}
+              </div>
             ) : null}
           </section>
 
@@ -429,7 +465,7 @@ function CallDetailModal({
               </Button>
             ) : null}
 
-            {!hasLinkedCustomer ? (
+            {!hasLinkedCustomer && !call.callerName?.trim() ? (
               <Button
                 size="sm"
                 variant="outline"

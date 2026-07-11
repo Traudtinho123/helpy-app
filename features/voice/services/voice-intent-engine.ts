@@ -156,6 +156,22 @@ export function shouldCreateVoiceVorgang(
   );
 }
 
+export function shouldAutoCreateVoiceVorgang(input: {
+  classification: VoiceCallClassification;
+  createVorgang?: boolean;
+  hasTermin: boolean;
+}): boolean {
+  if (input.createVorgang === false) return false;
+
+  if (input.classification === "besichtigung_anfrage") return true;
+  if (input.classification === "rueckruf_wunsch") return true;
+  if (input.classification === "notfall") return true;
+  if (input.classification === "info_anfrage" && input.hasTermin) return true;
+  if (input.classification === "sonstiges" && input.hasTermin) return true;
+
+  return shouldCreateVoiceVorgang(input.classification);
+}
+
 export function matchStandardResponseTrigger(
   message: string,
   triggers: Array<{ triggerText: string; responseText: string }>

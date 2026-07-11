@@ -242,6 +242,10 @@ export type Database = {
           processed_payload: Json | null;
           client_ack_at: string | null;
           empty_result_count: number;
+          call_classification: string | null;
+          termin_datum: string | null;
+          termin_uhrzeit: string | null;
+          termin_objekt: string | null;
           started_at: string;
           ended_at: string | null;
           created_at: string;
@@ -263,6 +267,10 @@ export type Database = {
           processed_payload?: Json | null;
           client_ack_at?: string | null;
           empty_result_count?: number;
+          call_classification?: string | null;
+          termin_datum?: string | null;
+          termin_uhrzeit?: string | null;
+          termin_objekt?: string | null;
           started_at?: string;
           ended_at?: string | null;
           created_at?: string;
@@ -284,6 +292,10 @@ export type Database = {
           processed_payload?: Json | null;
           client_ack_at?: string | null;
           empty_result_count?: number;
+          call_classification?: string | null;
+          termin_datum?: string | null;
+          termin_uhrzeit?: string | null;
+          termin_objekt?: string | null;
           started_at?: string;
           ended_at?: string | null;
           created_at?: string;
