@@ -1,9 +1,10 @@
 import { createClient, resetBrowserClient } from "@/lib/supabase/client";
 import { SUPABASE_NOT_CONFIGURED_MESSAGE } from "@/lib/supabase/config";
+import { getPostLoginRedirectUrl } from "@/lib/auth/routes";
 import {
-  getAuthCallbackUrl,
-  getPostLoginRedirectUrl,
-} from "@/lib/auth/routes";
+  resolveAuthCallbackUrl,
+  resolvePublicAppOrigin,
+} from "@/lib/app/public-app-url";
 import { getGoogleOAuthScopeString } from "@/features/gmail/services/google/oauth";
 import type { AuthError } from "@supabase/supabase-js";
 
@@ -12,10 +13,7 @@ export type AuthActionResult = {
 };
 
 function getOrigin(): string {
-  if (typeof window !== "undefined") {
-    return window.location.origin;
-  }
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  return resolvePublicAppOrigin();
 }
 
 function notConfiguredResult(): AuthActionResult {
@@ -63,12 +61,10 @@ export async function signInWithGoogle(): Promise<AuthActionResult> {
   const supabase = createClient();
   if (!supabase) return notConfiguredResult();
 
-  const origin = getOrigin();
-
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: getAuthCallbackUrl(origin),
+      redirectTo: resolveAuthCallbackUrl(),
       scopes: getGoogleOAuthScopeString(),
       queryParams: {
         access_type: "offline",

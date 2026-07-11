@@ -1,5 +1,6 @@
 import { getGoogleConfig, isGoogleConfigured } from "@/features/gmail/services/google/config";
 import { GOOGLE_OAUTH_SCOPES } from "@/features/gmail/services/google/oauth";
+import { resolveGoogleOAuthRedirectUri } from "@/lib/app/public-app-url";
 import type { OAuthStoredTokens } from "@/lib/oauth/types";
 
 export function isGoogleOAuthConfigured(): boolean {
@@ -8,13 +9,7 @@ export function isGoogleOAuthConfigured(): boolean {
 }
 
 export function getGoogleOAuthRedirectUri(): string {
-  if (process.env.GOOGLE_OAUTH_REDIRECT_URI) {
-    return process.env.GOOGLE_OAUTH_REDIRECT_URI;
-  }
-  const base =
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
-    "http://localhost:3000";
-  return `${base}/api/oauth/google/callback`;
+  return resolveGoogleOAuthRedirectUri();
 }
 
 export function buildGoogleOAuthStartUrl(state: string): string {
