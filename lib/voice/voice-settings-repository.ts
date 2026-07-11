@@ -72,6 +72,10 @@ export async function getVoiceSettings(companyId: string): Promise<VoiceSettings
   return rowToSettings(data as VoiceSettingsRow);
 }
 
+export type VoiceSettingsUpdateResult =
+  | { ok: true; settings: VoiceSettings }
+  | { ok: false; error: string };
+
 export async function updateVoiceSettings(
   companyId: string,
   patch: Partial<
@@ -85,7 +89,7 @@ export async function updateVoiceSettings(
       | "businessHours"
     >
   >
-): Promise<VoiceSettings> {
+): Promise<VoiceSettingsUpdateResult> {
   const current = await getVoiceSettings(companyId);
   const nextRow: VoiceSettingsInsert = {
     company_id: companyId,
@@ -105,11 +109,17 @@ export async function updateVoiceSettings(
       ...nextRow,
       updated_at: nextRow.updated_at ?? new Date().toISOString(),
     });
-    return rowToSettings(devSettings.get(companyId)!);
+    return { ok: true, settings: rowToSettings(devSettings.get(companyId)!) };
   }
 
   const admin = createAdminClient();
-  if (!admin) return rowToSettings({ ...defaultRow(companyId), ...nextRow, updated_at: nextRow.updated_at! });
+  if (!admin) {
+    return {
+      ok: false,
+      error:
+        "SUPABASE_SERVICE_ROLE_KEY fehlt — Voice-Einstellungen können auf dem Server nicht gespeichert werden.",
+    };
+  }
 
   const { error } = await admin.from("voice_settings").upsert(nextRow, {
     onConflict: "company_id",
@@ -117,7 +127,25 @@ export async function updateVoiceSettings(
 
   if (error) {
     console.error("[voice] update settings failed:", error.message);
+    return {
+      ok: false,
+      error: `Speichern fehlgeschlagen: ${error.message}. Prüfe SUPABASE_SERVICE_ROLE_KEY und Migration voice_settings.`,
+    };
   }
 
-  return rowToSettings({ ...defaultRow(companyId), ...nextRow, updated_at: nextRow.updated_at! });
+  const { data, error: readError } = await admin
+    .from("voice_settings")
+    .select("*")
+    .eq("company_id", companyId)
+    .maybeSingle();
+
+  if (readError || !data) {
+    console.error("[voice] read settings after update failed:", readError?.message);
+    return {
+      ok: false,
+      error: "Einstellungen konnten nach dem Speichern nicht bestätigt werden.",
+    };
+  }
+
+  return { ok: true, settings: rowToSettings(data as VoiceSettingsRow) };
 }

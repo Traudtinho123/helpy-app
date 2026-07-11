@@ -40,6 +40,7 @@ export function VoiceTwilioSetupSection({
   const [setup, setSetup] = useState<TwilioSetupPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
@@ -61,13 +62,18 @@ export function VoiceTwilioSetupSection({
 
   const enableTwilioProvider = async () => {
     setSaving(true);
-    const updated = await updateVoiceSettingsClient({
+    setSaveError(null);
+    const result = await updateVoiceSettingsClient({
       enabled: true,
       provider: "twilio",
       phoneNumber: setup?.phoneNumber ?? settings.phoneNumber,
       businessHours: settings.businessHours ?? DEFAULT_VOICE_BUSINESS_HOURS,
     });
-    if (updated) onSettingsChange(updated);
+    if (result.ok) {
+      onSettingsChange(result.settings);
+    } else {
+      setSaveError(result.error);
+    }
     setSaving(false);
   };
 
@@ -155,6 +161,13 @@ export function VoiceTwilioSetupSection({
           </div>
         ))}
       </div>
+
+      {saveError ? (
+        <div className="rounded-[12px] border border-[#FECACA] bg-[#FEF2F2] px-3 py-2 text-[12px] text-[#B91C1C]">
+          <p className="font-semibold">Twilio konnte nicht aktiviert werden</p>
+          <p className="mt-1 leading-relaxed">{saveError}</p>
+        </div>
+      ) : null}
 
       <p className="text-[11px] leading-relaxed text-[#64748B]">
         Trage die <strong>Incoming Webhook</strong>-URL in der Twilio Console unter deiner

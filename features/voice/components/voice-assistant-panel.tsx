@@ -22,6 +22,7 @@ export function VoiceAssistantPanel() {
   const [greetingDraft, setGreetingDraft] = useState(DEFAULT_VOICE_GREETING);
   const [disclosureDraft, setDisclosureDraft] = useState(DEFAULT_VOICE_DISCLOSURE);
   const [message, setMessage] = useState<string | null>(null);
+  const [messageIsError, setMessageIsError] = useState(false);
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -41,23 +42,33 @@ export function VoiceAssistantPanel() {
   const handleToggle = async () => {
     if (!settings) return;
     setSaving(true);
-    const updated = await updateVoiceSettingsClient({ enabled: !settings.enabled });
-    if (updated) {
-      setSettings(updated);
-      setMessage(updated.enabled ? "Voice Core aktiviert." : "Voice Core deaktiviert.");
+    const result = await updateVoiceSettingsClient({ enabled: !settings.enabled });
+    if (result.ok) {
+      setSettings(result.settings);
+      setMessageIsError(false);
+      setMessage(
+        result.settings.enabled ? "Voice Core aktiviert." : "Voice Core deaktiviert."
+      );
+    } else {
+      setMessageIsError(true);
+      setMessage(result.error);
     }
     setSaving(false);
   };
 
   const handleSaveResponses = async () => {
     setSaving(true);
-    const updated = await updateVoiceSettingsClient({
+    const result = await updateVoiceSettingsClient({
       greetingText: greetingDraft,
       disclosureText: disclosureDraft,
     });
-    if (updated) {
-      setSettings(updated);
+    if (result.ok) {
+      setSettings(result.settings);
+      setMessageIsError(false);
       setMessage("Antworten gespeichert.");
+    } else {
+      setMessageIsError(true);
+      setMessage(result.error);
     }
     setSaving(false);
   };
@@ -135,7 +146,14 @@ export function VoiceAssistantPanel() {
           </div>
 
           {message && (
-            <p className="rounded-[12px] border border-[#BFDBFE] bg-[#EFF6FF] px-3 py-2 text-[12px] text-[#1D4ED8]">
+            <p
+              className={cn(
+                "rounded-[12px] border px-3 py-2 text-[12px]",
+                messageIsError
+                  ? "border-[#FECACA] bg-[#FEF2F2] text-[#B91C1C]"
+                  : "border-[#BFDBFE] bg-[#EFF6FF] text-[#1D4ED8]"
+              )}
+            >
               {message}
             </p>
           )}

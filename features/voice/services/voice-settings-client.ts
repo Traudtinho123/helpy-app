@@ -11,6 +11,10 @@ export async function fetchVoiceSettings(): Promise<VoiceSettings | null> {
   return payload.settings ?? null;
 }
 
+export type VoiceSettingsUpdateClientResult =
+  | { ok: true; settings: VoiceSettings }
+  | { ok: false; error: string };
+
 export async function updateVoiceSettingsClient(
   patch: Partial<
     Pick<
@@ -23,15 +27,26 @@ export async function updateVoiceSettingsClient(
       | "businessHours"
     >
   >
-): Promise<VoiceSettings | null> {
+): Promise<VoiceSettingsUpdateClientResult> {
   const response = await fetch("/api/voice/settings", {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(patch),
   });
-  if (!response.ok) return null;
-  const payload = (await response.json()) as { settings?: VoiceSettings };
-  return payload.settings ?? null;
+
+  const payload = (await response.json()) as {
+    settings?: VoiceSettings;
+    error?: string;
+  };
+
+  if (!response.ok || !payload.settings) {
+    return {
+      ok: false,
+      error: payload.error ?? "Voice-Einstellungen konnten nicht gespeichert werden.",
+    };
+  }
+
+  return { ok: true, settings: payload.settings };
 }
 
 export async function simulateVoiceCall(

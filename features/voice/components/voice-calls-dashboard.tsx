@@ -139,6 +139,13 @@ export function VoiceCallsDashboard() {
     setLoading(false);
   }, []);
 
+  const reloadDashboard = useCallback(async () => {
+    const dashboardResult = await fetchVoiceCallsDashboard();
+    if (dashboardResult) {
+      setDashboard(dashboardResult);
+    }
+  }, []);
+
   useEffect(() => {
     void reload();
     const timer = window.setInterval(() => void reload(), 30_000);
@@ -199,7 +206,7 @@ export function VoiceCallsDashboard() {
               settings={settings}
               onSettingsChange={(next) => {
                 setSettings(next);
-                void reload();
+                void reloadDashboard();
               }}
             />
           </div>

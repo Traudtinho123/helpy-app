@@ -42,7 +42,7 @@ export async function PATCH(request: Request) {
 
   const payload = body as Record<string, unknown>;
 
-  const settings = await updateVoiceSettings(context.companyId, {
+  const result = await updateVoiceSettings(context.companyId, {
     enabled: typeof payload.enabled === "boolean" ? payload.enabled : undefined,
     provider:
       payload.provider === "mock" ||
@@ -64,5 +64,9 @@ export async function PATCH(request: Request) {
       : undefined,
   });
 
-  return NextResponse.json({ settings });
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: 503 });
+  }
+
+  return NextResponse.json({ settings: result.settings });
 }
