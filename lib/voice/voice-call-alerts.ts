@@ -1,4 +1,5 @@
 import type { VoiceCallClassification } from "@/features/voice/types/voice-types";
+import type { HelpyCompanyRoleDb } from "@/lib/database/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 function getResendConfig(): { apiKey: string; from: string } | null {
@@ -8,25 +9,46 @@ function getResendConfig(): { apiKey: string; from: string } | null {
   return { apiKey, from };
 }
 
-async function loadCompanyMemberEmails(companyId: string): Promise<string[]> {
+const ADMIN_ROLES: HelpyCompanyRoleDb[] = ["admin", "owner"];
+
+async function resolveUserEmail(
+  admin: NonNullable<ReturnType<typeof createAdminClient>>,
+  userId: string
+): Promise<string | null> {
+  const { data: userData, error } = await admin.auth.admin.getUserById(userId);
+  if (error || !userData.user?.email?.trim()) return null;
+  return userData.user.email.trim();
+}
+
+/** E-Mails der Unternehmens-Admins (role admin oder owner). */
+async function loadCompanyAdminEmails(companyId: string): Promise<string[]> {
   const admin = createAdminClient();
   if (!admin) return [];
 
   const { data, error } = await admin
     .from("profiles")
-    .select("id")
-    .eq("company_id", companyId);
+    .select("id, role")
+    .eq("company_id", companyId)
+    .in("role", ADMIN_ROLES)
+    .order("erstellt_am", { ascending: true });
 
-  if (error || !data) return [];
+  if (error || !data?.length) {
+    console.error("[voice] admin profiles load failed:", error?.message ?? "none found");
+    return [];
+  }
+
+  const sorted = [...data].sort((a, b) => {
+    const rank = (role: string) => (role === "admin" ? 0 : role === "owner" ? 1 : 2);
+    return rank(a.role) - rank(b.role);
+  });
 
   const emails: string[] = [];
 
-  for (const profile of data) {
-    const { data: userData, error: userError } = await admin.auth.admin.getUserById(
-      profile.id
-    );
-    if (userError || !userData.user?.email) continue;
-    emails.push(userData.user.email);
+  for (const profile of sorted) {
+    const email = await resolveUserEmail(admin, profile.id);
+    if (email && !emails.includes(email)) {
+      emails.push(email);
+    }
   }
 
   return emails;
@@ -56,7 +78,8 @@ async function sendResendEmail(input: {
     });
 
     if (!response.ok) {
-      console.error("[voice] resend alert failed:", response.status);
+      const body = await response.text().catch(() => "");
+      console.error("[voice] resend alert failed:", response.status, body.slice(0, 200));
       return false;
     }
 
@@ -80,19 +103,31 @@ export async function dispatchVoiceCallAlert(input: {
 }): Promise<void> {
   if (input.classification !== "notfall") return;
 
-  const recipients = await loadCompanyMemberEmails(input.companyId);
-  const subject = `HELPY Phone Notfall — ${input.companyName}`;
+  const recipients = await loadCompanyAdminEmails(input.companyId);
+
+  if (recipients.length === 0) {
+    console.error("[voice] notfall alert skipped — no admin/owner email for company", {
+      companyId: input.companyId,
+    });
+    return;
+  }
+
+  const subject = `🚨 HELPY Phone Notfall — ${input.companyName}`;
   const text = [
-    "HELPY Phone: Dringender Anruf erkannt",
+    "NOTFALL — HELPY Phone",
+    "",
+    "Ein Anrufer hat ein dringendes Anliegen gemeldet. Bitte umgehend reagieren.",
     "",
     `Unternehmen: ${input.companyName}`,
     `Anrufer: ${input.callerPhone ?? "Unbekannt"}`,
-    `Zusammenfassung: ${input.summary}`,
+    "",
+    "Zusammenfassung:",
+    input.summary,
     "",
     "Transkript (Auszug):",
     input.transcript.slice(0, 1200),
     "",
-    "Bitte prüfen Sie den Vorgang in HELPY.",
+    "→ Vorgang in HELPY prüfen und Anrufer zurückrufen.",
   ].join("\n");
 
   const emailed = await sendResendEmail({
@@ -103,7 +138,7 @@ export async function dispatchVoiceCallAlert(input: {
 
   console.log("[voice] notfall alert", {
     companyId: input.companyId,
-    recipients: recipients.length,
+    adminRecipients: recipients,
     emailed,
   });
 }
