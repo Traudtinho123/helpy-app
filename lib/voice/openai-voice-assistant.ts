@@ -12,12 +12,25 @@ export function isOpenAiConfigured(): boolean {
   return Boolean(getOpenAiApiKey());
 }
 
-function buildHelpyPhoneSystemPrompt(systemContext: string): string {
+function buildHelpyPhoneSystemPrompt(
+  systemContext: string,
+  standardResponses: Array<{ triggerText: string; responseText: string }> = []
+): string {
+  const cannedBlock =
+    standardResponses.length > 0
+      ? `\n\nStandard-Antworten (bevorzugt verwenden wenn die Frage passt):\n${standardResponses
+          .map(
+            (item) =>
+              `- Trigger «${item.triggerText}»: «${item.responseText}»`
+          )
+          .join("\n")}`
+      : "";
+
   return `Du bist HELPY, der KI-Telefonassistent des Unternehmens.
 Du nimmst Anrufe entgegen und hilfst Anrufern professionell und freundlich.
 
 Firmeninfos:
-${systemContext}
+${systemContext}${cannedBlock}
 
 Deine Aufgaben am Telefon:
 - Besichtigungstermine anfragen und vormerken
@@ -84,12 +97,19 @@ export async function generateHelpyPhoneReply(input: {
   systemContext: string;
   priorTurns: VoiceTranscriptTurn[];
   callerMessage: string;
+  standardResponses?: Array<{ triggerText: string; responseText: string }>;
 }): Promise<string> {
   const fallback =
     "Vielen Dank für Ihre Nachricht. Ich habe Ihr Anliegen notiert und unser Team meldet sich bei Ihnen.";
 
   const messages = [
-    { role: "system", content: buildHelpyPhoneSystemPrompt(input.systemContext) },
+    {
+      role: "system",
+      content: buildHelpyPhoneSystemPrompt(
+        input.systemContext,
+        input.standardResponses ?? []
+      ),
+    },
     ...turnsToMessages(input.priorTurns),
     { role: "user", content: input.callerMessage },
   ];
