@@ -62,6 +62,7 @@ export function VoiceTwilioSetupSection({
   const enableTwilioProvider = async () => {
     setSaving(true);
     const updated = await updateVoiceSettingsClient({
+      enabled: true,
       provider: "twilio",
       phoneNumber: setup?.phoneNumber ?? settings.phoneNumber,
       businessHours: settings.businessHours ?? DEFAULT_VOICE_BUSINESS_HOURS,
@@ -93,7 +94,9 @@ export function VoiceTwilioSetupSection({
           <code className="text-[11px]">TWILIO_ACCOUNT_SID</code>,{" "}
           <code className="text-[11px]">TWILIO_AUTH_TOKEN</code>,{" "}
           <code className="text-[11px]">TWILIO_PHONE_NUMBER</code>,{" "}
-          <code className="text-[11px]">VOICE_WEBHOOK_BASE_URL</code> (öffentliche URL, z. B. ngrok).
+          <code className="text-[11px]">OPENAI_API_KEY</code>,{" "}
+          <code className="text-[11px]">VOICE_WEBHOOK_BASE_URL</code> (öffentliche URL, z. B. ngrok
+          oder Vercel).
         </p>
       </div>
     );

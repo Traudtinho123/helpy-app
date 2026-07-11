@@ -86,6 +86,10 @@ export async function ackVoiceIntakes(callIds: string[]): Promise<boolean> {
 
 export type TwilioSetupInfo = {
   configured: boolean;
+  openAiConfigured?: boolean;
+  twilioConfigured?: boolean;
+  voiceEnabled?: boolean;
+  provider?: VoiceSettings["provider"];
   companyId: string;
   phoneNumber: string | null;
   webhooks: {
@@ -95,6 +99,34 @@ export type TwilioSetupInfo = {
   };
   businessHoursSummary: string;
 };
+
+export type VoiceCallListItem = VoiceProcessedCall["call"] & {
+  callerPhoneMasked?: string;
+  intentLabel?: string | null;
+};
+
+export type VoiceCallsDashboardPayload = {
+  connection: {
+    twilioConfigured: boolean;
+    openAiConfigured: boolean;
+    voiceEnabled: boolean;
+    provider: VoiceSettings["provider"];
+    phoneNumber: string | null;
+    ready: boolean;
+  };
+  stats: {
+    today: number;
+    thisWeek: number;
+    total: number;
+  };
+  calls: VoiceCallListItem[];
+};
+
+export async function fetchVoiceCallsDashboard(): Promise<VoiceCallsDashboardPayload | null> {
+  const response = await fetch("/api/voice/calls", { cache: "no-store" });
+  if (!response.ok) return null;
+  return (await response.json()) as VoiceCallsDashboardPayload;
+}
 
 export async function fetchTwilioSetup(): Promise<TwilioSetupInfo | null> {
   const response = await fetch("/api/voice/twilio/setup", { cache: "no-store" });

@@ -1,5 +1,7 @@
-import { buildVoiceOpeningMessage } from "@/features/voice/services/voice-greeting";
 import type { VoiceSettings } from "@/features/voice/types/voice-types";
+
+const TWILIO_SAY_VOICE = 'voice="Polly.Marlene" language="de-DE"';
+const TWILIO_GATHER_LANG = "de-DE";
 
 function escapeXml(value: string): string {
   return value
@@ -14,48 +16,87 @@ function wrapResponse(body: string): string {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<Response>\n${body}\n</Response>`;
 }
 
+function say(text: string): string {
+  return `<Say ${TWILIO_SAY_VOICE}>${escapeXml(text)}</Say>`;
+}
+
 export function buildTwilioClosedTwiml(): string {
   return wrapResponse(`
-  <Say language="de-CH">Vielen Dank für Ihren Anruf. Unser Telefonassistent ist derzeit ausserhalb der Geschäftszeiten. Bitte versuchen Sie es während unserer Öffnungszeiten erneut.</Say>
+  ${say("Vielen Dank für Ihren Anruf. Unser Telefonassistent ist derzeit ausserhalb der Geschäftszeiten. Bitte versuchen Sie es während unserer Öffnungszeiten erneut.")}
   <Hangup/>`.trim());
 }
 
 export function buildTwilioDisabledTwiml(): string {
   return wrapResponse(`
-  <Say language="de-CH">Der Telefonassistent ist derzeit nicht verfügbar. Bitte versuchen Sie es später erneut.</Say>
+  ${say("Der Telefonassistent ist derzeit nicht verfügbar. Bitte versuchen Sie es später erneut.")}
   <Hangup/>`.trim());
 }
 
-/** Begrüßung + Speech-Gather (Twilio STT, de-CH). */
+export function buildTwilioRateLimitTwiml(): string {
+  return wrapResponse(`
+  ${say("Entschuldigung, alle Leitungen sind derzeit belegt. Bitte versuchen Sie es in wenigen Minuten erneut.")}
+  <Hangup/>`.trim());
+}
+
+/** Begrüßung + Speech-Gather (Twilio STT, de-DE). */
 export function buildTwilioIncomingTwiml(input: {
-  settings: Pick<VoiceSettings, "greetingText" | "disclosureText">;
+  companyName: string;
+  settings: Pick<VoiceSettings, "disclosureText">;
   gatherActionUrl: string;
-  statusCallbackUrl: string;
 }): string {
-  const opening = escapeXml(buildVoiceOpeningMessage(input.settings));
+  const greeting = `Willkommen bei ${input.companyName}. Ich bin HELPY, Ihr KI-Assistent. Wie kann ich Ihnen helfen?`;
+  const disclosure = input.settings.disclosureText?.trim();
+  const opening = disclosure ? `${greeting} ${disclosure}` : greeting;
 
   return wrapResponse(`
-  <Say language="de-CH">${opening}</Say>
+  ${say(opening)}
   <Pause length="1"/>
-  <Gather input="speech" language="de-CH" speechTimeout="auto" timeout="8" action="${escapeXml(input.gatherActionUrl)}" method="POST">
-    <Say language="de-CH">Bitte schildern Sie kurz Ihr Anliegen.</Say>
+  <Gather input="speech" language="${TWILIO_GATHER_LANG}" speechTimeout="auto" timeout="5" action="${escapeXml(input.gatherActionUrl)}" method="POST">
+    ${say("Bitte schildern Sie kurz Ihr Anliegen.")}
   </Gather>
-  <Say language="de-CH">Ich habe Sie leider nicht verstanden. Auf Wiederhören.</Say>
+  ${say("Ich habe Sie leider nicht verstanden. Bitte rufen Sie erneut an.")}
   <Hangup/>`.trim());
 }
 
-/** TTS-Antwort + Auflegen. */
-export function buildTwilioReplyTwiml(reply: string): string {
-  const safe = escapeXml(reply.slice(0, 900));
+/** HELPY-Antwort + weiteres Gather für Multi-Turn-Gespräch. */
+export function buildTwilioReplyAndGatherTwiml(input: {
+  reply: string;
+  gatherActionUrl: string;
+}): string {
+  const safe = input.reply.slice(0, 900);
+
   return wrapResponse(`
-  <Say language="de-CH">${safe}</Say>
+  ${say(safe)}
   <Pause length="1"/>
-  <Say language="de-CH">Auf Wiederhören.</Say>
+  <Gather input="speech" language="${TWILIO_GATHER_LANG}" speechTimeout="auto" timeout="5" action="${escapeXml(input.gatherActionUrl)}" method="POST">
+    ${say("Gibt es noch etwas, womit ich Ihnen helfen kann?")}
+  </Gather>
+  ${say("Vielen Dank für Ihren Anruf. Auf Wiederhören.")}
   <Hangup/>`.trim());
 }
 
-export function buildTwilioNoSpeechTwiml(): string {
+/** Keine Sprache erkannt — nochmal fragen. */
+export function buildTwilioNoSpeechTwiml(input: { gatherActionUrl: string }): string {
   return wrapResponse(`
-  <Say language="de-CH">Entschuldigung, ich konnte Sie nicht verstehen. Bitte rufen Sie erneut an.</Say>
+  ${say("Ich habe Sie leider nicht verstanden. Könnten Sie das bitte wiederholen?")}
+  <Gather input="speech" language="${TWILIO_GATHER_LANG}" speechTimeout="auto" timeout="5" action="${escapeXml(input.gatherActionUrl)}" method="POST"/>
+  ${say("Auf Wiederhören.")}
   <Hangup/>`.trim());
+}
+
+/** Abschluss nach max. Runden. */
+export function buildTwilioGoodbyeTwiml(reply?: string): string {
+  const lines = [
+    reply?.trim(),
+    "Vielen Dank für Ihren Anruf. Wir melden uns bei Ihnen. Auf Wiederhören.",
+  ].filter(Boolean);
+
+  return wrapResponse(`
+  ${lines.map((line) => say(line!)).join("\n  ")}
+  <Hangup/>`.trim());
+}
+
+/** Legacy: einmalige Antwort + Auflegen. */
+export function buildTwilioReplyTwiml(reply: string): string {
+  return buildTwilioGoodbyeTwiml(reply);
 }

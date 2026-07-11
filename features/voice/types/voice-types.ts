@@ -36,6 +36,12 @@ export type VoiceSettings = {
   updatedAt: string;
 };
 
+export type VoiceTranscriptTurn = {
+  role: "caller" | "helpy";
+  text: string;
+  at: string;
+};
+
 export type VoiceCallRecord = {
   id: string;
   companyId: string;
@@ -48,6 +54,7 @@ export type VoiceCallRecord = {
   summary: string | null;
   intent: VoiceIntent | null;
   vorgangId: string | null;
+  transcriptTurns?: VoiceTranscriptTurn[];
   startedAt: string;
   endedAt: string | null;
 };

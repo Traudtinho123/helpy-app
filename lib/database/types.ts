@@ -234,6 +234,7 @@ export type Database = {
           status: VoiceCallStatusDb;
           duration_seconds: number | null;
           transcript: string | null;
+          transcript_turns: Json;
           summary: string | null;
           intent: string | null;
           vorgang_id: string | null;
@@ -253,6 +254,7 @@ export type Database = {
           status?: VoiceCallStatusDb;
           duration_seconds?: number | null;
           transcript?: string | null;
+          transcript_turns?: Json;
           summary?: string | null;
           intent?: string | null;
           vorgang_id?: string | null;
@@ -272,6 +274,7 @@ export type Database = {
           status?: VoiceCallStatusDb;
           duration_seconds?: number | null;
           transcript?: string | null;
+          transcript_turns?: Json;
           summary?: string | null;
           intent?: string | null;
           vorgang_id?: string | null;

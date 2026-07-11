@@ -15,6 +15,7 @@ type VoiceCallRow = {
   status: VoiceCallStatus;
   duration_seconds: number | null;
   transcript: string | null;
+  transcript_turns?: Json | null;
   summary: string | null;
   intent: string | null;
   vorgang_id: string | null;
@@ -32,6 +33,10 @@ function generateDevId(): string {
 }
 
 function rowToRecord(row: VoiceCallRow): VoiceCallRecord {
+  const turns = Array.isArray(row.transcript_turns)
+    ? (row.transcript_turns as VoiceCallRecord["transcriptTurns"])
+    : undefined;
+
   return {
     id: row.id,
     companyId: row.company_id,
@@ -44,6 +49,7 @@ function rowToRecord(row: VoiceCallRow): VoiceCallRecord {
     summary: row.summary,
     intent: (row.intent as VoiceIntent | null) ?? null,
     vorgangId: row.vorgang_id,
+    transcriptTurns: turns,
     startedAt: row.started_at,
     endedAt: row.ended_at,
   };
@@ -294,4 +300,66 @@ export async function ackVoiceIntakes(
   }
 
   return count;
+}
+
+export async function countActiveVoiceCallsForCompany(companyId: string): Promise<number> {
+  if (!isSupabaseAdminConfigured()) {
+    return [...devCalls.values()].filter(
+      (row) =>
+        row.company_id === companyId &&
+        (row.status === "ringing" || row.status === "in_progress")
+    ).length;
+  }
+
+  const admin = createAdminClient();
+  if (!admin) return 0;
+
+  const { count, error } = await admin
+    .from("voice_calls")
+    .select("id", { count: "exact", head: true })
+    .eq("company_id", companyId)
+    .in("status", ["ringing", "in_progress"]);
+
+  if (error) {
+    console.error("[voice] count active calls failed:", error.message);
+    return 0;
+  }
+
+  return count ?? 0;
+}
+
+export type VoiceCallStats = {
+  today: number;
+  thisWeek: number;
+  total: number;
+};
+
+function startOfLocalDay(date: Date): number {
+  const copy = new Date(date);
+  copy.setHours(0, 0, 0, 0);
+  return copy.getTime();
+}
+
+function startOfLocalWeek(date: Date): number {
+  const copy = new Date(date);
+  const day = copy.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  copy.setDate(copy.getDate() + diff);
+  copy.setHours(0, 0, 0, 0);
+  return copy.getTime();
+}
+
+export async function getVoiceCallStatsForCompany(
+  companyId: string
+): Promise<VoiceCallStats> {
+  const calls = await listVoiceCallsForCompany(companyId, 200);
+  const now = Date.now();
+  const dayStart = startOfLocalDay(new Date(now));
+  const weekStart = startOfLocalWeek(new Date(now));
+
+  return {
+    today: calls.filter((call) => Date.parse(call.startedAt) >= dayStart).length,
+    thisWeek: calls.filter((call) => Date.parse(call.startedAt) >= weekStart).length,
+    total: calls.length,
+  };
 }
