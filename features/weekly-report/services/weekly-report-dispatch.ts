@@ -281,7 +281,7 @@ export async function dispatchWeeklyReportForSessionUser(input: {
     const report = await buildWeeklyReport(input.supabase, {
       companyId: input.companyId,
       companyName: company?.name ?? "Dein Unternehmen",
-      recipientName: resolveRecipientName(profile ?? {}),
+      recipientName: profile ? resolveRecipientName(profile) : null,
       now,
       timeZone,
     });

@@ -180,22 +180,23 @@ export function getIsoWeekNumberInTimezone(
   date: Date,
   timeZone: string
 ): number {
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    week: "numeric",
-  });
-  return Number(formatter.format(date));
+  const { year, month, day } = readZonedParts(date, timeZone);
+  const utc = new Date(Date.UTC(year, month - 1, day));
+  const dayNum = utc.getUTCDay() || 7;
+  utc.setUTCDate(utc.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(utc.getUTCFullYear(), 0, 1));
+  return Math.ceil(((utc.getTime() - yearStart.getTime()) / 86_400_000 + 1) / 7);
 }
 
 /** Schlüssel für Versand-Deduplizierung, z.B. 2026-W27 */
 export function getIsoWeekKeyInTimezone(date: Date, timeZone: string): string {
-  const yearFormatter = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    year: "numeric",
-  });
-  const year = yearFormatter.format(date);
+  const { year, month, day } = readZonedParts(date, timeZone);
+  const utc = new Date(Date.UTC(year, month - 1, day));
+  const dayNum = utc.getUTCDay() || 7;
+  utc.setUTCDate(utc.getUTCDate() + 4 - dayNum);
+  const isoWeekYear = utc.getUTCFullYear();
   const week = getIsoWeekNumberInTimezone(date, timeZone);
-  return `${year}-W${String(week).padStart(2, "0")}`;
+  return `${isoWeekYear}-W${String(week).padStart(2, "0")}`;
 }
 
 /** Montag 05:30–05:44 Europe/Zurich — Versandfenster für Wochenbericht */

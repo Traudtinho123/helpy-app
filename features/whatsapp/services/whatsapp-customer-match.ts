@@ -12,7 +12,7 @@ export async function findCustomerIdByPhone(
 
   const { data, error } = await client
     .from("kunden")
-    .select("id, name, telefon")
+    .select("id, firmenname, ansprechpartner, telefon")
     .eq("company_id", companyId)
     .not("telefon", "is", null)
     .limit(200);
@@ -21,7 +21,9 @@ export async function findCustomerIdByPhone(
 
   for (const row of data) {
     if (normalizePhone(row.telefon ?? "") === normalizedIncoming) {
-      return { id: row.id, name: row.name };
+      const name =
+        row.ansprechpartner?.trim() || row.firmenname?.trim() || null;
+      return { id: row.id, name };
     }
   }
 

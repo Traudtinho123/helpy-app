@@ -4,10 +4,6 @@ import type {
   VorgangEventRow,
 } from "@/features/analytics/services/vorgang-events-repository";
 import {
-  fetchCompanyKnowledgeRow,
-  parseCompanyKnowledgeData,
-} from "@/features/company-knowledge/services/company-knowledge-repository";
-import {
   deriveFollowUpRecommendation,
   deriveFollowUpStatus,
   FOLLOWUP_DAY_THRESHOLDS,
@@ -253,18 +249,7 @@ export async function buildWeeklyReport(
       fetchCompletedVorgangKeys(supabase, input.companyId),
     ]);
 
-  let companyDisplayName = input.companyName;
-  try {
-    const knowledgeRow = await fetchCompanyKnowledgeRow(supabase, input.companyId);
-    if (knowledgeRow) {
-      const knowledge = parseCompanyKnowledgeData(knowledgeRow.data, input.companyId);
-      if (knowledge.companyName?.trim()) {
-        companyDisplayName = knowledge.companyName.trim();
-      }
-    }
-  } catch {
-    // Firmenwissen optional
-  }
+  const companyDisplayName = input.companyName.trim() || "Dein Unternehmen";
 
   const newInquiriesLastWeek = countEvents(
     events,

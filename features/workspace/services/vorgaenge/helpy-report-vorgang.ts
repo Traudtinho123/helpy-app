@@ -34,7 +34,7 @@ function buildHelpyReportBrainStub(
     priority: "niedrig",
     summary: message.snippet,
     recommendedAction: "",
-    status: "Report",
+    status: "Von HELPY vorbereitet",
     createdAt: message.receivedAt,
   };
 }

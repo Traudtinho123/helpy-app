@@ -3,6 +3,7 @@ import type {
   WhatsappConnectionRow,
   WhatsappMessageRow,
   WhatsappMessageStatusDb,
+  Json,
 } from "@/lib/database/types";
 import type { Database } from "@/lib/database/types";
 import type {
@@ -12,8 +13,17 @@ import type {
   WhatsappSummary,
 } from "@/features/whatsapp/types/whatsapp-types";
 
+function resolveKundeDisplayName(
+  kunde: { firmenname: string; ansprechpartner: string | null } | null | undefined
+): string | null {
+  if (!kunde) return null;
+  return kunde.ansprechpartner?.trim() || kunde.firmenname?.trim() || null;
+}
+
 function mapMessageRow(
-  row: WhatsappMessageRow & { kunden?: { name: string | null } | null }
+  row: WhatsappMessageRow & {
+    kunden?: { firmenname: string; ansprechpartner: string | null } | null;
+  }
 ): WhatsappMessage {
   return {
     id: row.id,
@@ -30,7 +40,7 @@ function mapMessageRow(
     summary: row.summary,
     recommendedAction: row.recommended_action,
     customerId: row.customer_id,
-    customerName: row.kunden?.name ?? null,
+    customerName: resolveKundeDisplayName(row.kunden),
     receivedAt: row.received_at,
     classifiedAt: row.classified_at,
     metadata:
@@ -119,7 +129,7 @@ export async function fetchWhatsappMessages(
 ): Promise<WhatsappMessage[]> {
   let query = client
     .from("whatsapp_messages")
-    .select("*, kunden(name)")
+    .select("*, kunden(firmenname, ansprechpartner)")
     .eq("company_id", companyId)
     .order("received_at", { ascending: false })
     .limit(200);
@@ -133,7 +143,9 @@ export async function fetchWhatsappMessages(
 
   return data.map((row) =>
     mapMessageRow(
-      row as WhatsappMessageRow & { kunden?: { name: string | null } | null }
+      row as WhatsappMessageRow & {
+        kunden?: { firmenname: string; ansprechpartner: string | null } | null;
+      }
     )
   );
 }
@@ -145,14 +157,16 @@ export async function fetchWhatsappMessageById(
 ): Promise<WhatsappMessage | null> {
   const { data, error } = await client
     .from("whatsapp_messages")
-    .select("*, kunden(name)")
+    .select("*, kunden(firmenname, ansprechpartner)")
     .eq("company_id", companyId)
     .eq("id", id)
     .maybeSingle();
 
   if (error || !data) return null;
   return mapMessageRow(
-    data as WhatsappMessageRow & { kunden?: { name: string | null } | null }
+    data as WhatsappMessageRow & {
+      kunden?: { firmenname: string; ansprechpartner: string | null } | null;
+    }
   );
 }
 
@@ -167,12 +181,14 @@ export async function updateWhatsappMessageStatus(
     .update({ status })
     .eq("company_id", companyId)
     .eq("id", id)
-    .select("*, kunden(name)")
+    .select("*, kunden(firmenname, ansprechpartner)")
     .maybeSingle();
 
   if (error || !data) return null;
   return mapMessageRow(
-    data as WhatsappMessageRow & { kunden?: { name: string | null } | null }
+    data as WhatsappMessageRow & {
+      kunden?: { firmenname: string; ansprechpartner: string | null } | null;
+    }
   );
 }
 
@@ -199,7 +215,7 @@ export async function insertWhatsappMessageIfNew(
       body: input.body,
       message_type: input.messageType,
       received_at: input.receivedAt,
-      metadata: input.metadata ?? {},
+      metadata: (input.metadata ?? {}) as Json,
     })
     .select("*")
     .maybeSingle();

@@ -7,9 +7,9 @@ import {
   type CalendarBusyEvent,
   type FreeSlot,
 } from "@/features/calendar/services/availability-engine";
+import type { CalendarEvent } from "@/features/calendar/mock/mock-calendar";
 import {
   getGoogleCalendarEventsForDate,
-  getGoogleCalendarEventsForToday,
   getConnectedCalendarPlatform,
   type CalendarPlatform,
 } from "@/features/calendar/services/calendar-platform";
