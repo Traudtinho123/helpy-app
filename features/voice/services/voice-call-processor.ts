@@ -6,12 +6,17 @@ import {
   mapVoiceIntentToVorgangTyp,
 } from "@/features/voice/services/voice-intent-engine";
 import { buildVoiceCallSummary } from "@/features/voice/services/voice-summary-engine";
+import {
+  buildVoiceAppointmentProposal,
+  enrichVoiceProcessedCallWithAppointmentProposal,
+} from "@/features/voice/services/voice-appointment-proposal";
 import type {
   VoiceCallClassification,
   VoiceCallRecord,
   VoiceProcessedCall,
 } from "@/features/voice/types/voice-types";
 import { VOICE_CALL_CLASSIFICATION_LABELS } from "@/features/voice/types/voice-types";
+import type { VoiceCallAnalysis } from "@/lib/voice/openai-voice-assistant";
 import { getSkillConfig } from "@/features/workspace/services/workspace/skills";
 import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
 import type { Vorgang as ListeVorgang } from "@/features/workspace/services/vorgaenge/types";
@@ -164,6 +169,7 @@ export function processVoiceCall(input: {
   objectReference?: string | null;
   requestedDateTime?: string | null;
   summaryOverride?: string | null;
+  analysis?: VoiceCallAnalysis | null;
 }): VoiceProcessedCall {
   const classification =
     input.classification ?? detectVoiceCallClassification(input.transcript);
@@ -204,7 +210,33 @@ export function processVoiceCall(input: {
     endedAt: input.call.endedAt ?? new Date().toISOString(),
   };
 
-  return {
+  const analysisForProposal: VoiceCallAnalysis =
+    input.analysis ?? {
+      classification,
+      callerName: callerName ?? null,
+      objectReference: input.objectReference ?? null,
+      requestedDateTime: input.requestedDateTime ?? null,
+      createVorgang: true,
+      summaryHint: null,
+      terminDatum: null,
+      terminUhrzeit: null,
+      terminDauerMinuten: null,
+      objekt: input.objectReference ?? null,
+      objektAdresse: null,
+      anruferName: callerName ?? null,
+      notizen: null,
+    };
+
+  const appointmentProposal = buildVoiceAppointmentProposal({
+    vorgangId,
+    classification,
+    analysis: analysisForProposal,
+    callerPhone: input.call.callerPhone,
+    transcript: input.transcript,
+    summary,
+  });
+
+  let processed: VoiceProcessedCall = {
     call: completedCall,
     vorgangId,
     kundenakteId: null,
@@ -215,6 +247,16 @@ export function processVoiceCall(input: {
     callerName,
     objectReference: input.objectReference ?? null,
     requestedDateTime: input.requestedDateTime ?? null,
+    appointmentProposal,
     createVorgang: true,
   };
+
+  if (appointmentProposal) {
+    processed = enrichVoiceProcessedCallWithAppointmentProposal(
+      processed,
+      appointmentProposal
+    );
+  }
+
+  return processed;
 }

@@ -12,6 +12,13 @@ export type VoiceCallAnalysis = {
   requestedDateTime: string | null;
   createVorgang: boolean;
   summaryHint: string | null;
+  terminDatum: string | null;
+  terminUhrzeit: string | null;
+  terminDauerMinuten: number | null;
+  objekt: string | null;
+  objektAdresse: string | null;
+  anruferName: string | null;
+  notizen: string | null;
 };
 
 function getOpenAiApiKey(): string | null {
@@ -199,8 +206,8 @@ function parseVoiceCallAnalysis(raw: string | null): VoiceCallAnalysis | null {
   if (!raw) return null;
 
   try {
-    const parsed = JSON.parse(raw) as Partial<VoiceCallAnalysis>;
-    const classification = parsed.classification;
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    const classification = parsed.classification as VoiceCallClassification | undefined;
     const valid: VoiceCallClassification[] = [
       "besichtigung_anfrage",
       "info_anfrage",
@@ -232,6 +239,46 @@ function parseVoiceCallAnalysis(raw: string | null): VoiceCallAnalysis | null {
         typeof parsed.summaryHint === "string" && parsed.summaryHint.trim()
           ? parsed.summaryHint.trim()
           : null,
+      terminDatum:
+        typeof parsed.termin_datum === "string" && parsed.termin_datum.trim()
+          ? parsed.termin_datum.trim()
+          : typeof parsed.terminDatum === "string" && parsed.terminDatum.trim()
+            ? parsed.terminDatum.trim()
+            : null,
+      terminUhrzeit:
+        typeof parsed.termin_uhrzeit === "string" && parsed.termin_uhrzeit.trim()
+          ? parsed.termin_uhrzeit.trim()
+          : typeof parsed.terminUhrzeit === "string" && parsed.terminUhrzeit.trim()
+            ? parsed.terminUhrzeit.trim()
+            : null,
+      terminDauerMinuten:
+        typeof parsed.termin_dauer === "number" && parsed.termin_dauer > 0
+          ? parsed.termin_dauer
+          : typeof parsed.terminDauerMinuten === "number" && parsed.terminDauerMinuten > 0
+            ? parsed.terminDauerMinuten
+            : typeof parsed.terminDauer === "number" && parsed.terminDauer > 0
+              ? parsed.terminDauer
+              : null,
+      objekt:
+        typeof parsed.objekt === "string" && parsed.objekt.trim()
+          ? parsed.objekt.trim()
+          : null,
+      objektAdresse:
+        typeof parsed.objekt_adresse === "string" && parsed.objekt_adresse.trim()
+          ? parsed.objekt_adresse.trim()
+          : typeof parsed.objektAdresse === "string" && parsed.objektAdresse.trim()
+            ? parsed.objektAdresse.trim()
+            : null,
+      anruferName:
+        typeof parsed.anrufer_name === "string" && parsed.anrufer_name.trim()
+          ? parsed.anrufer_name.trim()
+          : typeof parsed.anruferName === "string" && parsed.anruferName.trim()
+            ? parsed.anruferName.trim()
+            : null,
+      notizen:
+        typeof parsed.notizen === "string" && parsed.notizen.trim()
+          ? parsed.notizen.trim()
+          : null,
     };
   } catch {
     return null;
@@ -252,15 +299,25 @@ export async function analyzeVoiceCallTranscript(input: {
   "objectReference": string|null,
   "requestedDateTime": string|null,
   "createVorgang": boolean,
-  "summaryHint": string|null
+  "summaryHint": string|null,
+  "termin_datum": "YYYY-MM-DD"|null,
+  "termin_uhrzeit": "HH:MM"|null,
+  "termin_dauer": number|null,
+  "objekt": string|null,
+  "objekt_adresse": string|null,
+  "anrufer_name": string|null,
+  "notizen": string|null
 }
 
 Regeln:
 - besichtigung_anfrage: Termin/Besichtigung vereinbaren
 - info_anfrage: Frage zu Objekt/Preis/Info
-- rueckruf_wunsch: Rückruf/Mitarbeiter gewünscht
+- rueckruf_wunsch: Rückruf/Mitarbeiter gewünscht (auch mit Terminwunsch)
 - notfall: dringend, Wasserschaden, Einbruch, sofort
 - sonstiges: alles andere
+- termin_datum/termin_uhrzeit: nur setzen wenn im Gespräch genannt (ISO-Datum, 24h-Zeit)
+- termin_dauer: Minuten falls erkennbar, sonst null
+- notizen: 1 kurzer Satz zum Anliegen
 - createVorgang: true bei besichtigung_anfrage, rueckruf_wunsch, notfall; bei info_anfrage wenn Follow-up nötig; sonstiges wenn Anliegen offen`,
     },
     {
@@ -270,7 +327,7 @@ Regeln:
   ];
 
   const raw = await callOpenAiChat(messages, {
-    maxTokens: 220,
+    maxTokens: 320,
     temperature: 0.2,
     jsonMode: true,
   });

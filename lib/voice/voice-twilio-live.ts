@@ -510,6 +510,7 @@ export async function handleTwilioCallStatus(
           objectReference: analysis?.objectReference ?? null,
           requestedDateTime: analysis?.requestedDateTime ?? null,
           summaryOverride: analysis?.summaryHint ?? summary,
+          analysis,
         });
 
         await dispatchVoiceCallAlert({

@@ -98,8 +98,44 @@ export type VoiceProcessedCall = {
   callerName?: string | null;
   objectReference?: string | null;
   requestedDateTime?: string | null;
+  appointmentProposal?: VoiceAppointmentProposal | null;
   createVorgang?: boolean;
 };
+
+export type VoiceAppointmentCalendarStatus = "none" | "pending" | "confirmed";
+
+export type VoiceAppointmentProposal = {
+  vorgangId: string;
+  classification: VoiceCallClassification;
+  appointmentKind: "besichtigung" | "rueckruf";
+  terminDatum: string | null;
+  terminUhrzeit: string | null;
+  terminDauerMinuten: number;
+  objekt: string | null;
+  objektAdresse: string | null;
+  anruferName: string | null;
+  anruferNummer: string | null;
+  anruferNummerMasked: string | null;
+  notizen: string | null;
+  calendarStatus: VoiceAppointmentCalendarStatus;
+  appleCalendarEventUid: string | null;
+  updatedAt: string;
+};
+
+export function hasCompleteVoiceAppointmentDateTime(
+  proposal: VoiceAppointmentProposal
+): boolean {
+  return Boolean(proposal.terminDatum?.trim() && proposal.terminUhrzeit?.trim());
+}
+
+export function isVoiceAppointmentClassification(
+  classification: VoiceCallClassification | undefined | null
+): boolean {
+  return (
+    classification === "besichtigung_anfrage" ||
+    classification === "rueckruf_wunsch"
+  );
+}
 
 export type VoiceSimulateRequest = {
   transcript: string;

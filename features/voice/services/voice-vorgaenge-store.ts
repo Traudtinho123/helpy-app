@@ -1,6 +1,8 @@
 import { prepareKundenakteFromVoiceCall } from "@/features/voice/services/voice-kundenakte";
 import { processVoiceCall } from "@/features/voice/services/voice-call-processor";
+import { resolveHelpyStatus } from "@/features/voice/services/voice-appointment-proposal";
 import type {
+  VoiceAppointmentProposal,
   VoiceCallRecord,
   VoiceProcessedCall,
 } from "@/features/voice/types/voice-types";
@@ -26,6 +28,10 @@ type VoiceVorgaengeCache = {
   vorgaenge: ListeVorgang[];
   workspaces: Record<string, WorkspaceVorgang>;
   calls: VoiceCallRecord[];
+  appointmentProposals: Record<
+    string,
+    import("@/features/voice/types/voice-types").VoiceAppointmentProposal
+  >;
   loadedAt: string;
 };
 
@@ -42,7 +48,11 @@ function hydrateFromStorage(): void {
   const parsed = readPersistentJson<VoiceVorgaengeCache>(storageOptions);
   if (!parsed) return;
   const { vorgaenge } = deduplicateVorgaenge(parsed.vorgaenge);
-  cache = { ...parsed, vorgaenge };
+  cache = {
+    ...parsed,
+    vorgaenge,
+    appointmentProposals: parsed.appointmentProposals ?? {},
+  };
   initStatusForVorgaenge(vorgaenge);
 }
 
@@ -58,6 +68,7 @@ function ensureCache(): VoiceVorgaengeCache {
       vorgaenge: [],
       workspaces: {},
       calls: [],
+      appointmentProposals: {},
       loadedAt: new Date().toISOString(),
     };
   }
@@ -92,6 +103,79 @@ export function getVoiceCalls(): VoiceCallRecord[] {
   );
 }
 
+export function getVoiceAppointmentProposal(
+  vorgangId: string
+): VoiceAppointmentProposal | null {
+  return ensureCache().appointmentProposals[vorgangId] ?? null;
+}
+
+function applyProposalToListe(
+  liste: ListeVorgang,
+  proposal: VoiceAppointmentProposal
+): ListeVorgang {
+  const helpyStatus = resolveHelpyStatus(proposal);
+  const terminLabel =
+    proposal.terminDatum && proposal.terminUhrzeit
+      ? `${proposal.terminDatum} ${proposal.terminUhrzeit}`
+      : null;
+
+  const detectedContext = [
+    ...(liste.detectedContext ?? []),
+    proposal.objekt ? `Objekt: ${proposal.objekt}` : null,
+    terminLabel ? `Terminwunsch: ${terminLabel}` : null,
+    `Status: ${helpyStatus}`,
+  ].filter(Boolean) as string[];
+
+  return {
+    ...liste,
+    helpyStatus,
+    intentLabel:
+      proposal.calendarStatus === "confirmed" ||
+      (proposal.terminDatum && proposal.terminUhrzeit)
+        ? "Termin vereinbart"
+        : liste.intentLabel,
+    detectedContext,
+    recommendedNextStep:
+      proposal.terminDatum && proposal.terminUhrzeit
+        ? "Termin im Apple Kalender eintragen."
+        : "Datum erfragen und manuell eintragen.",
+    preparedActions:
+      proposal.terminDatum && proposal.terminUhrzeit
+        ? ["Termin im Kalender eintragen", "Anrufer zurückrufen"]
+        : ["Datum beim Anrufer erfragen", "Anrufer zurückrufen"],
+  };
+}
+
+export function updateVoiceAppointmentProposal(
+  proposal: VoiceAppointmentProposal
+): void {
+  const store = ensureCache();
+  store.appointmentProposals[proposal.vorgangId] = proposal;
+
+  const index = store.vorgaenge.findIndex((item) => item.id === proposal.vorgangId);
+  if (index >= 0) {
+    store.vorgaenge[index] = applyProposalToListe(store.vorgaenge[index], proposal);
+  }
+
+  const workspace = store.workspaces[proposal.vorgangId];
+  if (workspace) {
+    store.workspaces[proposal.vorgangId] = {
+      ...workspace,
+      helpy: {
+        ...workspace.helpy,
+        naechsterSchritt:
+          proposal.terminDatum && proposal.terminUhrzeit
+            ? "Termin im Apple Kalender eintragen."
+            : "Datum erfragen und manuell eintragen.",
+      },
+    };
+  }
+
+  store.loadedAt = new Date().toISOString();
+  persist();
+  notify();
+}
+
 /** Nimmt ein verarbeitetes Gespräch in den Client-Store auf. */
 export function ingestVoiceProcessedCall(result: VoiceProcessedCall): VoiceProcessedCall {
   const store = ensureCache();
@@ -100,6 +184,9 @@ export function ingestVoiceProcessedCall(result: VoiceProcessedCall): VoiceProce
   );
   store.vorgaenge = [result.liste, ...withoutDuplicate];
   store.workspaces[result.vorgangId] = result.workspace;
+  if (result.appointmentProposal) {
+    store.appointmentProposals[result.vorgangId] = result.appointmentProposal;
+  }
   store.calls = [
     result.call,
     ...store.calls.filter((item) => item.id !== result.call.id),

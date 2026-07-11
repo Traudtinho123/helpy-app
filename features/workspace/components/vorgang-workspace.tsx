@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-import { isConnectedMailVorgang } from "@/features/decision/services/decision-engine";
+import { isConnectedMailVorgang, isVoiceVorgang } from "@/features/decision/services/decision-engine";
+import { VoicePhoneAppointmentCard } from "@/features/voice/components/voice-phone-appointment-card";
 import { GmailVorgangWorkspaceBody } from "@/features/workspace/components/gmail-vorgang/gmail-vorgang-workspace-body";
 import { HelpyWorkspaceSummary } from "@/features/workspace/components/helpy-workspace-summary";
 import { WorkspaceMiddleColumn } from "@/features/workspace/components/workspace-middle-column";
@@ -15,6 +15,7 @@ type VorgangWorkspaceProps = {
 
 export function VorgangWorkspace({ vorgang }: VorgangWorkspaceProps) {
   const isMail = isConnectedMailVorgang(vorgang);
+  const isVoice = isVoiceVorgang(vorgang);
 
   if (isMail) {
     return <GmailVorgangWorkspaceBody vorgang={vorgang} />;
@@ -34,6 +35,8 @@ export function VorgangWorkspace({ vorgang }: VorgangWorkspaceProps) {
       </header>
 
       <HelpyWorkspaceSummary />
+
+      {isVoice && <VoicePhoneAppointmentCard vorgangId={vorgang.id} />}
 
       <WorkspaceWorkflowCard vorgang={vorgang} />
       <WorkspaceMiddleColumn vorgang={vorgang} />
