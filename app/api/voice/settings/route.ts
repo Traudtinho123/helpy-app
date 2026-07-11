@@ -25,7 +25,17 @@ export async function PATCH(request: Request) {
   const auth = await requireVoiceContext();
   const context = auth.ok ? auth.context : createDevVoiceContext();
 
+  console.log("[voice/settings/patch] auth", {
+    ok: auth.ok,
+    companyId: context.companyId,
+    userId: context.userId,
+    adminConfigured: isSupabaseAdminConfigured(),
+    serviceRoleKeyPresent: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()),
+    serviceRoleKeyPrefix: process.env.SUPABASE_SERVICE_ROLE_KEY?.trim().slice(0, 12) ?? null,
+  });
+
   if (!auth.ok && isSupabaseAdminConfigured()) {
+    console.log("[voice/settings/patch] rejected — not authenticated", auth.error);
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
@@ -42,7 +52,7 @@ export async function PATCH(request: Request) {
 
   const payload = body as Record<string, unknown>;
 
-  const result = await updateVoiceSettings(context.companyId, {
+  const patch = {
     enabled: typeof payload.enabled === "boolean" ? payload.enabled : undefined,
     provider:
       payload.provider === "mock" ||
@@ -51,7 +61,7 @@ export async function PATCH(request: Request) {
       payload.provider === "telnyx" ||
       payload.provider === "teams" ||
       payload.provider === "sip"
-        ? payload.provider
+        ? (payload.provider as import("@/features/voice/types/voice-types").VoiceSettings["provider"])
         : undefined,
     phoneNumber:
       typeof payload.phoneNumber === "string" ? payload.phoneNumber : undefined,
@@ -62,6 +72,18 @@ export async function PATCH(request: Request) {
     businessHours: Array.isArray(payload.businessHours)
       ? (payload.businessHours as import("@/features/voice/types/voice-types").VoiceSettings["businessHours"])
       : undefined,
+  };
+
+  console.log("[voice/settings/patch] incoming body", payload);
+  console.log("[voice/settings/patch] normalized patch", patch);
+
+  const result = await updateVoiceSettings(context.companyId, patch);
+
+  console.log("[voice/settings/patch] result", {
+    ok: result.ok,
+    error: result.ok ? null : result.error,
+    provider: result.ok ? result.settings.provider : null,
+    enabled: result.ok ? result.settings.enabled : null,
   });
 
   if (!result.ok) {

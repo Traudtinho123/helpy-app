@@ -103,7 +103,17 @@ export async function updateVoiceSettings(
     updated_at: new Date().toISOString(),
   };
 
+  console.log("[voice/settings/patch] updateVoiceSettings", {
+    companyId,
+    currentProvider: current.provider,
+    currentEnabled: current.enabled,
+    nextProvider: nextRow.provider,
+    nextEnabled: nextRow.enabled,
+    adminConfigured: isSupabaseAdminConfigured(),
+  });
+
   if (!isSupabaseAdminConfigured()) {
+    console.log("[voice/settings/patch] dev fallback — in-memory only (no service role)");
     devSettings.set(companyId, {
       ...defaultRow(companyId),
       ...nextRow,
@@ -114,6 +124,7 @@ export async function updateVoiceSettings(
 
   const admin = createAdminClient();
   if (!admin) {
+    console.log("[voice/settings/patch] createAdminClient returned null");
     return {
       ok: false,
       error:
@@ -121,8 +132,17 @@ export async function updateVoiceSettings(
     };
   }
 
-  const { error } = await admin.from("voice_settings").upsert(nextRow, {
+  const { data: upsertData, error } = await admin.from("voice_settings").upsert(nextRow, {
     onConflict: "company_id",
+  }).select();
+
+  console.log("[voice/settings/patch] supabase upsert", {
+    error: error?.message ?? null,
+    errorCode: error?.code ?? null,
+    errorDetails: error?.details ?? null,
+    upsertRowCount: upsertData?.length ?? 0,
+    upsertProvider: upsertData?.[0]?.provider ?? null,
+    upsertEnabled: upsertData?.[0]?.enabled ?? null,
   });
 
   if (error) {
@@ -138,6 +158,13 @@ export async function updateVoiceSettings(
     .select("*")
     .eq("company_id", companyId)
     .maybeSingle();
+
+  console.log("[voice/settings/patch] supabase read-after-upsert", {
+    error: readError?.message ?? null,
+    provider: data?.provider ?? null,
+    enabled: data?.enabled ?? null,
+    found: Boolean(data),
+  });
 
   if (readError || !data) {
     console.error("[voice] read settings after update failed:", readError?.message);
