@@ -85,7 +85,7 @@ export const ALL_INDUSTRY_SKILLS: Record<IndustrySkillId, SkillConfig> = {
   },
   coiffeur: {
     id: "coiffeur",
-    label: "HELPY Coiffeur",
+    label: "HELPY Hair & Beauty",
     emoji: "✂️",
     kunde: "Kunde",
     kunden: "Kunden",
@@ -112,7 +112,7 @@ export const ALL_INDUSTRY_SKILLS: Record<IndustrySkillId, SkillConfig> = {
   },
   gym: {
     id: "gym",
-    label: "HELPY Gym",
+    label: "HELPY Fitness & Gym",
     emoji: "💪",
     kunde: "Mitglied",
     kunden: "Mitglieder",
@@ -140,7 +140,7 @@ export const ALL_INDUSTRY_SKILLS: Record<IndustrySkillId, SkillConfig> = {
   },
   doctor: {
     id: "doctor",
-    label: "HELPY Arztpraxis",
+    label: "HELPY Medical",
     emoji: "🏥",
     kunde: "Patient",
     kunden: "Patienten",
@@ -168,7 +168,7 @@ export const ALL_INDUSTRY_SKILLS: Record<IndustrySkillId, SkillConfig> = {
   },
   cosmetic: {
     id: "cosmetic",
-    label: "HELPY Kosmetik",
+    label: "HELPY Cosmetics",
     emoji: "💄",
     kunde: "Kundin",
     kunden: "Kundinnen",
@@ -196,7 +196,7 @@ export const ALL_INDUSTRY_SKILLS: Record<IndustrySkillId, SkillConfig> = {
   },
   physio: {
     id: "physio",
-    label: "HELPY Physiotherapie",
+    label: "HELPY Physio",
     emoji: "🦴",
     kunde: "Patient",
     kunden: "Patienten",
@@ -253,7 +253,7 @@ export const ALL_INDUSTRY_SKILLS: Record<IndustrySkillId, SkillConfig> = {
   },
   clean: {
     id: "clean",
-    label: "HELPY Reinigung",
+    label: "HELPY Cleaning",
     emoji: "🧹",
     kunde: "Auftraggeber",
     kunden: "Auftraggeber",
@@ -281,7 +281,7 @@ export const ALL_INDUSTRY_SKILLS: Record<IndustrySkillId, SkillConfig> = {
   },
   garden: {
     id: "garden",
-    label: "HELPY Gartenbau",
+    label: "HELPY Garden",
     emoji: "🌿",
     kunde: "Kunde",
     kunden: "Kunden",
