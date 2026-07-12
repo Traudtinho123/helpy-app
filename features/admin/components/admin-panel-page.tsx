@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { SettingsShell } from "@/components/settings/settings-shell";
 
@@ -85,11 +84,10 @@ export function AdminPanelPage() {
   };
 
   return (
-    <DashboardShell activeHref="/einstellungen/admin">
-      <SettingsShell
-        title="Super-Admin Panel"
-        description="Registrierte Firmen verwalten und Skills freischalten."
-      >
+    <SettingsShell
+      title="Super-Admin Panel"
+      description="Registrierte Firmen verwalten und Skills freischalten."
+    >
         {loading ? (
           <div className="flex items-center gap-2 text-[13px] text-[#64748B]">
             <Loader2 className="size-4 animate-spin" />
@@ -145,7 +143,6 @@ export function AdminPanelPage() {
             ))}
           </ul>
         )}
-      </SettingsShell>
-    </DashboardShell>
+    </SettingsShell>
   );
 }

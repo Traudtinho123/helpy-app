@@ -40,6 +40,8 @@ export type SettingsNavItem = {
   href: string;
   /** Nur für HELPY-Betreiber sichtbar */
   operatorOnly?: boolean;
+  /** Nur für Super-Admins sichtbar */
+  superAdminOnly?: boolean;
 };
 
 /** Portfolio-Emoji pro Skill (Label kommt aus Skill-Konfiguration). */
@@ -118,6 +120,13 @@ export const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
   },
   { id: "analytics", label: "Analytics", emoji: "📊", href: "/einstellungen/analytics" },
   { id: "datenschutz", label: "Datenschutz", emoji: "🛡️", href: "/einstellungen/datenschutz" },
+  {
+    id: "admin",
+    label: "Admin Panel",
+    emoji: "🛡️",
+    href: "/einstellungen/admin",
+    superAdminOnly: true,
+  },
 ];
 
 export function buildCoreNavItems(skill: HelpySkill): CoreNavItem[] {
@@ -252,6 +261,9 @@ export function resolveSettingsNavActiveHref(pathname: string): string {
   }
   if (pathname.startsWith("/einstellungen/betreiber")) {
     return "/einstellungen/betreiber";
+  }
+  if (pathname.startsWith("/einstellungen/admin")) {
+    return "/einstellungen/admin";
   }
   return "/einstellungen/unternehmen";
 }

@@ -102,6 +102,54 @@ export function syncTeamActorFromAuth(
   }
 }
 
+/** Admin/Super-Admin als Team-Akteur anlegen, falls noch nicht im Mock-Store. */
+export function ensureTeamActorFromAuth(input: {
+  userId: string;
+  email: string | null;
+  companyId: string;
+  fullName: string;
+  canManageTeam: boolean;
+  role?: TenantUserRole;
+}): void {
+  syncTeamActorFromAuth(input.userId, input.email);
+
+  if (!input.canManageTeam || !input.email || !input.companyId) {
+    return;
+  }
+
+  const normalizedEmail = input.email.trim().toLowerCase();
+  const existingByUser = members.find((member) => member.userId === input.userId);
+  const existingByEmail = members.find(
+    (member) => member.email.toLowerCase() === normalizedEmail
+  );
+
+  if (existingByUser || existingByEmail) {
+    return;
+  }
+
+  const role = input.role ?? "ADMIN";
+  const nextMember: TeamMember = {
+    userId: input.userId,
+    companyId: input.companyId,
+    fullName: input.fullName.trim() || input.email,
+    email: input.email,
+    role,
+    status: "active",
+    avatar: null,
+    permissions: resolveTeamPermissions(role),
+    connectedPlatforms: {
+      gmail: false,
+      appleCalendar: false,
+      googleCalendar: false,
+    },
+    lastActivity: "Gerade aktiv",
+    createdAt: new Date().toISOString(),
+  };
+
+  members = [...members, nextMember];
+  notify();
+}
+
 export function getTeamMemberByUserId(userId: string): TeamMember | null {
   const member = membersSnapshot.find((item) => item.userId === userId);
   return member ? cloneMember(member) : null;

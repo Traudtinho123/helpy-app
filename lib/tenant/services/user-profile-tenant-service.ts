@@ -14,15 +14,6 @@ export function getUserProfileByUserId(userId: string): TenantUserProfile | null
     return { ...direct };
   }
 
-  // Erster Login mit echter Supabase-UUID: Demo-Mandant zuweisen, userId übernehmen.
-  if (userId && userId !== MOCK_TENANT_USER_PROFILE.userId) {
-    return {
-      ...MOCK_TENANT_USER_PROFILE,
-      userId,
-      avatar: MOCK_TENANT_USER_PROFILE.avatar,
-    };
-  }
-
   return null;
 }
 

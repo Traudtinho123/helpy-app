@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { usePermissions } from "@/components/auth/permissions-provider";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import {
   resolveCoreNavActiveHref,
@@ -25,6 +26,7 @@ export function SettingsShell({
   const pathname = usePathname() ?? "/einstellungen/unternehmen";
   const settingsActiveHref = resolveSettingsNavActiveHref(pathname);
   const mainActiveHref = resolveCoreNavActiveHref(pathname);
+  const { permissions } = usePermissions();
   const [isOperator, setIsOperator] = useState(false);
 
   useEffect(() => {
@@ -36,9 +38,11 @@ export function SettingsShell({
       .catch(() => setIsOperator(false));
   }, []);
 
-  const navItems = SETTINGS_NAV_ITEMS.filter(
-    (item) => !item.operatorOnly || isOperator
-  );
+  const navItems = SETTINGS_NAV_ITEMS.filter((item) => {
+    if (item.operatorOnly && !isOperator) return false;
+    if (item.superAdminOnly && !permissions?.isSuperAdmin) return false;
+    return true;
+  });
 
   return (
     <DashboardShell activeHref={mainActiveHref}>

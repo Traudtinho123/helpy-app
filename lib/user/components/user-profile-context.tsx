@@ -13,6 +13,7 @@ import { subscribeAppleCalendarSync } from "@/features/apple-calendar/services/a
 import { subscribeCalendarPlatform } from "@/features/calendar/services/calendar-platform";
 import { syncIntegrationsFromUserProfile } from "@/features/integration-manager/services/integration-manager";
 import { loadTenantContextForAuthUser } from "@/lib/tenant/services/tenant-bootstrap-service";
+import { loadLiveTenantContextFromSupabase } from "@/lib/tenant/services/supabase-tenant-bootstrap";
 import { MOCK_TENANT_USER_ID } from "@/lib/tenant/mock/tenant-mock";
 import {
   getUserProfileVersion,
@@ -50,7 +51,7 @@ async function bootstrapTenantFromSession(): Promise<boolean> {
     (typeof metadata.name === "string" && metadata.name) ||
     null;
 
-  loadTenantContextForAuthUser({
+  const authIdentity = {
     userId: user.id,
     email: user.email ?? null,
     fullName,
@@ -58,8 +59,14 @@ async function bootstrapTenantFromSession(): Promise<boolean> {
       (typeof metadata.avatar_url === "string" && metadata.avatar_url) ||
       (typeof metadata.picture === "string" && metadata.picture) ||
       null,
-  });
+  };
 
+  const liveTenant = await loadLiveTenantContextFromSupabase(authIdentity);
+  if (liveTenant) {
+    return true;
+  }
+
+  loadTenantContextForAuthUser(authIdentity);
   return true;
 }
 

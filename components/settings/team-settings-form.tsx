@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { MoreVertical, UserPlus } from "lucide-react";
-import { useCanInviteUsers } from "@/components/auth/permissions-provider";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Loader2, MoreVertical, UserPlus } from "lucide-react";
+import { useCanInviteUsers, usePermissions } from "@/components/auth/permissions-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
@@ -12,21 +12,9 @@ import { Select } from "@/components/ui/Select";
 import { SettingsShell } from "@/components/settings/settings-shell";
 import { TeamInviteModal } from "@/components/settings/team-invite-modal";
 import {
-  canManageTeam,
   ROLE_HELP_TEXT,
   ROLE_LABELS,
 } from "@/lib/team/services/team-permissions";
-import {
-  deactivateTeamMember,
-  getTeamMembersSnapshot,
-  getTeamTimeline,
-  inviteTeamMember,
-  reactivateTeamMember,
-  removeTeamMember,
-  subscribeTeamStore,
-  syncTeamActorFromAuth,
-  updateTeamMemberRole,
-} from "@/lib/team/services/team-service";
 import type { TeamMember, TeamMemberStatus } from "@/lib/team/types/team-types";
 import type { TenantUserRole } from "@/lib/tenant/types/tenant-types";
 import { useUserProfile } from "@/lib/user/components/user-profile-context";
@@ -89,24 +77,9 @@ function PlatformIcons({
 type TeamMemberRowProps = {
   member: TeamMember;
   isSelf: boolean;
-  canManage: boolean;
-  onChangeRole: (member: TeamMember) => void;
-  onDeactivate: (member: TeamMember) => void;
-  onReactivate: (member: TeamMember) => void;
-  onRemove: (member: TeamMember) => void;
 };
 
-function TeamMemberRow({
-  member,
-  isSelf,
-  canManage,
-  onChangeRole,
-  onDeactivate,
-  onReactivate,
-  onRemove,
-}: TeamMemberRowProps) {
-  const showActions = canManage && !(isSelf && member.role === "OWNER");
-
+function TeamMemberRow({ member, isSelf }: TeamMemberRowProps) {
   return (
     <div className="px-5 py-4">
       <div className="flex items-start gap-4">
@@ -152,100 +125,145 @@ function TeamMemberRow({
             Letzte Aktivität: {member.lastActivity}
           </p>
         </div>
-
-        {showActions && (
-          <Dropdown
-            align="end"
-            trigger={
-              <button
-                type="button"
-                className="inline-flex size-8 items-center justify-center rounded-[10px] border border-[#CBD5E1]/60 bg-white text-[#64748B] transition-colors hover:bg-[#F8FAFC]"
-                aria-label="Aktionen"
-              >
-                <MoreVertical className="size-4" strokeWidth={2} />
-              </button>
-            }
-          >
-            <DropdownItem onClick={() => onChangeRole(member)}>
-              Rolle ändern
-            </DropdownItem>
-            {member.status === "active" || member.status === "pending" ? (
-              <DropdownItem onClick={() => onDeactivate(member)}>
-                Deaktivieren
-              </DropdownItem>
-            ) : (
-              <DropdownItem onClick={() => onReactivate(member)}>
-                Reaktivieren
-              </DropdownItem>
-            )}
-            <DropdownItem
-              className="text-[#B91C1C] hover:bg-[#FEF2F2]"
-              onClick={() => onRemove(member)}
-            >
-              Entfernen
-            </DropdownItem>
-          </Dropdown>
-        )}
       </div>
     </div>
   );
 }
 
+function createPendingMember(input: {
+  companyId: string;
+  fullName: string;
+  email: string;
+  role: TenantUserRole;
+}): TeamMember {
+  return {
+    userId: `pending-${input.email}`,
+    companyId: input.companyId,
+    fullName: input.fullName,
+    email: input.email,
+    role: input.role,
+    status: "pending",
+    avatar: null,
+    permissions: {
+      manageTeam: false,
+      inviteMembers: false,
+      manageEmployees: false,
+    },
+    connectedPlatforms: {
+      gmail: false,
+      appleCalendar: false,
+      googleCalendar: false,
+    },
+    lastActivity: "Einladung ausstehend",
+    createdAt: new Date().toISOString(),
+  };
+}
+
 export function TeamSettingsForm() {
   const profile = useUserProfile();
-  const [tick, setTick] = useState(0);
+  const { permissions } = usePermissions();
+  const canInviteUsers = useCanInviteUsers();
+  const [members, setMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [roleTarget, setRoleTarget] = useState<TeamMember | null>(null);
-  const [roleValue, setRoleValue] = useState<TenantUserRole>("EMPLOYEE");
+  const [inviteLoading, setInviteLoading] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const canInvite =
+    canInviteUsers ||
+    profile.role === "owner" ||
+    profile.role === "admin" ||
+    permissions?.isSuperAdmin === true;
+
+  const reloadMembers = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/team/members", { cache: "no-store" });
+      const payload = (await response.json()) as {
+        members?: TeamMember[];
+        error?: string;
+      };
+
+      if (!response.ok) {
+        setMembers([]);
+        setError(payload.error ?? "Team konnte nicht geladen werden.");
+        return;
+      }
+
+      setMembers(payload.members ?? []);
+    } catch {
+      setMembers([]);
+      setError("Team konnte nicht geladen werden.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    syncTeamActorFromAuth(profile.userId, profile.email);
-  }, [profile.email, profile.userId]);
+    void reloadMembers();
+  }, [reloadMembers, profile.companyId]);
 
-  useEffect(() => subscribeTeamStore(() => setTick((value) => value + 1)), []);
+  const sortedMembers = useMemo(() => {
+    const roleOrder: Record<TenantUserRole, number> = {
+      OWNER: 0,
+      ADMIN: 1,
+      EMPLOYEE: 2,
+    };
 
-  const members = useMemo(
-    () => getTeamMembersSnapshot(profile.companyId),
-    [profile.companyId, tick]
-  );
+    return [...members].sort((left, right) => {
+      const roleDiff = roleOrder[left.role] - roleOrder[right.role];
+      if (roleDiff !== 0) return roleDiff;
+      return left.fullName.localeCompare(right.fullName, "de");
+    });
+  }, [members]);
 
-  const timeline = useMemo(() => getTeamTimeline(profile.companyId), [profile.companyId, tick]);
-
-  const actor = useMemo(
-    () => members.find((member) => member.userId === profile.userId) ?? null,
-    [members, profile.userId]
-  );
-
-  const canManage = actor ? canManageTeam(actor.role) : false;
-  const canInviteUsers = useCanInviteUsers();
-  const canInvite = canManage && canInviteUsers;
-
-  const handleInvite = (input: { fullName: string; email: string; role: TenantUserRole }) => {
-    const result = inviteTeamMember(profile.companyId, profile.userId, input);
-    if (!result.ok) {
-      setError(result.error);
-      return;
-    }
-
-    setInviteOpen(false);
+  const handleInvite = async (input: {
+    fullName: string;
+    email: string;
+    role: TenantUserRole;
+  }) => {
+    setInviteLoading(true);
     setError(null);
-    setFeedback("Einladung vorbereitet.");
-  };
 
-  const runAction = (
-    action: () => { ok: true } | { ok: false; error: string },
-    successMessage: string
-  ) => {
-    const result = action();
-    if (!result.ok) {
-      setError(result.error);
-      setFeedback(null);
-      return;
+    try {
+      const response = await fetch("/api/team/invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      });
+
+      const payload = (await response.json()) as { error?: string };
+
+      if (!response.ok) {
+        setError(payload.error ?? "Einladung fehlgeschlagen.");
+        return;
+      }
+
+      const pendingMember = createPendingMember({
+        companyId: profile.companyId,
+        fullName: input.fullName,
+        email: input.email,
+        role: input.role,
+      });
+
+      setMembers((current) => {
+        const normalized = input.email.trim().toLowerCase();
+        const withoutDuplicate = current.filter(
+          (member) => member.email.toLowerCase() !== normalized
+        );
+        return [...withoutDuplicate, pendingMember];
+      });
+
+      setInviteOpen(false);
+      setFeedback(`Einladung an ${input.email} versendet.`);
+    } catch {
+      setError("Einladung konnte nicht versendet werden.");
+    } finally {
+      setInviteLoading(false);
     }
-    setError(null);
-    setFeedback(successMessage);
   };
 
   return (
@@ -287,114 +305,35 @@ export function TeamSettingsForm() {
             </CardTitle>
           </CardHeader>
           <CardContent className="divide-y divide-[#CBD5E1]/30 p-0">
-            {members.map((member) => (
-              <TeamMemberRow
-                key={member.userId}
-                member={member}
-                isSelf={member.userId === profile.userId}
-                canManage={canManage}
-                onChangeRole={(target) => {
-                  setRoleTarget(target);
-                  setRoleValue(target.role === "OWNER" ? "ADMIN" : target.role);
-                }}
-                onDeactivate={(target) =>
-                  runAction(
-                    () => deactivateTeamMember(target.userId, profile.userId),
-                    `${target.fullName} deaktiviert.`
-                  )
-                }
-                onReactivate={(target) =>
-                  runAction(
-                    () => reactivateTeamMember(target.userId, profile.userId),
-                    `${target.fullName} reaktiviert.`
-                  )
-                }
-                onRemove={(target) =>
-                  runAction(
-                    () => removeTeamMember(target.userId, profile.userId),
-                    `${target.fullName} entfernt.`
-                  )
-                }
-              />
-            ))}
+            {loading ? (
+              <div className="flex items-center gap-2 px-5 py-8 text-[13px] text-[#64748B]">
+                <Loader2 className="size-4 animate-spin" />
+                Team wird geladen…
+              </div>
+            ) : sortedMembers.length === 0 ? (
+              <div className="px-5 py-8 text-[13px] text-[#64748B]">
+                Noch keine Teammitglieder gefunden.
+                {canInvite ? " Lade jetzt das erste Teammitglied ein." : null}
+              </div>
+            ) : (
+              sortedMembers.map((member) => (
+                <TeamMemberRow
+                  key={member.userId}
+                  member={member}
+                  isSelf={member.userId === profile.userId}
+                />
+              ))
+            )}
           </CardContent>
         </Card>
-
-        {timeline.length > 0 && (
-          <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
-            <CardHeader className="border-b border-[#CBD5E1]/30 pb-4">
-              <CardTitle className="text-[13px] font-semibold text-[#0F172A]">
-                Verlauf
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <ul className="divide-y divide-[#CBD5E1]/30">
-                {[...timeline].reverse().map((entry) => (
-                  <li
-                    key={entry.id}
-                    className="px-5 py-3 text-[12px] leading-relaxed text-[#334155]"
-                  >
-                    {entry.label}
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        )}
       </div>
 
       <TeamInviteModal
         open={inviteOpen}
         onClose={() => setInviteOpen(false)}
-        onSubmit={handleInvite}
+        onSubmit={(input) => void handleInvite(input)}
+        loading={inviteLoading}
       />
-
-      <Modal
-        open={Boolean(roleTarget)}
-        title="Rolle ändern"
-        description={
-          roleTarget ? `Rolle für ${roleTarget.fullName} anpassen.` : undefined
-        }
-        onClose={() => setRoleTarget(null)}
-        maxWidth="sm"
-        footer={
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => setRoleTarget(null)}>
-              Abbrechen
-            </Button>
-            <Button
-              type="button"
-              className="bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white"
-              onClick={() => {
-                if (!roleTarget) return;
-                runAction(
-                  () =>
-                    updateTeamMemberRole(roleTarget.userId, profile.userId, roleValue),
-                  `Rolle von ${roleTarget.fullName} geändert.`
-                );
-                setRoleTarget(null);
-              }}
-            >
-              Speichern
-            </Button>
-          </div>
-        }
-      >
-        <div className="space-y-1.5">
-          <label className="text-[11px] font-medium text-[#64748B]">Neue Rolle</label>
-          <Select
-            value={roleValue}
-            onChange={(event) => setRoleValue(event.target.value as TenantUserRole)}
-            className="h-10 rounded-[12px] border-[#CBD5E1]/60 bg-[#F8FAFC]/80 text-[13px]"
-          >
-            <option value="EMPLOYEE">{ROLE_LABELS.EMPLOYEE}</option>
-            <option value="ADMIN">{ROLE_LABELS.ADMIN}</option>
-          </Select>
-          <p className="text-[10px] leading-relaxed text-[#94A3B8]">
-            {ROLE_HELP_TEXT[roleValue]}
-          </p>
-        </div>
-      </Modal>
     </SettingsShell>
   );
 }
