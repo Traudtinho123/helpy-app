@@ -1,7 +1,12 @@
+import {
+  PUBLIC_SKILLS,
+  SUPER_ADMIN_SKILLS,
+  isSkillId,
+} from "@/features/workspace/services/skills/all-skills";
 import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
 
 const VALID_SKILLS: readonly HelpySkill[] = [
-  "real-estate",
+  ...SUPER_ADMIN_SKILLS,
   "construction",
   "consulting-legal",
 ];
@@ -21,4 +26,13 @@ export function normalizeAllowedSkills(
     }
   }
   return result;
+}
+
+/** Skills, die normale Kunden bei Registrierung wählen dürfen. */
+export function getPublicSkills(): HelpySkill[] {
+  return [...PUBLIC_SKILLS];
+}
+
+export function isValidSkillId(value: string): value is HelpySkill {
+  return isSkillId(value);
 }

@@ -1,5 +1,6 @@
+import { ALL_SKILLS } from "@/features/workspace/services/skills/all-skills";
+import { buildSkillEmojiRecord, buildSkillRecord } from "@/features/workspace/services/skills/skill-defaults";
 import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
-import { getTerm } from "@/features/workspace/services/terminology/get-term";
 
 export type CoreNavItemId =
   | "arbeitstag"
@@ -41,31 +42,36 @@ export type SettingsNavItem = {
   operatorOnly?: boolean;
 };
 
-/** Portfolio-Emoji pro Skill (Label kommt aus Terminology). */
-export const SKILL_PORTFOLIO_EMOJI: Record<HelpySkill, string> = {
-  "real-estate": "🏡",
-  construction: "🏗",
-  "consulting-legal": "📂",
-};
+/** Portfolio-Emoji pro Skill (Label kommt aus Skill-Konfiguration). */
+export const SKILL_PORTFOLIO_EMOJI: Record<HelpySkill, string> =
+  buildSkillEmojiRecord();
 
-/** @deprecated Prefer getTerm(skill, "portfolioItem", { form: "plural" }) */
+/** @deprecated Prefer getAllSkillConfig(skill).nav.objekte */
 export const SKILL_PORTFOLIO_NAV: Record<
   HelpySkill,
   Pick<CoreNavItem, "label" | "emoji">
-> = {
-  "real-estate": { label: "Objekte", emoji: "🏡" },
-  construction: { label: "Baustellen", emoji: "🏗" },
-  "consulting-legal": { label: "Mandate", emoji: "📂" },
-};
+> = buildSkillRecord(
+  Object.fromEntries(
+    Object.entries(ALL_SKILLS).map(([skill, config]) => [
+      skill,
+      { label: config.nav.objekte, emoji: config.emoji },
+    ])
+  ) as Partial<Record<HelpySkill, Pick<CoreNavItem, "label" | "emoji">>>,
+  { label: "Objekte", emoji: "📦" }
+);
 
-export const SKILL_PORTFOLIO_DESCRIPTION: Record<HelpySkill, string> = {
-  "real-estate":
-    "Portfolio des Unternehmens — Objektakte, Interessenten, Besichtigungen, Dokumente und Kommunikation.",
-  construction:
-    "Baustellenübersicht — Projekte, Offerten, Material und Termine.",
-  "consulting-legal":
-    "Mandatsübersicht — Projekte, Fristen, Dokumente und Kommunikation.",
-};
+export const SKILL_PORTFOLIO_DESCRIPTION: Record<HelpySkill, string> =
+  buildSkillRecord(
+    {
+      "real-estate":
+        "Portfolio des Unternehmens — Objektakte, Interessenten, Besichtigungen, Dokumente und Kommunikation.",
+      construction:
+        "Baustellenübersicht — Projekte, Offerten, Material und Termine.",
+      "consulting-legal":
+        "Mandatsübersicht — Projekte, Fristen, Dokumente und Kommunikation.",
+    },
+    "Übersicht — Anfragen, Termine, Dokumente und Kommunikation."
+  );
 
 const CORE_NAV_PRIMARY: Omit<CoreNavItem, "label" | "emoji">[] = [
   { id: "arbeitstag", href: "/", section: "primary", navGroup: "arbeit" },
@@ -115,11 +121,13 @@ export const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
 ];
 
 export function buildCoreNavItems(skill: HelpySkill): CoreNavItem[] {
+  const config = ALL_SKILLS[skill];
+
   const primary = CORE_NAV_PRIMARY.map((item): CoreNavItem => {
     if (item.id === "portfolio") {
       return {
         ...item,
-        label: getTerm(skill, "portfolioItem", { form: "plural" }),
+        label: config.nav.objekte,
         emoji: SKILL_PORTFOLIO_EMOJI[skill],
       };
     }
@@ -127,8 +135,24 @@ export function buildCoreNavItems(skill: HelpySkill): CoreNavItem[] {
     if (item.id === "kunden") {
       return {
         ...item,
-        label: getTerm(skill, "customer", { form: "plural" }),
+        label: config.nav.kunden,
         emoji: "👥",
+      };
+    }
+
+    if (item.id === "kalender") {
+      return {
+        ...item,
+        label: config.nav.kalender,
+        emoji: CORE_NAV_PRIMARY_STATIC.kalender.emoji,
+      };
+    }
+
+    if (item.id === "vorgaenge") {
+      return {
+        ...item,
+        label: config.nav.vorgaenge ?? config.vorgaenge,
+        emoji: CORE_NAV_PRIMARY_STATIC.vorgaenge.emoji,
       };
     }
 

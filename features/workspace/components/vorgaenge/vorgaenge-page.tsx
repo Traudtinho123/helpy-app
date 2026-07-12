@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Bot, Phone, Plus } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
+import { useTerminology } from "@/hooks/useTerminology";
 import { Button } from "@/components/ui/button";
 import { CreateVorgangModal } from "@/features/vorgaenge/components/create-vorgang-modal";
 import { loadDbVorgaengeFromApi } from "@/features/vorgaenge/services/db-vorgaenge-store";
@@ -45,13 +46,14 @@ import { loadGmailVorgaenge } from "@/features/workspace/services/vorgaenge/gmai
 import { resolveGmailSyncContext } from "@/features/mail/services/gmail-sync-context-client";
 import { syncGmailViaOAuthApi } from "@/features/oauth/services/oauth-connections-client";
 import { syncGmailVorgaengeFromOAuthAccounts } from "@/features/workspace/services/vorgaenge/gmail-oauth-sync";
-import { VORGANG_FILTER_LABELS, type VorgangFilter } from "@/features/workspace/services/vorgaenge/types";
+import { getSkillVorgangFilterLabels, type VorgangFilter } from "@/features/workspace/services/vorgaenge/types";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 const filterOrder: VorgangFilter[] = [
   "alle",
   "neu",
+  "termine_anfragen",
   "in_bearbeitung",
   "wartend",
   "erledigt",
@@ -60,6 +62,11 @@ const filterOrder: VorgangFilter[] = [
 ];
 
 export function VorgaengePage() {
+  const { vorgaenge: vorgaengeLabel, skill } = useTerminology();
+  const filterLabels = useMemo(
+    () => getSkillVorgangFilterLabels(skill),
+    [skill]
+  );
   const [activeFilter, setActiveFilter] = useState<VorgangFilter>("alle");
   const [mounted, setMounted] = useState(false);
   const [mailRevision, setMailRevision] = useState(0);
@@ -210,7 +217,7 @@ export function VorgaengePage() {
               Arbeit zentral
             </p>
             <h1 className="mt-2 text-[2rem] font-semibold tracking-[-0.035em] text-[#0F172A] lg:text-[2.25rem]">
-              Vorgänge
+              {vorgaengeLabel}
             </h1>
             <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[#64748B]">
               Alle von HELPY erkannten Arbeiten — sortiert nach Tätigkeit, nicht
@@ -263,7 +270,7 @@ export function VorgaengePage() {
                     strokeWidth={2.25}
                   />
                 )}
-                {VORGANG_FILTER_LABELS[filter]}
+                {filterLabels[filter]}
                 {mounted && filter === "helpy_reports" ? (
                   unreadReports > 0 ? (
                     <span className="ml-1.5 rounded-full bg-[#E2E8F0] px-1.5 py-0.5 text-[10px] tabular-nums font-medium text-[#64748B]">

@@ -1,5 +1,6 @@
-import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
 import type { HelpySkillDb } from "@/lib/database/types";
+import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
+import { PUBLIC_SKILLS, SUPER_ADMIN_SKILLS } from "@/features/workspace/services/skills/all-skills";
 import { createAdminClient, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -25,11 +26,7 @@ export type PendingCompanyRecord = {
   adminName: string | null;
 };
 
-const ALL_SKILLS: HelpySkill[] = [
-  "real-estate",
-  "construction",
-  "consulting-legal",
-];
+const ALL_SKILLS: HelpySkill[] = [...SUPER_ADMIN_SKILLS];
 
 const devRoles = new Map<string, HelpyUserRole>();
 const devSuperAdmins = new Set<string>();
@@ -237,9 +234,12 @@ export async function activateCompanySkill(input: {
     .in("role", ["owner", "admin"]);
 
   for (const profile of ownerProfiles ?? []) {
+    const dbSkill = PUBLIC_SKILLS.includes(input.skill as (typeof PUBLIC_SKILLS)[number])
+      ? input.skill
+      : "real-estate";
     await admin
       .from("profiles")
-      .update({ allowed_skills: [input.skill as HelpySkillDb] })
+      .update({ allowed_skills: [dbSkill as HelpySkillDb] })
       .eq("id", profile.id);
   }
 

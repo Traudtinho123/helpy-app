@@ -1,5 +1,6 @@
 import type { ConnectEventType } from "@/features/platforms/services/connect/connector-types";
 import { MOCK_CONNECT_EVENTS } from "@/features/platforms/services/connect/mock-events";
+import { buildSkillRecord } from "@/features/workspace/services/skills/skill-defaults";
 import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
 import { WORKFLOW_TEMPLATES } from "@/features/workflow/services/automation/mock-workflows";
 import type {
@@ -22,46 +23,62 @@ const EVENT_TO_TRIGGER: Partial<Record<ConnectEventType, WorkflowTrigger>> = {
 const INTENT_TRIGGER_BY_SKILL: Record<
   HelpySkill,
   Partial<Record<string, WorkflowTrigger>>
-> = {
-  "real-estate": {
-    anfrage: "neue-immoscout-anfrage",
-    immobilienanfrage: "neue-immoscout-anfrage",
-    interessentenanfrage: "neue-immoscout-anfrage",
-    besichtigung: "neue-immoscout-anfrage",
+> = buildSkillRecord(
+  {
+    "real-estate": {
+      anfrage: "neue-immoscout-anfrage",
+      immobilienanfrage: "neue-immoscout-anfrage",
+      interessentenanfrage: "neue-immoscout-anfrage",
+      besichtigung: "neue-immoscout-anfrage",
+      terminwunsch: "neuer-termin",
+      normale_nachricht: "neue-email",
+    },
+    construction: {
+      anfrage: "neue-offerte",
+      angebotsanfrage: "neue-offerte",
+      offertanfrage: "neue-offerte",
+      vor_ort_termin: "neuer-termin",
+      materialanfrage: "neue-offerte",
+      auftragsanfrage: "neue-offerte",
+      rueckruf: "neue-whatsapp-nachricht",
+      normale_nachricht: "neue-email",
+    },
+    "consulting-legal": {
+      anfrage: "neues-kontaktformular",
+      mandatsanfrage: "neues-kontaktformular",
+      erstgespraech: "neuer-termin",
+      frist: "neue-frist",
+      terminwunsch: "neuer-termin",
+      normale_nachricht: "neue-email",
+    },
+  },
+  {
+    anfrage: "neue-email",
     terminwunsch: "neuer-termin",
+    terminanfrage: "neuer-termin",
     normale_nachricht: "neue-email",
-  },
-  construction: {
-    anfrage: "neue-offerte",
-    angebotsanfrage: "neue-offerte",
-    offertanfrage: "neue-offerte",
-    vor_ort_termin: "neuer-termin",
-    materialanfrage: "neue-offerte",
-    auftragsanfrage: "neue-offerte",
-    rueckruf: "neue-whatsapp-nachricht",
-    normale_nachricht: "neue-email",
-  },
-  "consulting-legal": {
-    anfrage: "neues-kontaktformular",
-    mandatsanfrage: "neues-kontaktformular",
-    erstgespraech: "neuer-termin",
-    frist: "neue-frist",
-    terminwunsch: "neuer-termin",
-    normale_nachricht: "neue-email",
-  },
-};
+    rueckruf: "neue-email",
+  }
+);
 
-const DEFAULT_TRIGGER_BY_SKILL: Record<HelpySkill, WorkflowTrigger> = {
-  "real-estate": "neue-immoscout-anfrage",
-  construction: "neue-offerte",
-  "consulting-legal": "neues-kontaktformular",
-};
+const DEFAULT_TRIGGER_BY_SKILL: Record<HelpySkill, WorkflowTrigger> =
+  buildSkillRecord(
+    {
+      "real-estate": "neue-immoscout-anfrage",
+      construction: "neue-offerte",
+      "consulting-legal": "neues-kontaktformular",
+    },
+    "neue-email"
+  );
 
-const PRIMARY_TEMPLATE_BY_SKILL: Record<HelpySkill, string> = {
-  "real-estate": "wf-re-immobilienanfrage",
-  construction: "wf-hw-offertanfrage",
-  "consulting-legal": "wf-cl-mandatsanfrage",
-};
+const PRIMARY_TEMPLATE_BY_SKILL: Record<HelpySkill, string> = buildSkillRecord(
+  {
+    "real-estate": "wf-re-immobilienanfrage",
+    construction: "wf-hw-offertanfrage",
+    "consulting-legal": "wf-cl-mandatsanfrage",
+  },
+  "wf-re-immobilienanfrage"
+);
 
 export function resolveTriggerFromEventType(
   eventType: ConnectEventType

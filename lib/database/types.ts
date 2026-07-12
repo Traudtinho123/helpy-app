@@ -27,7 +27,15 @@ export type TerminStatus =
 export type HelpySkillDb =
   | "real-estate"
   | "construction"
-  | "consulting-legal";
+  | "consulting-legal"
+  | "coiffeur"
+  | "gym"
+  | "doctor"
+  | "cosmetic"
+  | "physio"
+  | "gastro"
+  | "clean"
+  | "garden";
 
 export type HelpyCompanyRoleDb = "owner" | "admin" | "member";
 

@@ -5,6 +5,7 @@ import type {
   SkillAccessState,
 } from "@/features/subscription/types/subscription-types";
 import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
+import { buildSkillRecord } from "@/features/workspace/services/skills/skill-defaults";
 import { HELPY_SKILL_ORDER } from "@/features/workspace/services/workspace/skills";
 
 const SUBSCRIPTION_CHANGE_EVENT = "helpy-subscription-change";
@@ -201,72 +202,100 @@ export function getSkillAccessServerSnapshot(): SkillAccessState {
   return DEFAULT_SKILL_ACCESS_SERVER_SNAPSHOT;
 }
 
-export const SKILL_INTEGRATION_PRIORITY: Record<HelpySkill, string[]> = {
-  "real-estate": [
-    "gmail",
-    "immoscout24",
-    "homegate",
-    "newhome",
-    "website-formulare",
-    "apple-calendar",
-    "google-calendar",
-  ],
-  construction: [
-    "gmail",
-    "whatsapp",
-    "website-formulare",
-    "apple-calendar",
-    "google-calendar",
-  ],
-  "consulting-legal": [
-    "gmail",
-    "website-formulare",
-    "apple-calendar",
-    "google-calendar",
-  ],
-};
+const DEFAULT_INTEGRATION_PRIORITY = [
+  "gmail",
+  "website-formulare",
+  "apple-calendar",
+  "google-calendar",
+];
+
+export const SKILL_INTEGRATION_PRIORITY: Record<HelpySkill, string[]> =
+  buildSkillRecord(
+    {
+      "real-estate": [
+        "gmail",
+        "immoscout24",
+        "homegate",
+        "newhome",
+        "website-formulare",
+        "apple-calendar",
+        "google-calendar",
+      ],
+      construction: [
+        "gmail",
+        "whatsapp",
+        "website-formulare",
+        "apple-calendar",
+        "google-calendar",
+      ],
+      "consulting-legal": [
+        "gmail",
+        "website-formulare",
+        "apple-calendar",
+        "google-calendar",
+      ],
+    },
+    DEFAULT_INTEGRATION_PRIORITY
+  );
+
+const DEFAULT_CATEGORY_ORDER: import("@/features/integration-manager/types/integration-types").IntegrationCategory[] =
+  [
+    "email",
+    "kalender",
+    "kommunikation",
+    "formulare",
+    "dokumente",
+    "immobilien",
+    "buchhaltung",
+    "finanzen",
+    "sap",
+    "sozial-media",
+  ];
 
 export const SKILL_CATEGORY_ORDER: Record<
   HelpySkill,
   import("@/features/integration-manager/types/integration-types").IntegrationCategory[]
-> = {
-  "real-estate": [
-    "email",
-    "kalender",
-    "immobilien",
-    "sozial-media",
-    "kommunikation",
-    "formulare",
-    "dokumente",
-    "buchhaltung",
-    "finanzen",
-    "sap",
-  ],
-  construction: [
-    "email",
-    "kalender",
-    "kommunikation",
-    "formulare",
-    "dokumente",
-    "immobilien",
-    "buchhaltung",
-    "finanzen",
-    "sap",
-    "sozial-media",
-  ],
-  "consulting-legal": [
-    "email",
-    "kalender",
-    "formulare",
-    "dokumente",
-    "kommunikation",
-    "buchhaltung",
-    "finanzen",
-    "sap",
-    "immobilien",
-    "sozial-media",
-  ],
-};
+> = buildSkillRecord(
+  {
+    "real-estate": [
+      "email",
+      "kalender",
+      "immobilien",
+      "sozial-media",
+      "kommunikation",
+      "formulare",
+      "dokumente",
+      "buchhaltung",
+      "finanzen",
+      "sap",
+    ],
+    construction: [
+      "email",
+      "kalender",
+      "kommunikation",
+      "formulare",
+      "dokumente",
+      "immobilien",
+      "buchhaltung",
+      "finanzen",
+      "sap",
+      "sozial-media",
+    ],
+    "consulting-legal": [
+      "email",
+      "kalender",
+      "formulare",
+      "dokumente",
+      "kommunikation",
+      "buchhaltung",
+      "finanzen",
+      "sap",
+      "immobilien",
+      "sozial-media",
+    ],
+  },
+  DEFAULT_CATEGORY_ORDER
+);
 
 export function sortIntegrationsForSkill<T extends { id: string }>(
   items: T[],

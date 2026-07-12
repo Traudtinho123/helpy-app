@@ -18,7 +18,7 @@ export function DashboardHeader() {
       <div className="flex items-center gap-4">
         {isPreviewMode ? (
           <Badge className="h-8 rounded-[8px] border border-amber-300 bg-amber-50 px-4 text-xs font-semibold tracking-[-0.01em] text-amber-900">
-            VORSCHAU: {getSkillConfig(activeSkill).label.replace("HELPY ", "")}
+            👁 Vorschau: {getSkillConfig(activeSkill).label.replace("HELPY ", "")}
           </Badge>
         ) : null}
 

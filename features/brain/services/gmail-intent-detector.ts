@@ -1,7 +1,7 @@
 import type { BrainV3Intent } from "@/features/brain/types/brain-v3-types";
 import {
   BUSINESS_INQUIRY_KEYWORDS,
-  SKILL_INTENT_RULES,
+  getSkillIntentRules,
   VIEWING_INTENT_KEYWORDS,
 } from "@/features/brain/services/skill-intent-sets";
 import {
@@ -9,6 +9,7 @@ import {
   isClearlyNonServiceSender,
   isNonServiceInquiry,
 } from "@/features/spam-handling/services/spam-detection";
+import { isIndustrySkillId } from "@/features/workspace/services/skills/all-skills";
 import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
 import { DEFAULT_HELPY_SKILL } from "@/features/workspace/services/workspace/skills";
 
@@ -125,10 +126,26 @@ export function detectGmailIntent(
     return "Frist";
   }
 
-  for (const rule of SKILL_INTENT_RULES[activeSkill]) {
+  for (const rule of getSkillIntentRules(activeSkill)) {
     if (containsAny(normalized, rule.keywords)) {
       return rule.intent;
     }
+  }
+
+  if (
+    isIndustrySkillId(activeSkill) &&
+    activeSkill !== "real-estate" &&
+    containsAny(normalized, ["reklamation", "beschwerde", "unzufrieden"])
+  ) {
+    return "Neue Anfrage";
+  }
+
+  if (
+    isIndustrySkillId(activeSkill) &&
+    activeSkill !== "real-estate" &&
+    containsAny(normalized, ["anfrage", "information", "info"])
+  ) {
+    return "Neue Anfrage";
   }
 
   if (

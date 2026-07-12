@@ -1,5 +1,6 @@
 import { MOCK_TEMPLATES } from "@/features/documents/services/mock-templates";
 import type { DocumentTypeId, DocumentTemplate } from "@/features/documents/services/types";
+import { buildSkillRecord } from "@/features/workspace/services/skills/skill-defaults";
 import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
 
 export const DOCUMENT_TYPE_LABELS: Record<DocumentTypeId, string> = {
@@ -19,23 +20,29 @@ export const DOCUMENT_TYPE_LABELS: Record<DocumentTypeId, string> = {
   fristenuebersicht: "Fristenübersicht",
 };
 
-export const SKILL_DOCUMENT_TYPES: Record<HelpySkill, DocumentTypeId[]> = {
-  "real-estate": [
-    "expose",
-    "besichtigungstermin",
-    "besichtigungsprotokoll",
-    "reservationsbestaetigung",
-    "kaufinteressenten-zusammenfassung",
-  ],
-  construction: ["offerte", "arbeitsrapport", "materialliste", "auftragsbestaetigung"],
-  "consulting-legal": [
-    "angebot",
-    "mandatsbestaetigung",
-    "vollmacht",
-    "beratungsprotokoll",
-    "fristenuebersicht",
-  ],
-};
+const REAL_ESTATE_DOCUMENTS: DocumentTypeId[] = [
+  "expose",
+  "besichtigungstermin",
+  "besichtigungsprotokoll",
+  "reservationsbestaetigung",
+  "kaufinteressenten-zusammenfassung",
+];
+
+export const SKILL_DOCUMENT_TYPES: Record<HelpySkill, DocumentTypeId[]> =
+  buildSkillRecord(
+    {
+      "real-estate": REAL_ESTATE_DOCUMENTS,
+      construction: ["offerte", "arbeitsrapport", "materialliste", "auftragsbestaetigung"],
+      "consulting-legal": [
+        "angebot",
+        "mandatsbestaetigung",
+        "vollmacht",
+        "beratungsprotokoll",
+        "fristenuebersicht",
+      ],
+    },
+    REAL_ESTATE_DOCUMENTS
+  );
 
 export function getDocumentTypeLabel(typeId: DocumentTypeId): string {
   return DOCUMENT_TYPE_LABELS[typeId];

@@ -1,16 +1,37 @@
-export type HelpySkill = "real-estate" | "construction" | "consulting-legal";
+import {
+  ALL_SKILLS,
+  ALL_INDUSTRY_SKILLS,
+  getAllSkillConfig,
+  PUBLIC_SKILLS,
+  SUPER_ADMIN_SKILLS,
+  type IndustrySkillId,
+  type SkillId,
+} from "@/features/workspace/services/skills/all-skills";
+import {
+  ALL_HELPY_SKILL_IDS,
+  buildSkillEmojiRecord,
+  buildSkillRecord,
+} from "@/features/workspace/services/skills/skill-defaults";
 
-export const SKILL_EMOJI: Record<HelpySkill, string> = {
-  "real-estate": "🏡",
-  construction: "🔨",
-  "consulting-legal": "⚖",
-};
+export type HelpySkill = SkillId;
+export type { IndustrySkillId, SkillId };
 
-export const HELPY_SKILL_ORDER: HelpySkill[] = [
-  "real-estate",
-  "construction",
-  "consulting-legal",
-];
+export {
+  ALL_SKILLS,
+  ALL_INDUSTRY_SKILLS,
+  PUBLIC_SKILLS,
+  SUPER_ADMIN_SKILLS,
+  getAllSkillConfig,
+  getIndustrySkillConfig,
+  getTerminology,
+  isIndustrySkillId,
+  isPreviewSkillId,
+  isSkillId,
+} from "@/features/workspace/services/skills/all-skills";
+
+export const SKILL_EMOJI = buildSkillEmojiRecord();
+
+export const HELPY_SKILL_ORDER: HelpySkill[] = [...ALL_HELPY_SKILL_IDS];
 
 export type SkillTabId = string;
 
@@ -27,14 +48,34 @@ export type SkillEmpfohleneAktion = {
 export type HelpySkillConfig = {
   id: HelpySkill;
   label: string;
+  emoji: string;
   tabs: SkillTabDefinition[];
   empfohleneAktionen: SkillEmpfohleneAktion[];
 };
 
-export const HELPY_SKILLS: Record<HelpySkill, HelpySkillConfig> = {
+function buildGenericTabs(skill: HelpySkill): SkillTabDefinition[] {
+  const config = ALL_SKILLS[skill];
+  return [
+    { id: "kunde", label: config.kunde },
+    { id: "objekt", label: config.objekt },
+    { id: "termin", label: config.termin },
+    { id: "notizen", label: "Notizen" },
+  ];
+}
+
+function buildGenericActions(skill: HelpySkill): SkillEmpfohleneAktion[] {
+  const config = ALL_SKILLS[skill];
+  return [
+    { id: "hauptaktion", label: config.hauptaktion },
+    { id: "kontaktieren", label: `${config.kunde} kontaktieren` },
+    { id: "akte-oeffnen", label: `${config.kunde}akte öffnen` },
+  ];
+}
+
+const LEGACY_SKILL_UI: Partial<
+  Record<HelpySkill, Pick<HelpySkillConfig, "tabs" | "empfohleneAktionen">>
+> = {
   "real-estate": {
-    id: "real-estate",
-    label: "HELPY Real Estate",
     tabs: [
       { id: "interessent", label: "Interessent" },
       { id: "objekt", label: "Objekt" },
@@ -51,8 +92,6 @@ export const HELPY_SKILLS: Record<HelpySkill, HelpySkillConfig> = {
     ],
   },
   construction: {
-    id: "construction",
-    label: "HELPY Construction",
     tabs: [
       { id: "kunde", label: "Kunde" },
       { id: "baustelle", label: "Baustelle" },
@@ -69,8 +108,6 @@ export const HELPY_SKILLS: Record<HelpySkill, HelpySkillConfig> = {
     ],
   },
   "consulting-legal": {
-    id: "consulting-legal",
-    label: "HELPY Consulting & Legal",
     tabs: [
       { id: "mandant", label: "Mandant/Kunde" },
       { id: "projekt", label: "Projekt/Mandat" },
@@ -89,6 +126,24 @@ export const HELPY_SKILLS: Record<HelpySkill, HelpySkillConfig> = {
   },
 };
 
+function buildHelpySkillConfig(skill: HelpySkill): HelpySkillConfig {
+  const base = ALL_SKILLS[skill];
+  const legacy = LEGACY_SKILL_UI[skill];
+  return {
+    id: skill,
+    label: base.label,
+    emoji: base.emoji,
+    tabs: legacy?.tabs ?? buildGenericTabs(skill),
+    empfohleneAktionen:
+      legacy?.empfohleneAktionen ?? buildGenericActions(skill),
+  };
+}
+
+export const HELPY_SKILLS: Record<HelpySkill, HelpySkillConfig> =
+  Object.fromEntries(
+    ALL_HELPY_SKILL_IDS.map((skill) => [skill, buildHelpySkillConfig(skill)])
+  ) as Record<HelpySkill, HelpySkillConfig>;
+
 export function getSkillConfig(skill: HelpySkill): HelpySkillConfig {
   return HELPY_SKILLS[skill];
 }
@@ -100,50 +155,61 @@ export type SkillMonitorConfig = {
   description: string;
 };
 
-export const SKILL_MONITOR_CONFIG: Record<HelpySkill, SkillMonitorConfig> = {
-  "real-estate": {
-    label: "HELPY Real Estate",
-    emoji: "🏡",
-    monitoredAreas: [
-      "Mail",
-      "ImmoScout24.ch",
-      "WhatsApp",
-      "Homepage",
-      "Kalender",
-      "Angebote",
-    ],
-    description:
-      "Ich überwache deine Immobilienanfragen und bereite neue Vorgänge automatisch vor.",
-  },
-  construction: {
-    label: "HELPY Construction",
-    emoji: "🔨",
-    monitoredAreas: [
-      "Mail",
-      "WhatsApp",
-      "Homepage",
-      "Kalender",
-      "Offerten",
-      "Baustellen",
-    ],
-    description:
-      "Ich überwache neue Anfragen, Offerten und Baustellen-Vorgänge.",
-  },
-  "consulting-legal": {
-    label: "HELPY Consulting & Legal",
-    emoji: "⚖",
-    monitoredAreas: [
-      "Mail",
-      "Homepage",
-      "Kalender",
-      "Dokumente",
-      "Fristen",
-      "Mandate",
-    ],
-    description:
-      "Ich überwache neue Anfragen, Fristen und Mandanten-Vorgänge.",
-  },
+const DEFAULT_MONITOR: SkillMonitorConfig = {
+  label: "HELPY",
+  emoji: "🤖",
+  monitoredAreas: ["Mail", "Kalender", "Homepage", "Telefon"],
+  description: "Ich überwache neue Anfragen und bereite Vorgänge automatisch vor.",
 };
+
+export const SKILL_MONITOR_CONFIG: Record<HelpySkill, SkillMonitorConfig> =
+  buildSkillRecord(
+    {
+      "real-estate": {
+        label: "HELPY Real Estate",
+        emoji: "🏢",
+        monitoredAreas: [
+          "Mail",
+          "ImmoScout24.ch",
+          "WhatsApp",
+          "Homepage",
+          "Kalender",
+          "Angebote",
+        ],
+        description:
+          "Ich überwache deine Immobilienanfragen und bereite neue Vorgänge automatisch vor.",
+      },
+      construction: {
+        label: "HELPY Construction",
+        emoji: "🔨",
+        monitoredAreas: [
+          "Mail",
+          "WhatsApp",
+          "Homepage",
+          "Kalender",
+          "Offerten",
+          "Baustellen",
+        ],
+        description:
+          "Ich überwache neue Anfragen, Offerten und Baustellen-Vorgänge.",
+      },
+      "consulting-legal": {
+        label: "HELPY Consulting & Legal",
+        emoji: "⚖",
+        monitoredAreas: [
+          "Mail",
+          "Homepage",
+          "Kalender",
+          "Dokumente",
+          "Fristen",
+          "Mandate",
+        ],
+        description:
+          "Ich überwache neue Anfragen, Fristen und Mandanten-Vorgänge.",
+      },
+    },
+    DEFAULT_MONITOR
+  );
 
 export function getSkillMonitorConfig(skill: HelpySkill): SkillMonitorConfig {
   return SKILL_MONITOR_CONFIG[skill];

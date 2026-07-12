@@ -13,6 +13,7 @@ import {
   isVorgangAwaitingCustomerReply,
   isVorgangErledigt,
 } from "@/features/workspace/services/vorgaenge/vorgang-effective-status";
+import { isTerminAnfrageVorgang } from "@/features/workspace/services/vorgaenge/mock-vorgaenge";
 import { deduplicateVorgaenge } from "@/features/workspace/services/vorgaenge/vorgang-deduplication";
 import {
   getAllMailVorgaenge,
@@ -48,6 +49,8 @@ function buildFilterCounts(vorgaenge: Vorgang[]): VorgaengeFilterCounts {
   return {
     alle: activeOpen.length,
     neu: customerVorgaenge.filter((item) => getEffectiveVorgangStatus(item) === "neu")
+      .length,
+    termine_anfragen: customerVorgaenge.filter((item) => isTerminAnfrageVorgang(item))
       .length,
     in_bearbeitung: customerVorgaenge.filter(
       (item) => getEffectiveVorgangStatus(item) === "in_bearbeitung"

@@ -7,6 +7,7 @@ import { isPlatformRealEstateQuelle } from "@/features/brain/services/platform-e
 import { getReplyDraft } from "@/features/reply-drafts/services/reply-draft-engine";
 import { peekKundenakteByVorgangId } from "@/features/kundenakte/services/kundenakte-store";
 import { getStatusSnapshotById } from "@/features/workspace/services/status/status-engine";
+import { buildSkillRecord } from "@/features/workspace/services/skills/skill-defaults";
 import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
 import type { Vorgang as ListeVorgang } from "@/features/workspace/services/vorgaenge/types";
 import type { Vorgang as WorkspaceVorgang } from "@/features/workspace/services/workspace/types";
@@ -306,11 +307,15 @@ const CONSULTING_STEPS: GmailWorkflowStepDefinition[] = [
   },
 ];
 
-const STEPS_BY_SKILL: Record<HelpySkill, GmailWorkflowStepDefinition[]> = {
-  "real-estate": REAL_ESTATE_STEPS,
-  construction: CONSTRUCTION_STEPS,
-  "consulting-legal": CONSULTING_STEPS,
-};
+const STEPS_BY_SKILL: Record<HelpySkill, GmailWorkflowStepDefinition[]> =
+  buildSkillRecord(
+    {
+      "real-estate": REAL_ESTATE_STEPS,
+      construction: CONSTRUCTION_STEPS,
+      "consulting-legal": CONSULTING_STEPS,
+    },
+    REAL_ESTATE_STEPS
+  );
 
 export function buildGmailWorkflowStepContext(
   vorgang: WorkspaceVorgang,

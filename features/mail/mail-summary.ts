@@ -28,6 +28,7 @@ export const EMPTY_MAIL_SUMMARY: MailSummary = {
   filterCounts: {
     alle: 0,
     neu: 0,
+    termine_anfragen: 0,
     in_bearbeitung: 0,
     erledigt: 0,
     wartend: 0,

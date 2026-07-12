@@ -1,3 +1,4 @@
+import { buildSkillRecord } from "@/features/workspace/services/skills/skill-defaults";
 import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
 import type { HelpyAction, HelpyActionScenario } from "@/features/brain/services/helpy-actions/types";
 
@@ -477,11 +478,14 @@ const CONSULTING_SCENARIOS: Record<HelpyActionScenario, ScenarioConfig> = {
 export const SKILL_SCENARIO_CATALOG: Record<
   HelpySkill,
   Record<HelpyActionScenario, ScenarioConfig>
-> = {
-  "real-estate": REAL_ESTATE_SCENARIOS,
-  construction: CONSTRUCTION_SCENARIOS,
-  "consulting-legal": CONSULTING_SCENARIOS,
-};
+> = buildSkillRecord(
+  {
+    "real-estate": REAL_ESTATE_SCENARIOS,
+    construction: CONSTRUCTION_SCENARIOS,
+    "consulting-legal": CONSULTING_SCENARIOS,
+  },
+  REAL_ESTATE_SCENARIOS
+);
 
 export function getScenarioActions(
   skill: HelpySkill,

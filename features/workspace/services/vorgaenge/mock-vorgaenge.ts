@@ -33,6 +33,17 @@ export function sortHelpyPhoneVorgaenge(vorgaenge: Vorgang[]): Vorgang[] {
   );
 }
 
+export function isTerminAnfrageVorgang(vorgang: Vorgang): boolean {
+  if (vorgang.typ === "terminwunsch") return true;
+  const intent = (vorgang.intent ?? vorgang.intentLabel ?? "").toLowerCase();
+  return (
+    intent.includes("termin") ||
+    intent.includes("besichtigung") ||
+    intent.includes("reservation") ||
+    intent.includes("kurs")
+  );
+}
+
 export function filterVorgaenge(
   vorgaenge: Vorgang[],
   filter: VorgangFilter
@@ -55,6 +66,9 @@ export function filterVorgaenge(
   if (filter === "wartend") {
     return customerVorgaenge.filter((v) => isVorgangAwaitingCustomerReply(v));
   }
+  if (filter === "termine_anfragen") {
+    return customerVorgaenge.filter((v) => isTerminAnfrageVorgang(v));
+  }
   return customerVorgaenge.filter(
     (v) => getEffectiveVorgangStatus(v) === filter
   );
@@ -71,6 +85,8 @@ export function getVorgangFilterCounts(
   return {
     alle: activeOpen.length,
     neu: customerVorgaenge.filter((v) => getEffectiveVorgangStatus(v) === "neu")
+      .length,
+    termine_anfragen: customerVorgaenge.filter((v) => isTerminAnfrageVorgang(v))
       .length,
     in_bearbeitung: customerVorgaenge.filter(
       (v) => getEffectiveVorgangStatus(v) === "in_bearbeitung"

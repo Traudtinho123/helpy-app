@@ -14,6 +14,7 @@ import {
   subscribeCompanyProfileStore,
 } from "@/lib/company/company-profile-service";
 import { subscribeSubscription } from "@/features/subscription/services/subscription-service";
+import { isPreviewSkillId } from "@/features/workspace/services/skills/all-skills";
 import {
   getSkillConfig,
   type HelpySkill,
@@ -48,11 +49,7 @@ function getProfileSkillServerSnapshot(): HelpySkill {
 function readPreviewSkill(): HelpySkill | null {
   if (typeof window === "undefined") return null;
   const raw = window.localStorage.getItem(PREVIEW_SKILL_STORAGE_KEY);
-  if (
-    raw === "real-estate" ||
-    raw === "construction" ||
-    raw === "consulting-legal"
-  ) {
+  if (raw && isPreviewSkillId(raw)) {
     return raw;
   }
   return null;

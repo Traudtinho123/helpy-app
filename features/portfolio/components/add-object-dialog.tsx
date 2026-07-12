@@ -15,6 +15,7 @@ import {
 } from "@/features/portfolio/services/portfolio-add-service";
 import { generateObjectDossier } from "@/features/real-estate/dossier/object-dossier-generator";
 import type { RealEstateObject } from "@/features/real-estate/object/object-types";
+import { getAllSkillConfig } from "@/features/workspace/services/skills/all-skills";
 import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
 import { cn } from "@/lib/utils";
 
@@ -25,11 +26,10 @@ type AddObjectDialogProps = {
   onSaved?: (result: { objectId: string; openDossierTab?: boolean }) => void;
 };
 
-const DIALOG_TITLES: Record<HelpySkill, string> = {
-  "real-estate": "Objekt hinzufügen",
-  construction: "Baustelle hinzufügen",
-  "consulting-legal": "Mandat hinzufügen",
-};
+function getDialogTitle(skill: HelpySkill): string {
+  const config = getAllSkillConfig(skill);
+  return `${config.objekt} hinzufügen`;
+}
 
 const EMPTY_FORM: AddPortfolioObjectInput = {
   titel: "",
@@ -166,7 +166,7 @@ export function AddObjectDialog({
             id="add-object-title"
             className="text-[18px] font-semibold tracking-[-0.02em] text-[#0F172A]"
           >
-            {DIALOG_TITLES[skill]}
+            {getDialogTitle(skill)}
           </h2>
           <button
             type="button"

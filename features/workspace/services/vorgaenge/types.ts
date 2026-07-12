@@ -1,5 +1,8 @@
 /** Einheitliches Vorgangs-Modell — sichtbar für den Nutzer, plattformunabhängig. */
 
+import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
+import { getAllSkillConfig } from "@/features/workspace/services/skills/all-skills";
+
 export type VorgangTyp =
   /** Generische Anfrage (früher immobilien_anfrage). */
   | "anfrage"
@@ -28,7 +31,12 @@ export type VorgangStatus =
   | "erledigt"
   | "wartend";
 
-export type VorgangFilter = VorgangStatus | "alle" | "helpy_reports" | "helpy_phone";
+export type VorgangFilter =
+  | VorgangStatus
+  | "alle"
+  | "termine_anfragen"
+  | "helpy_reports"
+  | "helpy_phone";
 
 export type Vorgang = {
   id: string;
@@ -122,9 +130,23 @@ export const VORGANG_STATUS_LABELS: Record<VorgangStatus, string> = {
 export const VORGANG_FILTER_LABELS: Record<VorgangFilter, string> = {
   alle: "Alle",
   neu: "Neu",
+  termine_anfragen: "Termine",
   in_bearbeitung: "In Bearbeitung",
   erledigt: "Erledigt",
   wartend: "Warten auf Antwort",
   helpy_reports: "HELPY Reports",
   helpy_phone: "HELPY Phone",
 };
+
+/** Skill-spezifische Filter-Labels (z. B. Besichtigungen, Kurse, Reservationen). */
+export function getSkillVorgangFilterLabels(
+  skill: HelpySkill
+): Record<VorgangFilter, string> {
+  const config = getAllSkillConfig(skill);
+  return {
+    ...VORGANG_FILTER_LABELS,
+    termine_anfragen: config.termine,
+    helpy_reports: "HELPY Reports",
+    helpy_phone: "HELPY Phone",
+  };
+}

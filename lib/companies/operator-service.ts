@@ -1,4 +1,6 @@
+import type { HelpySkillDb } from "@/lib/database/types";
 import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
+import { PUBLIC_SKILLS } from "@/features/workspace/services/skills/all-skills";
 import { normalizeAllowedSkills } from "@/lib/auth/skill-access-shared";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { HelpyCompanyRoleDb } from "@/lib/database/types";
@@ -150,7 +152,11 @@ export async function updateOperatorMemberAllowedSkills(
 
   const { error } = await admin
     .from("profiles")
-    .update({ allowed_skills: allowedSkills })
+    .update({
+      allowed_skills: allowedSkills.filter((s) =>
+        PUBLIC_SKILLS.includes(s as (typeof PUBLIC_SKILLS)[number])
+      ) as HelpySkillDb[],
+    })
     .eq("id", userId);
 
   if (error) {
