@@ -73,6 +73,8 @@ export type Database = {
           id: string;
           name: string;
           industry: string | null;
+          registration_status: string;
+          requested_skill: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -80,6 +82,8 @@ export type Database = {
           id?: string;
           name: string;
           industry?: string | null;
+          registration_status?: string;
+          requested_skill?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -87,8 +91,61 @@ export type Database = {
           id?: string;
           name?: string;
           industry?: string | null;
+          registration_status?: string;
+          requested_skill?: string | null;
           created_at?: string;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      user_roles: {
+        Row: {
+          id: string;
+          user_id: string;
+          company_id: string;
+          role: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          company_id: string;
+          role?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          company_id?: string;
+          role?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      company_skills: {
+        Row: {
+          id: string;
+          company_id: string;
+          skill: string;
+          activated_at: string;
+          activated_by: string | null;
+          is_active: boolean;
+        };
+        Insert: {
+          id?: string;
+          company_id: string;
+          skill: string;
+          activated_at?: string;
+          activated_by?: string | null;
+          is_active?: boolean;
+        };
+        Update: {
+          id?: string;
+          company_id?: string;
+          skill?: string;
+          activated_at?: string;
+          activated_by?: string | null;
+          is_active?: boolean;
         };
         Relationships: [];
       };
@@ -439,6 +496,7 @@ export type Database = {
           company_id: string | null;
           role: HelpyCompanyRoleDb;
           is_platform_operator: boolean;
+          is_super_admin: boolean;
           weekly_report_enabled: boolean;
           weekly_report_last_sent_week: string | null;
         };
@@ -455,6 +513,7 @@ export type Database = {
           company_id?: string | null;
           role?: HelpyCompanyRoleDb;
           is_platform_operator?: boolean;
+          is_super_admin?: boolean;
           weekly_report_enabled?: boolean;
           weekly_report_last_sent_week?: string | null;
         };
@@ -471,6 +530,7 @@ export type Database = {
           company_id?: string | null;
           role?: HelpyCompanyRoleDb;
           is_platform_operator?: boolean;
+          is_super_admin?: boolean;
           weekly_report_enabled?: boolean;
           weekly_report_last_sent_week?: string | null;
         };

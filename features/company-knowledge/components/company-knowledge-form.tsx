@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Plus, RotateCcw, Save, Trash2 } from "lucide-react";
+import { useCanEditAISettings } from "@/components/auth/permissions-provider";
 import { useCompanyProfile } from "@/components/company";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,6 +61,7 @@ function Field({
 export function CompanyKnowledgeForm() {
   const { profile } = useCompanyProfile();
   const { profile: userProfile } = useUserProfileContext();
+  const canEditAISettings = useCanEditAISettings();
   const [baseline, setBaseline] = useState<CompanyKnowledge>(() =>
     getCompanyKnowledge(profile.companyId)
   );
@@ -247,6 +249,16 @@ export function CompanyKnowledgeForm() {
         </div>
       ) : null}
 
+      {!canEditAISettings ? (
+        <div className="rounded-[12px] border border-[#FDE68A] bg-[#FFFBEB] px-4 py-3">
+          <p className="text-[12px] text-[#92400E]">
+            Nur Admins können KI-Einstellungen ändern. Du kannst die Inhalte
+            ansehen, aber nicht bearbeiten.
+          </p>
+        </div>
+      ) : null}
+
+      <fieldset disabled={!canEditAISettings} className="space-y-6">
       <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
         <CardHeader className="border-b border-[#CBD5E1]/30 pb-4">
           <CardTitle className="text-[13px] font-semibold text-[#0F172A]">
@@ -734,6 +746,8 @@ export function CompanyKnowledgeForm() {
           )}
         </CardContent>
       </Card>
+
+      </fieldset>
 
       {errors.length > 0 ? (
         <div className="rounded-[12px] border border-[#FECACA] bg-[#FEF2F2] px-4 py-3">

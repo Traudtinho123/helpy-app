@@ -8,17 +8,32 @@ import { AuthPageShell } from "@/components/auth/auth-page-shell";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/Select";
 import { signUpWithEmail } from "@/lib/auth/auth";
 import { getAuthErrorMessage } from "@/lib/auth/errors";
 import { AUTH_ROUTES } from "@/lib/auth/routes";
 import { createClient } from "@/lib/supabase/client";
 
+const SKILL_OPTIONS = [
+  { value: "real-estate", label: "Immobilien (HELPY Real Estate)" },
+  { value: "construction", label: "Handwerk/Bau (HELPY Construction)" },
+  { value: "consulting-legal", label: "Beratung/Recht (HELPY Consulting)" },
+  { value: "friseur", label: "Beauty/Wellness (HELPY Friseur)" },
+  { value: "other", label: "Anderes (wird geprüft)" },
+] as const;
+
 export function RegisterForm() {
   const router = useRouter();
 
+  const [companyName, setCompanyName] = useState("");
+  const [skill, setSkill] = useState<string>("real-estate");
+  const [vorname, setVorname] = useState("");
+  const [nachname, setNachname] = useState("");
   const [email, setEmail] = useState("");
+  const [telefon, setTelefon] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,6 +42,21 @@ export function RegisterForm() {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+
+    if (!companyName.trim()) {
+      setError("Bitte Firmenname eingeben.");
+      return;
+    }
+
+    if (!vorname.trim() || !nachname.trim()) {
+      setError("Bitte Vor- und Nachname eingeben.");
+      return;
+    }
+
+    if (!acceptedTerms) {
+      setError("Bitte AGB akzeptieren.");
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError("Die Passwörter stimmen nicht überein.");
@@ -40,7 +70,13 @@ export function RegisterForm() {
 
     setIsLoading(true);
 
-    const { error: authError } = await signUpWithEmail(email, password);
+    const { error: authError } = await signUpWithEmail(email, password, {
+      firma: companyName.trim(),
+      vorname: vorname.trim(),
+      nachname: nachname.trim(),
+      skill,
+      telefon: telefon.trim(),
+    });
 
     if (authError) {
       setError(getAuthErrorMessage(authError));
@@ -55,41 +91,45 @@ export function RegisterForm() {
 
     if (session) {
       try {
-        const accessResponse = await fetch("/api/skill-access", {
-          method: "GET",
-          credentials: "same-origin",
-          cache: "no-store",
+        await fetch("/api/auth/register/complete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            companyName: companyName.trim(),
+            skill,
+            vorname: vorname.trim(),
+            nachname: nachname.trim(),
+            email: email.trim(),
+            telefon: telefon.trim() || null,
+          }),
         });
-        if (accessResponse.ok) {
-          const data = (await accessResponse.json()) as { hasAccess?: boolean };
-          router.push(
-            data.hasAccess ? AUTH_ROUTES.home : AUTH_ROUTES.pendingAccess
-          );
-          router.refresh();
-          return;
-        }
       } catch {
-        // Fallback Home — Middleware prüft erneut
+        // Registrierung trotzdem als erfolgreich behandeln
       }
-      router.push(AUTH_ROUTES.home);
+
+      setSuccess(
+        "Danke für deine Registrierung! Wir schalten deinen Zugang innerhalb von 24h frei und melden uns bei dir."
+      );
+      setIsLoading(false);
+      router.push(AUTH_ROUTES.pendingAccess);
       router.refresh();
       return;
     }
 
     setSuccess(
-      "Konto erstellt. Bitte bestätige deine E-Mail-Adresse, bevor du dich anmeldest."
+      "Konto erstellt. Bitte bestätige deine E-Mail-Adresse. Danach schalten wir deinen Zugang frei."
     );
     setIsLoading(false);
 
     setTimeout(() => {
       router.push(AUTH_ROUTES.login);
-    }, 2500);
+    }, 3000);
   };
 
   return (
     <AuthPageShell
-      title="Konto erstellen"
-      subtitle="Starte mit HELPY Office KI — dein KI-Bürokollege für den Alltag."
+      title="Firma registrieren"
+      subtitle="Starte mit HELPY — dein KI-Bürokollege für deine Branche."
       footer={
         <>
           Bereits registriert?{" "}
@@ -104,16 +144,67 @@ export function RegisterForm() {
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <label
-            htmlFor="register-email"
-            className="text-[12px] font-medium text-[#334155]"
+          <label className="text-[12px] font-medium text-[#334155]">
+            Firmenname *
+          </label>
+          <Input
+            required
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
+            placeholder="Traudt Immobilien AG"
+            className="h-11 rounded-[14px] border-[#CBD5E1]/60 bg-white text-[13px]"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-[12px] font-medium text-[#334155]">
+            Branche / HELPY Skill *
+          </label>
+          <Select
+            value={skill}
+            onChange={(e) => setSkill(e.target.value)}
+            className="h-11 rounded-[14px]"
           >
-            E-Mail
+            {SKILL_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <label className="text-[12px] font-medium text-[#334155]">
+              Vorname *
+            </label>
+            <Input
+              required
+              value={vorname}
+              onChange={(e) => setVorname(e.target.value)}
+              className="h-11 rounded-[14px] border-[#CBD5E1]/60 bg-white text-[13px]"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[12px] font-medium text-[#334155]">
+              Nachname *
+            </label>
+            <Input
+              required
+              value={nachname}
+              onChange={(e) => setNachname(e.target.value)}
+              className="h-11 rounded-[14px] border-[#CBD5E1]/60 bg-white text-[13px]"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-[12px] font-medium text-[#334155]">
+            E-Mail (wird Firmen-Admin) *
           </label>
           <div className="relative">
             <Mail className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#94A3B8]" />
             <Input
-              id="register-email"
               type="email"
               autoComplete="email"
               required
@@ -126,14 +217,22 @@ export function RegisterForm() {
         </div>
 
         <div className="space-y-2">
-          <label
-            htmlFor="register-password"
-            className="text-[12px] font-medium text-[#334155]"
-          >
-            Passwort
+          <label className="text-[12px] font-medium text-[#334155]">
+            Telefon (optional)
           </label>
           <Input
-            id="register-password"
+            value={telefon}
+            onChange={(e) => setTelefon(e.target.value)}
+            placeholder="+41 79 000 00 00"
+            className="h-11 rounded-[14px] border-[#CBD5E1]/60 bg-white text-[13px]"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-[12px] font-medium text-[#334155]">
+            Passwort *
+          </label>
+          <Input
             type="password"
             autoComplete="new-password"
             required
@@ -145,14 +244,10 @@ export function RegisterForm() {
         </div>
 
         <div className="space-y-2">
-          <label
-            htmlFor="register-confirm"
-            className="text-[12px] font-medium text-[#334155]"
-          >
-            Passwort bestätigen
+          <label className="text-[12px] font-medium text-[#334155]">
+            Passwort bestätigen *
           </label>
           <Input
-            id="register-confirm"
             type="password"
             autoComplete="new-password"
             required
@@ -163,17 +258,27 @@ export function RegisterForm() {
           />
         </div>
 
-        {error && (
+        <label className="flex items-start gap-2 text-[12px] text-[#64748B]">
+          <input
+            type="checkbox"
+            checked={acceptedTerms}
+            onChange={(e) => setAcceptedTerms(e.target.checked)}
+            className="mt-0.5"
+          />
+          Ich akzeptiere die AGB und Datenschutzbestimmungen.
+        </label>
+
+        {error ? (
           <p className="rounded-[12px] border border-[#FECACA] bg-[#FEF2F2] px-3 py-2 text-[12px] text-[#DC2626]">
             {error}
           </p>
-        )}
+        ) : null}
 
-        {success && (
+        {success ? (
           <p className="rounded-[12px] border border-[#A7F3D0] bg-[#ECFDF5] px-3 py-2 text-[12px] text-[#047857]">
             {success}
           </p>
-        )}
+        ) : null}
 
         <Button
           type="submit"
@@ -183,10 +288,10 @@ export function RegisterForm() {
           {isLoading ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              Konto wird erstellt…
+              Registrierung läuft…
             </>
           ) : (
-            "Registrieren"
+            "Firma registrieren"
           )}
         </Button>
       </form>

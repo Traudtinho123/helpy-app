@@ -39,7 +39,8 @@ export async function signInWithEmail(
 
 export async function signUpWithEmail(
   email: string,
-  password: string
+  password: string,
+  metadata?: Record<string, string>
 ): Promise<AuthActionResult> {
   const supabase = createClient();
   if (!supabase) return notConfiguredResult();
@@ -51,6 +52,7 @@ export async function signUpWithEmail(
     password,
     options: {
       emailRedirectTo: getPostLoginRedirectUrl(origin),
+      data: metadata,
     },
   });
 

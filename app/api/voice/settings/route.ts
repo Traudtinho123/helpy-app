@@ -8,6 +8,10 @@ import {
   updateVoiceSettings,
 } from "@/lib/voice/voice-settings-repository";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import {
+  aiSettingsForbiddenResponse,
+  requireCanEditAISettings,
+} from "@/lib/auth/require-ai-settings";
 
 export async function GET() {
   const auth = await requireVoiceContext();
@@ -22,6 +26,11 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
+  const aiAuth = await requireCanEditAISettings();
+  if (!aiAuth.ok) {
+    return aiSettingsForbiddenResponse(aiAuth.error);
+  }
+
   const auth = await requireVoiceContext();
   const context = auth.ok ? auth.context : createDevVoiceContext();
 

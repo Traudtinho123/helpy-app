@@ -1,5 +1,6 @@
 "use client";
 
+import { PermissionsProvider } from "@/components/auth/permissions-provider";
 import { ActiveSkillProvider } from "@/components/user-menu/active-skill-context";
 import { CompanyProfileProvider } from "@/components/company/company-profile-context";
 import { GmailAutoSyncProvider } from "@/components/gmail/gmail-auto-sync-provider";
@@ -12,15 +13,17 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <UserProfileProvider>
       <SkillAccessProvider>
-        <CompanyProfileProvider>
-          <ActiveSkillProvider>
+        <PermissionsProvider>
+          <CompanyProfileProvider>
+            <ActiveSkillProvider>
             <GmailAutoSyncProvider>
               <VoiceIntakeSyncProvider>
                 <SubscriptionSkillGate>{children}</SubscriptionSkillGate>
               </VoiceIntakeSyncProvider>
             </GmailAutoSyncProvider>
-          </ActiveSkillProvider>
-        </CompanyProfileProvider>
+            </ActiveSkillProvider>
+          </CompanyProfileProvider>
+        </PermissionsProvider>
       </SkillAccessProvider>
     </UserProfileProvider>
   );

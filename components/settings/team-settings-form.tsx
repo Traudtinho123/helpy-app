@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { MoreVertical, UserPlus } from "lucide-react";
+import { useCanInviteUsers } from "@/components/auth/permissions-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
@@ -218,6 +219,8 @@ export function TeamSettingsForm() {
   );
 
   const canManage = actor ? canManageTeam(actor.role) : false;
+  const canInviteUsers = useCanInviteUsers();
+  const canInvite = canManage && canInviteUsers;
 
   const handleInvite = (input: { fullName: string; email: string; role: TenantUserRole }) => {
     const result = inviteTeamMember(profile.companyId, profile.userId, input);
@@ -251,7 +254,7 @@ export function TeamSettingsForm() {
       description="Teammitglieder deines Unternehmens und deren Rollen."
     >
       <div className="mx-auto max-w-3xl space-y-6">
-        {canManage && (
+        {canInvite && (
           <div className="flex justify-end">
             <Button
               type="button"

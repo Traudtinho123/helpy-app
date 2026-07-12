@@ -11,6 +11,10 @@ import {
 } from "@/lib/voice/voice-standard-responses-repository";
 import type { VoiceStandardResponseCategory } from "@/features/voice/types/voice-standard-response-types";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import {
+  aiSettingsForbiddenResponse,
+  requireCanEditAISettings,
+} from "@/lib/auth/require-ai-settings";
 
 const CATEGORIES: VoiceStandardResponseCategory[] = [
   "allgemein",
@@ -48,6 +52,11 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const aiAuth = await requireCanEditAISettings();
+  if (!aiAuth.ok) {
+    return aiSettingsForbiddenResponse(aiAuth.error);
+  }
+
   const auth = await requireVoiceContext();
   const context = auth.ok ? auth.context : createDevVoiceContext();
 
@@ -76,6 +85,11 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  const aiAuth = await requireCanEditAISettings();
+  if (!aiAuth.ok) {
+    return aiSettingsForbiddenResponse(aiAuth.error);
+  }
+
   const auth = await requireVoiceContext();
   const context = auth.ok ? auth.context : createDevVoiceContext();
 
@@ -110,6 +124,11 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const aiAuth = await requireCanEditAISettings();
+  if (!aiAuth.ok) {
+    return aiSettingsForbiddenResponse(aiAuth.error);
+  }
+
   const auth = await requireVoiceContext();
   const context = auth.ok ? auth.context : createDevVoiceContext();
 

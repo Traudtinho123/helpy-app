@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
+import { usePermissions } from "@/components/auth/permissions-provider";
 import { SkillSwitcher } from "@/components/user-menu/SkillSwitcher";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +32,8 @@ export function UserDropdown({
   onClose,
   onSignOut,
 }: UserDropdownProps) {
+  const { permissions } = usePermissions();
+
   return (
     <div
       role="menu"
@@ -59,6 +62,17 @@ export function UserDropdown({
       )}
 
       <div className="py-1">
+        {permissions?.isSuperAdmin ? (
+          <Link
+            href="/einstellungen/admin"
+            role="menuitem"
+            onClick={onClose}
+            className="group flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-[13px] font-medium text-[#334155] transition-all duration-200 hover:bg-[#F8FAFC] hover:pl-[1.125rem]"
+          >
+            <span className="text-[14px] leading-none">🛡️</span>
+            Admin Panel
+          </Link>
+        ) : null}
         {menuItems.map(({ emoji, label, href }) => (
           <Link
             key={label}

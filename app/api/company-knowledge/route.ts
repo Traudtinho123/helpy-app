@@ -7,6 +7,10 @@ import {
   upsertCompanyKnowledgeRow,
 } from "@/features/company-knowledge/services/company-knowledge-repository";
 import { requireOAuthContext } from "@/lib/oauth/require-oauth-context";
+import {
+  aiSettingsForbiddenResponse,
+  requireCanEditAISettings,
+} from "@/lib/auth/require-ai-settings";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
@@ -41,6 +45,11 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
+  const aiAuth = await requireCanEditAISettings();
+  if (!aiAuth.ok) {
+    return aiSettingsForbiddenResponse(aiAuth.error);
+  }
+
   const auth = await requireOAuthContext();
   if (!auth.ok) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
