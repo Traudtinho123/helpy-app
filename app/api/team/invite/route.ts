@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireCanInviteTeamMembers } from "@/lib/auth/require-team-invite";
-import { sendHelpyEmail } from "@/lib/email/helpy-mail";
+import { sendHelpyEmailDetailed } from "@/lib/email/helpy-mail";
 import {
   createAuthInviteLink,
   createTeamInvite,
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: storedInvite.error }, { status: 500 });
   }
 
-  const authLink = await createAuthInviteLink({
+  const authInvite = await createAuthInviteLink({
     email,
     fullName,
     companyId: access.companyId,
@@ -85,24 +85,34 @@ export async function POST(request: Request) {
     role,
   });
 
+  if (authInvite.supabaseEmailSent) {
+    const member = teamInviteRowToMember(storedInvite.invite);
+    return NextResponse.json({
+      ok: true,
+      member,
+      emailVia: "supabase",
+    });
+  }
+
   const mail = buildTeamInviteEmail({
     fullName,
     email,
     companyName: access.companyName,
-    loginLink: authLink.link,
+    loginLink: authInvite.link,
   });
 
-  const mailSent = await sendHelpyEmail({
+  const mailResult = await sendHelpyEmailDetailed({
     to: email,
     subject: mail.subject,
     text: mail.text,
   });
 
-  if (!mailSent) {
+  if (!mailResult.ok) {
     return NextResponse.json(
       {
         error:
-          "Einladung gespeichert, aber E-Mail-Versand fehlgeschlagen. Bitte HELPY_MAIL_FROM=HELPY <onboarding@resend.dev> setzen (helpy.app ist bei Resend nicht verifiziert).",
+          mailResult.error ??
+          "Einladung gespeichert, aber E-Mail-Versand fehlgeschlagen. In Vercel HELPY_MAIL_FROM=HELPY <onboarding@resend.dev> setzen.",
       },
       { status: 502 }
     );
@@ -113,5 +123,6 @@ export async function POST(request: Request) {
   return NextResponse.json({
     ok: true,
     member,
+    emailVia: "resend",
   });
 }

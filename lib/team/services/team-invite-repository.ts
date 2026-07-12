@@ -178,14 +178,20 @@ export async function createAuthInviteLink(input: {
   companyId: string;
   companyName: string;
   role: TenantUserRole;
-}): Promise<{ link: string }> {
+}): Promise<{ link: string; supabaseEmailSent: boolean }> {
   if (!isSupabaseAdminConfigured()) {
-    return { link: `${APP_URL}/login?email=${encodeURIComponent(input.email)}` };
+    return {
+      link: `${APP_URL}/login?email=${encodeURIComponent(input.email)}`,
+      supabaseEmailSent: false,
+    };
   }
 
   const admin = createAdminClient();
   if (!admin) {
-    return { link: `${APP_URL}/login?email=${encodeURIComponent(input.email)}` };
+    return {
+      link: `${APP_URL}/login?email=${encodeURIComponent(input.email)}`,
+      supabaseEmailSent: false,
+    };
   }
 
   const nameParts = input.fullName.trim().split(/\s+/);
@@ -201,8 +207,24 @@ export async function createAuthInviteLink(input: {
     firma: input.companyName,
   };
 
+  const supabaseInvite = await admin.auth.admin.inviteUserByEmail(input.email, {
+    redirectTo,
+    data: metadata,
+  });
+
+  if (!supabaseInvite.error) {
+    return {
+      link: `${APP_URL}/login?email=${encodeURIComponent(input.email)}`,
+      supabaseEmailSent: true,
+    };
+  }
+
+  const inviteError = supabaseInvite.error.message.toLowerCase();
+  const alreadyRegistered =
+    inviteError.includes("already") || inviteError.includes("registered");
+
   const inviteLink = await admin.auth.admin.generateLink({
-    type: "invite",
+    type: alreadyRegistered ? "magiclink" : "invite",
     email: input.email,
     options: {
       redirectTo,
@@ -211,7 +233,7 @@ export async function createAuthInviteLink(input: {
   });
 
   if (!inviteLink.error && inviteLink.data.properties?.action_link) {
-    return { link: inviteLink.data.properties.action_link };
+    return { link: inviteLink.data.properties.action_link, supabaseEmailSent: false };
   }
 
   const magicLink = await admin.auth.admin.generateLink({
@@ -224,7 +246,7 @@ export async function createAuthInviteLink(input: {
   });
 
   if (!magicLink.error && magicLink.data.properties?.action_link) {
-    return { link: magicLink.data.properties.action_link };
+    return { link: magicLink.data.properties.action_link, supabaseEmailSent: false };
   }
 
   console.warn(
@@ -234,6 +256,7 @@ export async function createAuthInviteLink(input: {
 
   return {
     link: `${APP_URL}/login?email=${encodeURIComponent(input.email)}`,
+    supabaseEmailSent: false,
   };
 }
 
