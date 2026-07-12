@@ -1,4 +1,7 @@
-import { createAdminClient, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import {
+  createAdminClient,
+  isSupabaseAdminConfigured,
+} from "@/lib/supabase/admin";
 import {
   fetchPendingTeamInvites,
   teamInviteRowToMember,
@@ -6,6 +9,10 @@ import {
 import { resolveTeamPermissions } from "@/lib/team/services/team-permissions";
 import type { TeamMember } from "@/lib/team/types/team-types";
 import type { TenantUserRole } from "@/lib/tenant/types/tenant-types";
+import type { Database } from "@/lib/database/types";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+type Supabase = SupabaseClient<Database>;
 
 function resolveMemberRole(
   profileRole: string | null,
@@ -19,52 +26,61 @@ function resolveMemberRole(
 }
 
 export async function fetchCompanyTeamMembers(
+  supabase: Supabase,
   companyId: string
 ): Promise<TeamMember[]> {
-  if (!isSupabaseAdminConfigured()) {
-    return [];
-  }
-
-  const admin = createAdminClient();
-  if (!admin) return [];
-
-  const { data: profiles, error } = await admin
+  const { data: profiles, error } = await supabase
     .from("profiles")
     .select("id, vorname, nachname, role, erstellt_am")
     .eq("company_id", companyId)
     .order("erstellt_am", { ascending: true });
 
-  if (error || !profiles) return [];
+  if (error || !profiles) {
+    console.error("[team/members] profiles fetch failed:", error?.message);
+    return [];
+  }
 
+  const admin = isSupabaseAdminConfigured() ? createAdminClient() : null;
   const members: TeamMember[] = [];
   const activeEmails = new Set<string>();
 
   for (const profile of profiles) {
-    const { data: authData } = await admin.auth.admin.getUserById(profile.id);
-    const email = authData.user?.email?.toLowerCase() ?? "";
-    if (email) {
-      activeEmails.add(email);
+    let email = "";
+    let hasSignedIn = false;
+
+    if (admin) {
+      const { data: authData } = await admin.auth.admin.getUserById(profile.id);
+      email = authData.user?.email ?? "";
+      hasSignedIn = Boolean(authData.user?.last_sign_in_at);
     }
+
+    if (email) {
+      activeEmails.add(email.toLowerCase());
+    }
+
     const fullName =
       [profile.vorname, profile.nachname].filter(Boolean).join(" ").trim() ||
-      authData.user?.email ||
+      email ||
       "Unbekannt";
 
-    const { data: roleRow } = await admin
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", profile.id)
-      .eq("company_id", companyId)
-      .maybeSingle();
+    let dbRole: string | null = null;
+    if (admin) {
+      const { data: roleRow } = await admin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", profile.id)
+        .eq("company_id", companyId)
+        .maybeSingle();
+      dbRole = roleRow?.role ?? null;
+    }
 
-    const role = resolveMemberRole(profile.role, roleRow?.role ?? null);
-    const hasSignedIn = Boolean(authData.user?.last_sign_in_at);
+    const role = resolveMemberRole(profile.role, dbRole);
 
     members.push({
       userId: profile.id,
       companyId,
       fullName,
-      email: authData.user?.email ?? "",
+      email,
       role,
       status: hasSignedIn ? "active" : "pending",
       avatar: null,
@@ -79,7 +95,7 @@ export async function fetchCompanyTeamMembers(
     });
   }
 
-  const pendingInvites = await fetchPendingTeamInvites(companyId);
+  const pendingInvites = await fetchPendingTeamInvites(supabase, companyId);
   for (const invite of pendingInvites) {
     const normalized = invite.email.trim().toLowerCase();
     if (activeEmails.has(normalized)) {
@@ -92,15 +108,29 @@ export async function fetchCompanyTeamMembers(
 }
 
 export async function isEmailAlreadyInCompany(
+  supabase: Supabase,
   companyId: string,
   email: string
 ): Promise<boolean> {
-  if (!isSupabaseAdminConfigured()) return false;
-
-  const admin = createAdminClient();
-  if (!admin) return false;
-
   const normalized = email.trim().toLowerCase();
+
+  const pendingInvite = await supabase
+    .from("team_invites")
+    .select("id")
+    .eq("company_id", companyId)
+    .eq("status", "pending")
+    .ilike("email", normalized)
+    .maybeSingle();
+
+  if (pendingInvite.data) {
+    return true;
+  }
+
+  const admin = isSupabaseAdminConfigured() ? createAdminClient() : null;
+  if (!admin) {
+    return false;
+  }
+
   const { data: profiles } = await admin
     .from("profiles")
     .select("id")
@@ -115,13 +145,5 @@ export async function isEmailAlreadyInCompany(
     }
   }
 
-  const { data: pendingInvite } = await admin
-    .from("team_invites")
-    .select("id")
-    .eq("company_id", companyId)
-    .eq("status", "pending")
-    .ilike("email", normalized)
-    .maybeSingle();
-
-  return Boolean(pendingInvite);
+  return false;
 }

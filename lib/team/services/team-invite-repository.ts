@@ -1,7 +1,14 @@
-import { createAdminClient, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import {
+  createAdminClient,
+  isSupabaseAdminConfigured,
+} from "@/lib/supabase/admin";
 import { resolveTeamPermissions } from "@/lib/team/services/team-permissions";
 import type { TeamMember } from "@/lib/team/types/team-types";
 import type { TenantUserRole } from "@/lib/tenant/types/tenant-types";
+import type { Database } from "@/lib/database/types";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+type Supabase = SupabaseClient<Database>;
 
 const APP_URL =
   process.env.NEXT_PUBLIC_APP_URL?.trim() ?? "https://helpy-app.vercel.app";
@@ -50,16 +57,12 @@ export function teamInviteRowToMember(row: TeamInviteRow): TeamMember {
 }
 
 export async function findPendingInviteByEmail(
+  supabase: Supabase,
   companyId: string,
   email: string
 ): Promise<TeamInviteRow | null> {
-  if (!isSupabaseAdminConfigured()) return null;
-
-  const admin = createAdminClient();
-  if (!admin) return null;
-
   const normalized = email.trim().toLowerCase();
-  const { data } = await admin
+  const { data } = await supabase
     .from("team_invites")
     .select("*")
     .eq("company_id", companyId)
@@ -70,24 +73,18 @@ export async function findPendingInviteByEmail(
   return (data as TeamInviteRow | null) ?? null;
 }
 
-export async function createTeamInvite(input: {
-  companyId: string;
-  email: string;
-  fullName: string;
-  role: TenantUserRole;
-  invitedBy: string;
-}): Promise<{ ok: true; invite: TeamInviteRow } | { ok: false; error: string }> {
-  if (!isSupabaseAdminConfigured()) {
-    return { ok: false, error: "Supabase Admin nicht konfiguriert." };
+export async function createTeamInvite(
+  supabase: Supabase,
+  input: {
+    companyId: string;
+    email: string;
+    fullName: string;
+    role: TenantUserRole;
+    invitedBy: string;
   }
-
-  const admin = createAdminClient();
-  if (!admin) {
-    return { ok: false, error: "Server-Konfiguration fehlt." };
-  }
-
+): Promise<{ ok: true; invite: TeamInviteRow } | { ok: false; error: string }> {
   const email = input.email.trim().toLowerCase();
-  const { data, error } = await admin
+  const { data, error } = await supabase
     .from("team_invites")
     .insert({
       company_id: input.companyId,
@@ -109,6 +106,13 @@ export async function createTeamInvite(input: {
           "Tabelle team_invites fehlt. Bitte Migration 20260712110000_team_invites.sql ausführen.",
       };
     }
+    if (error?.code === "42501") {
+      return {
+        ok: false,
+        error:
+          "Keine Berechtigung zum Speichern der Einladung. Bitte Migration 20260712110100_team_invites_rls_authenticated.sql ausführen.",
+      };
+    }
     if (error?.code === "23505") {
       return { ok: false, error: "Für diese E-Mail liegt bereits eine Einladung vor." };
     }
@@ -119,23 +123,22 @@ export async function createTeamInvite(input: {
 }
 
 export async function fetchPendingTeamInvites(
+  supabase: Supabase,
   companyId: string
 ): Promise<TeamInviteRow[]> {
-  if (!isSupabaseAdminConfigured()) return [];
-
-  const admin = createAdminClient();
-  if (!admin) return [];
-
-  const { data } = await admin
+  const { data, error } = await supabase
     .from("team_invites")
     .select("*")
     .eq("company_id", companyId)
     .eq("status", "pending")
     .order("invited_at", { ascending: true });
 
-  if (!data) return [];
+  if (error) {
+    console.error("[team/invite] pending fetch failed:", error.message, error.code);
+    return [];
+  }
 
-  return data as TeamInviteRow[];
+  return (data as TeamInviteRow[] | null) ?? [];
 }
 
 export async function acceptTeamInviteForUser(input: {

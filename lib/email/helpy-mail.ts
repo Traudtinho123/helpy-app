@@ -15,9 +15,13 @@ export async function sendHelpyEmail(input: HelpyEmailInput): Promise<boolean> {
   });
 
   const apiKey = process.env.RESEND_API_KEY?.trim();
-  const from = process.env.HELPY_MAIL_FROM?.trim() ?? "HELPY <onboarding@helpy.app>";
+  const from =
+    process.env.HELPY_MAIL_FROM?.trim() ??
+    process.env.RESEND_FROM_EMAIL?.trim() ??
+    "HELPY <onboarding@resend.dev>";
 
   if (!apiKey) {
+    console.warn("[helpy-mail] RESEND_API_KEY fehlt — E-Mail nur geloggt.");
     return true;
   }
 
@@ -37,7 +41,8 @@ export async function sendHelpyEmail(input: HelpyEmailInput): Promise<boolean> {
     });
 
     if (!response.ok) {
-      console.error("[helpy-mail] Resend failed:", response.status);
+      const details = await response.text();
+      console.error("[helpy-mail] Resend failed:", response.status, details);
       return false;
     }
 

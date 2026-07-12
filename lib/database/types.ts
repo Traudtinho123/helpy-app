@@ -157,6 +157,45 @@ export type Database = {
         };
         Relationships: [];
       };
+      team_invites: {
+        Row: {
+          id: string;
+          company_id: string;
+          email: string;
+          full_name: string;
+          role: string;
+          status: string;
+          invited_by: string | null;
+          invited_at: string;
+          accepted_at: string | null;
+          accepted_user_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          company_id: string;
+          email: string;
+          full_name: string;
+          role?: string;
+          status?: string;
+          invited_by?: string | null;
+          invited_at?: string;
+          accepted_at?: string | null;
+          accepted_user_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          company_id?: string;
+          email?: string;
+          full_name?: string;
+          role?: string;
+          status?: string;
+          invited_by?: string | null;
+          invited_at?: string;
+          accepted_at?: string | null;
+          accepted_user_id?: string | null;
+        };
+        Relationships: [];
+      };
       company_knowledge: {
         Row: {
           company_id: string;

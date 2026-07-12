@@ -9,6 +9,7 @@ import {
   teamInviteRowToMember,
 } from "@/lib/team/services/team-invite-repository";
 import { isEmailAlreadyInCompany } from "@/lib/team/services/team-repository";
+import { createClient } from "@/lib/supabase/server";
 
 type InviteBody = {
   fullName?: string;
@@ -20,6 +21,11 @@ export async function POST(request: Request) {
   const access = await requireCanInviteTeamMembers();
   if (!access.ok) {
     return NextResponse.json({ error: access.error }, { status: access.status });
+  }
+
+  const supabase = await createClient();
+  if (!supabase) {
+    return NextResponse.json({ error: "Nicht authentifiziert." }, { status: 401 });
   }
 
   let body: InviteBody;
@@ -40,14 +46,18 @@ export async function POST(request: Request) {
     );
   }
 
-  if (await isEmailAlreadyInCompany(access.companyId, email)) {
+  if (await isEmailAlreadyInCompany(supabase, access.companyId, email)) {
     return NextResponse.json(
       { error: "Diese E-Mail ist bereits im Team vorhanden." },
       { status: 409 }
     );
   }
 
-  const existingInvite = await findPendingInviteByEmail(access.companyId, email);
+  const existingInvite = await findPendingInviteByEmail(
+    supabase,
+    access.companyId,
+    email
+  );
   if (existingInvite) {
     return NextResponse.json(
       { error: "Für diese E-Mail liegt bereits eine offene Einladung vor." },
@@ -55,7 +65,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const storedInvite = await createTeamInvite({
+  const storedInvite = await createTeamInvite(supabase, {
     companyId: access.companyId,
     email,
     fullName,
@@ -75,13 +85,11 @@ export async function POST(request: Request) {
     role,
   });
 
-  const loginLink = authLink.link;
-
   const mail = buildTeamInviteEmail({
     fullName,
     email,
     companyName: access.companyName,
-    loginLink,
+    loginLink: authLink.link,
   });
 
   const mailSent = await sendHelpyEmail({
@@ -94,7 +102,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error:
-          "Einladung gespeichert, aber E-Mail-Versand fehlgeschlagen. Bitte RESEND_API_KEY prüfen.",
+          "Einladung gespeichert, aber E-Mail-Versand fehlgeschlagen. Bitte HELPY_MAIL_FROM=HELPY <onboarding@resend.dev> setzen (helpy.app ist bei Resend nicht verifiziert).",
       },
       { status: 502 }
     );
