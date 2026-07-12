@@ -1,4 +1,4 @@
-import { Bot } from "lucide-react";
+import { HelpyCharacter } from "@/components/helpy/helpy-character";
 import { cn } from "@/lib/utils";
 
 type HelpyLogoProps = {
@@ -10,29 +10,25 @@ type HelpyLogoProps = {
 
 const sizeStyles = {
   sm: {
-    icon: "size-8 rounded-[10px]",
-    bot: "size-4",
+    character: 36,
     title: "text-[13px]",
     subtitle: "text-[10px]",
     gap: "gap-2.5",
   },
   md: {
-    icon: "size-10 rounded-[14px]",
-    bot: "size-[18px]",
+    character: 44,
     title: "text-[15px]",
     subtitle: "text-[11px]",
     gap: "gap-3",
   },
   sidebar: {
-    icon: "size-12 rounded-[16px]",
-    bot: "size-6",
+    character: 52,
     title: "text-[26px] leading-none",
     subtitle: "text-[11px]",
     gap: "gap-3.5",
   },
   lg: {
-    icon: "size-12 rounded-[16px]",
-    bot: "size-6",
+    character: 56,
     title: "text-lg",
     subtitle: "text-xs",
     gap: "gap-3.5",
@@ -50,16 +46,14 @@ export function HelpyLogo({
 
   return (
     <div className={cn("flex items-center", s.gap, className)}>
-      <div
-        className={cn(
-          "relative flex shrink-0 items-center justify-center bg-gradient-to-br from-[#818CF8] via-[#6366F1] to-[#4F46E5] shadow-lg shadow-[rgba(99,102,241,0.35)] transition-transform duration-500 hover:scale-[1.04]",
-          s.icon
-        )}
-      >
-        <Bot className={cn("text-white", s.bot)} strokeWidth={2} />
-        <div className="absolute inset-0 rounded-[inherit] bg-gradient-to-t from-black/15 to-transparent" />
-        <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full border-2 border-[var(--sidebar-bg)] bg-[#A5B4FC]" />
-      </div>
+      <HelpyCharacter
+        size={s.character}
+        variant="head"
+        pose="wave"
+        animated
+        showLabel={false}
+        className="drop-shadow-[0_8px_20px_rgba(99,102,241,0.28)]"
+      />
       <div>
         <p
           className={cn(

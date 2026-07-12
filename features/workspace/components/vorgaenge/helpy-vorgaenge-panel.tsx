@@ -3,8 +3,7 @@
 import { useMemo } from "react";
 import { Lightbulb, Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Panel, PanelBody, PanelHeader } from "@/components/ui/Panel";
-import { HelpyAvatar } from "@/components/helpy/helpy-avatar";
+import { HelpyPanelShell } from "@/components/helpy/helpy-panel-shell";
 import type { BrainV2Summary } from "@/features/brain/services/brain-v2";
 import { isVorgangActiveOpen } from "@/features/workspace/services/vorgaenge/vorgang-effective-status";
 import {
@@ -91,23 +90,8 @@ export function HelpyVorgaengePanel({
   }, [allVorgaenge, countsRevision]);
 
   return (
-    <Panel variant="helpy">
-      <PanelHeader className="h-auto items-start py-5">
-        <div className="flex items-center gap-3">
-          <HelpyAvatar />
-          <div>
-            <h2 className="text-sm font-semibold tracking-[-0.01em] text-[#0F172A]">
-              HELPY
-            </h2>
-            <p className="text-[11px] font-medium text-[#64748B]">
-              Dein KI-Bürokollege
-            </p>
-          </div>
-        </div>
-      </PanelHeader>
-
-      <PanelBody>
-        <div className="space-y-5">
+    <HelpyPanelShell variant="helpy">
+      <div className="space-y-5 px-1">
           <Card className="helpy-fade-in rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm backdrop-blur-sm">
             <CardContent className="p-5">
               <p className="text-[12px] font-semibold text-[#0F172A]">Heute</p>
@@ -193,7 +177,6 @@ export function HelpyVorgaengePanel({
             </CardContent>
           </Card>
         </div>
-      </PanelBody>
-    </Panel>
+    </HelpyPanelShell>
   );
 }

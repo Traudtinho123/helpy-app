@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import {
   AlertCircle,
-  Bot,
   CheckCircle2,
   FileText,
   Lightbulb,
@@ -12,8 +11,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Panel, PanelBody, PanelHeader } from "@/components/ui/Panel";
-import { HelpyAvatar } from "@/components/helpy/helpy-avatar";
+import { HelpyCharacter } from "@/components/helpy/helpy-character";
+import { HelpyPanelShell } from "@/components/helpy/helpy-panel-shell";
 import {
   getHelpyRecommendation,
   getQualityChecks,
@@ -195,44 +194,31 @@ function HelpyOffersPanelShell({
   const allQualityOk = qualityChecks.every((c) => c.ok);
 
   return (
-    <Panel variant="helpy">
-      <PanelHeader className="h-auto items-start py-5">
-        <div className="flex items-start gap-3">
-          <HelpyAvatar />
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <Bot className="size-4 text-[#2563EB]" strokeWidth={2} />
-              <h2 className="text-sm font-semibold tracking-[-0.01em] text-[#0F172A]">
-                HELPY
-              </h2>
-            </div>
-            <p className="mt-1 text-[12px] font-medium text-[#334155]">
-              {offer
-                ? isWorking
-                  ? "Ich arbeite gerade an deinem Angebot."
-                  : "Dein Angebot ist bereit."
-                : "Dein KI-Bürokollege"}
-            </p>
-            {offer && (
-              <HelpyWorkStatus
-                visibleSteps={visibleSteps}
-                isWorking={isWorking}
-              />
-            )}
-          </div>
+    <HelpyPanelShell
+      variant="helpy"
+      subtitle={
+        offer
+          ? isWorking
+            ? "Ich arbeite gerade an deinem Angebot."
+            : "Dein Angebot ist bereit."
+          : "Dein KI-Bürokollege"
+      }
+    >
+      {offer ? (
+        <div className="px-1 pb-2">
+          <HelpyWorkStatus visibleSteps={visibleSteps} isWorking={isWorking} />
         </div>
-      </PanelHeader>
+      ) : null}
 
-      <PanelBody>
-        {!offer ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-[#CBD5E1] bg-[#F8FAFC]/80 p-8 text-center">
-            <HelpyAvatar size="md" />
-            <p className="text-sm font-medium text-[#64748B]">
-              Wähle ein Angebot — ich helfe dir bei der Erstellung.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-5">
+      {!offer ? (
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-[#CBD5E1] bg-[#F8FAFC]/80 p-8 text-center">
+          <HelpyCharacter size={88} pose="wave" animated showLabel={false} />
+          <p className="text-sm font-medium text-[#64748B]">
+            Wähle ein Angebot — ich helfe dir bei der Erstellung.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-5 px-1">
             <div className="helpy-fade-in">
               <h3 className="text-[15px] font-semibold tracking-[-0.01em] text-[#0F172A]">
                 Hallo Viktor 👋
@@ -367,8 +353,7 @@ function HelpyOffersPanelShell({
               </div>
             )}
           </div>
-        )}
-      </PanelBody>
-    </Panel>
+      )}
+    </HelpyPanelShell>
   );
 }

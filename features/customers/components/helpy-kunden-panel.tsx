@@ -10,8 +10,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Panel, PanelBody, PanelFooter, PanelHeader } from "@/components/ui/Panel";
-import { HelpyAvatar } from "@/components/helpy/helpy-avatar";
+import { HelpyCharacter } from "@/components/helpy/helpy-character";
+import { HelpyPanelShell } from "@/components/helpy/helpy-panel-shell";
 import type { Customer } from "@/features/customers/mock/mock-customers";
 
 type HelpyKundenPanelProps = {
@@ -20,31 +20,27 @@ type HelpyKundenPanelProps = {
 
 export function HelpyKundenPanel({ customer }: HelpyKundenPanelProps) {
   return (
-    <Panel variant="helpy" className="flex w-[380px]">
-      <PanelHeader className="h-auto items-start py-5">
-        <div className="flex items-center gap-3">
-          <HelpyAvatar />
-          <div>
-            <h2 className="text-sm font-semibold tracking-[-0.01em] text-[#0F172A]">
-              HELPY
-            </h2>
-            <p className="text-[11px] font-medium text-[#64748B]">
-              Dein KI-Bürokollege
-            </p>
-          </div>
+    <HelpyPanelShell
+      variant="helpy"
+      className="flex w-[380px]"
+      footer={
+        customer ? (
+          <Button className="h-11 w-full gap-2 rounded-[14px] bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-sm font-semibold text-white shadow-[0_4px_20px_rgba(37,99,235,0.35)] transition-all duration-300 hover:shadow-[0_6px_28px_rgba(37,99,235,0.45)]">
+            <MessageCircle className="size-4" />
+            Kontakt aufnehmen
+          </Button>
+        ) : undefined
+      }
+    >
+      {!customer ? (
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-[#CBD5E1] bg-[#F8FAFC]/80 p-8 text-center">
+          <HelpyCharacter size={88} pose="wave" animated showLabel={false} />
+          <p className="text-sm font-medium text-[#64748B]">
+            Wähle einen Kunden — ich kenne deine Akten.
+          </p>
         </div>
-      </PanelHeader>
-
-      <PanelBody>
-        {!customer ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-[#CBD5E1] bg-[#F8FAFC]/80 p-8 text-center">
-            <HelpyAvatar size="md" />
-            <p className="text-sm font-medium text-[#64748B]">
-              Wähle einen Kunden — ich kenne deine Akten.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-5">
+      ) : (
+        <div className="space-y-5 px-1">
             <div className="helpy-fade-in">
               <h3 className="text-[15px] font-semibold tracking-[-0.01em] text-[#0F172A]">
                 Hallo Viktor 👋
@@ -130,17 +126,7 @@ export function HelpyKundenPanel({ customer }: HelpyKundenPanelProps) {
               </CardContent>
             </Card>
           </div>
-        )}
-      </PanelBody>
-
-      {customer && (
-        <PanelFooter>
-          <Button className="h-11 w-full gap-2 rounded-[14px] bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-sm font-semibold text-white shadow-[0_4px_20px_rgba(37,99,235,0.35)] transition-all duration-300 hover:shadow-[0_6px_28px_rgba(37,99,235,0.45)]">
-            <MessageCircle className="size-4" />
-            Kontakt aufnehmen
-          </Button>
-        </PanelFooter>
       )}
-    </Panel>
+    </HelpyPanelShell>
   );
 }

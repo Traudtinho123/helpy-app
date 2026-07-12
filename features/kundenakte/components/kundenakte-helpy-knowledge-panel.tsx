@@ -2,8 +2,7 @@
 
 import { useMemo } from "react";
 import { Brain } from "lucide-react";
-import { HelpyAvatar } from "@/components/helpy/helpy-avatar";
-import { Panel, PanelBody, PanelHeader } from "@/components/ui/Panel";
+import { HelpyPanelShell } from "@/components/helpy/helpy-panel-shell";
 import {
   getCustomerMemoryByEmail,
   subscribeCustomerIntelligenceMemory,
@@ -38,22 +37,12 @@ export function KundenakteHelpyKnowledgePanel({
   );
 
   return (
-    <Panel variant="helpy" className="h-full">
-      <PanelHeader>
-        <div className="flex items-center gap-3">
-          <HelpyAvatar size="sm" />
-          <div>
-            <p className="text-[11px] font-semibold tracking-[0.06em] text-[#2563EB] uppercase">
-              HELPY
-            </p>
-            <p className="text-[14px] font-semibold text-[#0F172A]">
-              Weiß über diesen Kunden
-            </p>
-          </div>
-        </div>
-      </PanelHeader>
-
-      <PanelBody>
+    <HelpyPanelShell
+      variant="helpy"
+      className="h-full"
+      subtitle="Weiß über diesen Kunden"
+      deskCompact
+    >
         {hasKnowledge ? (
           <div className="rounded-[16px] border border-[#E9D5FF]/50 bg-gradient-to-br from-[#FAF5FF]/80 to-white/90 px-4 py-3.5 shadow-[0_2px_12px_rgba(124,58,237,0.06)]">
             <div className="mb-3 flex items-center gap-2">
@@ -93,7 +82,6 @@ export function KundenakteHelpyKnowledgePanel({
             </p>
           </div>
         )}
-      </PanelBody>
-    </Panel>
+    </HelpyPanelShell>
   );
 }

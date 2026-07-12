@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Bot,
   Calendar,
   FileText,
   Lightbulb,
@@ -12,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { HelpyAvatar } from "@/components/helpy/helpy-avatar";
+import { HelpyIconBadge } from "@/components/helpy/helpy-icon-badge";
 import type { EmailAnalysisResult } from "@/features/brain/services/helpy-brain/types";
 import { cn } from "@/lib/utils";
 
@@ -48,7 +48,7 @@ export function HelpyBrainAnalysisView({ result }: HelpyBrainAnalysisViewProps) 
       <div className="helpy-fade-in rounded-[16px] border border-[#CBD5E1]/40 bg-white/90 p-4 shadow-sm">
         <div className="mb-2 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Bot className="size-4 text-[#2563EB]" strokeWidth={2} />
+            <HelpyIconBadge size={16} pose="typing" />
             <p className="text-[12px] font-semibold text-[#0F172A]">
               Zusammenfassung
             </p>

@@ -7,8 +7,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Panel, PanelBody, PanelHeader } from "@/components/ui/Panel";
-import { HelpyAvatar } from "@/components/helpy/helpy-avatar";
+import { HelpyPanelShell } from "@/components/helpy/helpy-panel-shell";
 import { helpyCalendarInsights } from "@/features/calendar/mock/mock-calendar";
 import { HELPY_PANEL_REVIEW_INTRO } from "@/features/review/services/safety";
 
@@ -17,23 +16,8 @@ export function HelpyCalendarPanel() {
     helpyCalendarInsights;
 
   return (
-    <Panel variant="helpy" className="flex w-[380px]">
-      <PanelHeader className="h-auto items-start py-5">
-        <div className="flex items-center gap-3">
-          <HelpyAvatar />
-          <div>
-            <h2 className="text-sm font-semibold tracking-[-0.01em] text-[#0F172A]">
-              HELPY
-            </h2>
-            <p className="text-[11px] font-medium text-[#64748B]">
-              Dein KI-Bürokollege
-            </p>
-          </div>
-        </div>
-      </PanelHeader>
-
-      <PanelBody>
-        <div className="space-y-5">
+    <HelpyPanelShell variant="helpy" className="flex w-[380px]">
+      <div className="space-y-5 px-1">
           <div>
             <h3 className="text-[15px] font-semibold tracking-[-0.01em] text-[#0F172A]">
               Hallo Viktor 👋
@@ -136,7 +120,6 @@ export function HelpyCalendarPanel() {
             </CardContent>
           </Card>
         </div>
-      </PanelBody>
-    </Panel>
+    </HelpyPanelShell>
   );
 }

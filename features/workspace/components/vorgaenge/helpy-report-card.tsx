@@ -51,7 +51,7 @@ export function HelpyReportCard({ vorgang }: HelpyReportCardProps) {
 
       <div className="flex min-w-0 flex-1 items-start gap-4">
         <div className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-white/80 shadow-sm ring-1 ring-[#DBEAFE]/80">
-          <HelpyAvatar size="sm" />
+          <HelpyAvatar size="sm" pose="typing" />
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-semibold tracking-[0.04em] text-[#64748B] uppercase">

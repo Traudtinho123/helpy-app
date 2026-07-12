@@ -142,7 +142,7 @@ export function WorkdayHelpyMessages({
   return (
     <div className="space-y-4">
       <div className="flex gap-3.5">
-        <HelpyAvatar size="sm" />
+        <HelpyAvatar size="sm" pose="typing" />
         <div className="min-w-0 flex-1 space-y-3">
           <p className="helpy-label normal-case tracking-normal">HELPY</p>
 

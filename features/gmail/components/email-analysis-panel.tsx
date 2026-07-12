@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import {
-  Bot,
   Check,
   FileText,
   Lightbulb,
@@ -13,8 +12,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Panel, PanelBody, PanelFooter, PanelHeader } from "@/components/ui/Panel";
 import { HelpyAvatar } from "@/components/helpy/helpy-avatar";
+import { HelpyCharacter } from "@/components/helpy/helpy-character";
+import { HelpyIconBadge } from "@/components/helpy/helpy-icon-badge";
+import { HelpyPanelShell } from "@/components/helpy/helpy-panel-shell";
 import { HelpyDetectedAppointment } from "@/features/gmail/components/helpy-detected-appointment";
 import type { Email } from "@/features/gmail/mock/mock-emails";
 
@@ -52,7 +53,7 @@ function HelpyLiveStatus({
     <div className="rounded-[16px] border border-[#CBD5E1]/40 bg-white/90 p-4 shadow-sm">
       {isWorking && (
         <div className="mb-3 flex items-center gap-2.5">
-          <Bot className="size-4 text-[#2563EB]" strokeWidth={2} />
+          <HelpyIconBadge size={16} pose="typing" />
           <span className="text-[12px] font-medium text-[#334155]">
             HELPY arbeitet gerade…
           </span>
@@ -213,37 +214,38 @@ function EmailAnalysisPanelShell({
   const showContent = email !== null && analysisComplete;
 
   return (
-    <Panel variant="helpy" className="flex w-[380px]">
+    <>
       <ReplyOverlay
         state={replyState}
         reply={email?.analysis.suggestedReply ?? ""}
         onClose={onReplyClose ?? (() => undefined)}
       />
 
-      <PanelHeader className="h-auto items-start py-5">
-        <div className="flex items-center gap-3">
-          <HelpyAvatar />
-          <div>
-            <h2 className="text-sm font-semibold tracking-[-0.01em] text-[#0F172A]">
-              HELPY
-            </h2>
-            <p className="text-[11px] font-medium text-[#64748B]">
-              Dein KI-Bürokollege
-            </p>
-          </div>
-        </div>
-      </PanelHeader>
-
-      <PanelBody>
+      <HelpyPanelShell
+        variant="helpy"
+        className="flex w-[380px]"
+        footer={
+          email?.analysis.suggestedReply && analysisComplete ? (
+            <Button
+              onClick={() => onReplyLoading?.()}
+              disabled={!onReplyLoading}
+              className="h-11 w-full gap-2 rounded-[14px] bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-sm font-semibold text-white shadow-[0_4px_20px_rgba(37,99,235,0.35)] transition-all duration-300 hover:shadow-[0_6px_28px_rgba(37,99,235,0.45)]"
+            >
+              <Sparkles className="size-4" />
+              Antwort mit HELPY erstellen
+            </Button>
+          ) : undefined
+        }
+      >
         {!email ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-[#CBD5E1] bg-[#F8FAFC]/80 p-8 text-center">
-            <HelpyAvatar size="md" />
+            <HelpyCharacter size={88} pose="wave" animated showLabel={false} />
             <p className="text-sm font-medium text-[#64748B]">
               Wähle eine E-Mail — ich analysiere sie für dich.
             </p>
           </div>
         ) : (
-          <div className="space-y-5">
+          <div className="space-y-5 px-1">
             <div className="helpy-fade-in">
               <h3 className="text-[15px] font-semibold tracking-[-0.01em] text-[#0F172A]">
                 Hallo Viktor 👋
@@ -346,7 +348,7 @@ function EmailAnalysisPanelShell({
                     </p>
                     <div className="rounded-[16px] border border-[#CBD5E1]/50 bg-gradient-to-br from-[#F8FAFC] to-white p-4 shadow-[0_2px_12px_rgba(15,23,42,0.04)]">
                       <div className="mb-3 flex items-center gap-2 border-b border-[#CBD5E1]/30 pb-3">
-                        <HelpyAvatar size="sm" />
+                        <HelpyAvatar size="sm" pose="typing" />
                         <div>
                           <p className="text-[11px] font-semibold text-[#0F172A]">
                             HELPY
@@ -366,20 +368,7 @@ function EmailAnalysisPanelShell({
             )}
           </div>
         )}
-      </PanelBody>
-
-      {email?.analysis.suggestedReply && analysisComplete && (
-        <PanelFooter>
-          <Button
-            onClick={() => onReplyLoading?.()}
-            disabled={!onReplyLoading}
-            className="h-11 w-full gap-2 rounded-[14px] bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-sm font-semibold text-white shadow-[0_4px_20px_rgba(37,99,235,0.35)] transition-all duration-300 hover:shadow-[0_6px_28px_rgba(37,99,235,0.45)]"
-          >
-            <Sparkles className="size-4" />
-            Antwort mit HELPY erstellen
-          </Button>
-        </PanelFooter>
-      )}
-    </Panel>
+      </HelpyPanelShell>
+    </>
   );
 }

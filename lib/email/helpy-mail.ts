@@ -9,21 +9,14 @@ export type HelpyEmailResult = {
   error?: string;
 };
 
-const RESEND_DEV_FROM = "HELPY <onboarding@resend.dev>";
+const DEFAULT_HELPY_MAIL_FROM = "HELPY <onboarding@helpy.app>";
 
 function resolveHelpyMailFrom(): string {
-  const candidates = [
-    process.env.HELPY_MAIL_FROM?.trim(),
-    process.env.RESEND_FROM_EMAIL?.trim(),
-  ].filter(Boolean) as string[];
-
-  for (const candidate of candidates) {
-    if (!candidate.includes("helpy.app")) {
-      return candidate;
-    }
-  }
-
-  return RESEND_DEV_FROM;
+  return (
+    process.env.HELPY_MAIL_FROM?.trim() ||
+    process.env.RESEND_FROM_EMAIL?.trim() ||
+    DEFAULT_HELPY_MAIL_FROM
+  );
 }
 
 async function postResendEmail(input: {
@@ -77,7 +70,7 @@ export async function sendHelpyEmailDetailed(
   }
 
   try {
-    let attempt = await postResendEmail({
+    const attempt = await postResendEmail({
       apiKey,
       from,
       to: input.to,
@@ -85,39 +78,14 @@ export async function sendHelpyEmailDetailed(
       text: input.text,
     });
 
-    const shouldRetryWithResendDev =
-      !attempt.ok &&
-      (attempt.details.includes("helpy.app") ||
-        attempt.details.includes("not verified") ||
-        from.includes("helpy.app"));
-
-    if (shouldRetryWithResendDev && from !== RESEND_DEV_FROM) {
-      console.warn("[helpy-mail] Retry with onboarding@resend.dev");
-      attempt = await postResendEmail({
-        apiKey,
-        from: RESEND_DEV_FROM,
-        to: input.to,
-        subject: input.subject,
-        text: input.text,
-      });
-    }
-
     if (!attempt.ok) {
       console.error("[helpy-mail] Resend failed:", attempt.status, attempt.details);
-
-      if (attempt.details.includes("only send testing emails to your own email")) {
-        return {
-          ok: false,
-          error:
-            "Resend Testmodus: E-Mails können derzeit nur an deine Resend-Account-E-Mail gesendet werden. Bitte Domain bei resend.com verifizieren oder Supabase Auth E-Mail nutzen.",
-        };
-      }
 
       if (attempt.details.includes("not verified")) {
         return {
           ok: false,
           error:
-            "E-Mail-Domain bei Resend nicht verifiziert. HELPY_MAIL_FROM auf HELPY <onboarding@resend.dev> setzen.",
+            "E-Mail-Domain bei Resend noch nicht verifiziert. Bitte helpy.app in resend.com verifizieren und HELPY_MAIL_FROM=HELPY <onboarding@helpy.app> in Vercel setzen.",
         };
       }
 

@@ -40,7 +40,7 @@ export function InboxSidebar({
     <aside className="flex h-full w-[220px] shrink-0 flex-col border-r border-[#CBD5E1]/50 bg-white/60 backdrop-blur-xl">
       <div className="border-b border-[#CBD5E1]/40 px-5 py-5">
         <div className="flex items-center gap-2.5">
-          <HelpyAvatar size="sm" />
+          <HelpyAvatar size="sm" pose="typing" />
           <div>
             <h2 className="text-sm font-semibold tracking-[-0.01em] text-[#0F172A]">
               Posteingang

@@ -296,6 +296,134 @@
     animation: helpy-count-up 0.8s ease-out forwards;
   }
 
+  @keyframes helpy-char-bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+
+  @keyframes helpy-char-blink-eyes {
+    0%,
+    46%,
+    50%,
+    100% {
+      transform: scaleY(1);
+    }
+    48% {
+      transform: scaleY(0.08);
+    }
+  }
+
+  @keyframes helpy-char-wave-left {
+    0%,
+    100% {
+      transform: rotate(8deg);
+    }
+    50% {
+      transform: rotate(-22deg);
+    }
+  }
+
+  @keyframes helpy-char-wave-right {
+    0%,
+    100% {
+      transform: rotate(-8deg);
+    }
+    50% {
+      transform: rotate(22deg);
+    }
+  }
+
+  @keyframes helpy-char-type {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(4px);
+    }
+  }
+
+  @keyframes helpy-char-type-alt {
+    0%,
+    100% {
+      transform: translateY(3px);
+    }
+    50% {
+      transform: translateY(-2px);
+    }
+  }
+
+  @keyframes helpy-char-node-pulse {
+    0%,
+    100% {
+      opacity: 0.75;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes helpy-desk-screen-glow {
+    0%,
+    100% {
+      opacity: 0.85;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes helpy-desk-code {
+    0%,
+    100% {
+      opacity: 0.35;
+    }
+    50% {
+      opacity: 0.85;
+    }
+  }
+
+  .helpy-char-idle {
+    animation: helpy-char-bob 3.2s ease-in-out infinite;
+  }
+
+  .helpy-char-blink {
+    animation: helpy-char-blink-eyes 4.5s ease-in-out infinite;
+  }
+
+  .helpy-char-arm-left-wave {
+    animation: helpy-char-wave-left 1.8s ease-in-out infinite;
+  }
+
+  .helpy-char-arm-right-wave {
+    animation: helpy-char-wave-right 1.8s ease-in-out infinite;
+  }
+
+  .helpy-char-type-left {
+    animation: helpy-char-type 0.55s ease-in-out infinite;
+  }
+
+  .helpy-char-type-right {
+    animation: helpy-char-type-alt 0.55s ease-in-out infinite;
+  }
+
+  .helpy-char-node {
+    animation: helpy-char-node-pulse 2.4s ease-in-out infinite;
+  }
+
+  .helpy-desk-screen {
+    animation: helpy-desk-screen-glow 2.8s ease-in-out infinite;
+  }
+
+  .helpy-desk-code-line {
+    animation: helpy-desk-code 1.6s ease-in-out infinite;
+  }
+
   /* Typography */
   .helpy-h1 {
     font-size: 28px;

@@ -2,8 +2,7 @@
 
 import { Lightbulb, Link2, AlertTriangle, Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Panel, PanelBody, PanelHeader } from "@/components/ui/Panel";
-import { HelpyAvatar } from "@/components/helpy/helpy-avatar";
+import { HelpyPanelShell } from "@/components/helpy/helpy-panel-shell";
 import type { IntegrationSummary } from "@/features/integration-manager/types/integration-types";
 
 type HelpyIntegrationPanelProps = {
@@ -14,23 +13,12 @@ export function HelpyIntegrationPanel({ summary }: HelpyIntegrationPanelProps) {
   const next = summary.nextRecommended;
 
   return (
-    <Panel variant="helpy" className="flex w-[380px]">
-      <PanelHeader className="h-auto items-start py-5">
-        <div className="flex items-center gap-3">
-          <HelpyAvatar />
-          <div>
-            <h2 className="text-sm font-semibold tracking-[-0.01em] text-[#0F172A]">
-              HELPY
-            </h2>
-            <p className="text-[11px] font-medium text-[#64748B]">
-              Plattformen-Assistent
-            </p>
-          </div>
-        </div>
-      </PanelHeader>
-
-      <PanelBody>
-        <div className="space-y-5">
+    <HelpyPanelShell
+      variant="helpy"
+      className="flex w-[380px]"
+      subtitle="Plattformen-Assistent"
+    >
+      <div className="space-y-5 px-1">
           <p className="text-[13px] leading-relaxed text-[#334155]">
             Ich überwache deine verbundenen Plattformen und prüfe, ob neue
             Vorgänge vorbereitet werden können.
@@ -90,7 +78,6 @@ export function HelpyIntegrationPanel({ summary }: HelpyIntegrationPanelProps) {
             </Card>
           )}
         </div>
-      </PanelBody>
-    </Panel>
+    </HelpyPanelShell>
   );
 }

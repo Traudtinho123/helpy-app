@@ -4,9 +4,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowUp, CheckCircle2, Mail } from "lucide-react";
 import { HelpyAvatar } from "@/components/helpy/helpy-avatar";
+import { HelpyPanelShell } from "@/components/helpy/helpy-panel-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Panel, PanelBody, PanelFooter, PanelHeader } from "@/components/ui/Panel";
 import { HelpyErinnertSichCard } from "@/features/memory/components/HelpyErinnertSichCard";
 import {
   getBackgroundMemoryWorkspaceHintsServerSnapshot,
@@ -177,30 +177,44 @@ export function GmailWorkspaceHelpyPanel({ vorgang }: GmailWorkspaceHelpyPanelPr
   }
 
   return (
-    <Panel variant="workspace">
-      <PanelHeader>
-        <div className="flex items-center gap-3">
-          <HelpyAvatar />
-          <div>
-            <h2 className="text-sm font-semibold tracking-[-0.01em] text-[#0F172A]">
-              HELPY
-            </h2>
-            <p className="text-[11px] font-medium text-[#64748B]">
-              Vorgangs-Assistent
-            </p>
-          </div>
-        </div>
+    <HelpyPanelShell
+      variant="workspace"
+      subtitle="Vorgangs-Assistent"
+      deskCompact
+      headerBadge={
         <Badge
           variant="outline"
           className="h-6 rounded-full border-[#A7F3D0] bg-[#ECFDF5] px-2.5 text-[10px] font-semibold text-[#047857]"
         >
           Bereit zur Prüfung
         </Badge>
-      </PanelHeader>
-
-      <PanelBody>
-        <div className="flex gap-3.5">
-          <HelpyAvatar size="sm" />
+      }
+      footer={
+        <>
+          <p className="mb-3 text-[12px] font-semibold text-[#475569]">
+            Frage HELPY zu diesem Vorgang
+          </p>
+          <div className="rounded-[20px] border border-[#CBD5E1]/50 bg-white p-2.5 shadow-sm">
+            <textarea
+              rows={2}
+              placeholder="Frag HELPY…"
+              className="w-full resize-none bg-transparent px-3 py-2 text-[13px] text-[#0F172A] placeholder:text-[#94A3B8] outline-none"
+            />
+            <div className="flex justify-end px-1 pb-1">
+              <Button
+                size="icon-sm"
+                className="size-8 rounded-[12px] bg-[#2563EB] shadow-[0_4px_12px_rgba(37,99,235,0.35)]"
+                aria-label="Senden"
+              >
+                <ArrowUp className="size-4" strokeWidth={2.5} />
+              </Button>
+            </div>
+          </div>
+        </>
+      }
+    >
+      <div className="flex gap-3.5 px-1">
+          <HelpyAvatar size="sm" pose="typing" />
           <div className="min-w-0 flex-1">
             <p className="mb-2 text-[11px] font-semibold text-[#64748B]">
               HELPY · Workspace
@@ -290,29 +304,6 @@ export function GmailWorkspaceHelpyPanel({ vorgang }: GmailWorkspaceHelpyPanelPr
             </div>
           </div>
         </div>
-      </PanelBody>
-
-      <PanelFooter>
-        <p className="mb-3 text-[12px] font-semibold text-[#475569]">
-          Frage HELPY zu diesem Vorgang
-        </p>
-        <div className="rounded-[20px] border border-[#CBD5E1]/50 bg-white p-2.5 shadow-sm">
-          <textarea
-            rows={2}
-            placeholder="Frag HELPY…"
-            className="w-full resize-none bg-transparent px-3 py-2 text-[13px] text-[#0F172A] placeholder:text-[#94A3B8] outline-none"
-          />
-          <div className="flex justify-end px-1 pb-1">
-            <Button
-              size="icon-sm"
-              className="size-8 rounded-[12px] bg-[#2563EB] shadow-[0_4px_12px_rgba(37,99,235,0.35)]"
-              aria-label="Senden"
-            >
-              <ArrowUp className="size-4" strokeWidth={2.5} />
-            </Button>
-          </div>
-        </div>
-      </PanelFooter>
-    </Panel>
+    </HelpyPanelShell>
   );
 }

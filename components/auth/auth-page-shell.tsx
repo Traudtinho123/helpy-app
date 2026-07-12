@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { DataPrivacyTrustBadge } from "@/components/privacy/data-privacy-trust-badge";
-import { HelpyLogo } from "@/components/helpy/helpy-logo";
+import { HelpyCharacter } from "@/components/helpy/helpy-character";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { cn } from "@/lib/utils";
 
@@ -30,8 +30,9 @@ export function AuthPageShell({
       <div className="pointer-events-none fixed -bottom-32 left-1/4 size-[480px] rounded-full bg-[#60A5FA]/18 blur-[110px]" />
 
       <div className="relative w-full max-w-[440px]">
-        <div className="mb-8 flex justify-center">
-          <HelpyLogo size="lg" />
+        <div className="mb-8 flex flex-col items-center gap-2">
+          <HelpyCharacter size={120} pose="wave" animated showLabel />
+          <p className="text-[11px] font-medium tracking-wide text-[#64748B]">Office KI</p>
         </div>
 
         <div className="rounded-[24px] border border-white/60 bg-white/85 p-8 shadow-[0_16px_48px_rgba(15,23,42,0.08)] backdrop-blur-2xl">

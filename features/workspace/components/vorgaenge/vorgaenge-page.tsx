@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Bot, Phone, Plus } from "lucide-react";
+import { Phone, Plus } from "lucide-react";
+import { HelpyCharacter } from "@/components/helpy/helpy-character";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { useTerminology } from "@/hooks/useTerminology";
 import { Button } from "@/components/ui/button";
@@ -259,10 +260,14 @@ export function VorgaengePage() {
                 )}
               >
                 {filter === "helpy_reports" && (
-                  <Bot
-                    className="mr-1.5 inline size-3.5 -translate-y-px align-middle"
-                    strokeWidth={2.25}
-                  />
+                  <span className="mr-1.5 inline-flex align-middle">
+                    <HelpyCharacter
+                      size={14}
+                      variant="head"
+                      animated={false}
+                      showLabel={false}
+                    />
+                  </span>
                 )}
                 {filter === "helpy_phone" && (
                   <Phone

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bot, Check, Loader2 } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
+import { HelpyIconBadge } from "@/components/helpy/helpy-icon-badge";
 import type { Offer } from "@/features/offers/mock/mock-offers";
 
 const IMPROVE_STEPS = [
@@ -41,9 +42,7 @@ function HelpyImproveOverlayActive({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0F172A]/20 backdrop-blur-[2px]">
       <div className="mx-6 w-full max-w-sm rounded-[20px] border border-[#CBD5E1]/40 bg-white p-6 shadow-[0_16px_48px_rgba(15,23,42,0.18)]">
         <div className="flex flex-col items-center gap-4 text-center">
-          <div className="flex size-12 items-center justify-center rounded-[14px] bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] shadow-[0_4px_16px_rgba(37,99,235,0.3)]">
-            <Bot className="size-6 text-white" strokeWidth={2} />
-          </div>
+          <HelpyIconBadge size={28} pose="typing" />
           <p className="text-[14px] font-semibold text-[#0F172A]">
             HELPY verbessert dein Angebot…
           </p>

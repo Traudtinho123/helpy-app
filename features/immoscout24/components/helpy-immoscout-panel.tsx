@@ -10,8 +10,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Panel, PanelBody, PanelFooter, PanelHeader } from "@/components/ui/Panel";
-import { HelpyAvatar } from "@/components/helpy/helpy-avatar";
+import { HelpyCharacter } from "@/components/helpy/helpy-character";
+import { HelpyPanelShell } from "@/components/helpy/helpy-panel-shell";
 import {
   detectionLabels,
   type ImmoScoutInquiry,
@@ -31,31 +31,43 @@ const ALL_DETECTIONS = [
 
 export function HelpyImmoScoutPanel({ inquiry }: HelpyImmoScoutPanelProps) {
   return (
-    <Panel variant="helpy" className="flex w-[380px]">
-      <PanelHeader className="h-auto items-start py-5">
-        <div className="flex items-center gap-3">
-          <HelpyAvatar />
-          <div>
-            <h2 className="text-sm font-semibold tracking-[-0.01em] text-[#0F172A]">
-              HELPY
-            </h2>
-            <p className="text-[11px] font-medium text-[#64748B]">
-              Dein KI-Bürokollege
-            </p>
+    <HelpyPanelShell
+      variant="helpy"
+      className="flex w-[380px]"
+      footer={
+        inquiry ? (
+          <div className="space-y-2">
+            <Button className="h-10 w-full gap-2 rounded-[12px] bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-[12px] font-semibold text-white shadow-sm">
+              <Calendar className="size-3.5" />
+              Besichtigung planen
+            </Button>
+            <Button
+              variant="outline"
+              className="h-10 w-full gap-2 rounded-[12px] border-[#CBD5E1]/60 text-[12px] font-medium"
+            >
+              <UserPlus className="size-3.5" />
+              Interessent anlegen
+            </Button>
+            <Button
+              variant="outline"
+              className="h-10 w-full gap-2 rounded-[12px] border-[#CBD5E1]/60 text-[12px] font-medium"
+            >
+              <Mail className="size-3.5" />
+              Antwort vorbereiten
+            </Button>
           </div>
+        ) : undefined
+      }
+    >
+      {!inquiry ? (
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-[#CBD5E1] bg-[#F8FAFC]/80 p-8 text-center">
+          <HelpyCharacter size={88} pose="wave" animated showLabel={false} />
+          <p className="text-sm font-medium text-[#64748B]">
+            Ich überwache deine ImmoScout24.ch-Anfragen und bereite Vorgänge vor.
+          </p>
         </div>
-      </PanelHeader>
-
-      <PanelBody>
-        {!inquiry ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-[#CBD5E1] bg-[#F8FAFC]/80 p-8 text-center">
-            <HelpyAvatar size="md" />
-            <p className="text-sm font-medium text-[#64748B]">
-              Ich überwache deine ImmoScout24.ch-Anfragen und bereite Vorgänge vor.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-5">
+      ) : (
+        <div className="space-y-5 px-1">
             <div className="helpy-fade-in">
               <p className="text-[13px] leading-relaxed text-[#334155]">
                 Ich überwache deine ImmoScout24.ch-Anfragen und bereite Vorgänge vor.
@@ -113,31 +125,7 @@ export function HelpyImmoScoutPanel({ inquiry }: HelpyImmoScoutPanelProps) {
               </CardContent>
             </Card>
           </div>
-        )}
-      </PanelBody>
-
-      {inquiry && (
-        <PanelFooter className="space-y-2">
-          <Button className="h-10 w-full gap-2 rounded-[12px] bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-[12px] font-semibold text-white shadow-sm">
-            <Calendar className="size-3.5" />
-            Besichtigung planen
-          </Button>
-          <Button
-            variant="outline"
-            className="h-10 w-full gap-2 rounded-[12px] border-[#CBD5E1]/60 text-[12px] font-medium"
-          >
-            <UserPlus className="size-3.5" />
-            Interessent anlegen
-          </Button>
-          <Button
-            variant="outline"
-            className="h-10 w-full gap-2 rounded-[12px] border-[#CBD5E1]/60 text-[12px] font-medium"
-          >
-            <Mail className="size-3.5" />
-            Antwort vorbereiten
-          </Button>
-        </PanelFooter>
       )}
-    </Panel>
+    </HelpyPanelShell>
   );
 }

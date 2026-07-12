@@ -112,7 +112,7 @@ export async function POST(request: Request) {
       {
         error:
           mailResult.error ??
-          "Einladung gespeichert, aber E-Mail-Versand fehlgeschlagen. In Vercel HELPY_MAIL_FROM=HELPY <onboarding@resend.dev> setzen.",
+          "Einladung gespeichert, aber E-Mail-Versand fehlgeschlagen. Bitte helpy.app bei Resend verifizieren.",
       },
       { status: 502 }
     );

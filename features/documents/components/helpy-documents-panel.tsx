@@ -1,10 +1,9 @@
 "use client";
 
-import { Bot, FileText, Sparkles } from "lucide-react";
+import { FileText, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Panel, PanelBody, PanelHeader } from "@/components/ui/Panel";
-import { HelpyAvatar } from "@/components/helpy/helpy-avatar";
+import { HelpyPanelShell } from "@/components/helpy/helpy-panel-shell";
 import {
   DOCUMENT_ENGINE_HELPY_MESSAGES,
   getDocumentCounts,
@@ -28,25 +27,12 @@ export function HelpyDocumentsPanel({
   const helpyCount = getHelpyPreparedCount(activeSkill);
 
   return (
-    <Panel variant="helpy" className="flex w-[380px]">
-      <PanelHeader className="h-auto items-start py-5">
-        <div className="flex items-start gap-3">
-          <HelpyAvatar />
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <Bot className="size-4 text-[#2563EB]" strokeWidth={2} />
-              <h2 className="text-sm font-semibold tracking-[-0.01em] text-[#0F172A]">
-                HELPY
-              </h2>
-            </div>
-            <p className="mt-1 text-[12px] font-medium text-[#334155]">
-              Dokumenten-Assistent
-            </p>
-          </div>
-        </div>
-      </PanelHeader>
-
-      <PanelBody>
+    <HelpyPanelShell
+      variant="helpy"
+      className="flex w-[380px]"
+      subtitle="Dokumenten-Assistent"
+    >
+      <div className="px-1">
         <div className="helpy-fade-in">
           <h3 className="text-[15px] font-semibold tracking-[-0.01em] text-[#0F172A]">
             Hallo Viktor 👋
@@ -126,7 +112,7 @@ export function HelpyDocumentsPanel({
             </CardContent>
           </Card>
         )}
-      </PanelBody>
-    </Panel>
+      </div>
+    </HelpyPanelShell>
   );
 }

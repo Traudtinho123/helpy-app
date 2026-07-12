@@ -1,6 +1,4 @@
-import { Bot } from "lucide-react";
-
-import { iconSizeClass } from "@/lib/design/animation";
+import { HelpyCharacter } from "@/components/helpy/helpy-character";
 import { radiusClass } from "@/lib/design/radius";
 import { cn } from "@/lib/utils";
 
@@ -12,10 +10,10 @@ const sizeClass: Record<AvatarSize, string> = {
   lg: "size-12",
 };
 
-const iconClass: Record<AvatarSize, string> = {
-  sm: iconSizeClass.sm,
-  md: "size-[18px]",
-  lg: iconSizeClass.lg,
+const headPixelSize: Record<AvatarSize, number> = {
+  sm: 32,
+  md: 40,
+  lg: 48,
 };
 
 type AvatarProps = {
@@ -49,13 +47,14 @@ function Avatar({
   if (helpy) {
     return (
       <div
-        className={cn(
-          "relative flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[var(--button-primary-from)] to-[var(--button-primary-to)] shadow-[var(--button-primary-shadow)]",
-          sizeClass[size],
-          className
-        )}
+        className={cn("relative shrink-0 overflow-visible", sizeClass[size], className)}
       >
-        <Bot className={cn("text-white", iconClass[size])} strokeWidth={2.25} />
+        <HelpyCharacter
+          size={headPixelSize[size]}
+          variant="head"
+          animated
+          showLabel={false}
+        />
         <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full border-2 border-[var(--helpy-panel-bg)] bg-[var(--accent-violet)]" />
       </div>
     );

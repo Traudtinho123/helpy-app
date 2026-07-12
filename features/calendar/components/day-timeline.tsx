@@ -1,6 +1,8 @@
 "use client";
 
-import { Bot, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import { HelpyCharacter } from "@/components/helpy/helpy-character";
+import { HelpyIconBadge } from "@/components/helpy/helpy-icon-badge";
 import { eventTypeStyles, type CalendarEvent } from "@/features/calendar/mock/mock-calendar";
 import {
   dateFromDay,
@@ -108,7 +110,7 @@ export function DayTimeline({ selectedDay, selectedEventId }: DayTimelineProps) 
           </>
         ) : (
           <div className="flex flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-[#CBD5E1] bg-[#F8FAFC]/80 py-16 text-center">
-            <Bot className="size-8 text-[#94A3B8]" strokeWidth={1.5} />
+            <HelpyCharacter size={64} pose="idle" animated showLabel={false} />
             <p className="text-[13px] font-medium text-[#64748B]">
               Keine Termine an diesem Tag.
             </p>
@@ -117,7 +119,7 @@ export function DayTimeline({ selectedDay, selectedEventId }: DayTimelineProps) 
 
         {events.length > 0 && selectedDay === 6 && (
           <div className="mt-4 flex items-center gap-2 rounded-[14px] border border-dashed border-[#CBD5E1] bg-[#F8FAFC]/80 px-4 py-3">
-            <Bot className="size-4 text-[#2563EB]" strokeWidth={2} />
+            <HelpyIconBadge size={14} pose="typing" />
             <p className="text-[12px] text-[#64748B]">
               Freie Zeit erkannt: 11:15 – 13:30 Uhr
             </p>

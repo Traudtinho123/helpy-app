@@ -3,8 +3,7 @@
 import { useMemo } from "react";
 import { Lightbulb } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Panel, PanelBody, PanelHeader } from "@/components/ui/Panel";
-import { HelpyAvatar } from "@/components/helpy/helpy-avatar";
+import { HelpyPanelShell } from "@/components/helpy/helpy-panel-shell";
 import { WhatsappIcon } from "@/features/whatsapp/components/whatsapp-icon";
 import type { WhatsappMessage } from "@/features/whatsapp/types/whatsapp-types";
 import { WHATSAPP_BRAND_COLOR } from "@/features/whatsapp/types/whatsapp-types";
@@ -54,19 +53,8 @@ export function WhatsappHelpyPanel({
     : null;
 
   return (
-    <Panel variant="helpy">
-      <PanelHeader className="h-auto items-start py-5">
-        <div className="flex items-center gap-3">
-          <HelpyAvatar />
-          <div>
-            <h2 className="text-sm font-semibold tracking-[-0.01em] text-[#0F172A]">
-              HELPY
-            </h2>
-            <p className="text-[12px] text-[#64748B]">WhatsApp-Inbox</p>
-          </div>
-        </div>
-      </PanelHeader>
-      <PanelBody className="space-y-4">
+    <HelpyPanelShell variant="helpy" subtitle="WhatsApp-Inbox">
+      <div className="space-y-4 px-1">
         <Card className="border-[#E2E8F0]/80 bg-white/90 shadow-none">
           <CardContent className="p-4">
             <div className="flex items-start gap-2">
@@ -118,7 +106,7 @@ export function WhatsappHelpyPanel({
             ))}
           </div>
         ) : null}
-      </PanelBody>
-    </Panel>
+      </div>
+    </HelpyPanelShell>
   );
 }

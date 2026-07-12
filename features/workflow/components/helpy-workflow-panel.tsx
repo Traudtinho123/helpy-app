@@ -23,7 +23,7 @@ export function HelpyWorkflowPanel({ workflow }: HelpyWorkflowPanelProps) {
   return (
     <div className="helpy-fade-in space-y-4 border-t border-[#CBD5E1]/40 pt-5">
       <div className="flex gap-3.5">
-        <HelpyAvatar size="sm" />
+        <HelpyAvatar size="sm" pose={isActive ? "typing" : "idle"} />
         <div className="min-w-0 flex-1 space-y-3">
           <p className="text-[11px] font-semibold text-[#64748B]">
             HELPY · Workflow Engine

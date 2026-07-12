@@ -30,10 +30,7 @@ export function HelpyWorkPanelContent({
   if (status === "idle" && buttonState === "new_vorgaenge") {
     return (
       <div className="flex gap-3.5">
-        <HelpyAvatar size="sm" />
-        <div className="min-w-0 flex-1">
-          <p className="mb-2 text-[11px] font-semibold text-[#64748B]">
-            HELPY · Bereit
+        <HelpyAvatar size="sm" pose="wave" />
           </p>
           <div className="rounded-[20px] rounded-tl-[8px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/80 px-5 py-4 shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
             <p className="text-[13px] leading-[1.65] text-[#334155]">
@@ -49,7 +46,7 @@ export function HelpyWorkPanelContent({
   return (
     <div className="space-y-4">
       <div className="flex gap-3.5">
-        <HelpyAvatar size="sm" />
+        <HelpyAvatar size="sm" pose={isRunning ? "typing" : "idle"} />
         <div className="min-w-0 flex-1 space-y-3">
           <p className="text-[11px] font-semibold text-[#64748B]">
             HELPY · {isRunning ? "Live" : "Übersicht"}
