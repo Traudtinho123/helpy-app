@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { acceptTeamInviteForUser } from "@/lib/team/services/team-invite-repository";
 import { createClient } from "@/lib/supabase/server";
 import { AUTH_ROUTES } from "@/lib/auth/routes";
 import { normalizeAllowedSkills } from "@/lib/auth/skill-access-shared";
@@ -20,6 +21,11 @@ export async function GET(request: Request) {
         } = await supabase.auth.getUser();
 
         if (user) {
+          await acceptTeamInviteForUser({
+            userId: user.id,
+            email: user.email,
+          });
+
           const { data: profile } = await supabase
             .from("profiles")
             .select("allowed_skills")

@@ -1,14 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Loader2, MoreVertical, UserPlus } from "lucide-react";
+import { Loader2, UserPlus } from "lucide-react";
 import { useCanInviteUsers, usePermissions } from "@/components/auth/permissions-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
 import { Avatar } from "@/components/ui/Avatar";
-import { Modal } from "@/components/ui/Modal";
-import { Select } from "@/components/ui/Select";
 import { SettingsShell } from "@/components/settings/settings-shell";
 import { TeamInviteModal } from "@/components/settings/team-invite-modal";
 import {
@@ -32,7 +29,7 @@ function StatusBadge({ status }: { status: TeamMemberStatus }) {
   if (status === "pending") {
     return (
       <span className="inline-flex items-center gap-1 rounded-full border border-[#FDE68A]/60 bg-[#FFFBEB]/70 px-2.5 py-0.5 text-[10px] font-semibold text-[#B45309]">
-        🟡 Einladung ausstehend
+        🟡 Warten auf Bestätigung
       </span>
     );
   }
@@ -122,41 +119,14 @@ function TeamMemberRow({ member, isSelf }: TeamMemberRowProps) {
           </div>
 
           <p className="mt-3 text-[11px] text-[#64748B]">
-            Letzte Aktivität: {member.lastActivity}
+            {member.status === "pending"
+              ? "Status: Warten auf Bestätigung"
+              : `Letzte Aktivität: ${member.lastActivity}`}
           </p>
         </div>
       </div>
     </div>
   );
-}
-
-function createPendingMember(input: {
-  companyId: string;
-  fullName: string;
-  email: string;
-  role: TenantUserRole;
-}): TeamMember {
-  return {
-    userId: `pending-${input.email}`,
-    companyId: input.companyId,
-    fullName: input.fullName,
-    email: input.email,
-    role: input.role,
-    status: "pending",
-    avatar: null,
-    permissions: {
-      manageTeam: false,
-      inviteMembers: false,
-      manageEmployees: false,
-    },
-    connectedPlatforms: {
-      gmail: false,
-      appleCalendar: false,
-      googleCalendar: false,
-    },
-    lastActivity: "Einladung ausstehend",
-    createdAt: new Date().toISOString(),
-  };
 }
 
 export function TeamSettingsForm() {
@@ -214,6 +184,10 @@ export function TeamSettingsForm() {
     };
 
     return [...members].sort((left, right) => {
+      const pendingDiff =
+        Number(left.status === "pending") - Number(right.status === "pending");
+      if (pendingDiff !== 0) return pendingDiff;
+
       const roleDiff = roleOrder[left.role] - roleOrder[right.role];
       if (roleDiff !== 0) return roleDiff;
       return left.fullName.localeCompare(right.fullName, "de");
@@ -227,6 +201,7 @@ export function TeamSettingsForm() {
   }) => {
     setInviteLoading(true);
     setError(null);
+    setFeedback(null);
 
     try {
       const response = await fetch("/api/team/invite", {
@@ -235,32 +210,35 @@ export function TeamSettingsForm() {
         body: JSON.stringify(input),
       });
 
-      const payload = (await response.json()) as { error?: string };
+      let payload: { error?: string; member?: TeamMember } = {};
+      try {
+        payload = (await response.json()) as typeof payload;
+      } catch {
+        setError("Einladung konnte nicht gesendet werden.");
+        return;
+      }
 
       if (!response.ok) {
         setError(payload.error ?? "Einladung fehlgeschlagen.");
         return;
       }
 
-      const pendingMember = createPendingMember({
-        companyId: profile.companyId,
-        fullName: input.fullName,
-        email: input.email,
-        role: input.role,
-      });
-
-      setMembers((current) => {
-        const normalized = input.email.trim().toLowerCase();
-        const withoutDuplicate = current.filter(
-          (member) => member.email.toLowerCase() !== normalized
-        );
-        return [...withoutDuplicate, pendingMember];
-      });
+      if (payload.member) {
+        setMembers((current) => {
+          const normalized = input.email.trim().toLowerCase();
+          const withoutDuplicate = current.filter(
+            (member) => member.email.toLowerCase() !== normalized
+          );
+          return [...withoutDuplicate, payload.member!];
+        });
+      } else {
+        void reloadMembers();
+      }
 
       setInviteOpen(false);
-      setFeedback(`Einladung an ${input.email} versendet.`);
+      setFeedback(`Einladung an ${input.email} wurde versendet.`);
     } catch {
-      setError("Einladung konnte nicht versendet werden.");
+      setError("Einladung konnte nicht gesendet werden.");
     } finally {
       setInviteLoading(false);
     }

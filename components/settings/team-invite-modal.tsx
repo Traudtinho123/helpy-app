@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/Modal";
@@ -26,6 +26,14 @@ export function TeamInviteModal({
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<TenantUserRole>("EMPLOYEE");
 
+  useEffect(() => {
+    if (!open) {
+      setFullName("");
+      setEmail("");
+      setRole("EMPLOYEE");
+    }
+  }, [open]);
+
   const handleSubmit = () => {
     onSubmit({ fullName, email, role });
   };
@@ -42,7 +50,7 @@ export function TeamInviteModal({
     <Modal
       open={open}
       title="Mitarbeiter einladen"
-      description="Die Person erhält eine Einladungs-E-Mail und kann sich anschließend anmelden."
+      description="Die Person erhält eine E-Mail mit Login-Link — Zugang nur für die eingeladene E-Mail-Adresse."
       onClose={handleClose}
       maxWidth="sm"
       footer={

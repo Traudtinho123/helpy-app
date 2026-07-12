@@ -1,4 +1,8 @@
 import { createAdminClient, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import {
+  fetchPendingTeamInvites,
+  teamInviteRowToMember,
+} from "@/lib/team/services/team-invite-repository";
 import { resolveTeamPermissions } from "@/lib/team/services/team-permissions";
 import type { TeamMember } from "@/lib/team/types/team-types";
 import type { TenantUserRole } from "@/lib/tenant/types/tenant-types";
@@ -33,13 +37,17 @@ export async function fetchCompanyTeamMembers(
   if (error || !profiles) return [];
 
   const members: TeamMember[] = [];
+  const activeEmails = new Set<string>();
 
   for (const profile of profiles) {
     const { data: authData } = await admin.auth.admin.getUserById(profile.id);
-    const email = authData.user?.email ?? "";
+    const email = authData.user?.email?.toLowerCase() ?? "";
+    if (email) {
+      activeEmails.add(email);
+    }
     const fullName =
       [profile.vorname, profile.nachname].filter(Boolean).join(" ").trim() ||
-      email ||
+      authData.user?.email ||
       "Unbekannt";
 
     const { data: roleRow } = await admin
@@ -50,14 +58,15 @@ export async function fetchCompanyTeamMembers(
       .maybeSingle();
 
     const role = resolveMemberRole(profile.role, roleRow?.role ?? null);
+    const hasSignedIn = Boolean(authData.user?.last_sign_in_at);
 
     members.push({
       userId: profile.id,
       companyId,
       fullName,
-      email,
+      email: authData.user?.email ?? "",
       role,
-      status: "active",
+      status: hasSignedIn ? "active" : "pending",
       avatar: null,
       permissions: resolveTeamPermissions(role),
       connectedPlatforms: {
@@ -65,9 +74,18 @@ export async function fetchCompanyTeamMembers(
         appleCalendar: false,
         googleCalendar: false,
       },
-      lastActivity: "Aktiv",
+      lastActivity: hasSignedIn ? "Aktiv" : "Warten auf Bestätigung",
       createdAt: profile.erstellt_am ?? new Date().toISOString(),
     });
+  }
+
+  const pendingInvites = await fetchPendingTeamInvites(companyId);
+  for (const invite of pendingInvites) {
+    const normalized = invite.email.trim().toLowerCase();
+    if (activeEmails.has(normalized)) {
+      continue;
+    }
+    members.push(teamInviteRowToMember(invite));
   }
 
   return members;
@@ -97,5 +115,13 @@ export async function isEmailAlreadyInCompany(
     }
   }
 
-  return false;
+  const { data: pendingInvite } = await admin
+    .from("team_invites")
+    .select("id")
+    .eq("company_id", companyId)
+    .eq("status", "pending")
+    .ilike("email", normalized)
+    .maybeSingle();
+
+  return Boolean(pendingInvite);
 }
