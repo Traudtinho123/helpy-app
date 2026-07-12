@@ -15,11 +15,13 @@ import {
 } from "@/features/voice/types/voice-types";
 
 export const VOICE_PHONE_APPOINTMENT_NO_CALENDAR =
-  "Apple Kalender ist nicht verbunden. Bitte unter Plattformen verbinden.";
+  "Apple Kalender ist nicht verbunden. Termin wurde in HELPY Kalender gespeichert.";
 export const VOICE_PHONE_APPOINTMENT_SAVE_ERROR =
   "Termin konnte nicht im Apple Kalender gespeichert werden.";
 export const VOICE_PHONE_APPOINTMENT_MISSING_DATETIME =
   "Datum und Uhrzeit fehlen — Termin kann nicht eingetragen werden.";
+
+const autoConfirmInFlight = new Set<string>();
 
 function buildCalendarEventTitle(proposal: VoiceAppointmentProposal): string {
   if (proposal.appointmentKind === "besichtigung") {
@@ -46,6 +48,41 @@ function buildCalendarEventDescription(proposal: VoiceAppointmentProposal): stri
   return lines.join("\n");
 }
 
+function writeHelpyCalendarEntry(
+  proposal: VoiceAppointmentProposal,
+  vorgangId: string,
+  externalEventId?: string | null,
+  calendarName?: string | null
+): void {
+  const date = proposal.terminDatum!;
+  const startTime = proposal.terminUhrzeit!;
+  const endTime = addMinutesToTimeString(startTime, proposal.terminDauerMinuten);
+
+  addConfirmedHelpyAppointment({
+    id: `helpy-voice-confirmed-${vorgangId}`,
+    time: startTime,
+    endTime,
+    title: buildCalendarEventTitle(proposal),
+    subtitle: proposal.anruferName ?? proposal.anruferNummerMasked ?? undefined,
+    type:
+      proposal.appointmentKind === "besichtigung" ? "besichtigung" : "telefonat",
+    helpyHint: HELPY_APPOINTMENT_CONFIRM_SUCCESS,
+    date,
+    location: proposal.objektAdresse ?? undefined,
+    calendarName: calendarName ?? "HELPY Kalender",
+    sourcePlatform: externalEventId ? "apple" : undefined,
+    confirmationStatus: "bestaetigt",
+    vorgangId,
+    externalEventId: externalEventId ?? undefined,
+  });
+}
+
+export function seedVoiceAppointmentProposalFromDb(
+  proposal: VoiceAppointmentProposal
+): void {
+  updateVoiceAppointmentProposal(proposal);
+}
+
 export async function confirmVoicePhoneAppointment(
   vorgangId: string
 ): Promise<{ ok: true; message: string } | { ok: false; error: string }> {
@@ -62,62 +99,75 @@ export async function confirmVoicePhoneAppointment(
     return { ok: false, error: VOICE_PHONE_APPOINTMENT_MISSING_DATETIME };
   }
 
-  const writeConfig = getAppleCalendarWriteConfig();
-  const credentials = getAppleCalendarCredentials();
-
-  if (!writeConfig || !credentials) {
-    return { ok: false, error: VOICE_PHONE_APPOINTMENT_NO_CALENDAR };
-  }
-
   const date = proposal.terminDatum!;
   const startTime = proposal.terminUhrzeit!;
   const endTime = addMinutesToTimeString(startTime, proposal.terminDauerMinuten);
-  const uid = `helpy-voice-${vorgangId}-${Date.now()}@helpy.app`;
 
+  let appleUid: string | null = null;
+  let calendarName: string | null = "HELPY Kalender";
+
+  const writeConfig = getAppleCalendarWriteConfig();
+  const credentials = getAppleCalendarCredentials();
+
+  if (writeConfig && credentials) {
+    const uid = `helpy-voice-${vorgangId}-${Date.now()}@helpy.app`;
+
+    try {
+      const result = await appleCalDavClient.createEvent({
+        appleIdEmail: credentials.appleIdEmail,
+        appSpecificPassword: credentials.appSpecificPassword,
+        calendarId: writeConfig.calendarId,
+        uid,
+        summary: buildCalendarEventTitle(proposal),
+        date,
+        startTime,
+        endTime,
+        location: proposal.objektAdresse ?? undefined,
+        description: buildCalendarEventDescription(proposal),
+      });
+      appleUid = result.uid;
+      calendarName = writeConfig.calendarName;
+    } catch {
+      // Apple fehlgeschlagen — HELPY Kalender wird trotzdem befüllt.
+    }
+  }
+
+  const confirmed: VoiceAppointmentProposal = {
+    ...proposal,
+    calendarStatus: "confirmed",
+    appleCalendarEventUid: appleUid,
+    updatedAt: new Date().toISOString(),
+  };
+
+  updateVoiceAppointmentProposal(confirmed);
+  writeHelpyCalendarEntry(confirmed, vorgangId, appleUid, calendarName);
+
+  return {
+    ok: true,
+    message: appleUid
+      ? HELPY_APPOINTMENT_CONFIRM_SUCCESS
+      : VOICE_PHONE_APPOINTMENT_NO_CALENDAR,
+  };
+}
+
+/** Nach Telefon-Intake: Termin automatisch in HELPY (+ Apple falls verbunden) eintragen. */
+export async function autoConfirmVoicePhoneAppointmentIfReady(
+  vorgangId: string
+): Promise<void> {
+  if (typeof window === "undefined") return;
+  if (autoConfirmInFlight.has(vorgangId)) return;
+
+  const proposal = getVoiceAppointmentProposal(vorgangId);
+  if (!proposal || proposal.calendarStatus === "confirmed") return;
+  if (!hasCompleteVoiceAppointmentDateTime(proposal)) return;
+
+  autoConfirmInFlight.add(vorgangId);
   try {
-    const result = await appleCalDavClient.createEvent({
-      appleIdEmail: credentials.appleIdEmail,
-      appSpecificPassword: credentials.appSpecificPassword,
-      calendarId: writeConfig.calendarId,
-      uid,
-      summary: buildCalendarEventTitle(proposal),
-      date,
-      startTime,
-      endTime,
-      location: proposal.objektAdresse ?? undefined,
-      description: buildCalendarEventDescription(proposal),
-    });
-
-    const confirmed: VoiceAppointmentProposal = {
-      ...proposal,
-      calendarStatus: "confirmed",
-      appleCalendarEventUid: result.uid,
-      updatedAt: new Date().toISOString(),
-    };
-
-    updateVoiceAppointmentProposal(confirmed);
-
-    addConfirmedHelpyAppointment({
-      id: `helpy-voice-confirmed-${vorgangId}`,
-      time: startTime,
-      endTime,
-      title: buildCalendarEventTitle(proposal),
-      subtitle: proposal.anruferName ?? proposal.anruferNummerMasked ?? undefined,
-      type:
-        proposal.appointmentKind === "besichtigung" ? "besichtigung" : "telefonat",
-      helpyHint: HELPY_APPOINTMENT_CONFIRM_SUCCESS,
-      date,
-      location: proposal.objektAdresse ?? undefined,
-      calendarName: writeConfig.calendarName,
-      sourcePlatform: "apple",
-      confirmationStatus: "bestaetigt",
-      vorgangId,
-      externalEventId: result.uid,
-    });
-
-    return { ok: true, message: HELPY_APPOINTMENT_CONFIRM_SUCCESS };
-  } catch {
-    return { ok: false, error: VOICE_PHONE_APPOINTMENT_SAVE_ERROR };
+    await confirmVoicePhoneAppointment(vorgangId);
+  } catch (error) {
+    console.error("[voice] auto calendar confirm failed:", error);
+  } finally {
+    autoConfirmInFlight.delete(vorgangId);
   }
 }
 

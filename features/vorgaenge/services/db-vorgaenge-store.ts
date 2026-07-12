@@ -1,6 +1,8 @@
 "use client";
 
 import { invalidateVorgaengeSummaryCaches } from "@/features/workspace/services/vorgaenge/vorgaenge-summary";
+import { syncVoiceAppointmentFromDbRecord } from "@/features/voice/services/voice-db-appointment-sync";
+import type { VorgangDbRecord } from "@/features/vorgaenge/types/create-vorgang-types";
 import {
   deduplicateVorgaenge,
   sortDeduplicatedVorgaenge,
@@ -100,7 +102,11 @@ export async function loadDbVorgaengeFromApi(): Promise<number> {
   if (!response.ok) return 0;
 
   const payload = (await response.json()) as {
-    vorgaenge?: Array<{ liste: ListeVorgang; workspace: WorkspaceVorgang }>;
+    vorgaenge?: Array<{
+      liste: ListeVorgang;
+      workspace: WorkspaceVorgang;
+      record?: VorgangDbRecord;
+    }>;
   };
 
   const items = payload.vorgaenge ?? [];
@@ -113,6 +119,11 @@ export async function loadDbVorgaengeFromApi(): Promise<number> {
       ...store.vorgaenge.filter((entry) => entry.id !== item.liste.id),
     ];
     store.workspaces[item.liste.id] = item.workspace;
+
+    const record = item.record;
+    if (record) {
+      void syncVoiceAppointmentFromDbRecord(record);
+    }
   }
 
   store.loadedAt = new Date().toISOString();

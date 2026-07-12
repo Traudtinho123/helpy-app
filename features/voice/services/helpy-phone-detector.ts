@@ -13,6 +13,25 @@ export function isHelpyPhoneVorgang(source: {
   quelle?: string;
   id?: string;
 }): boolean {
+  return isHelpyPhoneSource(source);
+}
+
+/** Telefon-Vorgang, der im HELPY-Phone-Archiv (Tab) erscheint — nur erledigte. */
+export function isHelpyPhoneArchiveVorgang(source: {
+  typ?: string;
+  quelle?: string;
+  id?: string;
+  status?: string;
+}): boolean {
+  if (!isHelpyPhoneSource(source)) return false;
+  return source.status === "erledigt";
+}
+
+export function isHelpyPhoneSource(source: {
+  typ?: string;
+  quelle?: string;
+  id?: string;
+}): boolean {
   return (
     source.typ === "helpy_phone" ||
     source.quelle === HELPY_PHONE_QUELLE ||
@@ -40,7 +59,13 @@ export function mapVoiceClassificationToPriority(
 export function mapVoiceClassificationToHelpyPhoneTyp(
   classification: VoiceCallClassification | undefined | null
 ): VorgangTyp {
-  return "helpy_phone";
+  if (classification === "besichtigung_anfrage") {
+    return "terminwunsch";
+  }
+  if (classification === "rueckruf_wunsch" || classification === "notfall") {
+    return "rueckruf";
+  }
+  return "anfrage";
 }
 
 export function buildHelpyPhoneVorgangTitle(input: {

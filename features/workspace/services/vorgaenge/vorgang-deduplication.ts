@@ -7,7 +7,7 @@ import {
   isVorgangCompleted,
 } from "@/features/workspace/services/vorgaenge/completed-vorgaenge-store";
 import type { Vorgang, VorgangPriority, VorgangStatus } from "@/features/workspace/services/vorgaenge/types";
-import { isHelpyPhoneVorgang } from "@/features/voice/services/helpy-phone-detector";
+import { isHelpyPhoneSource } from "@/features/voice/services/helpy-phone-detector";
 import type { UnifiedMailAttachment } from "@/features/mail/types/unified-mail-types";
 import { mergeThreadAttachments } from "@/features/mail/services/mail-attachment-mapper";
 
@@ -49,8 +49,9 @@ function getReceivedTimestamp(vorgang: Vorgang): number {
 
 /** Eindeutiger Schlüssel pro Workspace-Vorgang. */
 export function getVorgangDedupeKey(vorgang: Vorgang): string {
-  if (isHelpyPhoneVorgang(vorgang)) {
-    return `helpy_phone:${vorgang.id}`;
+  if (isHelpyPhoneSource(vorgang)) {
+    const callRef = vorgang.sourceEventId ?? vorgang.id;
+    return `helpy_phone:${callRef}`;
   }
 
   if (vorgang.quelle === "Manuell") {

@@ -161,7 +161,15 @@ export function shouldAutoCreateVoiceVorgang(input: {
   createVorgang?: boolean;
   hasTermin: boolean;
 }): boolean {
-  if (input.createVorgang === false) return false;
+  if (input.createVorgang === false) {
+    if (
+      input.classification === "besichtigung_anfrage" ||
+      input.classification === "notfall"
+    ) {
+      return true;
+    }
+    return false;
+  }
 
   if (input.classification === "besichtigung_anfrage") return true;
   if (input.classification === "rueckruf_wunsch") return true;

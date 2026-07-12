@@ -84,7 +84,10 @@ export async function GET() {
   }
 
   const records = await listVorgaengeForCompany(context.companyId, 200);
-  const vorgaenge = records.map((record) => mapVorgangDbRecordToBundle(record));
+  const vorgaenge = records.map((record) => ({
+    ...mapVorgangDbRecordToBundle(record),
+    record,
+  }));
 
   return NextResponse.json({ vorgaenge });
 }

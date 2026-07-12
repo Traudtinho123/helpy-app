@@ -3,6 +3,7 @@ import {
   buildHelpyPhoneVorgangCreateInput,
   createVorgang,
 } from "@/lib/vorgaenge/create-vorgang";
+import { mergeVoiceTerminFields } from "@/features/voice/services/voice-termin-extraction";
 import {
   buildTwilioClosedTwiml,
   buildTwilioDisabledTwiml,
@@ -502,16 +503,36 @@ export async function handleTwilioCallStatus(
 
       console.log("INTENT ERKANNT:", classification);
 
-      const hasTermin = Boolean(analysis?.terminDatum && analysis?.terminUhrzeit);
+      const mergedTermin = mergeVoiceTerminFields({
+        terminDatum: analysis?.terminDatum ?? existing?.terminDatum ?? null,
+        terminUhrzeit: analysis?.terminUhrzeit ?? existing?.terminUhrzeit ?? null,
+        transcript: flatTranscript,
+      });
+
+      const terminDatum = mergedTermin.terminDatum;
+      const terminUhrzeit = mergedTermin.terminUhrzeit;
+      const hasTermin = Boolean(terminDatum && terminUhrzeit);
       const terminDetails = hasTermin
         ? {
-            datum: analysis!.terminDatum,
-            uhrzeit: analysis!.terminUhrzeit,
-            objekt: analysis!.objekt ?? analysis!.objectReference ?? null,
+            datum: terminDatum,
+            uhrzeit: terminUhrzeit,
+            objekt: analysis?.objekt ?? analysis?.objectReference ?? existing?.terminObjekt ?? null,
           }
         : null;
 
       console.log("TERMIN ERKANNT:", terminDetails);
+
+      const analysisWithTermin = analysis
+        ? {
+            ...analysis,
+            terminDatum,
+            terminUhrzeit,
+            requestedDateTime:
+              terminDatum && terminUhrzeit
+                ? `${terminDatum} ${terminUhrzeit}`
+                : analysis.requestedDateTime,
+          }
+        : null;
 
       const summary = await generateHelpyCallSummary({
         systemContext: promptContext.systemContext,
@@ -549,10 +570,25 @@ export async function handleTwilioCallStatus(
 
       const terminPatch = {
         call_classification: classification,
-        termin_datum: analysis?.terminDatum ?? null,
-        termin_uhrzeit: analysis?.terminUhrzeit ?? null,
+        termin_datum: terminDatum,
+        termin_uhrzeit: terminUhrzeit,
         termin_objekt: analysis?.objekt ?? analysis?.objectReference ?? null,
       };
+
+      const buildProcessedPayload = (vorgangId: string | null) =>
+        buildVoiceProcessedCallFromRecord({
+          call: { ...callRecord, vorgangId: vorgangId ?? callRecord.vorgangId ?? null },
+          transcript: flatTranscript,
+          classification,
+          callerName: analysis?.callerName ?? analysis?.anruferName ?? null,
+          objectReference:
+            analysis?.objectReference ?? analysis?.objekt ?? terminPatch.termin_objekt,
+          requestedDateTime:
+            terminDatum && terminUhrzeit ? `${terminDatum} ${terminUhrzeit}` : null,
+          summaryOverride: analysis?.summaryHint ?? summary,
+          analysis: analysisWithTermin,
+          autoCreated: shouldAutoCreateVorgang,
+        });
 
       if (shouldAutoCreateVorgang) {
         const vorgangResult = await createVorgang(
@@ -562,8 +598,8 @@ export async function handleTwilioCallStatus(
             classification,
             summary: analysis?.summaryHint ?? summary,
             callerNumber: callRecord.callerPhone,
-            terminDatum: analysis?.terminDatum ?? null,
-            terminUhrzeit: analysis?.terminUhrzeit ?? null,
+            terminDatum,
+            terminUhrzeit,
           })
         );
 
@@ -578,17 +614,8 @@ export async function handleTwilioCallStatus(
           vorgangId: vorgangResult.id,
         };
 
-        const processed = buildVoiceProcessedCallFromRecord({
-          call: callRecordWithVorgang,
-          transcript: flatTranscript,
-          classification,
-          callerName: analysis?.callerName ?? analysis?.anruferName ?? null,
-          objectReference: analysis?.objectReference ?? analysis?.objekt ?? null,
-          requestedDateTime: analysis?.requestedDateTime ?? null,
-          summaryOverride: analysis?.summaryHint ?? summary,
-          analysis,
-          autoCreated: true,
-        });
+        const processed = buildProcessedPayload(vorgangResult.id);
+        processed.call = { ...processed.call, vorgangId: vorgangResult.id };
 
         await dispatchVoiceCallAlert({
           companyId,
@@ -614,6 +641,8 @@ export async function handleTwilioCallStatus(
           ...terminPatch,
         });
       } else {
+        const processed = buildProcessedPayload(existing?.vorgangId ?? null);
+
         await updateVoiceCall(callId, {
           status: callStatus === "completed" ? "completed" : "failed",
           duration_seconds: durationSeconds ?? existing?.durationSeconds,
@@ -621,6 +650,9 @@ export async function handleTwilioCallStatus(
           transcript_turns: turns as unknown as Json,
           summary: analysis?.summaryHint ?? summary,
           caller_name: analysis?.callerName ?? analysis?.anruferName ?? existing?.callerName ?? null,
+          intent: processed.call.intent,
+          assistant_reply: processed.assistantReply,
+          processed_payload: processed as unknown as Json,
           ended_at: new Date().toISOString(),
           ...terminPatch,
         });

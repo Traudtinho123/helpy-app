@@ -23,8 +23,13 @@ function formatReceivedLabel(iso: string): string {
   }
 }
 
-function resolveTyp(source: VorgangSource): ListeVorgang["typ"] {
-  if (source === "helpy_phone") return "helpy_phone";
+function resolveTyp(source: VorgangSource, record: VorgangDbRecord): ListeVorgang["typ"] {
+  if (source === "helpy_phone") {
+    if (record.termin_datum && record.termin_uhrzeit) {
+      return "terminwunsch";
+    }
+    return "anfrage";
+  }
   return "normale_nachricht";
 }
 
@@ -61,7 +66,11 @@ export function mapVorgangDbRecordToListeVorgang(
 
   return {
     id: record.id,
-    typ: resolveTyp(record.source),
+    typ: resolveTyp(record.source, record),
+    intentLabel:
+      record.termin_datum && record.termin_uhrzeit
+        ? "Termin vereinbart"
+        : undefined,
     titel: record.titel,
     emoji: resolveEmoji(record.source),
     kunde,
@@ -73,12 +82,16 @@ export function mapVorgangDbRecordToListeVorgang(
       record.status as "neu" | "in_bearbeitung" | "warten_auf_antwort"
     ),
     summary: record.inhalt,
+    detectedContext:
+      record.termin_datum && record.termin_uhrzeit
+        ? [`Termin: ${record.termin_datum} ${record.termin_uhrzeit}`]
+        : undefined,
     helpyEmpfehlung: resolveHelpyEmpfehlung(record.source),
     helpyStatus: "Neu",
     receivedAt: record.created_at,
     receivedLabel: formatReceivedLabel(record.created_at),
     kundenAkteId: record.kunden_id ?? undefined,
-    sourceEventId: record.gmail_message_id ?? undefined,
+    sourceEventId: record.voice_call_id ?? record.gmail_message_id ?? undefined,
     threadId: record.gmail_thread_id ?? undefined,
     href: record.source === "helpy_phone" ? "/telefonie" : undefined,
   };

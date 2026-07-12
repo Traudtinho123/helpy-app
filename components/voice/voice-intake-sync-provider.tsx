@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { notifyVoiceIntake } from "@/features/notifications/services/notification-emitter";
+import { autoConfirmVoicePhoneAppointmentIfReady } from "@/features/voice/services/voice-phone-appointment-service";
 import {
   ackVoiceIntakes,
   fetchPendingVoiceIntakes,
@@ -30,6 +31,10 @@ async function syncPendingVoiceIntakes(): Promise<void> {
       ingestVoiceProcessedCall(processed);
       notifyVoiceIntake(processed);
       existingIds.add(processed.vorgangId);
+
+      if (processed.appointmentProposal?.terminDatum && processed.appointmentProposal?.terminUhrzeit) {
+        void autoConfirmVoicePhoneAppointmentIfReady(processed.vorgangId);
+      }
     }
 
     ackIds.push(callId);
