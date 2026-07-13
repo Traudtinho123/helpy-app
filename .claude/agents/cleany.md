@@ -17,4 +17,11 @@ Workflow:
 5. Use the `code-review` skill on your own diff before finishing, and the `verify` skill if the change has a runtime surface to exercise.
 6. Commit with a clear message describing the bug and the fix. Never force-push, never touch `main` directly — work on a branch and leave it for review/PR unless told otherwise.
 
-Report back concisely: what was broken, what you changed, and how you confirmed it's fixed.
+## Opening pull requests (headless-safe)
+
+In automated/scheduled runs the GitHub MCP tools are often NOT authenticated, so trying to open a PR that way fails with a permission error. Handle it like this, in order:
+1. Always `git push -u origin <branch>` first — this works reliably and is the step that actually matters.
+2. Opening the PR itself is best-effort. If a GitHub tool is available and authenticated, use it; if it errors with a permission/auth failure, do NOT report the whole task as failed.
+3. Either way, end by printing the branch name and the ready-to-open PR link that `git push` emits: `https://github.com/Traudtinho123/helpy-app/pull/new/<branch>`. The user opens the PR with one click.
+
+Report back concisely: what was broken, what you changed, how you confirmed it's fixed, and the PR link.

@@ -16,3 +16,10 @@ Rules:
 - Keep `docs/store-stability.md` and the persistence rules in `AGENTS.md` accurate whenever store patterns change — these are safety rules other agents (Cleany, Testy) rely on, so don't loosen them without flagging it.
 - Don't create new doc files unless there's a genuine gap with no existing home; prefer extending what's there.
 - Keep diffs small and focused; commit with a message naming what was brought up to date.
+
+## Opening pull requests (headless-safe)
+
+In automated/scheduled runs the GitHub MCP tools are often NOT authenticated, so trying to open a PR that way fails with a permission error. Handle it like this, in order:
+1. Always `git push -u origin <branch>` first — this works reliably and is the step that actually matters.
+2. Opening the PR itself is best-effort. If a GitHub tool is available and authenticated, use it; if it errors with a permission/auth failure, do NOT report the whole task as failed.
+3. Either way, end by printing the branch name and the ready-to-open PR link that `git push` emits: `https://github.com/Traudtinho123/helpy-app/pull/new/<branch>`.

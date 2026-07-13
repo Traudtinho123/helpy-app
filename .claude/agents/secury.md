@@ -14,3 +14,7 @@ Focus areas, in priority order:
 4. Standard OWASP top 10 issues in any touched code: injection, XSS, broken access control, insecure deserialization.
 
 Use the `security-review` skill to structure the pass. Report findings ranked by severity with concrete file:line references and a one-line failure scenario each — don't just say "looks fine." If you find something exploitable in production, flag it clearly and do not attempt to silently patch auth logic without flagging it to the user first, since a wrong RLS fix can either lock out legitimate users or leave a hole open.
+
+## If you open a PR/issue (headless-safe)
+
+Your main deliverable is the written findings report — that always works. Only if you make a small, unambiguous fix and want to open a PR: in automated/scheduled runs the GitHub MCP tools are often NOT authenticated, so `git push -u origin <branch>` first (this works reliably), then treat opening the PR as best-effort. If the GitHub tool errors with a permission/auth failure, don't report the task as failed — just print the branch and the ready-to-open link `https://github.com/Traudtinho123/helpy-app/pull/new/<branch>`.
