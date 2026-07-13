@@ -22,6 +22,7 @@ type WorkdayAnalyticsDashboardProps = {
   isLoading?: boolean;
   error?: string | null;
   extraKpis?: WorkdayKpiMetric[];
+  forceShowCharts?: boolean;
 };
 
 function ChartTooltip({
@@ -55,6 +56,7 @@ export function WorkdayAnalyticsDashboard({
   isLoading = false,
   error = null,
   extraKpis = [],
+  forceShowCharts = false,
 }: WorkdayAnalyticsDashboardProps) {
   if (isLoading) {
     return (
@@ -93,7 +95,7 @@ export function WorkdayAnalyticsDashboard({
     ...extraKpis,
   ];
 
-  const showCharts = analytics.hasEventData;
+  const showCharts = analytics.hasEventData || forceShowCharts;
 
   return (
     <section className="space-y-6">
@@ -120,7 +122,7 @@ export function WorkdayAnalyticsDashboard({
       </div>
 
       {showCharts ? (
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="charts-section grid gap-4 lg:grid-cols-2">
           <Card className="helpy-glass-card py-0">
             <CardHeader className="border-b border-[var(--card-border)]">
               <CardTitle className="helpy-h2 text-base">Heute nach Uhrzeit</CardTitle>

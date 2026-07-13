@@ -27,6 +27,8 @@ export type WorkdayTerminItem = {
   titel: string;
   kunde: string;
   uhrzeit: string | null;
+  endUhrzeit?: string | null;
+  ort?: string | null;
   quelle: "Gmail" | "Kalender" | "Google Kalender" | "Apple Kalender";
   href: string;
 };

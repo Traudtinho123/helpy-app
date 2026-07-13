@@ -2,13 +2,10 @@
 
 import Link from "next/link";
 import {
-  ArrowRight,
-  CalendarDays,
   ChevronRight,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import type {
@@ -25,7 +22,8 @@ import {
   type HotLeadItem,
 } from "@/features/lead-scoring/components/hot-leads-section";
 import { FollowupsWorkdaySection } from "@/features/followup/components/followups-workday-section";
-import { WorkdayAnalyticsDashboard } from "@/features/workday/components/workday-analytics-dashboard";
+import { WorkdayBerichtSection } from "@/features/workday/components/workday-bericht-section";
+import { WorkdayTermineHeuteSection } from "@/features/workday/components/workday-termine-heute-section";
 import type { WorkdayAnalytics } from "@/features/analytics/services/workday-analytics";
 import { cn } from "@/lib/utils";
 
@@ -275,124 +273,95 @@ function PrioritiesSection({ items }: { items: PrioritizedWorkdayItem[] }) {
   const highItems = visibleItems.filter(
     (item) => resolvePriorityLevel(item) === "hoch"
   );
+  const orderedItems = [...criticalItems, ...highItems];
+  const previewItems = orderedItems.slice(0, 3);
+  const hasMore = orderedItems.length > 3;
 
   return (
     <section>
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="helpy-h2">Prioritäten</h2>
-          <p className="mt-1.5 text-[13px] text-[var(--text-secondary)]">
-            Nur kritische und hohe Vorgänge — sortiert nach Dringlichkeit
+          <h2 className="helpy-h2 text-[1.2rem]">Prioritäten</h2>
+          <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
+            Kritische und hohe Vorgänge — nach Dringlichkeit
           </p>
         </div>
 
-        {visibleItems.length > 0 && (
-          <div className="flex items-center gap-2">
-            {criticalItems.length > 0 && (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FECACA]/60 bg-[#FEF2F2] px-3 py-1 text-[11px] font-semibold text-[#DC2626]">
-                <span className="size-1.5 rounded-full bg-[#DC2626]" />
-                {criticalItems.length} Kritisch
-              </span>
-            )}
-            {highItems.length > 0 && (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FDE68A]/70 bg-[#FFFBEB] px-3 py-1 text-[11px] font-semibold text-[#B45309]">
-                <span className="size-1.5 rounded-full bg-[#D97706]" />
-                {highItems.length} Hoch
-              </span>
-            )}
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {visibleItems.length > 0 && (
+            <>
+              {criticalItems.length > 0 && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FECACA]/60 bg-[#FEF2F2] px-2.5 py-0.5 text-[10px] font-semibold text-[#DC2626]">
+                  {criticalItems.length} Kritisch
+                </span>
+              )}
+              {highItems.length > 0 && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FDE68A]/70 bg-[#FFFBEB] px-2.5 py-0.5 text-[10px] font-semibold text-[#B45309]">
+                  {highItems.length} Hoch
+                </span>
+              )}
+            </>
+          )}
+          {hasMore ? (
+            <Link
+              href="/vorgaenge"
+              className="text-[12px] font-semibold text-[#2563EB] hover:underline"
+            >
+              Alle anzeigen
+            </Link>
+          ) : null}
+        </div>
       </div>
 
       {visibleItems.length === 0 ? (
         <PrioritiesEmptyState />
       ) : (
-        <div className="space-y-6">
-          <PriorityGroup
-            title="Kritisch"
-            count={criticalItems.length}
-            items={criticalItems}
-            level="kritisch"
-          />
-          <PriorityGroup
-            title="Hoch"
-            count={highItems.length}
-            items={highItems}
-            level="hoch"
-          />
-        </div>
-      )}
-    </section>
-  );
-}
-
-function TermineVonHeuteSection({
-  appointments,
-  calendarPlatform = null,
-}: {
-  appointments: WorkdayTerminItem[];
-  calendarPlatform?: CalendarPlatform | null;
-}) {
-  const emptyMessage =
-    calendarPlatform === "apple"
-      ? "Heute sind keine Termine im Apple Kalender."
-      : calendarPlatform === "google"
-        ? "Heute sind keine Termine im Google Kalender."
-        : "Heute sind noch keine Kalendertermine verbunden.";
-  return (
-    <section>
-      <div className="mb-6 flex items-center gap-3">
-        <div className="flex size-10 items-center justify-center rounded-[14px] bg-[#ECFDF5]">
-          <CalendarDays className="size-5 text-[#047857]" strokeWidth={2} />
-        </div>
-        <div>
-          <h2 className="helpy-h2">Termine von heute</h2>
-          <p className="mt-1 text-[13px] text-[var(--text-secondary)]">
-            Termine aus deiner verbundenen Kalender-Plattform
-          </p>
-        </div>
-      </div>
-
-      {appointments.length === 0 ? (
-        <p className="text-[13px] text-[#64748B]">{emptyMessage}</p>
-      ) : (
-        <ul className="space-y-3">
-          {appointments.map((termin) => (
-            <li
-              key={termin.id}
-              className="rounded-[20px] border border-[#CBD5E1]/50 bg-white/90 px-5 py-4 shadow-[0_2px_8px_rgba(15,23,42,0.04)]"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0 flex-1 space-y-2">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-[14px] font-semibold text-[#0F172A]">
-                      {termin.titel}
-                    </p>
-                    <Badge
-                      variant="outline"
-                      className="h-5 rounded-full border-[#CBD5E1] px-2 text-[10px] font-medium text-[#64748B]"
-                    >
-                      {termin.quelle}
-                    </Badge>
-                  </div>
-                  <p className="text-[12px] text-[#64748B]">{termin.kunde}</p>
-                  {termin.uhrzeit && (
-                    <p className="text-[12px] font-medium text-[#047857]">
-                      {termin.uhrzeit} Uhr
-                    </p>
-                  )}
-                </div>
+        <>
+          <ul className="space-y-2 md:hidden">
+            {previewItems.map((item) => (
+              <li key={item.id}>
                 <Link
-                  href={termin.href}
-                  className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-[12px] border border-[#CBD5E1]/60 bg-white/90 px-4 text-[12px] font-medium text-[#334155] transition-all duration-300 hover:border-[#BFDBFE]/60 hover:bg-[#EFF6FF]/40"
+                  href={item.href ?? "/vorgaenge"}
+                  className="flex items-start gap-2 rounded-[12px] border border-[#E2E8F0]/80 bg-white px-3 py-2.5"
                 >
-                  Prüfen
-                  <ArrowRight className="size-3.5" />
+                  <span
+                    className={cn(
+                      "mt-1.5 size-2 shrink-0 rounded-full",
+                      resolvePriorityLevel(item) === "kritisch"
+                        ? "bg-[#DC2626]"
+                        : "bg-[#D97706]"
+                    )}
+                  />
+                  <div className="min-w-0">
+                    <p className="truncate text-[13px] font-medium text-[#0F172A]">
+                      {item.titel}
+                    </p>
+                    {item.absender ? (
+                      <p className="truncate text-[11px] text-[#64748B]">
+                        {item.absender}
+                      </p>
+                    ) : null}
+                  </div>
                 </Link>
-              </div>
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+
+          <div className="hidden space-y-4 md:block">
+            <PriorityGroup
+              title="Kritisch"
+              count={criticalItems.length}
+              items={criticalItems.slice(0, 3)}
+              level="kritisch"
+            />
+            <PriorityGroup
+              title="Hoch"
+              count={highItems.length}
+              items={highItems.slice(0, Math.max(0, 3 - criticalItems.length))}
+              level="hoch"
+            />
+          </div>
+        </>
       )}
     </section>
   );
@@ -402,7 +371,6 @@ export function MeinArbeitstagPage({
   plan,
   greeting,
   todayAppointments = [],
-  calendarPlatform = null,
   isMailLoading = false,
   analytics = null,
   analyticsLoading = false,
@@ -417,33 +385,35 @@ export function MeinArbeitstagPage({
   }).format(new Date());
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 lg:px-12 lg:py-14">
-      <header className="mb-12">
-        <p className="helpy-label">{today}</p>
-        <h1 className="helpy-h1 mt-3">{greeting}</h1>
-        <p className="helpy-greeting-sub mt-4 max-w-2xl">
+    <div className="mx-auto max-w-6xl px-4 py-5 sm:px-8 lg:px-12 lg:py-14">
+      <header className="mb-8 lg:mb-12">
+        <p className="helpy-label text-[11px]">{today}</p>
+        <h1 className="helpy-h1 mt-2 text-[1.5rem] lg:mt-3 lg:text-[2rem]">{greeting}</h1>
+        <p className="helpy-greeting-sub mt-2 max-w-2xl text-[13px] lg:mt-4 lg:text-[15px]">
           Ich habe deinen Arbeitstag organisiert — fokussiert auf das, was heute
           zählt.
         </p>
       </header>
 
-      <div className="space-y-12">
-        <WorkdayAnalyticsDashboard
+      <div className="space-y-8 lg:space-y-12">
+        <WorkdayTermineHeuteSection appointments={todayAppointments} />
+
+        <PrioritiesSection items={isMailLoading ? [] : plan.prioritizedItems} />
+
+        <WorkdayBerichtSection
           analytics={analytics}
           isLoading={analyticsLoading || isMailLoading}
           error={analyticsError}
           extraKpis={extraAnalyticsKpis}
         />
+
         {!analytics && !analyticsLoading && (
           <TagesuebersichtCard plan={plan} isLoading={isMailLoading} />
         )}
-        <PrioritiesSection items={isMailLoading ? [] : plan.prioritizedItems} />
-        <HotLeadsSection leads={hotLeads} />
+
         <FollowupsWorkdaySection />
-        <TermineVonHeuteSection
-          appointments={todayAppointments}
-          calendarPlatform={calendarPlatform}
-        />
+
+        <HotLeadsSection leads={hotLeads} />
       </div>
     </div>
   );

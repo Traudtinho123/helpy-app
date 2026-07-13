@@ -89,15 +89,15 @@ function buildWorkdayKundeLabel(event: CalendarEvent): string {
 export function mapCalendarEventToWorkdayTermin(
   event: CalendarEvent
 ): WorkdayTerminItem {
-  const endLabel = event.endTime && event.endTime !== event.time ? ` – ${event.endTime}` : "";
-
   return {
     id: event.id,
     titel: event.title,
-    kunde: buildWorkdayKundeLabel(event),
-    uhrzeit: event.time === "00:00" ? null : `${event.time}${endLabel}`,
+    kunde: event.subtitle ?? buildWorkdayKundeLabel(event),
+    uhrzeit: event.time === "00:00" ? null : event.time,
+    endUhrzeit: event.endTime && event.endTime !== "00:00" ? event.endTime : null,
+    ort: event.location ?? null,
     quelle: "Apple Kalender",
-    href: "/kalender",
+    href: event.vorgangId ? `/workspace/${event.vorgangId}` : "/kalender",
   };
 }
 

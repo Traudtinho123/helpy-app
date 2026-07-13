@@ -16,8 +16,10 @@ function mapGoogleEventToWorkdayTermin(event: CalendarEvent): WorkdayTerminItem 
     titel: event.title,
     kunde: event.subtitle ?? "Google Kalender",
     uhrzeit: event.time === "00:00" ? null : event.time,
+    endUhrzeit: event.endTime && event.endTime !== "00:00" ? event.endTime : null,
+    ort: event.location ?? null,
     quelle: "Google Kalender",
-    href: "/kalender",
+    href: event.vorgangId ? `/workspace/${event.vorgangId}` : "/kalender",
   };
 }
 

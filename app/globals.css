@@ -626,3 +626,20 @@ img[loading="lazy"] {
     display: none !important;
   }
 }
+
+/* Arbeitstag: Charts nur Desktop, Snapshot nur Mobile */
+@media (max-width: 767px) {
+  .charts-section {
+    display: none !important;
+  }
+
+  .mobile-snapshot {
+    display: block !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .mobile-snapshot {
+    display: none !important;
+  }
+}
