@@ -1,10 +1,10 @@
 import { markGmailMessagesAsRead } from "@/features/gmail/services/gmail/mark-message-read";
 import { markOutlookMessageReadFromApi } from "@/features/outlook/services/outlook-sync-service";
-import { markVorgangErledigtInOutlookStore } from "@/features/outlook/services/outlook-vorgaenge-store";
+import { markVorgangErledigtInOutlookStore, revertVorgangErledigtInOutlookStore } from "@/features/outlook/services/outlook-vorgaenge-store";
 import { resolveMailProviderFromVorgang } from "@/features/mail/mail-brain-adapter";
-import { registerCompletedVorgangPersistent } from "@/features/workspace/services/vorgaenge/completed-vorgaenge-store";
-import { markVorgangErledigtInStore } from "@/features/workspace/services/vorgaenge/gmail-vorgaenge-store";
-import { recordVorgangErledigt } from "@/features/workspace/services/status";
+import { registerCompletedVorgangPersistent, undoCompletedVorgang } from "@/features/workspace/services/vorgaenge/completed-vorgaenge-store";
+import { markVorgangErledigtInStore, revertVorgangErledigtInStore } from "@/features/workspace/services/vorgaenge/gmail-vorgaenge-store";
+import { recordVorgangErledigt, setVorgangStatus } from "@/features/workspace/services/status";
 import { invalidateVorgaengeSummaryCaches } from "@/features/workspace/services/vorgaenge/vorgaenge-summary";
 import { processBackgroundMemoryEvent } from "@/features/memory/services/background-memory-engine";
 import { peekRealEstateObjectByVorgangId } from "@/features/real-estate/object/object-memory";
@@ -97,4 +97,19 @@ export async function completeVorgang(
     helpyPanelMessage: VORGANG_ERLEDIGT_PANEL_MESSAGE,
     gmailUpdated: mailUpdated,
   };
+}
+
+/** Macht „Als erledigt markieren“ rückgängig (5-Sekunden-Undo). */
+export function undoCompleteVorgang(vorgang: Vorgang): void {
+  undoCompletedVorgang(vorgang);
+  setVorgangStatus(vorgang.id, "neu");
+
+  const provider = resolveMailProviderFromVorgang(vorgang);
+  if (provider === "outlook") {
+    revertVorgangErledigtInOutlookStore(vorgang.id);
+  } else {
+    revertVorgangErledigtInStore(vorgang.id);
+  }
+
+  invalidateVorgaengeSummaryCaches();
 }

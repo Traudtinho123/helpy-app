@@ -652,6 +652,30 @@ export function markVorgangErledigtInStore(vorgangId: string): void {
   notify();
 }
 
+/** Setzt Erledigt-Markierung in der Gmail-Liste zurück (Undo). */
+export function revertVorgangErledigtInStore(vorgangId: string): void {
+  hydrateFromSession();
+  if (!cache) return;
+
+  cache.vorgaenge = cache.vorgaenge.map((item) => {
+    const matches =
+      item.id === vorgangId ||
+      item.href === `/workspace/${vorgangId}` ||
+      resolveVorgangOpenId(item) === vorgangId ||
+      (vorgangId.startsWith("thread-") &&
+        item.threadId === vorgangId.slice("thread-".length));
+
+    if (!matches) {
+      return item;
+    }
+    return { ...item, status: "neu" as const };
+  });
+
+  persistToSession();
+  invalidateListeSnapshot(vorgangId);
+  notify();
+}
+
 export function getGmailVorgaengeCount(): number {
   return getActiveOpenMailCasesCount();
 }

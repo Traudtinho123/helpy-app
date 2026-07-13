@@ -246,6 +246,21 @@ export function markVorgangErledigtInOutlookStore(vorgangId: string): void {
   notify();
 }
 
+export function revertVorgangErledigtInOutlookStore(vorgangId: string): void {
+  hydrateFromSession();
+  if (!cache) return;
+
+  cache.vorgaenge = cache.vorgaenge.map((item) => {
+    if (item.id !== vorgangId && item.href !== `/workspace/${vorgangId}`) {
+      return item;
+    }
+    return { ...item, status: "neu" as const };
+  });
+
+  persistToSession();
+  notify();
+}
+
 export function isOutlookVorgaengeLoading(): boolean {
   return loading;
 }

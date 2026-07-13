@@ -600,6 +600,14 @@ function removeLocalCompletedRecord(match: CompletedVorgangRecord): void {
   notify();
 }
 
+/** Entfernt Erledigt-Markierung für Undo (ohne neue Kundenmail). */
+export function undoCompletedVorgang(vorgang: Vorgang): void {
+  hydrate();
+  const match = findCompletedRecord(vorgang);
+  if (!match) return;
+  removeLocalCompletedRecord(match);
+}
+
 /** Entfernt Erledigt-Markierung, wenn eine neuere Kunden-Nachricht vorliegt. */
 export function clearCompletedVorgangIfReopened(vorgang: Vorgang): void {
   hydrate();

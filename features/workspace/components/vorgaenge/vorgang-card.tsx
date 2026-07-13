@@ -1,34 +1,59 @@
 "use client";
 
-import { HelpyPreparedActions } from "@/features/review/components/actions";
-import { HelpyEmpfiehltBox } from "@/features/decision/components/helpy-empfiehlt-box";
-import { isConnectedMailVorgang } from "@/features/decision/services/decision-engine";
-import { isHelpyPhoneVorgang } from "@/features/voice/services/helpy-phone-detector";
-import { isPlatformRealEstateVorgang } from "@/features/brain/services/platform-email-detector";
-import { HelpyReplyDraftCard } from "@/features/reply-drafts/components/helpy-reply-draft-card";
-import { HelpyArchiveCard } from "@/features/spam-handling/components/helpy-archive-card";
-import { shouldPrepareArchive } from "@/features/spam-handling/services/archive-handling-engine";
-import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  CalendarDays,
+  Check,
   CheckCircle2,
-  ExternalLink,
-  Lightbulb,
+  Mail,
+  Phone,
+  Reply,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { VorgangStatusBadge } from "@/features/workspace/components/vorgaenge/vorgang-status-badge";
-import { completeVorgang } from "@/features/workspace/services/vorgaenge/complete-vorgang-service";
-import { getWorkspacePath } from "@/features/workspace/services/workspace";
-import { resolveVorgangOpenPath } from "@/features/workspace/services/vorgaenge/gmail-workspace-resolver";
+import { VorgangMiniReplyPanel } from "@/features/workspace/components/vorgaenge/vorgang-mini-reply-panel";
+import { VorgangMiniAppointmentPanel } from "@/features/workspace/components/vorgaenge/vorgang-mini-appointment-panel";
+import { isHelpyPhoneVorgang } from "@/features/voice/services/helpy-phone-detector";
+import {
+  completeVorgang,
+  undoCompleteVorgang,
+} from "@/features/workspace/services/vorgaenge/complete-vorgang-service";
+import {
+  applyPriorityOverride,
+  subscribePriorityOverrides,
+} from "@/features/workspace/services/vorgaenge/vorgaenge-priority-override-store";
+import {
+  CARD_BORDER_STYLES,
+  getCardBorderAccent,
+} from "@/features/workspace/services/vorgaenge/vorgaenge-smart-filter";
+import {
+  setVorgangSelected,
+  subscribeVorgaengeSelection,
+  isVorgangSelected,
+} from "@/features/workspace/services/vorgaenge/vorgaenge-selection-store";
+import { snoozeVorgang } from "@/features/workspace/services/vorgaenge/vorgaenge-snooze-store";
 import { useVorgangStatus } from "@/features/workspace/services/status/use-vorgang-status";
-import { VORGANG_PRIORITY_LABELS, type Vorgang } from "@/features/workspace/services/vorgaenge/types";
+import {
+  VORGANG_PRIORITY_LABELS,
+  type Vorgang,
+} from "@/features/workspace/services/vorgaenge/types";
 import { createClient } from "@/lib/supabase/client";
+import { useExternalStore } from "@/lib/hooks/use-external-store";
 import { cn } from "@/lib/utils";
+
+type ActivePanel = "none" | "reply" | "appointment";
 
 type VorgangCardProps = {
   vorgang: Vorgang;
+  compact?: boolean;
+  focused?: boolean;
+  selectedDetailId?: string | null;
+  onOpen?: (id: string) => void;
   onCompleted?: (message: string, helpyPanelMessage: string) => void;
+  onRequestReply?: (id: string) => void;
+  onRequestAppointment?: (id: string) => void;
+  externalPanel?: ActivePanel;
+  onExternalPanelChange?: (panel: ActivePanel) => void;
 };
 
 const priorityStyles = {
@@ -38,186 +63,300 @@ const priorityStyles = {
   niedrig: "border-[#CBD5E1] bg-[#F8FAFC] text-[#64748B]",
 } as const;
 
-export function VorgangCard({ vorgang, onCompleted }: VorgangCardProps) {
-  const intentLabel = vorgang.intentLabel ?? vorgang.typ;
-  const workspacePath = resolveVorgangOpenPath(vorgang, getWorkspacePath);
-  const { currentStatus } = useVorgangStatus(vorgang);
-  const isConnectedMail = isConnectedMailVorgang(vorgang);
-  const isHelpyPhone = isHelpyPhoneVorgang(vorgang);
-  const isPlatformInquiry = isPlatformRealEstateVorgang(vorgang);
-  const isArchiveCandidate = isConnectedMail && shouldPrepareArchive(vorgang);
-  const [completing, setCompleting] = useState(false);
-  const [feedback, setFeedback] = useState<string | null>(null);
+const UNDO_MS = 5000;
 
-  const handleComplete = async () => {
+export function VorgangCard({
+  vorgang: rawVorgang,
+  compact = true,
+  focused = false,
+  selectedDetailId = null,
+  onOpen,
+  onCompleted,
+  onRequestReply,
+  onRequestAppointment,
+  externalPanel,
+  onExternalPanelChange,
+}: VorgangCardProps) {
+  useExternalStore(subscribePriorityOverrides, () => null, () => null);
+  const vorgang = applyPriorityOverride(rawVorgang);
+  const { currentStatus } = useVorgangStatus(vorgang);
+  const isHelpyPhone = isHelpyPhoneVorgang(vorgang);
+  const isSelected = useExternalStore(
+    subscribeVorgaengeSelection,
+    () => isVorgangSelected(vorgang.id),
+    () => false
+  );
+  const isDetailOpen = selectedDetailId === vorgang.id;
+
+  const [internalPanel, setInternalPanel] = useState<ActivePanel>("none");
+  const activePanel = externalPanel ?? internalPanel;
+  const setActivePanel = onExternalPanelChange ?? setInternalPanel;
+
+  const [completing, setCompleting] = useState(false);
+  const [exiting, setExiting] = useState(false);
+  const [undoVisible, setUndoVisible] = useState(false);
+  const [swipeX, setSwipeX] = useState(0);
+  const [swiping, setSwiping] = useState(false);
+  const touchStartX = useRef(0);
+  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cardRef = useRef<HTMLElement>(null);
+
+  const borderAccent = getCardBorderAccent(vorgang);
+  const isErledigt = currentStatus === "erledigt";
+
+  const clearUndoTimer = useCallback(() => {
+    if (undoTimerRef.current) {
+      clearTimeout(undoTimerRef.current);
+      undoTimerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => clearUndoTimer, [clearUndoTimer]);
+
+  useEffect(() => {
+    if (externalPanel !== undefined) {
+      setInternalPanel(externalPanel);
+    }
+  }, [externalPanel]);
+
+  const handleComplete = useCallback(async () => {
+    if (completing || isErledigt) return;
     setCompleting(true);
     const supabase = createClient();
     const session = supabase ? (await supabase.auth.getSession()).data.session : null;
     const result = await completeVorgang(vorgang, session?.provider_token);
     setCompleting(false);
 
-    if (!result.ok) {
-      setFeedback(result.message);
-      return;
-    }
+    if (!result.ok) return;
 
-    setFeedback(result.message);
+    setExiting(true);
+    setUndoVisible(true);
     onCompleted?.(result.message, result.helpyPanelMessage);
+
+    clearUndoTimer();
+    undoTimerRef.current = setTimeout(() => {
+      setUndoVisible(false);
+      setExiting(false);
+    }, UNDO_MS);
+  }, [clearUndoTimer, completing, isErledigt, onCompleted, vorgang]);
+
+  const handleUndo = useCallback(() => {
+    clearUndoTimer();
+    undoCompleteVorgang(vorgang);
+    setUndoVisible(false);
+    setExiting(false);
+    onCompleted?.("Rückgängig gemacht.", "Der Vorgang ist wieder offen.");
+  }, [clearUndoTimer, onCompleted, vorgang]);
+
+  const handleTouchStart = (event: React.TouchEvent) => {
+    touchStartX.current = event.touches[0]?.clientX ?? 0;
+    setSwiping(true);
   };
+
+  const handleTouchMove = (event: React.TouchEvent) => {
+    if (!swiping) return;
+    const delta = (event.touches[0]?.clientX ?? 0) - touchStartX.current;
+    setSwipeX(Math.max(-120, Math.min(120, delta)));
+  };
+
+  const handleTouchEnd = () => {
+    setSwiping(false);
+    if (swipeX < -80) {
+      void handleComplete();
+    } else if (swipeX > 80) {
+      snoozeVorgang(vorgang.id, "1h");
+      setExiting(true);
+      setTimeout(() => setExiting(false), 400);
+      onCompleted?.("Später — für 1 Stunde ausgeblendet.", "Du siehst den Vorgang in einer Stunde wieder.");
+    }
+    setSwipeX(0);
+  };
+
+  const intentTag = vorgang.intentLabel ?? vorgang.typ;
+
+  if (exiting && !undoVisible) {
+    return null;
+  }
 
   return (
     <article
+      ref={cardRef}
+      data-vorgang-id={vorgang.id}
       className={cn(
-        "group rounded-[24px] border border-[#CBD5E1]/40 bg-white/90 p-6 shadow-[0_2px_8px_rgba(15,23,42,0.04),0_12px_40px_rgba(15,23,42,0.06)] ring-1 ring-white backdrop-blur-xl",
-        "transition-all duration-300 hover:-translate-y-0.5 hover:border-[#BFDBFE]/60 hover:shadow-[0_8px_32px_rgba(37,99,235,0.1)]"
+        "group relative overflow-hidden rounded-[16px] border border-[#CBD5E1]/40 border-l-4 bg-white/90 shadow-sm backdrop-blur-xl transition-all duration-300",
+        CARD_BORDER_STYLES[borderAccent],
+        compact ? "p-3.5" : "p-5",
+        focused && "ring-2 ring-[#2563EB]/40",
+        isDetailOpen && "border-[#2563EB]/50 bg-[#EFF6FF]/30",
+        exiting && "pointer-events-none -translate-x-full opacity-0",
+        "hover:border-[#BFDBFE]/70 hover:shadow-md"
       )}
+      style={{
+        transform: swiping ? `translateX(${swipeX}px)` : undefined,
+      }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onClick={() => onOpen?.(vorgang.id)}
     >
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <VorgangStatusBadge status={currentStatus} />
-        <Badge
-          variant="outline"
+      {Math.abs(swipeX) > 20 ? (
+        <div
           className={cn(
-            "h-6 rounded-full px-2.5 text-[10px] font-semibold",
-            priorityStyles[vorgang.prioritaet]
+            "pointer-events-none absolute inset-y-0 flex w-24 items-center justify-center text-[11px] font-semibold text-white",
+            swipeX < 0 ? "left-0 bg-[#22C55E]" : "right-0 bg-[#F59E0B]"
           )}
         >
-          {VORGANG_PRIORITY_LABELS[vorgang.prioritaet]}
-        </Badge>
-      </div>
+          {swipeX < 0 ? "Erledigt" : "Später"}
+        </div>
+      ) : null}
 
-      <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
-        <div className="flex min-w-0 flex-1 items-start gap-4">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-[#F8FAFC] text-xl transition-transform duration-300 group-hover:scale-105">
-            {vorgang.emoji}
-          </span>
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold tracking-[0.04em] text-[#94A3B8] uppercase">
-              {intentLabel}
-            </p>
-            <h3 className="mt-1 text-[15px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+      <div className="flex items-start gap-2.5">
+        <label
+          className={cn(
+            "mt-0.5 flex size-5 shrink-0 cursor-pointer items-center justify-center rounded-[6px] border border-[#CBD5E1] bg-white opacity-0 transition-opacity group-hover:opacity-100",
+            isSelected && "opacity-100"
+          )}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <input
+            type="checkbox"
+            checked={isSelected}
+            className="sr-only"
+            onChange={() => setVorgangSelected(vorgang.id, !isSelected)}
+          />
+          {isSelected ? (
+            <Check className="size-3 text-[#2563EB]" strokeWidth={3} />
+          ) : null}
+        </label>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge
+              variant="outline"
+              className={cn(
+                "h-5 rounded-full px-2 text-[9px] font-semibold",
+                priorityStyles[vorgang.prioritaet]
+              )}
+            >
+              {VORGANG_PRIORITY_LABELS[vorgang.prioritaet]}
+            </Badge>
+            <span className="truncate text-[13px] font-semibold text-[#0F172A]">
+              {vorgang.kunde}
+            </span>
+            <span className="hidden text-[#CBD5E1] sm:inline">·</span>
+            <span className="min-w-0 truncate text-[13px] text-[#334155]">
               {vorgang.titel}
-            </h3>
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] text-[#64748B]">
-              <span>{vorgang.kunde}</span>
-              <span className="text-[#CBD5E1]">·</span>
-              {isHelpyPhone ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#ECFDF5] px-2 py-0.5 text-[10px] font-semibold text-[#047857]">
-                  📞 Via Telefon
-                </span>
-              ) : (
-                <span className="text-[#94A3B8]">{vorgang.quelle}</span>
-              )}
-              {vorgang.skillLabel && (
-                <>
-                  <span className="text-[#CBD5E1]">·</span>
-                  <span className="font-medium text-[#2563EB]">
-                    {vorgang.skillLabel}
-                  </span>
-                </>
-              )}
-              <span className="text-[#CBD5E1]">·</span>
-              <span>{vorgang.receivedLabel}</span>
-            </div>
+            </span>
           </div>
+
+          {vorgang.summary ? (
+            <p className="mt-1 line-clamp-1 text-[12px] text-[#64748B]">
+              {vorgang.summary}
+            </p>
+          ) : null}
+
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-[#94A3B8]">
+            <span>{vorgang.receivedLabel}</span>
+            {isHelpyPhone ? (
+              <Phone className="size-3 text-[#047857]" />
+            ) : (
+              <Mail className="size-3 text-[#2563EB]" />
+            )}
+            <span className="rounded-full bg-[#F1F5F9] px-2 py-0.5 text-[10px] font-medium text-[#64748B]">
+              {intentTag}
+            </span>
+            {vorgang.skillLabel ? (
+              <span className="rounded-full bg-[#EFF6FF] px-2 py-0.5 text-[10px] font-medium text-[#2563EB]">
+                {vorgang.skillLabel}
+              </span>
+            ) : null}
+            {!compact ? <VorgangStatusBadge status={currentStatus} /> : null}
+          </div>
+
+          {activePanel === "reply" ? (
+            <VorgangMiniReplyPanel
+              vorgang={vorgang}
+              className="mt-3"
+              onClose={() => setActivePanel("none")}
+              onDone={(message, helpyMessage) => {
+                setActivePanel("none");
+                setExiting(true);
+                onCompleted?.(message, helpyMessage);
+              }}
+            />
+          ) : null}
+
+          {activePanel === "appointment" ? (
+            <VorgangMiniAppointmentPanel
+              vorgang={vorgang}
+              className="mt-3"
+              onClose={() => setActivePanel("none")}
+              onDone={(message, helpyMessage) => {
+                setActivePanel("none");
+                setExiting(true);
+                onCompleted?.(message, helpyMessage);
+              }}
+            />
+          ) : null}
         </div>
+
+        {!isErledigt ? (
+          <div
+            className="flex shrink-0 flex-col gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100 max-sm:hidden"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              title="Erledigt"
+              disabled={completing}
+              onClick={() => {
+                void handleComplete();
+              }}
+              className="flex size-8 items-center justify-center rounded-[10px] border border-[#A7F3D0] bg-[#ECFDF5] text-[#047857] transition-colors hover:bg-[#D1FAE5]"
+            >
+              <CheckCircle2 className="size-4" />
+            </button>
+            <button
+              type="button"
+              title="Antworten"
+              onClick={() => {
+                setActivePanel("reply");
+                onRequestReply?.(vorgang.id);
+              }}
+              className="flex size-8 items-center justify-center rounded-[10px] border border-[#BFDBFE] bg-[#EFF6FF] text-[#2563EB] transition-colors hover:bg-[#DBEAFE]"
+            >
+              <Reply className="size-4" />
+            </button>
+            <button
+              type="button"
+              title="Termin"
+              onClick={() => {
+                setActivePanel("appointment");
+                onRequestAppointment?.(vorgang.id);
+              }}
+              className="flex size-8 items-center justify-center rounded-[10px] border border-[#BFDBFE] bg-[#EFF6FF] text-[#2563EB] transition-colors hover:bg-[#DBEAFE]"
+            >
+              <CalendarDays className="size-4" />
+            </button>
+          </div>
+        ) : null}
       </div>
 
-      {vorgang.summary && (
-        <p className="mt-4 text-[12px] leading-relaxed text-[#475569]">
-          {vorgang.summary}
-        </p>
-      )}
-
-      {vorgang.detectedContext && vorgang.detectedContext.length > 0 && (
-        <div className="mt-3 rounded-[14px] border border-[#E2E8F0]/80 bg-[#F8FAFC]/80 px-4 py-3">
-          <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
-            Kontext
-          </p>
-          <ul className="mt-2 space-y-1">
-            {vorgang.detectedContext.map((line) => (
-              <li
-                key={line}
-                className="flex gap-2 text-[11px] leading-relaxed text-[#64748B]"
-              >
-                <span className="mt-1.5 size-1 shrink-0 rounded-full bg-[#94A3B8]" />
-                {line}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {isArchiveCandidate ? (
-        <HelpyArchiveCard vorgang={vorgang} className="mt-4" />
-      ) : isPlatformInquiry ? (
-        <>
-          <div className="mt-4 rounded-[16px] border border-[#FDE68A]/50 bg-[#FFFBEB]/50 px-4 py-3.5 backdrop-blur-sm">
-            <div className="flex items-start gap-2.5">
-              <Lightbulb className="mt-0.5 size-4 shrink-0 text-[#D97706]" strokeWidth={2} />
-              <div>
-                <p className="text-[10px] font-semibold text-[#B45309]">
-                  HELPY Empfehlung
-                </p>
-                <p className="mt-1 text-[12px] leading-relaxed text-[#334155]">
-                  {vorgang.helpyEmpfehlung}
-                </p>
-              </div>
-            </div>
-          </div>
-          <HelpyReplyDraftCard vorgang={vorgang} className="mt-4" />
-        </>
-      ) : isConnectedMail ? (
-        <>
-          <div className="mt-4">
-            <HelpyEmpfiehltBox vorgang={vorgang} />
-          </div>
-          <HelpyReplyDraftCard vorgang={vorgang} className="mt-4" />
-        </>
-      ) : (
-        <div className="mt-4 rounded-[16px] border border-[#FDE68A]/50 bg-[#FFFBEB]/50 px-4 py-3.5 backdrop-blur-sm">
-          <div className="flex items-start gap-2.5">
-            <Lightbulb className="mt-0.5 size-4 shrink-0 text-[#D97706]" strokeWidth={2} />
-            <div>
-              <p className="text-[10px] font-semibold text-[#B45309]">
-                HELPY Empfehlung
-              </p>
-              <p className="mt-1 text-[12px] leading-relaxed text-[#334155]">
-                {vorgang.helpyEmpfehlung}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {(isPlatformInquiry || !isConnectedMail) && <HelpyPreparedActions vorgang={vorgang} />}
-
-      {feedback && (
-        <p className="mt-4 rounded-[10px] border border-[#A7F3D0]/50 bg-[#ECFDF5]/60 px-3 py-2 text-[11px] leading-relaxed text-[#047857]">
-          {feedback}
-        </p>
-      )}
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        <Link
-          href={workspacePath}
-          className="inline-flex h-9 items-center gap-2 rounded-[12px] bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-4 text-[12px] font-semibold text-white shadow-sm transition-all duration-300 hover:shadow-md"
+      {undoVisible ? (
+        <div
+          className="mt-3 flex items-center justify-between rounded-[10px] border border-[#A7F3D0]/50 bg-[#ECFDF5]/80 px-3 py-2"
+          onClick={(event) => event.stopPropagation()}
         >
-          <ExternalLink className="size-3.5" />
-          Vorgang öffnen
-        </Link>
-        <Button
-          type="button"
-          variant="outline"
-          disabled={completing || currentStatus === "erledigt"}
-          onClick={() => {
-            void handleComplete();
-          }}
-          className="h-9 gap-2 rounded-[12px] border-[#CBD5E1]/60 bg-white/90 text-[12px] font-medium"
-        >
-          <CheckCircle2 className="size-3.5" />
-          {completing ? "Wird markiert…" : "Als erledigt markieren"}
-        </Button>
-      </div>
+          <span className="text-[11px] text-[#047857]">Als erledigt markiert</span>
+          <button
+            type="button"
+            onClick={handleUndo}
+            className="text-[11px] font-semibold text-[#2563EB] hover:underline"
+          >
+            Rückgängig
+          </button>
+        </div>
+      ) : null}
     </article>
   );
 }
