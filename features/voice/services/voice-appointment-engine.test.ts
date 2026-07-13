@@ -5,25 +5,37 @@ import {
   pickVoiceAppointmentSlot,
 } from "@/features/voice/services/voice-appointment-engine";
 import type { AppointmentSlot } from "@/features/appointment-suggestions/types/appointment-suggestion-types";
+import {
+  addDaysToZurichDate,
+  getZurichDateString,
+} from "@/features/apple-calendar/services/apple-caldav-timezone";
+import { formatGermanDateLabel } from "@/features/appointment-suggestions/services/viewing-date-parser";
+
+// "morgen" (tomorrow) is resolved relative to the real clock by
+// parseViewingTargetDate, so the fixture must use tomorrow's date rather
+// than a hardcoded value — otherwise this test rots as soon as the
+// hardcoded date is no longer "tomorrow".
+const tomorrow = addDaysToZurichDate(getZurichDateString(), 1);
+const tomorrowLabel = formatGermanDateLabel(tomorrow);
 
 const slots: AppointmentSlot[] = [
   {
     id: "slot-a",
-    date: "2026-07-10",
-    dateLabel: "Fr., 10.07.",
+    date: tomorrow,
+    dateLabel: tomorrowLabel,
     start: "10:00",
     end: "11:00",
-    label: "Fr., 10.07. · 10:00–11:00",
+    label: `${tomorrowLabel} · 10:00–11:00`,
     durationMinutes: 60,
     calendarLabel: "Google Kalender",
   },
   {
     id: "slot-b",
-    date: "2026-07-10",
-    dateLabel: "Fr., 10.07.",
+    date: tomorrow,
+    dateLabel: tomorrowLabel,
     start: "14:00",
     end: "15:00",
-    label: "Fr., 10.07. · 14:00–15:00",
+    label: `${tomorrowLabel} · 14:00–15:00`,
     durationMinutes: 60,
     calendarLabel: "Google Kalender",
   },
@@ -49,7 +61,7 @@ describe("voice-appointment-engine", () => {
         location: null,
         durationMinutes: 60,
         durationLabel: "60 Min.",
-        appointmentKind: "besichtigung",
+        appointmentKind: "wohnungsbesichtigung",
         calendarPlatform: "google",
         calendarLabel: "Google Kalender",
         slots,
