@@ -114,11 +114,22 @@ export function EntityBrowserPicker<TItem>({
         </div>
       </div>
 
-      <div className="flex gap-2.5 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="hidden gap-2.5 overflow-x-auto pb-1 lg:flex [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {items.map((item) => {
           const id = getItemId(item);
           return (
             <div key={id} className="shrink-0">
+              {renderCard(item, id === selectedId)}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-2 flex flex-col gap-2 lg:hidden">
+        {items.map((item) => {
+          const id = getItemId(item);
+          return (
+            <div key={`mobile-${id}`} className="w-full [&>button]:w-full">
               {renderCard(item, id === selectedId)}
             </div>
           );

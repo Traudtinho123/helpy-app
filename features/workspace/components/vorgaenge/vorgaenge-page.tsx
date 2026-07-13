@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { CreateVorgangModal } from "@/features/vorgaenge/components/create-vorgang-modal";
 import { loadDbVorgaengeFromApi } from "@/features/vorgaenge/services/db-vorgaenge-store";
 import { getDbKundenCustomers, setDbKundenCustomers } from "@/features/customers/services/kunden-store";
+import { MobileBackHeader } from "@/components/mobile/mobile-back-header";
 import { HelpyReportCard } from "@/features/workspace/components/vorgaenge/helpy-report-card";
 import { HelpyVorgaengePanel } from "@/features/workspace/components/vorgaenge/helpy-vorgaenge-panel";
 import { VorgangCard } from "@/features/workspace/components/vorgaenge/vorgang-card";
@@ -341,7 +342,7 @@ export function VorgaengePage() {
 
       <div
         className={cn(
-          "mx-auto px-6 py-10 lg:px-10 lg:py-12",
+          "mx-auto px-4 py-6 sm:px-6 lg:px-10 lg:py-12",
           isSplitView ? "max-w-[1600px]" : "max-w-4xl"
         )}
       >
@@ -373,7 +374,8 @@ export function VorgaengePage() {
           </p>
         ) : null}
 
-        <div className="mb-4 flex flex-wrap gap-1.5">
+        <div className="mb-4 -mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex w-max min-w-full flex-nowrap gap-1.5 sm:flex-wrap">
           {filterOrder.map((filter) => {
             const isActive = activeFilter === filter;
             const count = filterCounts[filter];
@@ -417,6 +419,7 @@ export function VorgaengePage() {
               </button>
             );
           })}
+          </div>
         </div>
 
         <div className="mb-5">
@@ -492,7 +495,7 @@ export function VorgaengePage() {
                       setCardPanelById((prev) => ({ ...prev, [vorgang.id]: panel }));
                     }}
                     onOpen={(id) => {
-                      setSelectedDetailId((current) => (current === id ? null : id));
+                      setSelectedDetailId(id);
                       if (actionIndex >= 0) setFocusedIndex(actionIndex);
                     }}
                     onCompleted={handleCompleted}
@@ -520,6 +523,25 @@ export function VorgaengePage() {
           ) : null}
         </div>
       </div>
+
+      {selectedVorgang && selectedDetailId ? (
+        <div className="fixed inset-0 z-40 flex flex-col bg-white lg:hidden">
+          <MobileBackHeader
+            title={selectedVorgang.titel}
+            subtitle={selectedVorgang.kunde}
+            onBack={() => setSelectedDetailId(null)}
+          />
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <VorgangSplitDetail
+              vorgang={selectedVorgang}
+              onClose={() => setSelectedDetailId(null)}
+              onCompleted={handleCompleted}
+              showHeader={false}
+              className="h-auto min-h-full rounded-none border-0 shadow-none"
+            />
+          </div>
+        </div>
+      ) : null}
 
       <CreateVorgangModal
         open={createModalOpen}

@@ -111,7 +111,7 @@ export function Sidebar({ activeHref }: SidebarProps) {
   };
 
   return (
-    <aside className="relative z-10 flex h-screen w-[260px] shrink-0 flex-col bg-[var(--sidebar-bg)] shadow-[inset_-1px_0_0_rgba(255,255,255,0.04)]">
+    <aside className="relative z-10 hidden h-screen w-[260px] shrink-0 flex-col bg-[var(--sidebar-bg)] shadow-[inset_-1px_0_0_rgba(255,255,255,0.04)] lg:flex">
       <div className="flex shrink-0 items-center px-5 pt-6 pb-5">
         <HelpyLogo size="sidebar" variant="light" />
       </div>

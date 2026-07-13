@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowDownUp, Plus } from "lucide-react";
+import { MobileBackHeader } from "@/components/mobile/mobile-back-header";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { CustomerProfile } from "@/features/customers/components/customer-profile";
 import { CreateCustomerModal } from "@/features/customers/components/create-customer-modal";
@@ -61,6 +62,7 @@ export function KundenPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedId, setSelectedId] = useState(customers[0]?.id ?? "");
   const [sortByScore, setSortByScore] = useState(false);
+  const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
 
   useEffect(() => {
     if (selectParam && customers.some((customer) => customer.id === selectParam)) {
@@ -172,12 +174,30 @@ export function KundenPage() {
         <KundenPicker
           customers={filteredCustomers}
           selectedId={selectedCustomer?.id ?? ""}
-          onSelect={setSelectedId}
+          onSelect={(id) => {
+            setSelectedId(id);
+            if (typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches) {
+              setMobileProfileOpen(true);
+            }
+          }}
         />
-        <div className="min-h-0 flex-1 overflow-hidden">
+        <div className="hidden min-h-0 flex-1 overflow-hidden lg:block">
           <CustomerProfile customer={selectedCustomer} />
         </div>
       </div>
+
+      {mobileProfileOpen && selectedCustomer ? (
+        <div className="fixed inset-0 z-40 flex flex-col bg-white lg:hidden">
+          <MobileBackHeader
+            title={selectedCustomer.company}
+            subtitle={selectedCustomer.contactPerson}
+            onBack={() => setMobileProfileOpen(false)}
+          />
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <CustomerProfile customer={selectedCustomer} />
+          </div>
+        </div>
+      ) : null}
 
       <CreateCustomerModal
         open={createModalOpen}

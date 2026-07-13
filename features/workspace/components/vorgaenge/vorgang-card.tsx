@@ -39,6 +39,7 @@ import {
 } from "@/features/workspace/services/vorgaenge/types";
 import { createClient } from "@/lib/supabase/client";
 import { useExternalStore } from "@/lib/hooks/use-external-store";
+import { triggerHapticFeedback } from "@/lib/mobile/haptics";
 import { cn } from "@/lib/utils";
 
 type ActivePanel = "none" | "reply" | "appointment";
@@ -97,7 +98,9 @@ export function VorgangCard({
   const [undoVisible, setUndoVisible] = useState(false);
   const [swipeX, setSwipeX] = useState(0);
   const [swiping, setSwiping] = useState(false);
+  const [contextMenuOpen, setContextMenuOpen] = useState(false);
   const touchStartX = useRef(0);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cardRef = useRef<HTMLElement>(null);
 
@@ -131,6 +134,7 @@ export function VorgangCard({
 
     setExiting(true);
     setUndoVisible(true);
+    triggerHapticFeedback(50);
     onCompleted?.(result.message, result.helpyPanelMessage);
 
     clearUndoTimer();
@@ -151,19 +155,33 @@ export function VorgangCard({
   const handleTouchStart = (event: React.TouchEvent) => {
     touchStartX.current = event.touches[0]?.clientX ?? 0;
     setSwiping(true);
+    longPressTimer.current = setTimeout(() => {
+      triggerHapticFeedback(30);
+      setContextMenuOpen(true);
+    }, 500);
+  };
+
+  const clearLongPress = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
   };
 
   const handleTouchMove = (event: React.TouchEvent) => {
+    clearLongPress();
     if (!swiping) return;
     const delta = (event.touches[0]?.clientX ?? 0) - touchStartX.current;
     setSwipeX(Math.max(-120, Math.min(120, delta)));
   };
 
   const handleTouchEnd = () => {
+    clearLongPress();
     setSwiping(false);
     if (swipeX < -80) {
       void handleComplete();
     } else if (swipeX > 80) {
+      triggerHapticFeedback(30);
       snoozeVorgang(vorgang.id, "1h");
       setExiting(true);
       setTimeout(() => setExiting(false), 400);
@@ -203,7 +221,7 @@ export function VorgangCard({
         <div
           className={cn(
             "pointer-events-none absolute inset-y-0 flex w-24 items-center justify-center text-[11px] font-semibold text-white",
-            swipeX < 0 ? "left-0 bg-[#22C55E]" : "right-0 bg-[#F59E0B]"
+            swipeX < 0 ? "left-0 bg-[#DC2626]" : "right-0 bg-[#2563EB]"
           )}
         >
           {swipeX < 0 ? "Erledigt" : "Später"}
@@ -213,7 +231,7 @@ export function VorgangCard({
       <div className="flex items-start gap-2.5">
         <label
           className={cn(
-            "mt-0.5 flex size-5 shrink-0 cursor-pointer items-center justify-center rounded-[6px] border border-[#CBD5E1] bg-white opacity-0 transition-opacity group-hover:opacity-100",
+            "mt-0.5 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-[8px] border border-[#CBD5E1] bg-white transition-opacity sm:size-5 lg:opacity-0 lg:group-hover:opacity-100",
             isSelected && "opacity-100"
           )}
           onClick={(event) => event.stopPropagation()}
@@ -351,10 +369,58 @@ export function VorgangCard({
           <button
             type="button"
             onClick={handleUndo}
-            className="text-[11px] font-semibold text-[#2563EB] hover:underline"
+            className="min-h-[44px] px-2 text-[11px] font-semibold text-[#2563EB] hover:underline"
           >
             Rückgängig
           </button>
+        </div>
+      ) : null}
+
+      {contextMenuOpen ? (
+        <div
+          className="absolute inset-x-0 bottom-0 z-10 rounded-b-[16px] border-t border-[#E2E8F0] bg-white p-2 shadow-lg"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="grid grid-cols-2 gap-1">
+            <button
+              type="button"
+              className="min-h-[44px] rounded-[10px] bg-[#FEF2F2] text-[12px] font-semibold text-[#DC2626]"
+              onClick={() => {
+                setContextMenuOpen(false);
+                void handleComplete();
+              }}
+            >
+              Erledigen
+            </button>
+            <button
+              type="button"
+              className="min-h-[44px] rounded-[10px] bg-[#EFF6FF] text-[12px] font-semibold text-[#2563EB]"
+              onClick={() => {
+                setContextMenuOpen(false);
+                setActivePanel("reply");
+              }}
+            >
+              Antworten
+            </button>
+            <button
+              type="button"
+              className="min-h-[44px] rounded-[10px] bg-[#FFFBEB] text-[12px] font-semibold text-[#B45309]"
+              onClick={() => {
+                setContextMenuOpen(false);
+                snoozeVorgang(vorgang.id, "1d");
+                onCompleted?.("Für 1 Tag ausgeblendet.", "Vorgang wird morgen wieder sichtbar.");
+              }}
+            >
+              Später
+            </button>
+            <button
+              type="button"
+              className="min-h-[44px] rounded-[10px] bg-[#F8FAFC] text-[12px] font-semibold text-[#64748B]"
+              onClick={() => setContextMenuOpen(false)}
+            >
+              Schliessen
+            </button>
+          </div>
         </div>
       ) : null}
     </article>

@@ -1,6 +1,11 @@
 import { AiAssistantPanel } from "@/components/dashboard/ai-assistant-panel";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { Sidebar } from "@/components/dashboard/sidebar";
+import { HelpyChatFab } from "@/components/mobile/helpy-chat-fab";
+import { MobileBottomNav } from "@/components/mobile/mobile-bottom-nav";
+import { MobileHeader } from "@/components/mobile/mobile-header";
+import { PullToRefresh } from "@/components/mobile/pull-to-refresh";
+import { PwaInstallBanner } from "@/components/mobile/pwa-install-banner";
 
 type DashboardShellProps = {
   children: React.ReactNode;
@@ -13,8 +18,10 @@ export function DashboardShell({
   activeHref = "/",
   rightPanel,
 }: DashboardShellProps) {
+  const helpyPanel = rightPanel ?? <AiAssistantPanel />;
+
   return (
-    <div className="relative flex h-screen overflow-hidden bg-[var(--background)] text-[var(--text-primary)]">
+    <div className="relative flex h-[100dvh] overflow-hidden bg-[var(--background)] text-[var(--text-primary)]">
       <div className="pointer-events-none fixed inset-0 bg-gradient-to-br from-[var(--background)] via-[var(--background-secondary)] to-[var(--primary-light)]/30" />
 
       <div className="pointer-events-none fixed -top-40 -left-20 size-[600px] rounded-full bg-[var(--primary-glow)] blur-[130px]" />
@@ -25,15 +32,20 @@ export function DashboardShell({
 
       <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
         <DashboardHeader />
+        <MobileHeader />
 
         <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
-          <main className="relative min-w-0 flex-1 overflow-x-hidden overflow-y-auto bg-transparent">
-            {children}
-          </main>
-          <div className="hidden min-w-0 shrink-0 xl:flex">
-            {rightPanel ?? <AiAssistantPanel />}
-          </div>
+          <PullToRefresh className="relative min-w-0 flex-1 bg-transparent pb-[calc(4rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
+            <main className="relative min-h-full min-w-0 overflow-x-hidden">
+              {children}
+            </main>
+          </PullToRefresh>
+          <div className="hidden min-w-0 shrink-0 xl:flex">{helpyPanel}</div>
         </div>
+
+        <HelpyChatFab panel={helpyPanel} />
+        <MobileBottomNav activeHref={activeHref} />
+        <PwaInstallBanner />
       </div>
     </div>
   );

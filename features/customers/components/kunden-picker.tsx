@@ -31,7 +31,7 @@ function CustomerCard({
       type="button"
       onClick={onSelect}
       className={cn(
-        "flex w-[220px] shrink-0 gap-3 rounded-[16px] border p-3 text-left transition-all duration-300",
+        "flex w-full shrink-0 gap-3 rounded-[16px] border p-3 text-left transition-all duration-300 sm:w-[220px]",
         isSelected
           ? "border-[#2563EB]/30 bg-white shadow-[0_2px_16px_rgba(37,99,235,0.12)] ring-1 ring-[#2563EB]/15"
           : "border-[#CBD5E1]/40 bg-white/70 hover:border-[#CBD5E1]/60 hover:bg-white hover:shadow-sm"

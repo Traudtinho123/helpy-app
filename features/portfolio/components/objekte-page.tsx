@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { LayoutGrid, Plus } from "lucide-react";
+import { MobileBackHeader } from "@/components/mobile/mobile-back-header";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { AddObjectDialog } from "@/features/portfolio/components/add-object-dialog";
 import { ObjektakteView } from "@/features/portfolio/components/objektakte-view";
@@ -42,6 +43,7 @@ export function ObjektePage() {
   const [searchQuery, setSearchQuery] = useState("");
   /** Leer = Browse-Modus (volle Leiste). Gesetzt = Fokus-Modus (nur Dropdown). */
   const [selectedId, setSelectedId] = useState("");
+  const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
 
   const revision = useStoreRevision(
     isRealEstate ? subscribePortfolioStores : noopSubscribe
@@ -85,6 +87,9 @@ export function ObjektePage() {
   const handleSelectObject = (id: string) => {
     setSelectedId(id);
     setInitialObjectTab("uebersicht");
+    if (typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches) {
+      setMobileDetailOpen(true);
+    }
   };
 
   const handleBackToOverview = () => {
@@ -176,7 +181,7 @@ export function ObjektePage() {
                   </Button>
                 }
               />
-              <div className="min-h-0 flex-1 overflow-hidden">
+              <div className="hidden min-h-0 flex-1 overflow-hidden lg:block">
                 <ObjektakteView
                   objectId={selectedObjectId}
                   embedded
@@ -209,6 +214,25 @@ export function ObjektePage() {
           )}
         </div>
       )}
+
+      {isRealEstate && mobileDetailOpen && selectedObjectId ? (
+        <div className="fixed inset-0 z-40 flex flex-col bg-white lg:hidden">
+          <MobileBackHeader
+            title="Objektakte"
+            onBack={() => {
+              setMobileDetailOpen(false);
+              setSelectedId("");
+            }}
+          />
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <ObjektakteView
+              objectId={selectedObjectId}
+              embedded
+              initialTab={initialObjectTab}
+            />
+          </div>
+        </div>
+      ) : null}
 
       {isRealEstate && (
         <AddObjectDialog

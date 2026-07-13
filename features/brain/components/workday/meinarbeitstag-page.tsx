@@ -74,7 +74,7 @@ function TagesuebersichtCard({
           </div>
         </div>
 
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="grid grid-cols-2 gap-3 lg:grid-cols-3">
           {plan.statusMetrics.map(({ label, value }) => (
             <li
               key={label}
@@ -417,7 +417,7 @@ export function MeinArbeitstagPage({
   }).format(new Date());
 
   return (
-    <div className="mx-auto max-w-6xl px-8 py-12 lg:px-12 lg:py-14">
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 lg:px-12 lg:py-14">
       <header className="mb-12">
         <p className="helpy-label">{today}</p>
         <h1 className="helpy-h1 mt-3">{greeting}</h1>

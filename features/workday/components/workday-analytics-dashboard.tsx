@@ -62,7 +62,7 @@ export function WorkdayAnalyticsDashboard({
         <CardContent className="p-7 lg:p-8">
           <div className="animate-pulse space-y-4">
             <div className="h-6 w-48 rounded bg-[var(--background-secondary)]" />
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
               {Array.from({ length: 4 }).map((_, index) => (
                 <div
                   key={index}

@@ -1,5 +1,6 @@
 "use client";
 
+import { SlideUpSheet } from "@/components/mobile/slide-up-sheet";
 import { useEffect } from "react";
 
 export const VORGAENGE_SHORTCUTS = [
@@ -120,11 +121,32 @@ type ShortcutsHelpModalProps = {
 };
 
 export function ShortcutsHelpModal({ open, onClose }: ShortcutsHelpModalProps) {
-  if (!open) return null;
-
   return (
+    <>
+      <SlideUpSheet open={open} onClose={onClose} title="Tastaturkürzel" className="lg:hidden">
+        <div className="p-4 pb-8">
+          <p className="mb-4 text-[12px] text-[#64748B]">
+            Schnellaktionen auf der Vorgänge-Seite (Desktop)
+          </p>
+          <ul className="space-y-2">
+            {VORGAENGE_SHORTCUTS.map((shortcut) => (
+              <li
+                key={shortcut.key}
+                className="flex items-center justify-between gap-4 text-[13px]"
+              >
+                <span className="text-[#475569]">{shortcut.label}</span>
+                <kbd className="rounded-[8px] border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-0.5 font-mono text-[11px] font-semibold text-[#0F172A]">
+                  {shortcut.key}
+                </kbd>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </SlideUpSheet>
+
+      {open ? (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#0F172A]/40 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 hidden items-center justify-center bg-[#0F172A]/40 p-4 backdrop-blur-sm lg:flex"
       onClick={onClose}
     >
       <div
@@ -159,5 +181,7 @@ export function ShortcutsHelpModal({ open, onClose }: ShortcutsHelpModalProps) {
         </button>
       </div>
     </div>
+      ) : null}
+    </>
   );
 }

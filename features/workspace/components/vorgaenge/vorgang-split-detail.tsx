@@ -21,6 +21,7 @@ type VorgangSplitDetailProps = {
   onClose: () => void;
   onCompleted?: (message: string, helpyPanelMessage: string) => void;
   className?: string;
+  showHeader?: boolean;
 };
 
 const priorityStyles = {
@@ -35,6 +36,7 @@ export function VorgangSplitDetail({
   onClose,
   onCompleted,
   className,
+  showHeader = true,
 }: VorgangSplitDetailProps) {
   const { currentStatus } = useVorgangStatus(vorgang);
   const isConnectedMail = isConnectedMailVorgang(vorgang);
@@ -48,6 +50,7 @@ export function VorgangSplitDetail({
         className
       )}
     >
+      {showHeader ? (
       <header className="flex shrink-0 items-start justify-between gap-3 border-b border-[#E2E8F0]/80 px-5 py-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -77,6 +80,7 @@ export function VorgangSplitDetail({
           <X className="size-4" />
         </button>
       </header>
+      ) : null}
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
         {vorgang.summary ? (
