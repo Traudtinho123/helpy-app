@@ -87,7 +87,7 @@ export async function middleware(request: NextRequest) {
         .eq("id", profile.company_id)
         .maybeSingle();
 
-      if (!company?.onboarding_completed) {
+      if (!company?.onboarding_completed && (company?.onboarding_step ?? 0) > 0) {
         target.pathname = onboardingStepPath(
           nextOnboardingStepAfter(company?.onboarding_step ?? 0)
         );
@@ -142,7 +142,7 @@ export async function middleware(request: NextRequest) {
       const onboardingCompleted = Boolean(company?.onboarding_completed);
       const onboardingStep = company?.onboarding_step ?? 0;
 
-      if (!onboardingCompleted && isProtectedRoute(pathname)) {
+      if (!onboardingCompleted && onboardingStep > 0 && isProtectedRoute(pathname)) {
         const onboardingUrl = request.nextUrl.clone();
         onboardingUrl.pathname = onboardingStepPath(
           nextOnboardingStepAfter(onboardingStep)
