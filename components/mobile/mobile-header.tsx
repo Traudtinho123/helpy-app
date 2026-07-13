@@ -12,7 +12,7 @@ export function MobileHeader() {
 
   return (
     <header
-      className="relative z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-white/40 bg-[rgba(255,255,255,0.85)] px-4 backdrop-blur-[16px] lg:hidden"
+      className="helpy-layout-mobile-header relative z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-white/40 bg-[rgba(255,255,255,0.85)] px-4 backdrop-blur-[16px] lg:hidden"
       style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
       <div className="min-w-0 shrink-0">

@@ -35,7 +35,7 @@ export function DashboardShell({
         <MobileHeader />
 
         <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
-          <PullToRefresh className="relative min-w-0 flex-1 bg-transparent pb-[calc(4rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
+          <PullToRefresh className="helpy-layout-main relative min-w-0 flex-1 bg-transparent pb-[calc(4rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
             <main className="relative min-h-full min-w-0 overflow-x-hidden">
               {children}
             </main>

@@ -19,7 +19,7 @@ export function HelpyChatFab({ panel, className }: HelpyChatFabProps) {
         type="button"
         onClick={() => setOpen(true)}
         className={cn(
-          "fixed z-40 flex size-14 items-center justify-center rounded-full",
+          "helpy-layout-mobile-fab fixed z-[90] flex size-14 items-center justify-center rounded-full",
           "bg-gradient-to-br from-[#6366F1] to-[#4F46E5] text-white",
           "shadow-[0_8px_28px_rgba(79,70,229,0.45)] transition-transform active:scale-95",
           "bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] right-4",

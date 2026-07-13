@@ -590,3 +590,39 @@ img[loading="lazy"] {
 .pb-safe-nav {
   padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
 }
+
+/* ── Mobile Layout (garantiert unter 1024px) ── */
+@media (max-width: 1023px) {
+  .helpy-layout-sidebar,
+  .helpy-layout-desktop-header,
+  .helpy-layout-workspace-mini-sidebar {
+    display: none !important;
+  }
+
+  .helpy-layout-mobile-header {
+    display: flex !important;
+  }
+
+  .helpy-layout-mobile-nav {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .helpy-layout-mobile-fab {
+    display: flex !important;
+  }
+
+  .helpy-layout-main {
+    padding-bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .helpy-layout-mobile-header,
+  .helpy-layout-mobile-nav,
+  .helpy-layout-mobile-fab,
+  .helpy-layout-pwa-banner {
+    display: none !important;
+  }
+}

@@ -12,7 +12,7 @@ export function DashboardHeader() {
   const { isPreviewMode, activeSkill } = useActiveSkill();
 
   return (
-    <header className="relative z-30 hidden h-[4.75rem] shrink-0 items-center justify-between gap-6 border-b border-white/40 bg-[rgba(255,255,255,0.55)] px-8 backdrop-blur-[20px] [-webkit-backdrop-filter:blur(20px)] lg:flex">
+    <header className="helpy-layout-desktop-header relative z-30 hidden h-[4.75rem] shrink-0 items-center justify-between gap-6 border-b border-white/40 bg-[rgba(255,255,255,0.55)] px-8 backdrop-blur-[20px] [-webkit-backdrop-filter:blur(20px)] lg:flex">
       <GlobalSearch />
 
       <div className="flex items-center gap-4">

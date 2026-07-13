@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 const DISMISS_KEY = "helpy-pwa-install-dismissed-v1";
 
@@ -60,10 +59,7 @@ export function PwaInstallBanner() {
 
   return (
     <div
-      className={cn(
-        "fixed inset-x-3 z-[60] rounded-[16px] border border-[#C7D2FE]/60 bg-white p-4 shadow-lg",
-        "bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] lg:hidden"
-      )}
+        className="helpy-layout-pwa-banner fixed inset-x-3 z-[80] rounded-[16px] border border-[#C7D2FE]/60 bg-white p-4 shadow-lg bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] lg:hidden"
     >
       <button
         type="button"

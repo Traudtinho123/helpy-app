@@ -57,7 +57,7 @@ export function MobileBottomNav({ activeHref }: MobileBottomNavProps) {
   return (
     <>
       <nav
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-[#E2E8F0]/80 bg-[rgba(255,255,255,0.92)] backdrop-blur-[16px] lg:hidden"
+        className="helpy-layout-mobile-nav fixed inset-x-0 bottom-0 z-[100] border-t border-[#E2E8F0]/80 bg-[rgba(255,255,255,0.96)] shadow-[0_-4px_24px_rgba(15,23,42,0.08)] backdrop-blur-[16px] lg:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
         aria-label="Hauptnavigation"
       >
