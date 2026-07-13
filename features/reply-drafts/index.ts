@@ -10,6 +10,7 @@ export { evaluateReplyTemplateRules } from "@/features/reply-drafts/services/rep
 
 export {
   adoptReplyDraft,
+  applyGeneratedReplyDraft,
   buildReplyDraftInputFromBundle,
   buildReplyDraftInputFromListe,
   buildReplyDraftInputFromWorkspace,
@@ -25,9 +26,18 @@ export {
   resetReplyDraftStore,
   seedReplyDraftsFromBundles,
   seedReplyDraftsFromListeVorgaenge,
+  selectReplyVariant,
+  setReplyDraftGenerationState,
   subscribeReplyDraft,
   updateReplyDraftText,
 } from "@/features/reply-drafts/services/reply-draft-engine";
+
+export {
+  buildReplyGenerationUserPrompt,
+  REPLY_GENERATION_SYSTEM_PROMPT,
+} from "@/features/reply-drafts/services/reply-generation-prompt";
+
+export { extractMailAnalysisRuleBased } from "@/features/reply-drafts/services/mail-analysis-extraction";
 
 export { REPLY_DRAFT_EXAMPLES } from "@/features/reply-drafts/mock/reply-draft-examples";
 

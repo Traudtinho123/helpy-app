@@ -68,18 +68,29 @@ export function buildReplyDraftCompanyContext(
 function localizeGreetingLine(
   draftText: string,
   senderName: string,
-  language: DocumentLanguage
+  language: DocumentLanguage,
+  mailTon?: "formell" | "informell",
+  mailSprache?: "de" | "en" | "fr"
 ): string {
   const lines = draftText.split("\n");
   const firstContentIndex = lines.findIndex((line) => line.trim().length > 0);
   if (firstContentIndex < 0) return draftText;
 
+  const effectiveLanguage = mailSprache ?? language;
+  const effectiveTon = mailTon ?? "formell";
+
   const greeting =
-    language === "en"
-      ? `Dear ${senderName},`
-      : language === "fr"
-        ? `Madame, Monsieur ${senderName},`
-        : `Sehr geehrte/r ${senderName},`;
+    effectiveLanguage === "en"
+      ? effectiveTon === "informell"
+        ? `Hi ${senderName},`
+        : `Dear ${senderName},`
+      : effectiveLanguage === "fr"
+        ? effectiveTon === "informell"
+          ? `Bonjour ${senderName},`
+          : `Madame, Monsieur ${senderName},`
+        : effectiveTon === "informell"
+          ? `Hallo ${senderName},`
+          : `Guten Tag ${senderName},`;
 
   lines[firstContentIndex] = greeting;
   return lines.join("\n");
@@ -214,7 +225,11 @@ function resolveToneLabel(
 
 export function applyCompanyKnowledgeToReplyDraft(
   outcome: ReplyTemplateOutcome,
-  input: { senderName: string },
+  input: {
+    senderName: string;
+    mailTon?: "formell" | "informell";
+    mailSprache?: "de" | "en" | "fr";
+  },
   profile?: CompanyProfile
 ): ReplyTemplateOutcome {
   try {
@@ -226,7 +241,9 @@ export function applyCompanyKnowledgeToReplyDraft(
     draftText = localizeGreetingLine(
       draftText,
       input.senderName,
-      context.documentLanguage
+      context.documentLanguage,
+      input.mailTon,
+      input.mailSprache
     );
     draftText = applyReplyStyleToBody(draftText, context);
     draftText = appendClosingOrSignature(draftText, context);

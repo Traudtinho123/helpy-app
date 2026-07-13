@@ -15,6 +15,7 @@ import {
 import { getSkillMemories } from "@/features/memory/services";
 import { shouldPrepareArchive } from "@/features/spam-handling/services/archive-handling-engine";
 import { evaluateReplyTemplateRules } from "@/features/reply-drafts/services/reply-template-rules";
+import { buildEnrichedTemplateGenerationResult } from "@/features/reply-drafts/services/reply-enriched-template";
 import type { AppointmentSlot } from "@/features/appointment-suggestions/types/appointment-suggestion-types";
 import { getAppointmentSuggestion } from "@/features/appointment-suggestions/services/appointment-suggestion-engine";
 import type {
@@ -23,6 +24,10 @@ import type {
   ReplyDraftInput,
   ReplyDraftStatus,
 } from "@/features/reply-drafts/types/reply-draft-types";
+import type {
+  ReplyDraftVariantId,
+  ReplyGenerationResult,
+} from "@/features/reply-drafts/types/mail-analysis-types";
 import type { HelpyReview } from "@/features/review/services/types";
 import {
   HELPY_PREPARED_LABEL,
@@ -173,6 +178,7 @@ function buildReplyDraft(
   status: ReplyDraftStatus = "vorbereitet",
   appointmentSlots: AppointmentSlot[] = []
 ): ReplyDraft {
+  const generated = buildEnrichedTemplateGenerationResult(input, appointmentSlots);
   const template = evaluateReplyTemplateRules(input, appointmentSlots);
   const originalFrom = resolveOriginalFrom(input);
   const recipient = resolveReplyRecipient(originalFrom);
@@ -184,13 +190,19 @@ function buildReplyDraft(
     recipientEmail: recipient.email,
     originalFrom,
     recipientValid: recipient.isValid,
-    subject: template.subject,
-    tone: template.tone,
-    draftText: template.draftText,
+    subject: generated.subject,
+    tone: generated.tone,
+    draftText: generated.draftText,
     missingInfo: template.missingInfo,
     suggestedAttachments: template.suggestedAttachments,
     needsConfirmation: true,
     status,
+    generationSource: generated.generationSource,
+    generationState: "ready",
+    selectedVariant: generated.selectedVariant,
+    variants: generated.variants,
+    qualityWarnings: generated.qualityWarnings,
+    mailAnalysis: generated.analysis,
   };
 }
 
@@ -314,6 +326,74 @@ export function updateReplyDraftText(
     draftText,
     subject: subject ?? existing.subject,
     status: "bearbeitet",
+  };
+
+  drafts.set(vorgangId, updated);
+  notify();
+  return updated;
+}
+
+export function setReplyDraftGenerationState(
+  vorgangId: string,
+  generationState: ReplyDraft["generationState"]
+): ReplyDraft | null {
+  const existing = drafts.get(vorgangId);
+  if (!existing) return null;
+
+  const updated: ReplyDraft = { ...existing, generationState };
+  drafts.set(vorgangId, updated);
+  notify();
+  return updated;
+}
+
+export function selectReplyVariant(
+  vorgangId: string,
+  variant: ReplyDraftVariantId
+): ReplyDraft | null {
+  const existing = drafts.get(vorgangId);
+  if (!existing?.variants) return null;
+
+  const draftText =
+    variant === "short"
+      ? existing.variants.short
+      : existing.variants.detailed;
+
+  const updated: ReplyDraft = {
+    ...existing,
+    selectedVariant: variant,
+    draftText,
+    status: existing.status === "uebernommen" ? existing.status : "bearbeitet",
+  };
+
+  drafts.set(vorgangId, updated);
+  notify();
+  return updated;
+}
+
+export function applyGeneratedReplyDraft(
+  vorgangId: string,
+  generated: ReplyGenerationResult
+): ReplyDraft | null {
+  const existing = drafts.get(vorgangId);
+  if (!existing) return null;
+
+  const updated: ReplyDraft = {
+    ...existing,
+    subject: generated.subject,
+    tone: generated.tone,
+    draftText: generated.draftText,
+    generationSource: generated.generationSource,
+    generationState: "ready",
+    selectedVariant: generated.selectedVariant,
+    variants: generated.variants,
+    qualityWarnings: generated.qualityWarnings,
+    mailAnalysis: generated.analysis,
+    status:
+      existing.status === "bearbeitet" ||
+      existing.status === "bestaetigt" ||
+      existing.status === "uebernommen"
+        ? existing.status
+        : "vorbereitet",
   };
 
   drafts.set(vorgangId, updated);

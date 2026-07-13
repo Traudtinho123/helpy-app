@@ -3,6 +3,12 @@ import type { HelpyDecision } from "@/features/decision/types/decision-types";
 import type { GmailConnectorMessage } from "@/features/gmail/services/gmail/types";
 import type { VorgangPriority } from "@/features/workspace/services/vorgaenge/types";
 import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
+import type {
+  GeneratedReplyVariants,
+  MailAnalysisExtraction,
+  ReplyDraftVariantId,
+  ReplyQualityWarning,
+} from "@/features/reply-drafts/types/mail-analysis-types";
 
 export type ReplyDraftStatus =
   | "vorbereitet"
@@ -27,6 +33,12 @@ export type ReplyDraft = {
   suggestedAttachments: string[];
   needsConfirmation: true;
   status: ReplyDraftStatus;
+  generationSource?: "gpt" | "enriched-template" | "template";
+  generationState?: "idle" | "loading" | "ready" | "error";
+  selectedVariant?: ReplyDraftVariantId;
+  variants?: GeneratedReplyVariants;
+  qualityWarnings?: ReplyQualityWarning[];
+  mailAnalysis?: MailAnalysisExtraction;
 };
 
 export type ReplyDraftInput = {

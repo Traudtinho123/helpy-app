@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { BadgeCheck, Loader2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { recordCrmGmailReplySent } from "@/features/crm/services/crm-sync";
@@ -35,10 +35,14 @@ import {
   confirmReplyDraft,
   createReviewForReplyDraft,
   getOrEvaluateReplyDraft,
+  selectReplyVariant,
   subscribeReplyDraft,
   updateReplyDraftText,
 } from "@/features/reply-drafts/services/reply-draft-engine";
+import { requestIntelligentReplyDraft } from "@/features/reply-drafts/services/reply-generation-client";
+import { getAppointmentSuggestion } from "@/features/appointment-suggestions/services/appointment-suggestion-engine";
 import type { ReplyDraft } from "@/features/reply-drafts/types/reply-draft-types";
+import type { ReplyDraftVariantId } from "@/features/reply-drafts/types/mail-analysis-types";
 import type { HelpyReview } from "@/features/review/services/types";
 import {
   HELPY_BUTTON_BEARBEITEN,
@@ -92,6 +96,7 @@ export function HelpyReplyDraftCard({
   >("idle");
   const [sendError, setSendError] = useState<string | null>(null);
   const [ownEmail, setOwnEmail] = useState<string | null>(null);
+  const gptRequestedRef = useRef<string | null>(null);
 
   const getOwnEmail = useCallback(async () => {
     const supabase = createClient();
@@ -107,6 +112,35 @@ export function HelpyReplyDraftCard({
   useEffect(() => {
     void getOwnEmail().then(setOwnEmail);
   }, [getOwnEmail]);
+
+  useEffect(() => {
+    if (!draft || draft.generationSource === "gpt") return;
+    if (gptRequestedRef.current === vorgang.id) return;
+
+    const mailBody = vorgang.snippet ?? "";
+    if (!mailBody.trim()) return;
+
+    gptRequestedRef.current = vorgang.id;
+
+    const suggestion = getAppointmentSuggestion(vorgang.id);
+    const slots =
+      suggestion?.status === "vorbereitet" ? suggestion.slots : [];
+
+    void requestIntelligentReplyDraft({
+      vorgang,
+      mailBody,
+      appointmentSlots: slots,
+    });
+  }, [draft, vorgang]);
+
+  const handleSelectVariant = useCallback(
+    (variant: ReplyDraftVariantId) => {
+      selectReplyVariant(vorgang.id, variant);
+      setEditing(false);
+      setFeedback(null);
+    },
+    [vorgang.id]
+  );
 
   const handleStartEdit = useCallback(() => {
     if (!draft) return;
@@ -360,6 +394,50 @@ export function HelpyReplyDraftCard({
             <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
               Antworttext
             </p>
+
+            {draft.variants && !editing && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant={draft.selectedVariant === "short" ? "default" : "outline"}
+                  onClick={() => handleSelectVariant("short")}
+                  className="h-7 rounded-[10px] px-3 text-[11px] font-medium"
+                >
+                  Kurz & direkt
+                </Button>
+                <Button
+                  type="button"
+                  variant={
+                    draft.selectedVariant === "detailed" ? "default" : "outline"
+                  }
+                  onClick={() => handleSelectVariant("detailed")}
+                  className="h-7 rounded-[10px] px-3 text-[11px] font-medium"
+                >
+                  Ausführlich
+                </Button>
+              </div>
+            )}
+
+            {draft.generationState === "loading" && (
+              <p className="mt-2 flex items-center gap-2 text-[11px] text-[#2563EB]">
+                <Loader2 className="size-3 animate-spin" />
+                HELPY erstellt eine kontextreiche Antwort…
+              </p>
+            )}
+
+            {draft.qualityWarnings && draft.qualityWarnings.length > 0 && (
+              <ul className="mt-2 space-y-1.5">
+                {draft.qualityWarnings.map((warning) => (
+                  <li
+                    key={warning.message}
+                    className="rounded-[10px] border border-[#FDE68A]/70 bg-[#FFFBEB]/80 px-3 py-2 text-[11px] leading-relaxed text-[#92400E]"
+                  >
+                    ⚠️ {warning.message}
+                  </li>
+                ))}
+              </ul>
+            )}
+
             {editing ? (
               <textarea
                 value={editText}
