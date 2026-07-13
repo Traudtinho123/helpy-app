@@ -643,3 +643,33 @@ img[loading="lazy"] {
     display: none !important;
   }
 }
+
+/* ── Onboarding & Registrierung ── */
+.onboarding-fonts {
+  font-family: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+}
+
+.onboarding-display {
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+}
+
+.onboarding-step-enter {
+  animation: onboarding-step-in 0.45s ease-out both;
+}
+
+@keyframes onboarding-step-in {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 639px) {
+  .onboarding-footer {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+}

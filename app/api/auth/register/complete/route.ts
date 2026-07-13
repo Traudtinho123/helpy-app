@@ -18,6 +18,7 @@ const VALID_SKILLS = [
 type RegisterBody = {
   companyName?: string;
   skill?: string;
+  industry?: string;
   vorname?: string;
   nachname?: string;
   email?: string;
@@ -106,6 +107,7 @@ export async function POST(request: Request) {
     .from("companies")
     .update({
       name: companyName,
+      industry: body.industry?.trim() || null,
       requested_skill: mappedSkill,
       registration_status: "pending",
     })
@@ -142,13 +144,14 @@ export async function POST(request: Request) {
 
   await sendHelpyEmail({
     to: SUPER_ADMIN_NOTIFY_EMAIL,
-    subject: "Neue HELPY Registrierung",
+    subject: `Neue Registrierung: ${vorname} ${nachname} · ${companyName}`,
     text:
-      `Neue HELPY Registrierung:\n` +
+      `Neue Registrierung:\n` +
+      `Name: ${vorname} ${nachname}\n` +
       `Firma: ${companyName}\n` +
-      `Branche: ${skillLabel}\n` +
+      `Branche: ${body.industry?.trim() || skillLabel}\n` +
       `E-Mail: ${userEmail}\n` +
-      `→ Skill freischalten: https://helpy-app.vercel.app/einstellungen/admin`,
+      `→ Jetzt freischalten: https://helpy-app.vercel.app/einstellungen/admin`,
   });
 
   return NextResponse.json({ ok: true });

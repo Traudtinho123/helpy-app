@@ -2,6 +2,7 @@ type HelpyEmailInput = {
   to: string;
   subject: string;
   text: string;
+  html?: string;
 };
 
 export type HelpyEmailResult = {
@@ -25,6 +26,7 @@ async function postResendEmail(input: {
   to: string;
   subject: string;
   text: string;
+  html?: string;
 }): Promise<{ ok: boolean; status: number; details: string }> {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -37,6 +39,7 @@ async function postResendEmail(input: {
       to: [input.to],
       subject: input.subject,
       text: input.text,
+      ...(input.html ? { html: input.html } : {}),
     }),
   });
 
@@ -76,6 +79,7 @@ export async function sendHelpyEmailDetailed(
       to: input.to,
       subject: input.subject,
       text: input.text,
+      html: input.html,
     });
 
     if (!attempt.ok) {

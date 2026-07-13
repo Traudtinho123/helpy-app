@@ -2,7 +2,8 @@ export const AUTH_ROUTES = {
   login: "/login",
   register: "/registrieren",
   callback: "/auth/callback",
-  pendingAccess: "/zugang-ausstehend",
+  welcome: "/willkommen",
+  pendingAccess: "/willkommen",
   home: "/",
 } as const;
 
@@ -13,8 +14,18 @@ export const PUBLIC_ROUTES = [
   AUTH_ROUTES.callback,
 ] as const;
 
-/** Eingeloggt, aber ohne freigeschalteten Skill erlaubt. */
-export const PENDING_ACCESS_ROUTES = [AUTH_ROUTES.pendingAccess] as const;
+/** Eingeloggt, wartet auf Freischaltung. */
+export const PENDING_ACCESS_ROUTES = [AUTH_ROUTES.welcome] as const;
+
+/** Onboarding-Flow (nach Freischaltung). */
+export const ONBOARDING_ROUTE_PREFIX = "/onboarding";
+
+export function isOnboardingRoute(pathname: string): boolean {
+  return (
+    pathname === ONBOARDING_ROUTE_PREFIX ||
+    pathname.startsWith(`${ONBOARDING_ROUTE_PREFIX}/`)
+  );
+}
 
 /** Routen, die später geschützt werden (Dashboard-Bereich). */
 export const PROTECTED_ROUTE_PREFIXES = [
@@ -53,6 +64,7 @@ export function isPendingAccessRoute(pathname: string): boolean {
 export function isProtectedRoute(pathname: string): boolean {
   if (isPublicRoute(pathname)) return false;
   if (isPendingAccessRoute(pathname)) return false;
+  if (isOnboardingRoute(pathname)) return false;
 
   return PROTECTED_ROUTE_PREFIXES.some((prefix) => {
     if (prefix === "/") return pathname === "/";

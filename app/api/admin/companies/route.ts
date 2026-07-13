@@ -5,6 +5,11 @@ import {
 } from "@/lib/auth/permissions-repository";
 import { isSuperAdmin } from "@/lib/auth/permissions";
 import { sendHelpyEmail } from "@/lib/email/helpy-mail";
+import {
+  buildActivationEmailHtml,
+  buildActivationEmailText,
+} from "@/lib/email/activation-email";
+import { recordEmailNotification } from "@/lib/onboarding/onboarding-repository";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
@@ -79,10 +84,28 @@ export async function POST(request: Request) {
   }
 
   if (body.adminEmail?.trim()) {
+    const appOrigin =
+      process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ??
+      "https://helpy-app.vercel.app";
+    const onboardingUrl = `${appOrigin}/onboarding/schritt-1`;
+
     await sendHelpyEmail({
       to: body.adminEmail.trim(),
-      subject: "Dein HELPY-Zugang ist jetzt aktiv!",
-      text: `Dein HELPY-Zugang ist jetzt aktiv!\n\n→ Jetzt einloggen: https://helpy-app.vercel.app`,
+      subject: "HELPY ist bereit – leg los! 🚀",
+      text: buildActivationEmailText({
+        firstName: "du",
+        onboardingUrl,
+      }),
+      html: buildActivationEmailHtml({
+        firstName: "du",
+        onboardingUrl,
+      }),
+    });
+
+    await recordEmailNotification({
+      companyId: body.companyId.trim(),
+      type: "activation",
+      recipient: body.adminEmail.trim(),
     });
   }
 

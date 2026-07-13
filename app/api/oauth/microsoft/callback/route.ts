@@ -44,7 +44,13 @@ export async function GET(request: Request): Promise<NextResponse> {
       tokens,
     });
     return NextResponse.redirect(
-      buildOAuthReturnUrl(origin, "microsoft", "connected")
+      buildOAuthReturnUrl(
+        origin,
+        "microsoft",
+        "connected",
+        undefined,
+        startState.returnTo
+      )
     );
   } catch (error) {
     const message =
@@ -52,7 +58,7 @@ export async function GET(request: Request): Promise<NextResponse> {
         ? error.message
         : "Outlook-Verbindung fehlgeschlagen.";
     return NextResponse.redirect(
-      buildOAuthReturnUrl(origin, "microsoft", "error", message)
+      buildOAuthReturnUrl(origin, "microsoft", "error", message, startState.returnTo)
     );
   }
 }

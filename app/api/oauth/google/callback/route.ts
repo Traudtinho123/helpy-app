@@ -43,12 +43,14 @@ export async function GET(request: Request): Promise<NextResponse> {
       provider: "google",
       tokens,
     });
-    return NextResponse.redirect(buildOAuthReturnUrl(origin, "google", "connected"));
+    return NextResponse.redirect(
+      buildOAuthReturnUrl(origin, "google", "connected", undefined, startState.returnTo)
+    );
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Google-Verbindung fehlgeschlagen.";
     return NextResponse.redirect(
-      buildOAuthReturnUrl(origin, "google", "error", message)
+      buildOAuthReturnUrl(origin, "google", "error", message, startState.returnTo)
     );
   }
 }

@@ -36,9 +36,12 @@ export function buildOAuthReturnUrl(
   origin: string,
   provider: "google" | "microsoft",
   result: "connected" | "error",
-  message?: string
+  message?: string,
+  returnTo = "/plattformen"
 ): string {
   const params = new URLSearchParams({ oauth: result, provider });
   if (message) params.set("message", message);
-  return `${origin}/plattformen?${params.toString()}`;
+  const base = returnTo.startsWith("http") ? returnTo : `${origin}${returnTo}`;
+  const separator = base.includes("?") ? "&" : "?";
+  return `${base}${separator}${params.toString()}`;
 }

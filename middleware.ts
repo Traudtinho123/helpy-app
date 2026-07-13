@@ -2,10 +2,13 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import {
   AUTH_ROUTES,
+  isOnboardingRoute,
   isPendingAccessRoute,
   isProtectedRoute,
 } from "@/lib/auth/routes";
 import { normalizeAllowedSkills } from "@/lib/auth/skill-access-shared";
+import { onboardingStepPath } from "@/lib/onboarding/constants";
+import { nextOnboardingStepAfter } from "@/lib/onboarding/constants";
 import {
   isSupabaseConfigured,
   SUPABASE_ANON_KEY,
@@ -62,7 +65,7 @@ export async function middleware(request: NextRequest) {
   ) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("allowed_skills")
+      .select("allowed_skills, company_id")
       .eq("id", user.id)
       .maybeSingle();
 
@@ -70,16 +73,36 @@ export async function middleware(request: NextRequest) {
       profile?.allowed_skills as string[] | null | undefined
     );
     const target = request.nextUrl.clone();
-    target.pathname =
-      allowed.length > 0 ? AUTH_ROUTES.home : AUTH_ROUTES.pendingAccess;
     target.search = "";
+
+    if (allowed.length === 0) {
+      target.pathname = AUTH_ROUTES.welcome;
+      return NextResponse.redirect(target);
+    }
+
+    if (profile?.company_id) {
+      const { data: company } = await supabase
+        .from("companies")
+        .select("onboarding_completed, onboarding_step")
+        .eq("id", profile.company_id)
+        .maybeSingle();
+
+      if (!company?.onboarding_completed) {
+        target.pathname = onboardingStepPath(
+          nextOnboardingStepAfter(company?.onboarding_step ?? 0)
+        );
+        return NextResponse.redirect(target);
+      }
+    }
+
+    target.pathname = AUTH_ROUTES.home;
     return NextResponse.redirect(target);
   }
 
-  if (user && (isProtectedRoute(pathname) || isPendingAccessRoute(pathname))) {
+  if (user && (isProtectedRoute(pathname) || isPendingAccessRoute(pathname) || isOnboardingRoute(pathname))) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("allowed_skills")
+      .select("allowed_skills, company_id")
       .eq("id", user.id)
       .maybeSingle();
 
@@ -90,7 +113,14 @@ export async function middleware(request: NextRequest) {
 
     if (!hasAccess && isProtectedRoute(pathname)) {
       const pendingUrl = request.nextUrl.clone();
-      pendingUrl.pathname = AUTH_ROUTES.pendingAccess;
+      pendingUrl.pathname = AUTH_ROUTES.welcome;
+      pendingUrl.search = "";
+      return NextResponse.redirect(pendingUrl);
+    }
+
+    if (!hasAccess && isOnboardingRoute(pathname)) {
+      const pendingUrl = request.nextUrl.clone();
+      pendingUrl.pathname = AUTH_ROUTES.welcome;
       pendingUrl.search = "";
       return NextResponse.redirect(pendingUrl);
     }
@@ -100,6 +130,33 @@ export async function middleware(request: NextRequest) {
       homeUrl.pathname = AUTH_ROUTES.home;
       homeUrl.search = "";
       return NextResponse.redirect(homeUrl);
+    }
+
+    if (hasAccess && profile?.company_id) {
+      const { data: company } = await supabase
+        .from("companies")
+        .select("onboarding_completed, onboarding_step")
+        .eq("id", profile.company_id)
+        .maybeSingle();
+
+      const onboardingCompleted = Boolean(company?.onboarding_completed);
+      const onboardingStep = company?.onboarding_step ?? 0;
+
+      if (!onboardingCompleted && isProtectedRoute(pathname)) {
+        const onboardingUrl = request.nextUrl.clone();
+        onboardingUrl.pathname = onboardingStepPath(
+          nextOnboardingStepAfter(onboardingStep)
+        );
+        onboardingUrl.search = "";
+        return NextResponse.redirect(onboardingUrl);
+      }
+
+      if (onboardingCompleted && isOnboardingRoute(pathname)) {
+        const homeUrl = request.nextUrl.clone();
+        homeUrl.pathname = AUTH_ROUTES.home;
+        homeUrl.search = "";
+        return NextResponse.redirect(homeUrl);
+      }
     }
   }
 

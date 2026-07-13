@@ -7,7 +7,10 @@ import {
   storeOAuthStartState,
 } from "@/lib/oauth";
 
-export async function GET(): Promise<NextResponse> {
+export async function GET(request: Request): Promise<NextResponse> {
+  const url = new URL(request.url);
+  const returnTo = url.searchParams.get("returnTo") ?? "/plattformen";
+
   if (!isMicrosoftOAuthConfigured()) {
     return NextResponse.json(
       { error: "Microsoft OAuth ist nicht konfiguriert." },
@@ -26,7 +29,7 @@ export async function GET(): Promise<NextResponse> {
     provider: "microsoft",
     companyId: auth.context.companyId,
     userId: auth.context.userId,
-    returnTo: "/plattformen",
+    returnTo: returnTo.startsWith("/") ? returnTo : "/plattformen",
   });
 
   return NextResponse.redirect(buildMicrosoftOAuthStartUrl(state));
