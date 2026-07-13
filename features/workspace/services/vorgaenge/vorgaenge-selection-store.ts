@@ -1,7 +1,23 @@
 const selectedIds = new Set<string>();
 const listeners = new Set<() => void>();
 
+/** Stabile Snapshot-Referenz für useSyncExternalStore. */
+let cachedSnapshot: string[] = [];
+let cachedSnapshotKey = "";
+
+function buildSnapshotKey(): string {
+  return [...selectedIds].sort().join("\0");
+}
+
+function refreshSnapshot(): void {
+  const nextKey = buildSnapshotKey();
+  if (nextKey === cachedSnapshotKey) return;
+  cachedSnapshotKey = nextKey;
+  cachedSnapshot = [...selectedIds];
+}
+
 function notify(): void {
+  refreshSnapshot();
   listeners.forEach((listener) => listener());
 }
 
@@ -11,7 +27,8 @@ export function subscribeVorgaengeSelection(listener: () => void): () => void {
 }
 
 export function getSelectedVorgangIds(): string[] {
-  return [...selectedIds];
+  refreshSnapshot();
+  return cachedSnapshot;
 }
 
 export function isVorgangSelected(vorgangId: string): boolean {

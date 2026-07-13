@@ -15,7 +15,6 @@ import {
 } from "@/features/workspace/services/vorgaenge/vorgaenge-selection-store";
 import {
   setBulkPriorityOverride,
-  subscribePriorityOverrides,
 } from "@/features/workspace/services/vorgaenge/vorgaenge-priority-override-store";
 import { hideVorgang } from "@/features/workspace/services/vorgang-visibility-store";
 import type { Vorgang, VorgangPriority } from "@/features/workspace/services/vorgaenge/types";
@@ -35,11 +34,10 @@ export function VorgaengeBulkBar({
   onCompleted,
   className,
 }: VorgaengeBulkBarProps) {
-  useExternalStore(subscribePriorityOverrides, () => null, () => null);
   const selectedIds = useExternalStore(
     subscribeVorgaengeSelection,
     getSelectedVorgangIds,
-    () => [] as string[]
+    getSelectedVorgangIds
   );
   const [loading, setLoading] = useState(false);
   const [showPriorityMenu, setShowPriorityMenu] = useState(false);
