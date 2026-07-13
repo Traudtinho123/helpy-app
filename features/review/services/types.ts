@@ -17,7 +17,8 @@ export type AntwortReviewContent = {
   primaryLabel:
     | "Bestätigen & über Gmail senden"
     | "Bestätigen & über Outlook senden"
-    | "Antwort senden & Termin bestätigen";
+    | "Antwort senden & Termin bestätigen"
+    | "Antwort senden";
   fehlendeAngaben?: string[];
   anhaenge?: string[];
 };

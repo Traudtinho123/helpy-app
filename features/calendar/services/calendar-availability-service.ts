@@ -72,6 +72,7 @@ export type MultiDayCalendarAvailabilityResult = CalendarAvailabilityResult & {
 /**
  * Lädt freie Slots über mehrere Werktage.
  * Default: max. 3 Slots auf max. 2 verschiedenen Tagen (Besichtigungs-UX).
+ * Mit scanDays=14 werden bis zu 14 Tage gescannt.
  */
 export async function loadMultiDayCalendarAvailability(options: {
   targetText?: string;
@@ -79,14 +80,20 @@ export async function loadMultiDayCalendarAvailability(options: {
   maxSlots?: number;
   /** Max. Anzahl unterschiedlicher Tage mit Vorschlägen (Default 2). */
   maxDays?: number;
+  /** Anzahl Kalendertage zum Scannen (Default 5, Besichtigung: 14). */
+  scanDays?: number;
+  /** Max. freie Slots pro Tag vor der Auswahl (Default 8). */
+  slotsPerDay?: number;
   schedulingPolicy?: AppointmentSchedulingPolicy;
 }): Promise<MultiDayCalendarAvailabilityResult> {
   const maxSlots = options.maxSlots ?? 3;
-  const maxDays = options.maxDays ?? 2;
+  const scanDays = options.scanDays ?? 5;
+  const slotsPerDay = options.slotsPerDay ?? 8;
   const policy = options.schedulingPolicy ?? buildAppointmentSchedulingPolicy();
   const dates = resolveViewingTargetDates(
     options.targetText ?? "",
-    policy.isDayOpen
+    policy.isDayOpen,
+    scanDays
   );
   const platform = getConnectedCalendarPlatform();
 
@@ -108,17 +115,14 @@ export async function loadMultiDayCalendarAvailability(options: {
   let daysWithSlots = 0;
 
   for (const date of dates) {
-    if (collected.length >= maxSlots) break;
-    if (daysWithSlots >= maxDays) break;
-
     const dayResult = await loadCalendarAvailability({
       date,
       durationMinutes: options.durationMinutes,
-      maxSlots: maxSlots - collected.length,
+      maxSlots: slotsPerDay,
       schedulingPolicy: policy,
     });
 
-    if (dayResult.errorMessage && collected.length === 0 && date === dates[0]) {
+    if (dayResult.errorMessage && Object.keys(slotsByDate).length === 0 && date === dates[0]) {
       return {
         ...dayResult,
         slotsByDate,
@@ -128,17 +132,23 @@ export async function loadMultiDayCalendarAvailability(options: {
     if (dayResult.slots.length === 0) continue;
 
     slotsByDate[date] = dayResult.slots;
-    collected.push(...dayResult.slots);
     daysWithSlots += 1;
+  }
+
+  for (const daySlots of Object.values(slotsByDate)) {
+    collected.push(...daySlots);
   }
 
   return {
     platform,
     platformLabel,
     date: dates[0] ?? resolveDefaultTargetDate(),
-    slots: collected.slice(0, maxSlots),
+    slots: collected,
     slotsByDate,
-    errorMessage: collected.length > 0 ? null : "Keine freien Zeiten gefunden.",
+    errorMessage:
+      Object.keys(slotsByDate).length > 0
+        ? null
+        : "Keine freien Zeiten gefunden.",
   };
 }
 

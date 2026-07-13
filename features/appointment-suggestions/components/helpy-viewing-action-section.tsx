@@ -213,8 +213,8 @@ export function HelpyViewingActionSection({
           </p>
         </div>
         <p className="mt-1.5 text-[11px] leading-relaxed text-[#64748B]">
-          Antwort und Terminvorschläge sind vorbereitet. Jede Aktion wird vor
-          dem Ausführen bestätigt.
+          Antwort und Terminvorschläge sind vorbereitet. Nach dem Senden wählst
+          du den Termin des Kunden und trägst ihn ein.
         </p>
 
         {(wishDate || wishTime || objectHint) && (

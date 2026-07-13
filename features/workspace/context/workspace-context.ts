@@ -67,6 +67,7 @@ export type WorkspaceAppointmentContext = {
   } | null;
   showSuggestions: boolean;
   showViewingConfirmed: boolean;
+  showTerminstatus: boolean;
 };
 
 export type WorkspaceRecommendationContext = {
@@ -120,6 +121,7 @@ export const EMPTY_WORKSPACE_APPOINTMENT: WorkspaceAppointmentContext = {
   fallbackTermin: null,
   showSuggestions: false,
   showViewingConfirmed: false,
+  showTerminstatus: false,
 };
 
 export const EMPTY_WORKSPACE_WORKFLOW: WorkspaceWorkflowContext = {

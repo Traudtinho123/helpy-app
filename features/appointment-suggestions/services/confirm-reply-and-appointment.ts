@@ -1,15 +1,15 @@
 import {
-  confirmAppointmentSuggestion,
   getAppointmentSuggestion,
-  selectAppointmentSlot,
+  markSlotsOfferedAfterReplySent,
 } from "@/features/appointment-suggestions/services/appointment-suggestion-engine";
 import { sendPreparedReplyDraft } from "@/features/reply-drafts/services/send-reply-draft";
 import { getReplyDraft } from "@/features/reply-drafts/services/reply-draft-engine";
 import type { HelpyReview } from "@/features/review/services/types";
 import type { Vorgang } from "@/features/workspace/services/vorgaenge/types";
 
-export const VIEWING_COMBINED_ACTION_LABEL =
-  "Antwort senden & Termin bestätigen";
+export const VIEWING_COMBINED_ACTION_LABEL = "Antwort senden";
+export const VIEWING_REPLY_SENT_MESSAGE =
+  "Antwort mit Terminvorschlägen gesendet. Wähle nun den Termin des Kunden.";
 
 export function createReviewForReplyAndAppointment(
   vorgang: Vorgang
@@ -18,30 +18,27 @@ export function createReviewForReplyAndAppointment(
   const suggestion = getAppointmentSuggestion(vorgang.id);
   if (!draft || !suggestion) return null;
 
-  const selected =
-    suggestion.slots.find((slot) => slot.id === suggestion.selectedSlotId) ??
-    suggestion.slots[0];
-
-  if (!selected) return null;
-
-  if (suggestion.selectedSlotId !== selected.id) {
-    selectAppointmentSlot(vorgang.id, selected.id);
-  }
+  const slotsPreview = suggestion.slots
+    .map(
+      (slot, index) =>
+        `Option ${index + 1}: ${slot.dateLabel} · ${slot.start} Uhr`
+    )
+    .join("\n");
 
   return {
     id: `review-reply-appointment-${vorgang.id}`,
-    instanceId: `${draft.id}-${selected.id}`,
+    instanceId: draft.id,
     actionTypeId: "antwort-vorbereiten",
     actionTitle: VIEWING_COMBINED_ACTION_LABEL,
-    title: "Antwort & Termin prüfen",
+    title: "Antwort mit Terminvorschlägen prüfen",
     helpyHint:
-      "Nach Bestätigung wird die Antwort gesendet und der Termin im Kalender angelegt.",
+      "Nach Bestätigung wird die Antwort mit den 3 konkreten Terminvorschlägen gesendet.",
     content: {
       kind: "antwort",
       betreff: draft.subject,
       empfaenger: draft.recipient,
       tonalitaet: draft.tone,
-      antworttext: `${draft.draftText}\n\n———\nTermin: ${selected.dateLabel}, ${selected.start}–${selected.end}`,
+      antworttext: `${draft.draftText}\n\n———\nAngebotene Termine:\n${slotsPreview}`,
       primaryLabel: VIEWING_COMBINED_ACTION_LABEL,
       fehlendeAngaben: draft.missingInfo,
       anhaenge: draft.suggestedAttachments,
@@ -58,29 +55,15 @@ export async function confirmReplyAndAppointment(
     return { ok: false, error: "Keine Terminvorschläge verfügbar." };
   }
 
-  if (!suggestion.selectedSlotId && suggestion.slots[0]) {
-    selectAppointmentSlot(vorgang.id, suggestion.slots[0].id);
-  }
-
-  if (!getAppointmentSuggestion(vorgang.id)?.selectedSlotId) {
-    return { ok: false, error: "Bitte wähle zuerst einen Terminvorschlag." };
-  }
-
   const sendResult = await sendPreparedReplyDraft(vorgang);
   if (!sendResult.ok) {
     return sendResult;
   }
 
-  const appointmentResult = await confirmAppointmentSuggestion(vorgang.id);
-  if (!appointmentResult.ok) {
-    return {
-      ok: false,
-      error: `Antwort wurde gesendet, aber der Termin konnte nicht angelegt werden: ${appointmentResult.error}`,
-    };
-  }
+  markSlotsOfferedAfterReplySent(vorgang.id);
 
   return {
     ok: true,
-    message: "Antwort gesendet und Termin im Kalender bestätigt.",
+    message: VIEWING_REPLY_SENT_MESSAGE,
   };
 }

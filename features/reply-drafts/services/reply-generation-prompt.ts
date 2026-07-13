@@ -65,7 +65,8 @@ export function buildReplyGenerationContext(
     objectLookups,
     customerContext,
     appointmentSlotLines: appointmentSlots.map(
-      (slot) => `• ${slot.dateLabel} um ${slot.start} Uhr`
+      (slot, index) =>
+        `📅 Option ${index + 1}: ${slot.dateLabel} · ${slot.start} Uhr`
     ),
     companyPromptBlock: buildCompanyKnowledgePromptBlock(profile),
     companyName: companyContext.companyName || profile.companyName,

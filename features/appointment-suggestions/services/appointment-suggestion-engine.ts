@@ -24,10 +24,26 @@ import {
   HELPY_APPOINTMENT_CONFIRM_SUCCESS,
   HELPY_APPOINTMENT_NO_CALENDAR,
   HELPY_APPOINTMENT_SAVE_ERROR,
+  HELPY_VIEWING_NO_SLOTS_14_DAYS,
+  HELPY_VIEWING_CALENDAR_WRITE_MISSING,
   HELPY_VIEWING_SAVE_REVIEW_TITLE,
   HELPY_VIEWING_SAVE_CONFIRM_LABEL,
   HELPY_VIEWING_TIME_UNRECOGNIZED,
 } from "@/features/appointment-suggestions/types/appointment-suggestion-types";
+import {
+  pickPreferredViewingSlots,
+  buildSlotIso,
+} from "@/features/appointment-suggestions/services/viewing-slot-picker";
+import {
+  sendViewingConfirmationWithIcs,
+  buildViewingIcsInvite,
+} from "@/features/appointment-suggestions/services/viewing-confirmation-mail";
+import {
+  persistTerminToApi,
+  saveConfirmedTermin,
+  saveOfferedTerminSlots,
+} from "@/features/appointment-suggestions/services/vorgang-termin-persistence";
+import { scheduleViewingAppointmentReminders } from "@/features/appointment-suggestions/services/viewing-appointment-reminders";
 import {
   buildViewingConfirmationFromSlot,
   detectViewingConfirmationInReply,
@@ -51,6 +67,7 @@ import { processBackgroundMemoryEvent } from "@/features/memory/services/backgro
 import { linkViewingToObject } from "@/features/real-estate/object/object-service";
 import { peekRealEstateObjectByVorgangId } from "@/features/real-estate/object/object-memory";
 import { applyPipelineTrigger } from "@/features/crm/pipeline/pipeline-engine";
+import { createClient } from "@/lib/supabase/client";
 
 const suggestions = new Map<string, AppointmentSuggestion>();
 const listeners = new Set<() => void>();
@@ -173,12 +190,22 @@ function mapSlot(
   };
 }
 
+function mapPickedSlots(
+  picked: ReturnType<typeof pickPreferredViewingSlots>,
+  durationMinutes: number,
+  calendarLabel: string
+): AppointmentSlot[] {
+  return picked.map(({ date, slot }, index) =>
+    mapSlot(slot, date, durationMinutes, calendarLabel, index)
+  );
+}
+
 function buildSuggestionBase(
   vorgang: WorkspaceVorgang,
   liste?: ListeVorgang
 ): Omit<
   AppointmentSuggestion,
-  "slots" | "status" | "errorMessage" | "viewingConfirmation" | "confirmationStatus"
+  "slots" | "status" | "errorMessage" | "viewingConfirmation" | "confirmationStatus" | "slotsOfferedAt"
 > {
   const haystack = buildHaystack(vorgang, liste);
   const policy = buildAppointmentSchedulingPolicy();
@@ -261,6 +288,7 @@ export async function loadAppointmentSuggestionForWorkspace(
     errorMessage: null,
     viewingConfirmation: existing?.viewingConfirmation ?? null,
     confirmationStatus: existing?.confirmationStatus ?? "none",
+    slotsOfferedAt: existing?.slotsOfferedAt ?? null,
   });
   notify();
 
@@ -275,6 +303,7 @@ export async function loadAppointmentSuggestionForWorkspace(
       errorMessage: HELPY_APPOINTMENT_NO_CALENDAR,
       viewingConfirmation: null,
       confirmationStatus: "none",
+      slotsOfferedAt: null,
     };
     suggestions.set(vorgang.id, next);
     loadingKeys.delete(loadKey);
@@ -289,10 +318,15 @@ export async function loadAppointmentSuggestionForWorkspace(
     durationMinutes: base.durationMinutes,
     maxSlots: 3,
     maxDays: 2,
+    scanDays: 14,
+    slotsPerDay: 10,
     schedulingPolicy: policy,
   });
 
-  if (availability.errorMessage && availability.slots.length === 0) {
+  if (
+    availability.errorMessage &&
+    Object.keys(availability.slotsByDate).length === 0
+  ) {
     const next: AppointmentSuggestion = {
       ...base,
       calendarPlatform: availability.platform,
@@ -301,9 +335,10 @@ export async function loadAppointmentSuggestionForWorkspace(
       slots: [],
       selectedSlotId: null,
       status: "fehler",
-      errorMessage: availability.errorMessage,
+      errorMessage: HELPY_VIEWING_NO_SLOTS_14_DAYS,
       viewingConfirmation: null,
       confirmationStatus: "none",
+      slotsOfferedAt: null,
     };
     suggestions.set(vorgang.id, next);
     loadingKeys.delete(loadKey);
@@ -312,14 +347,12 @@ export async function loadAppointmentSuggestionForWorkspace(
   }
 
   const calendarLabel = availability.platformLabel ?? "Kalender";
-  const slots: AppointmentSlot[] = [];
-
-  for (const [date, daySlots] of Object.entries(availability.slotsByDate)) {
-    daySlots.forEach((slot, index) => {
-      if (slots.length >= 3) return;
-      slots.push(mapSlot(slot, date, base.durationMinutes, calendarLabel, index));
-    });
-  }
+  const picked = pickPreferredViewingSlots(availability.slotsByDate, {
+    maxSlots: 3,
+    maxDays: 2,
+    minLeadHours: 24,
+  });
+  const slots = mapPickedSlots(picked, base.durationMinutes, calendarLabel);
 
   const next: AppointmentSuggestion = {
     ...base,
@@ -329,15 +362,20 @@ export async function loadAppointmentSuggestionForWorkspace(
     slots,
     selectedSlotId: null,
     status: slots.length > 0 ? "vorbereitet" : "fehler",
-    errorMessage:
-      slots.length > 0 ? null : "Keine freien Zeiten gefunden.",
+    errorMessage: slots.length > 0 ? null : HELPY_VIEWING_NO_SLOTS_14_DAYS,
     viewingConfirmation: existing?.viewingConfirmation ?? null,
     confirmationStatus: existing?.confirmationStatus ?? "none",
+    slotsOfferedAt: existing?.slotsOfferedAt ?? null,
   };
 
   suggestions.set(vorgang.id, next);
   loadingKeys.delete(loadKey);
   notify();
+
+  if (slots.length > 0) {
+    saveOfferedTerminSlots(vorgang.id, slots);
+    void persistTerminToApi(vorgang.id, { termin_slots: slots });
+  }
 
   refreshReplyDraftWithAppointmentSlots(vorgang.id, slots);
 
@@ -357,8 +395,30 @@ export function selectAppointmentSlot(
   return next;
 }
 
+export function applyCustomAppointmentSlot(
+  vorgangId: string,
+  slot: AppointmentSlot
+): AppointmentSuggestion | null {
+  const existing = suggestions.get(vorgangId);
+  if (!existing) return null;
+
+  const slots = [
+    ...existing.slots.filter((item) => !item.id.startsWith("custom-")),
+    slot,
+  ];
+
+  const next: AppointmentSuggestion = {
+    ...existing,
+    slots,
+    selectedSlotId: slot.id,
+  };
+  suggestions.set(vorgangId, next);
+  notify();
+  return next;
+}
+
 function buildCalendarEventTitle(suggestion: AppointmentSuggestion): string {
-  return `Besichtigung – ${suggestion.objekt} – ${suggestion.customer}`;
+  return `🏠 Besichtigung - ${suggestion.objekt}`;
 }
 
 function buildCalendarEventDescription(
@@ -367,18 +427,20 @@ function buildCalendarEventDescription(
   snippet: string
 ): string {
   const contactParts = [
-    suggestion.customer,
-    suggestion.contactEmail,
-    suggestion.contactPhone,
+    `Interessent: ${suggestion.customer}`,
+    suggestion.contactPhone ? `Telefon: ${suggestion.contactPhone}` : null,
+    suggestion.contactEmail ? `E-Mail: ${suggestion.contactEmail}` : null,
+    suggestion.location ? `Objekt: ${suggestion.location}` : null,
   ].filter(Boolean);
 
   return [
-    "Von HELPY vorbereitet.",
-    `Quelle: ${suggestion.sourceQuelle}`,
-    `Nachricht: ${snippet || "—"}`,
-    `Kontakt: ${contactParts.join(", ")}`,
+    ...contactParts,
     `Termin: ${slot.dateLabel} · ${slot.start}–${slot.end}`,
-  ].join("\n");
+    snippet ? `Nachricht: ${snippet}` : null,
+    "Erstellt von: HELPY",
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 export function createReviewForAppointmentSuggestion(
@@ -603,9 +665,26 @@ async function persistAppointmentToCalendar(
   return { ok: true, externalId };
 }
 
+export function markSlotsOfferedAfterReplySent(vorgangId: string): void {
+  const suggestion = suggestions.get(vorgangId);
+  if (!suggestion || suggestion.slots.length === 0) return;
+
+  const next: AppointmentSuggestion = {
+    ...suggestion,
+    confirmationStatus: "slots_offered",
+    slotsOfferedAt: new Date().toISOString(),
+  };
+  suggestions.set(vorgangId, next);
+  notify();
+  saveOfferedTerminSlots(vorgangId, suggestion.slots);
+}
+
 export async function confirmAppointmentSuggestion(
   vorgangId: string
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<
+  | { ok: true; calendarSaved: boolean; inviteSent: boolean; icsContent: string | null }
+  | { ok: false; error: string; icsContent?: string }
+> {
   const suggestion = suggestions.get(vorgangId);
   if (!suggestion) {
     return { ok: false, error: HELPY_APPOINTMENT_NO_CALENDAR };
@@ -619,28 +698,64 @@ export async function confirmAppointmentSuggestion(
     return { ok: false, error: "Bitte wähle zuerst einen Terminvorschlag." };
   }
 
-  const result = await persistAppointmentToCalendar(
+  const calendarResult = await persistAppointmentToCalendar(
     suggestion,
     slot,
     suggestion.viewingConfirmation?.snippet ?? ""
   );
 
-  if (!result.ok) {
+  const mailResult = await sendViewingConfirmationWithIcs(suggestion, slot);
+
+  let icsContent = mailResult.icsContent ?? null;
+  if (!icsContent) {
+    const supabase = createClient();
+    const sessionEmail = supabase
+      ? (await supabase.auth.getSession()).data.session?.user?.email ?? null
+      : null;
+    const organizerEmail = sessionEmail ?? "helpy@local";
+    icsContent = buildViewingIcsInvite(suggestion, slot, organizerEmail);
+  }
+
+  if (!calendarResult.ok && !icsContent) {
     const next = {
       ...suggestion,
       status: "fehler" as const,
-      errorMessage: result.error,
+      errorMessage: calendarResult.error,
     };
     suggestions.set(vorgangId, next);
     notify();
-    return result;
+    return { ok: false, error: calendarResult.error };
   }
+
+  saveConfirmedTermin({
+    vorgangId,
+    slot,
+    kalenderId: calendarResult.ok ? calendarResult.externalId : null,
+    icsContent,
+  });
+
+  scheduleViewingAppointmentReminders({
+    vorgangId,
+    objekt: suggestion.objekt,
+    customer: suggestion.customer,
+    slot,
+  });
+
+  void persistTerminToApi(vorgangId, {
+    termin_bestaetigt: buildSlotIso(slot.date, slot.start),
+    termin_kalender_id: calendarResult.ok ? calendarResult.externalId : null,
+    termin_datum: slot.date,
+    termin_uhrzeit: slot.start,
+    status: "termin_bestaetigt",
+  });
 
   const next: AppointmentSuggestion = {
     ...suggestion,
     status: "bestaetigt",
-    confirmedEventId: result.externalId,
-    errorMessage: null,
+    confirmedEventId: calendarResult.ok ? calendarResult.externalId : null,
+    errorMessage: calendarResult.ok
+      ? null
+      : HELPY_VIEWING_CALENDAR_WRITE_MISSING,
     confirmationStatus: "saved_to_calendar",
   };
   suggestions.set(vorgangId, next);
@@ -653,7 +768,12 @@ export async function confirmAppointmentSuggestion(
   linkViewingToObject(vorgangId, next.id);
   applyPipelineTrigger(vorgangId, "besichtigung-bestaetigt");
 
-  return { ok: true };
+  return {
+    ok: true,
+    calendarSaved: calendarResult.ok,
+    inviteSent: mailResult.ok,
+    icsContent,
+  };
 }
 
 export async function saveCustomerConfirmedViewing(

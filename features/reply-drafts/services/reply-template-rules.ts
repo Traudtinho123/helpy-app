@@ -28,13 +28,25 @@ function closing(): string {
   return "Mit freundlichen Grüßen";
 }
 
-function formatSlotForReply(slot: AppointmentSlot): string {
-  return `• ${slot.dateLabel} um ${slot.start} Uhr`;
+function formatSlotForReply(slot: AppointmentSlot, index: number): string {
+  const shortDate = slot.dateLabel.replace(/^(\w+), /, (match, day) => {
+    const abbr: Record<string, string> = {
+      Montag: "Mo",
+      Dienstag: "Di",
+      Mittwoch: "Mi",
+      Donnerstag: "Do",
+      Freitag: "Fr",
+      Samstag: "Sa",
+      Sonntag: "So",
+    };
+    return `${abbr[day] ?? day} `;
+  });
+  return `📅 Option ${index + 1}: ${shortDate} · ${slot.start} Uhr`;
 }
 
 function buildViewingSlotsBlock(slots: AppointmentSlot[]): string {
   if (slots.length === 0) return "";
-  return slots.map(formatSlotForReply).join("\n");
+  return slots.map((slot, index) => formatSlotForReply(slot, index)).join("\n");
 }
 
 function realEstateBesichtigung(
@@ -42,20 +54,19 @@ function realEstateBesichtigung(
   appointmentSlots: AppointmentSlot[] = []
 ): ReplyTemplateOutcome {
   const slotsBlock = buildViewingSlotsBlock(appointmentSlots);
+  const objektName = input.subject?.trim() || "das Objekt";
 
   const body =
     appointmentSlots.length > 0
-      ? `${greeting(input.senderName)}
+      ? `Guten Tag ${input.senderName},
 
-vielen Dank für Ihre Anfrage.
+vielen Dank für Ihr Interesse an ${objektName}.
 
-Gerne kann ich Ihnen folgende Besichtigungstermine anbieten:
+Ich freue mich, Ihnen folgende Besichtigungstermine anbieten zu können:
 
 ${slotsBlock}
 
-Bitte teilen Sie mir kurz mit, welcher Termin Ihnen am besten passt.
-
-Freundliche Grüsse`
+Bitte teilen Sie mir mit, welcher Termin für Sie passt, und ich sende Ihnen umgehend eine Kalendereinladung.`
       : `${greeting(input.senderName)}
 
 vielen Dank für Ihre Nachricht und Ihr Interesse an einer Besichtigung.

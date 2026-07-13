@@ -115,7 +115,9 @@ export function getNextWeekdayDates(
 
 export function resolveViewingTargetDates(
   text: string,
-  isDayOpen?: (isoDate: string) => boolean
+  isDayOpen?: (isoDate: string) => boolean,
+  /** Anzahl Tage für Slot-Suche (Default 5, Besichtigung: 14). */
+  openDayCount = 5
 ): string[] {
   const openDay = isDayOpen ?? ((isoDate: string) => {
     const [year, month, day] = isoDate.split("-").map(Number);
@@ -128,7 +130,7 @@ export function resolveViewingTargetDates(
     if (openDay(target)) return [target];
   }
 
-  return getNextOpenDates(5, openDay);
+  return getNextOpenDates(openDayCount, openDay, getZurichDateString(), openDayCount + 7);
 }
 
 export function formatGermanDateLabel(isoDate: string): string {

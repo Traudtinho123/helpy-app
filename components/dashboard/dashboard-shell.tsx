@@ -6,6 +6,7 @@ import { MobileBottomNav } from "@/components/mobile/mobile-bottom-nav";
 import { MobileHeader } from "@/components/mobile/mobile-header";
 import { PullToRefresh } from "@/components/mobile/pull-to-refresh";
 import { PwaInstallBanner } from "@/components/mobile/pwa-install-banner";
+import { ViewingReminderScheduler } from "@/components/viewing-reminder-scheduler";
 
 type DashboardShellProps = {
   children: React.ReactNode;
@@ -46,6 +47,7 @@ export function DashboardShell({
         <HelpyChatFab panel={helpyPanel} />
         <MobileBottomNav activeHref={activeHref} />
         <PwaInstallBanner />
+        <ViewingReminderScheduler />
       </div>
     </div>
   );

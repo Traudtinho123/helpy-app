@@ -329,9 +329,16 @@ function buildAppointment(
     suggestion?.confirmationStatus === "customer_confirmed" ||
     suggestion?.confirmationStatus === "saved_to_calendar";
 
+  const showTerminstatus =
+    suggestion?.confirmationStatus === "slots_offered" ||
+    Boolean(suggestion?.slotsOfferedAt && suggestion.confirmationStatus !== "saved_to_calendar");
+
   const isArchive = shouldPrepareArchiveForWorkspace(vorgang, liste);
   const showSuggestions =
-    !isArchive && isAppointmentVorgang(vorgang, liste) && !showViewingConfirmed;
+    !isArchive &&
+    isAppointmentVorgang(vorgang, liste) &&
+    !showViewingConfirmed &&
+    !showTerminstatus;
 
   if (!suggestion && !terminwunsch && !fallbackTermin && !showSuggestions) {
     return EMPTY_WORKSPACE_APPOINTMENT;
@@ -343,6 +350,7 @@ function buildAppointment(
     fallbackTermin,
     showSuggestions,
     showViewingConfirmed,
+    showTerminstatus,
   };
 }
 

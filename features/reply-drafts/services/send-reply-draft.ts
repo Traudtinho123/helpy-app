@@ -9,6 +9,10 @@ import {
   RECIPIENT_UNKNOWN_MESSAGE,
 } from "@/features/gmail/services/extract-email-address";
 import { notifyGmailSent } from "@/features/notifications/services/notification-emitter";
+import {
+  getAppointmentSuggestion,
+  markSlotsOfferedAfterReplySent,
+} from "@/features/appointment-suggestions/services/appointment-suggestion-engine";
 import { processBackgroundMemoryEvent } from "@/features/memory/services/background-memory-engine";
 import { peekRealEstateObjectByVorgangId } from "@/features/real-estate/object/object-memory";
 import { startFollowUpFromGmailSend } from "@/features/followup/services/followup-engine";
@@ -120,6 +124,11 @@ export async function sendPreparedReplyDraft(
   });
   startFollowUpFromGmailSend(vorgang);
   notifyGmailSent(vorgang);
+
+  const suggestion = getAppointmentSuggestion(vorgang.id);
+  if (suggestion && suggestion.slots.length > 0) {
+    markSlotsOfferedAfterReplySent(vorgang.id);
+  }
 
   return {
     ok: true,

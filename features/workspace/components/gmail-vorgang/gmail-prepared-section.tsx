@@ -6,6 +6,7 @@ import { HelpyArchiveWorkspaceCard } from "@/features/spam-handling/components/h
 import { HelpyReplyDraftWorkspaceCard } from "@/features/reply-drafts/components/helpy-reply-draft-workspace-card";
 import { HelpyAppointmentSuggestionWorkspaceCard } from "@/features/appointment-suggestions/components/helpy-appointment-suggestion-workspace-card";
 import { HelpyViewingActionSection } from "@/features/appointment-suggestions/components/helpy-viewing-action-section";
+import { HelpyTerminstatusSection } from "@/features/appointment-suggestions/components/helpy-terminstatus-section";
 import { HelpyViewingConfirmedCard } from "@/features/appointment-suggestions/components/helpy-viewing-confirmed-card";
 import { HelpyObjectWorkspaceCard } from "@/features/real-estate/object/components/helpy-object-workspace-card";
 import { useGmailWorkspaceActions } from "@/features/workspace/components/gmail-vorgang/gmail-workspace-actions-context";
@@ -68,6 +69,7 @@ export function GmailPreparedSection() {
                   replyOpenRef.current = open;
                 }}
               />
+              <HelpyTerminstatusSection />
               {appointment.showViewingConfirmed && listeVorgang && (
                 <HelpyViewingConfirmedCard vorgang={listeVorgang} />
               )}
