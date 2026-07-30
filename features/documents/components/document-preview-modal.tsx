@@ -28,6 +28,7 @@ import {
   type PreparedDocument,
 } from "@/features/documents/services";
 import { getSkillConfig, SKILL_EMOJI } from "@/features/workspace/services/workspace/skills";
+import { DocumentSignatureActions } from "@/features/signatures/components/document-signature-actions";
 import { cn } from "@/lib/utils";
 
 type DocumentPreviewModalProps = {
@@ -98,6 +99,7 @@ function DocumentPreviewContent({
         </div>
 
         <div className="flex items-center gap-2">
+          {doc ? <DocumentSignatureActions document={doc} /> : null}
           <Button
             type="button"
             variant="outline"

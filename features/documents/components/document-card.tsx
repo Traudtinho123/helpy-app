@@ -21,6 +21,7 @@ import {
   getDocumentDisplayStatus,
   type PreparedDocument,
 } from "@/features/documents/services";
+import { DocumentSignatureActions } from "@/features/signatures/components/document-signature-actions";
 import { cn } from "@/lib/utils";
 
 type DocumentCardProps = {
@@ -124,6 +125,7 @@ export function DocumentCard({
       </div>
 
       <div className="flex w-full shrink-0 flex-col gap-2 lg:w-44">
+        <DocumentSignatureActions document={document} compact />
         <Button
           type="button"
           variant="outline"

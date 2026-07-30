@@ -27,6 +27,7 @@ import {
 import { prepareExposeFromVorgang } from "@/features/documents/services/vorgang-expose-engine";
 import { getBrainV2Vorgaenge } from "@/features/workspace/services/vorgaenge/mock-vorgaenge";
 import { getGmailListeVorgang } from "@/features/workspace/services/vorgaenge/gmail-vorgaenge-store";
+import { fetchAllSignatures } from "@/features/signatures/services/signature-client-store";
 import { getVorgangPath } from "@/features/workspace/services/navigation/entity-navigation";
 
 function mergeSelectedDocument(
@@ -58,6 +59,10 @@ export function DokumentePage() {
   useEffect(() => subscribeDocuments(() => {
     setDocumentsRevision((revision) => revision + 1);
   }), []);
+
+  useEffect(() => {
+    void fetchAllSignatures();
+  }, [documentsRevision]);
 
   const focusDocument = useMemo(() => {
     if (!focusVorgangId || focusMode !== "expose") return null;

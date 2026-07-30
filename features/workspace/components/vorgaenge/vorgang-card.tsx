@@ -290,6 +290,17 @@ export function VorgangCard({
               </span>
             ) : null}
             {!compact ? <VorgangStatusBadge status={currentStatus} /> : null}
+            {!isErledigt ? (
+              <span
+                className="ml-auto sm:hidden"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <CreateDealFromVorgangButton
+                  vorgangId={vorgang.id}
+                  display="inline"
+                />
+              </span>
+            ) : null}
           </div>
 
           {activePanel === "reply" ? (
@@ -321,10 +332,13 @@ export function VorgangCard({
 
         {!isErledigt ? (
           <div
-            className="flex shrink-0 flex-col gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100 max-sm:hidden"
+            className="flex shrink-0 flex-col gap-1 max-sm:hidden"
             onClick={(event) => event.stopPropagation()}
           >
-            <CreateDealFromVorgangButton vorgangId={vorgang.id} />
+            <CreateDealFromVorgangButton
+              vorgangId={vorgang.id}
+              display="icon"
+            />
             <button
               type="button"
               title="Erledigt"
@@ -384,6 +398,13 @@ export function VorgangCard({
           onClick={(event) => event.stopPropagation()}
         >
           <div className="grid grid-cols-2 gap-1">
+            <div className="col-span-2 flex justify-center py-1">
+              <CreateDealFromVorgangButton
+                vorgangId={vorgang.id}
+                display="button"
+                onCreated={() => setContextMenuOpen(false)}
+              />
+            </div>
             <button
               type="button"
               className="min-h-[44px] rounded-[10px] bg-[#FEF2F2] text-[12px] font-semibold text-[#DC2626]"

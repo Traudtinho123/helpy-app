@@ -15,6 +15,7 @@ import { HelpyEmpfiehltWorkspaceCompact } from "@/features/decision/components/h
 import { HelpyWorkspaceSummary } from "@/features/workspace/components/helpy-workspace-summary";
 import { FollowupNextCard } from "@/features/followup/components/followup-next-card";
 import { GmailWorkflowStepsCard } from "@/features/workspace/components/gmail-vorgang/gmail-workflow-steps-card";
+import { CreateDealFromVorgangButton } from "@/features/deals/components/create-deal-from-vorgang-button";
 import { CustomerSection } from "@/features/workspace/components/workspace-sections";
 import { customerToVorgangKunde, useWorkspaceContext } from "@/features/workspace/context";
 import { getSkillConfig } from "@/features/workspace/services/workspace/skills";
@@ -55,7 +56,13 @@ export function GmailVorgangWorkspaceBody({ vorgang }: GmailVorgangWorkspaceBody
               {skillConfig.label} · {isPlatformInquiry ? `Aus ${quelle} vorbereitet` : "Aus Original-E-Mail vorbereitet"}
             </p>
           </div>
-          <WorkspaceVorgangHideButton vorgangId={vorgang.id} />
+          <div className="flex flex-wrap items-center gap-2">
+            <CreateDealFromVorgangButton
+              vorgangId={vorgang.id}
+              kundeId={context.customer?.id ?? null}
+            />
+            <WorkspaceVorgangHideButton vorgangId={vorgang.id} />
+          </div>
         </div>
       </header>
 

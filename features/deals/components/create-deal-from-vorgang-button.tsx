@@ -10,6 +10,7 @@ type CreateDealFromVorgangButtonProps = {
   vorgangId: string;
   kundeId?: string | null;
   dealType?: "verkauf" | "vermietung";
+  display?: "button" | "icon" | "inline";
   className?: string;
   onCreated?: () => void;
 };
@@ -18,6 +19,7 @@ export function CreateDealFromVorgangButton({
   vorgangId,
   kundeId,
   dealType = "verkauf",
+  display = "button",
   className,
   onCreated,
 }: CreateDealFromVorgangButtonProps) {
@@ -47,6 +49,48 @@ export function CreateDealFromVorgangButton({
       onCreated?.();
     }
   };
+
+  if (display === "icon") {
+    return (
+      <button
+        type="button"
+        title={done ? "In Pipeline" : "Deal anlegen"}
+        disabled={loading || done}
+        className={
+          className ??
+          "flex size-8 items-center justify-center rounded-[10px] border border-[#DDD6FE] bg-[#F5F3FF] text-[#7C3AED] transition-colors hover:bg-[#EDE9FE] disabled:opacity-60"
+        }
+        onClick={() => void handleClick()}
+      >
+        {loading ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <GitBranch className="size-4" />
+        )}
+      </button>
+    );
+  }
+
+  if (display === "inline") {
+    return (
+      <button
+        type="button"
+        disabled={loading || done}
+        className={
+          className ??
+          "inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#7C3AED] hover:underline disabled:opacity-60"
+        }
+        onClick={() => void handleClick()}
+      >
+        {loading ? (
+          <Loader2 className="size-3.5 animate-spin" />
+        ) : (
+          <GitBranch className="size-3.5" />
+        )}
+        {done ? "In Pipeline" : "Deal anlegen"}
+      </button>
+    );
+  }
 
   return (
     <Button
