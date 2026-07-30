@@ -1,13 +1,27 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
-import { BadgeCheck, ImagePlus, Sparkles, Upload } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  BadgeCheck,
+  ImagePlus,
+  Sparkles,
+  Star,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { compressImageFile } from "@/features/portal-publish/services/image-compress";
+import { uploadObjektBild } from "@/features/portal-publish/services/portal-client-store";
 import {
   addManualObjectImages,
   confirmObjectImage,
   OBJECT_IMAGE_SOURCE_LABELS,
   OBJECT_IMAGE_STATUS_LABELS,
+  removeObjectImage,
+  reorderObjectImages,
+  setObjectImageAsCover,
   sortObjectImages,
 } from "@/features/real-estate/object/object-image-service";
 import type { ObjectImage } from "@/features/real-estate/object/object-image-types";
@@ -35,6 +49,8 @@ export function ObjectImagesSection({ object, className }: ObjectImagesSectionPr
   const [uploadOpen, setUploadOpen] = useState(false);
   const [pendingUploads, setPendingUploads] = useState<PendingUpload[]>([]);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
 
   const images = useMemo(
     () => resolvePortfolioObjectImages(object),
@@ -56,40 +72,79 @@ export function ObjectImagesSection({ object, className }: ObjectImagesSectionPr
     [confirmedImages]
   );
 
+  const addFiles = useCallback(async (files: File[]) => {
+    if (files.length === 0) return;
+    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+    if (imageFiles.length === 0) {
+      setFeedback("Bitte nur Bilddateien hochladen.");
+      return;
+    }
+
+    const compressed = await Promise.all(
+      imageFiles.map((file) => compressImageFile(file))
+    );
+
+    setPendingUploads((current) => [
+      ...current,
+      ...compressed.map((file) => ({
+        id: `${file.name}-${file.lastModified}-${Math.random().toString(36).slice(2, 6)}`,
+        file,
+        previewUrl: URL.createObjectURL(file),
+      })),
+    ]);
+    setUploadOpen(true);
+  }, []);
+
   const handleSelectFiles = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const files = [...(event.target.files ?? [])];
-      if (files.length === 0) return;
-
-      setPendingUploads((current) => [
-        ...current,
-        ...files.map((file) => ({
-          id: `${file.name}-${file.lastModified}`,
-          file,
-          previewUrl: URL.createObjectURL(file),
-        })),
-      ]);
-      setUploadOpen(true);
+      void addFiles(files);
       event.target.value = "";
     },
-    []
+    [addFiles]
   );
 
-  const handleSaveUploads = useCallback(() => {
+  const handleSaveUploads = useCallback(async () => {
     if (pendingUploads.length === 0) return;
+    setSaving(true);
+    setFeedback(null);
+
+    const urls: string[] = [];
+    let usedStorage: string | undefined;
+
+    for (const item of pendingUploads) {
+      const uploaded = await uploadObjektBild({
+        objektId: object.objectId,
+        file: item.file,
+      });
+      if (uploaded.url) {
+        urls.push(uploaded.url);
+        usedStorage = uploaded.storage;
+      } else {
+        urls.push(item.previewUrl);
+      }
+    }
 
     addManualObjectImages(
       object.objectId,
-      pendingUploads.map((item) => item.file)
+      pendingUploads.map((item) => item.file),
+      urls
     );
 
     for (const item of pendingUploads) {
-      URL.revokeObjectURL(item.previewUrl);
+      if (!urls.includes(item.previewUrl)) {
+        URL.revokeObjectURL(item.previewUrl);
+      }
     }
 
     setPendingUploads([]);
     setUploadOpen(false);
-    setFeedback("Bilder wurden lokal gespeichert (Mock). Später: Supabase Storage.");
+    setSaving(false);
+    setFeedback(
+      usedStorage === "supabase"
+        ? "Bilder gespeichert (Supabase Storage)."
+        : "Bilder gespeichert (lokal / Fallback)."
+    );
   }, [object.objectId, pendingUploads]);
 
   const handleConfirmSuggestion = useCallback(
@@ -98,6 +153,20 @@ export function ObjectImagesSection({ object, className }: ObjectImagesSectionPr
       setFeedback("Objektbild wurde bestätigt.");
     },
     [object.objectId]
+  );
+
+  const moveImage = useCallback(
+    (imageId: string, direction: -1 | 1) => {
+      const ids = confirmedImages.map((image) => image.id);
+      const index = ids.indexOf(imageId);
+      const nextIndex = index + direction;
+      if (index < 0 || nextIndex < 0 || nextIndex >= ids.length) return;
+      const next = [...ids];
+      const [item] = next.splice(index, 1);
+      next.splice(nextIndex, 0, item);
+      reorderObjectImages(object.objectId, next);
+    },
+    [confirmedImages, object.objectId]
   );
 
   return (
@@ -112,7 +181,7 @@ export function ObjectImagesSection({ object, className }: ObjectImagesSectionPr
           <ImagePlus className="size-4" strokeWidth={2} />
         </span>
         <h2 className="text-[14px] font-semibold tracking-[-0.01em] text-[#0F172A]">
-          Bilder
+          📸 Bilder
         </h2>
       </div>
 
@@ -126,8 +195,24 @@ export function ObjectImagesSection({ object, className }: ObjectImagesSectionPr
 
         {confirmedImages.length > 0 ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {confirmedImages.map((image) => (
-              <ObjectImageTile key={image.id} image={image} isCover={image.id === coverImage?.id} />
+            {confirmedImages.map((image, index) => (
+              <ObjectImageTile
+                key={image.id}
+                image={image}
+                isCover={image.id === coverImage?.id}
+                onSetCover={() => {
+                  setObjectImageAsCover(object.objectId, image.id);
+                  setFeedback("Titelbild gesetzt.");
+                }}
+                onMoveUp={() => moveImage(image.id, -1)}
+                onMoveDown={() => moveImage(image.id, 1)}
+                canMoveUp={index > 0}
+                canMoveDown={index < confirmedImages.length - 1}
+                onRemove={() => {
+                  removeObjectImage(object.objectId, image.id);
+                  setFeedback("Bild entfernt.");
+                }}
+              />
             ))}
           </div>
         ) : (
@@ -175,15 +260,35 @@ export function ObjectImagesSection({ object, className }: ObjectImagesSectionPr
           </div>
         )}
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div
+          onDragOver={(event) => {
+            event.preventDefault();
+            setDragOver(true);
+          }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(event) => {
+            event.preventDefault();
+            setDragOver(false);
+            void addFiles([...event.dataTransfer.files]);
+          }}
+          className={cn(
+            "rounded-[14px] border border-dashed px-4 py-6 text-center transition-colors",
+            dragOver
+              ? "border-[#2563EB] bg-[#EFF6FF]"
+              : "border-[#CBD5E1]/70 bg-[#F8FAFC]/60"
+          )}
+        >
+          <p className="text-[12px] font-medium text-[#334155]">
+            Bilder hierher ziehen oder auswählen
+          </p>
+          <p className="mt-1 text-[11px] text-[#94A3B8]">
+            JPEG, PNG, WebP — werden vor dem Speichern komprimiert
+          </p>
           <Button
             type="button"
             variant="outline"
-            onClick={() => {
-              setUploadOpen(true);
-              fileInputRef.current?.click();
-            }}
-            className="h-9 rounded-[12px] border-[#CBD5E1]/60 bg-white text-[12px] font-semibold text-[#2563EB] hover:border-[#BFDBFE]/60 hover:bg-[#EFF6FF]"
+            onClick={() => fileInputRef.current?.click()}
+            className="mt-3 h-9 rounded-[12px] border-[#CBD5E1]/60 bg-white text-[12px] font-semibold text-[#2563EB] hover:border-[#BFDBFE]/60 hover:bg-[#EFF6FF]"
           >
             <Upload className="mr-2 size-3.5" />
             Bilder hinzufügen
@@ -224,10 +329,11 @@ export function ObjectImagesSection({ object, className }: ObjectImagesSectionPr
             <div className="mt-3 flex flex-wrap gap-2">
               <Button
                 type="button"
-                onClick={handleSaveUploads}
+                onClick={() => void handleSaveUploads()}
+                disabled={saving}
                 className="h-8 rounded-[10px] bg-[#2563EB] px-3 text-[11px] font-semibold text-white hover:bg-[#1D4ED8]"
               >
-                Speichern (Mock)
+                {saving ? "Speichern…" : "Speichern"}
               </Button>
               <Button
                 type="button"
@@ -244,9 +350,6 @@ export function ObjectImagesSection({ object, className }: ObjectImagesSectionPr
                 Abbrechen
               </Button>
             </div>
-            <p className="mt-2 text-[10px] text-[#94A3B8]">
-              Upload wird lokal gespeichert. Später erfolgt die Ablage in Supabase Storage.
-            </p>
           </div>
         )}
 
@@ -261,9 +364,21 @@ export function ObjectImagesSection({ object, className }: ObjectImagesSectionPr
 function ObjectImageTile({
   image,
   isCover,
+  onSetCover,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp,
+  canMoveDown,
+  onRemove,
 }: {
   image: ObjectImage;
   isCover: boolean;
+  onSetCover: () => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  onRemove: () => void;
 }) {
   return (
     <div className="overflow-hidden rounded-[12px] border border-[#E2E8F0]/70 bg-white">
@@ -273,7 +388,7 @@ function ObjectImageTile({
         alt={image.fileName}
         className="aspect-[4/3] w-full object-cover"
       />
-      <div className="space-y-1 px-2.5 py-2">
+      <div className="space-y-1.5 px-2.5 py-2">
         <p className="truncate text-[11px] font-medium text-[#0F172A]">
           {image.fileName}
         </p>
@@ -281,6 +396,44 @@ function ObjectImageTile({
           {OBJECT_IMAGE_SOURCE_LABELS[image.source]}
           {isCover ? " · Titelbild" : ""}
         </p>
+        <div className="flex flex-wrap gap-1">
+          {!isCover ? (
+            <button
+              type="button"
+              onClick={onSetCover}
+              className="inline-flex h-7 items-center gap-1 rounded-[8px] border border-[#E2E8F0] px-2 text-[10px] font-semibold text-[#2563EB]"
+            >
+              <Star className="size-3" />
+              Cover
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={onMoveUp}
+            disabled={!canMoveUp}
+            className="inline-flex size-7 items-center justify-center rounded-[8px] border border-[#E2E8F0] text-[#64748B] disabled:opacity-40"
+            aria-label="Nach vorne"
+          >
+            <ArrowUp className="size-3" />
+          </button>
+          <button
+            type="button"
+            onClick={onMoveDown}
+            disabled={!canMoveDown}
+            className="inline-flex size-7 items-center justify-center rounded-[8px] border border-[#E2E8F0] text-[#64748B] disabled:opacity-40"
+            aria-label="Nach hinten"
+          >
+            <ArrowDown className="size-3" />
+          </button>
+          <button
+            type="button"
+            onClick={onRemove}
+            className="inline-flex size-7 items-center justify-center rounded-[8px] border border-[#FEE2E2] text-[#DC2626]"
+            aria-label="Entfernen"
+          >
+            <Trash2 className="size-3" />
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -11,14 +11,21 @@ import {
   FileText,
   Mail,
   Pencil,
+  Radio,
   Sparkles,
   Users,
   X,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { ObjectDossierPanel } from "@/features/portfolio/components/object-dossier-panel";
 import { ObjectPipelineTab } from "@/features/deals/components/object-pipeline-tab";
 import { ObjectMatchesTab } from "@/features/matching/components/object-matches-tab";
 import { MatchNotificationBanner } from "@/features/matching/components/match-notification-banner";
+import {
+  ObjectPortalPerformanceTab,
+  PortalPublishModal,
+  PortalPublishStatus,
+} from "@/features/portal-publish";
 import { getDocumentDisplayStatus } from "@/features/documents/services/types";
 import { REAL_ESTATE_OBJECT_STATUS_LABELS } from "@/features/real-estate/object";
 import { formatObjectListingPriceLabel } from "@/features/portfolio/services/object-pricing-utils";
@@ -46,10 +53,10 @@ type ObjektakteViewProps = {
   /** Herkunft für kontextuelles Zurück (Vorgang / Kundenakte / Portfolio). */
   navigationOrigin?: ObjectNavigationOrigin;
   /** Beim Anlegen eines Objekts direkt den Dossier-Tab öffnen. */
-  initialTab?: "uebersicht" | "pipeline" | "dossier" | "matches";
+  initialTab?: "uebersicht" | "pipeline" | "dossier" | "matches" | "performance";
 };
 
-type ObjektTab = "uebersicht" | "pipeline" | "dossier" | "matches";
+type ObjektTab = "uebersicht" | "pipeline" | "dossier" | "matches" | "performance";
 
 function ObjectTitleEditor({
   objectId,
@@ -166,6 +173,7 @@ export function ObjektakteView({
 }: ObjektakteViewProps) {
   const revision = useStoreRevision(subscribePortfolioStores);
   const [activeTab, setActiveTab] = useState<ObjektTab>(initialTab);
+  const [publishOpen, setPublishOpen] = useState(false);
 
   useEffect(() => {
     setActiveTab(initialTab);
@@ -238,13 +246,14 @@ export function ObjektakteView({
         objectId={object.objectId}
         objectTitle={object.titel}
       />
-      <div className="mb-5 flex gap-1.5">
+      <div className="mb-5 flex flex-wrap gap-1.5">
         {(
           [
             { id: "uebersicht" as const, label: "Übersicht" },
             { id: "matches" as const, label: "Passende Interessenten" },
             { id: "pipeline" as const, label: "Pipeline" },
             { id: "dossier" as const, label: "Dossier" },
+            { id: "performance" as const, label: "Performance" },
           ] as const
         ).map((tab) => (
           <button
@@ -272,6 +281,8 @@ export function ObjektakteView({
         />
       ) : activeTab === "matches" ? (
         <ObjectMatchesTab objectId={object.objectId} />
+      ) : activeTab === "performance" ? (
+        <ObjectPortalPerformanceTab objectId={object.objectId} />
       ) : (
       <>
       <section className="overflow-hidden rounded-[24px] border border-[#CBD5E1]/40 bg-white/90 shadow-[0_2px_8px_rgba(15,23,42,0.04)]">
@@ -310,6 +321,17 @@ export function ObjektakteView({
           <p className="text-[13px] text-[#64748B]">
             Status: {REAL_ESTATE_OBJECT_STATUS_LABELS[object.status]} · {object.quelle}
           </p>
+          <PortalPublishStatus objectId={object.objectId} />
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              onClick={() => setPublishOpen(true)}
+              className="h-9 rounded-[12px] bg-[#2563EB] px-3.5 text-[12px] font-semibold text-white hover:bg-[#1D4ED8]"
+            >
+              <Radio className="mr-1.5 size-3.5" />
+              📡 Auf Portalen publizieren
+            </Button>
+          </div>
           <div className="rounded-[14px] border border-[#BFDBFE]/50 bg-[#EFF6FF]/45 px-3.5 py-3">
             <p className="text-[12px] leading-relaxed text-[#334155]">{detail.summary}</p>
           </div>
@@ -487,6 +509,11 @@ export function ObjektakteView({
       </div>
       </>
       )}
+      <PortalPublishModal
+        object={object}
+        open={publishOpen}
+        onOpenChange={setPublishOpen}
+      />
       </div>
     </div>
   );

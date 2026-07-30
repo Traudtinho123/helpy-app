@@ -92,10 +92,15 @@ function buildObjectImage(input: {
   };
 }
 
-/** MVP: Mock-Speicherung per Object-URL — später Supabase Storage. */
+/**
+ * Fügt manuelle Objektbilder hinzu.
+ * `urls` optional — wenn gesetzt (z. B. nach Supabase-Upload), werden diese
+ * statt Object-URLs verwendet.
+ */
 export function addManualObjectImages(
   objectId: string,
-  files: File[]
+  files: File[],
+  urls?: string[]
 ): ObjectImage[] {
   const object = resolveObject(objectId);
   if (!object || files.length === 0) return [];
@@ -108,7 +113,7 @@ export function addManualObjectImages(
   const added = files.map((file, index) =>
     buildObjectImage({
       objectId,
-      url: URL.createObjectURL(file),
+      url: urls?.[index]?.trim() || URL.createObjectURL(file),
       fileName: file.name,
       source: "manuell hochgeladen",
       status: "bestätigt",
@@ -119,6 +124,66 @@ export function addManualObjectImages(
 
   persistImages(object, [...existing, ...added]);
   return added;
+}
+
+/** Setzt das Cover-Bild (erstes = Cover) und sortiert neu. */
+export function setObjectImageAsCover(
+  objectId: string,
+  imageId: string
+): ObjectImage[] {
+  const object = resolveObject(objectId);
+  if (!object) return [];
+
+  const existing = normalizeImages(object.images);
+  const target = existing.find((image) => image.id === imageId);
+  if (!target || target.status !== "bestätigt") return existing;
+
+  const rest = existing.filter((image) => image.id !== imageId);
+  const next = [{ ...target, isCover: true }, ...rest];
+  persistImages(object, next);
+  return getObjectImages(objectId);
+}
+
+/** Reihenfolge ändern — imageIds in gewünschter Reihenfolge. */
+export function reorderObjectImages(
+  objectId: string,
+  imageIds: string[]
+): ObjectImage[] {
+  const object = resolveObject(objectId);
+  if (!object) return [];
+
+  const existing = normalizeImages(object.images);
+  const byId = new Map(existing.map((image) => [image.id, image]));
+  const ordered: ObjectImage[] = [];
+
+  for (const id of imageIds) {
+    const image = byId.get(id);
+    if (image) {
+      ordered.push(image);
+      byId.delete(id);
+    }
+  }
+
+  for (const image of existing) {
+    if (byId.has(image.id)) ordered.push(image);
+  }
+
+  persistImages(object, ordered);
+  return getObjectImages(objectId);
+}
+
+export function removeObjectImage(
+  objectId: string,
+  imageId: string
+): ObjectImage[] {
+  const object = resolveObject(objectId);
+  if (!object) return [];
+
+  const next = normalizeImages(object.images).filter(
+    (image) => image.id !== imageId
+  );
+  persistImages(object, next);
+  return getObjectImages(objectId);
 }
 
 export function confirmObjectImage(

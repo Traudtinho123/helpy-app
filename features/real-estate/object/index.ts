@@ -66,6 +66,9 @@ export {
   getObjectImages,
   importPlatformObjectImages,
   mapPlatformSourceToImageSource,
+  removeObjectImage,
+  reorderObjectImages,
+  setObjectImageAsCover,
   suggestGmailAttachmentAsObjectImage,
 } from "@/features/real-estate/object/object-image-service";
 

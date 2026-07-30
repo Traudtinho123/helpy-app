@@ -57,13 +57,27 @@ const styles = StyleSheet.create({
   },
   galleryRow: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
     marginTop: 10,
   },
   galleryImage: {
     width: "32%",
-    height: 72,
+    height: 88,
     objectFit: "cover",
+  },
+  metaRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    marginBottom: 10,
+  },
+  metaChip: {
+    fontSize: 8,
+    paddingVertical: 3,
+    paddingHorizontal: 6,
+    backgroundColor: pdfColors.soft,
+    color: pdfColors.muted,
   },
 });
 
@@ -74,7 +88,7 @@ type ExposePdfProps = {
 
 export function ExposePdfDocument({ branding, payload }: ExposePdfProps) {
   const [cover, ...rest] = payload.imageUrls;
-  const gallery = rest.slice(0, 3);
+  const gallery = rest.slice(0, 6);
 
   return (
     <Document title={payload.title} author={branding.companyName}>
@@ -93,7 +107,7 @@ export function ExposePdfDocument({ branding, payload }: ExposePdfProps) {
         ) : (
           <View style={styles.imagePlaceholder}>
             <Text style={{ fontSize: 10, color: pdfColors.muted }}>
-              Objektbild folgt
+              Objektbild folgt — bitte Fotos im Objekt hinterlegen
             </Text>
           </View>
         )}
@@ -110,6 +124,13 @@ export function ExposePdfDocument({ branding, payload }: ExposePdfProps) {
         <Text style={{ fontSize: 10, color: pdfColors.muted, marginBottom: 8 }}>
           {payload.cityLine}
         </Text>
+
+        <View style={styles.metaRow}>
+          {payload.transactionLabel ? (
+            <Text style={styles.metaChip}>{payload.transactionLabel}</Text>
+          ) : null}
+          <Text style={styles.metaChip}>Schweiz · Portal-Exposé</Text>
+        </View>
 
         <Text
           style={{
