@@ -58,10 +58,10 @@ type VorgangCardProps = {
 };
 
 const priorityStyles = {
-  kritisch: "border-[#FCA5A5] bg-[#FEF2F2] text-[#B91C1C]",
-  hoch: "border-[#FECACA] bg-[#FEF2F2] text-[#DC2626]",
-  mittel: "border-[#FDE68A] bg-[#FFFBEB] text-[#B45309]",
-  niedrig: "border-[#CBD5E1] bg-[#F8FAFC] text-[#64748B]",
+  kritisch: "border-[color-mix(in_srgb,var(--color-danger)_30%,transparent)] bg-[var(--color-danger-light)] text-[var(--color-danger)]",
+  hoch: "border-[color-mix(in_srgb,var(--color-warning)_30%,transparent)] bg-[var(--color-warning-light)] text-[var(--color-warning)]",
+  mittel: "border-[var(--color-primary-mid)] bg-[var(--color-primary-light)] text-[var(--color-primary)]",
+  niedrig: "border-[var(--color-border)] bg-[var(--color-bg-subtle)] text-[var(--color-ink-3)]",
 } as const;
 
 const UNDO_MS = 5000;
@@ -201,13 +201,13 @@ export function VorgangCard({
       ref={cardRef}
       data-vorgang-id={vorgang.id}
       className={cn(
-        "group relative overflow-hidden rounded-[16px] border border-[#CBD5E1]/40 border-l-4 bg-white/90 shadow-sm backdrop-blur-xl transition-all duration-300",
+        "group relative overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-border)] border-l-[3px] bg-[var(--color-surface)] shadow-[var(--shadow-sm)] transition-all duration-[var(--transition-base)]",
         CARD_BORDER_STYLES[borderAccent],
         compact ? "p-3.5" : "p-5",
-        focused && "ring-2 ring-[#2563EB]/40",
-        isDetailOpen && "border-[#2563EB]/50 bg-[#EFF6FF]/30",
+        focused && "ring-2 ring-[var(--color-primary)]/30",
+        isDetailOpen && "border-[var(--color-primary-mid)] bg-[var(--color-primary-light)]/40",
         exiting && "pointer-events-none -translate-x-full opacity-0",
-        "hover:border-[#BFDBFE]/70 hover:shadow-md"
+        "hover:border-[var(--color-border-strong)] hover:shadow-[var(--shadow-md)]"
       )}
       style={{
         transform: swiping ? `translateX(${swipeX}px)` : undefined,
@@ -258,11 +258,11 @@ export function VorgangCard({
             >
               {VORGANG_PRIORITY_LABELS[vorgang.prioritaet]}
             </Badge>
-            <span className="truncate text-[13px] font-semibold text-[#0F172A]">
+            <span className="truncate text-[15px] font-semibold text-[var(--color-ink)]">
               {vorgang.kunde}
             </span>
-            <span className="hidden text-[#CBD5E1] sm:inline">·</span>
-            <span className="min-w-0 truncate text-[13px] text-[#334155]">
+            <span className="hidden text-[var(--color-ink-4)] sm:inline">·</span>
+            <span className="min-w-0 truncate text-[14px] text-[var(--color-ink-2)]">
               {vorgang.titel}
             </span>
           </div>
@@ -273,7 +273,7 @@ export function VorgangCard({
             </p>
           ) : null}
 
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-[#94A3B8]">
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] text-[var(--color-ink-4)]">
             <span>{vorgang.receivedLabel}</span>
             {isHelpyPhone ? (
               <Phone className="size-3 text-[#047857]" />

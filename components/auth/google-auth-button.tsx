@@ -54,16 +54,16 @@ export function GoogleAuthButton({
   return (
     <div className="space-y-2">
       {error && (
-        <p className="rounded-[12px] border border-[#FECACA] bg-[#FEF2F2] px-3 py-2 text-[12px] text-[#DC2626]">
+        <p className="rounded-[var(--radius-md)] border border-[color-mix(in_srgb,var(--color-danger)_25%,transparent)] bg-[var(--color-danger-light)] px-3 py-2 text-[var(--text-sm)] text-[var(--color-danger)]">
           {error}
         </p>
       )}
       <Button
         type="button"
-        variant="outline"
+        variant="secondary"
         disabled={isLoading}
         onClick={handleClick}
-        className="h-11 w-full gap-2.5 rounded-[14px] border-[#CBD5E1]/60 bg-white text-[13px] font-medium text-[#94A3B8] hover:bg-white disabled:opacity-100"
+        className="h-11 w-full gap-2.5 bg-[var(--color-surface)] text-[var(--color-ink-2)] hover:bg-[var(--color-bg-subtle)]"
       >
         {isLoading ? (
           <>

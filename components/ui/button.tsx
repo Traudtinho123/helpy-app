@@ -11,11 +11,11 @@ const buttonVariants = cva(
         primary: "helpy-btn-primary",
         secondary: "helpy-btn-secondary",
         ghost:
-          "rounded-[8px] bg-transparent text-[var(--text-secondary)] transition-all duration-200 hover:bg-[var(--background-secondary)] hover:text-[var(--text-primary)]",
+          "rounded-[var(--radius-md)] bg-transparent text-[var(--color-ink-3)] transition-all duration-[var(--transition-fast)] hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-ink)]",
         danger:
-          "rounded-[8px] border border-[color-mix(in_srgb,var(--danger)_30%,transparent)] bg-[var(--danger-light)] text-[var(--danger)] transition-all duration-200 hover:opacity-90",
+          "rounded-[var(--radius-full)] border border-[color-mix(in_srgb,var(--color-danger)_20%,transparent)] bg-[var(--color-danger-light)] text-[var(--color-danger)] transition-all duration-[var(--transition-fast)] hover:opacity-90",
         success:
-          "rounded-[8px] border border-[color-mix(in_srgb,var(--success)_30%,transparent)] bg-[var(--success-light)] text-[var(--success)] transition-all duration-200 hover:opacity-90",
+          "rounded-[var(--radius-full)] border border-[color-mix(in_srgb,var(--color-success)_20%,transparent)] bg-[var(--color-success-light)] text-[var(--color-success)] transition-all duration-[var(--transition-fast)] hover:opacity-90",
         /** Shadcn-kompatible Aliase */
         default: "helpy-btn-primary",
         outline: "helpy-btn-secondary",
@@ -24,9 +24,9 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] [&_svg:not([class*='size-'])]:size-3.5",
-        md: "h-9 gap-2 rounded-[12px] px-4 text-[12px] [&_svg:not([class*='size-'])]:size-4",
-        lg: "h-11 gap-2 rounded-[12px] px-5 text-[13px] [&_svg:not([class*='size-'])]:size-4",
+        sm: "h-9 min-h-9 gap-1 rounded-[var(--radius-full)] px-4 text-[var(--text-xs)] [&_svg:not([class*='size-'])]:size-3.5",
+        md: "h-9 min-h-9 gap-2 rounded-[var(--radius-full)] px-5 text-[var(--text-sm)] [&_svg:not([class*='size-'])]:size-4",
+        lg: "h-11 min-h-11 gap-2 rounded-[var(--radius-full)] px-6 text-[var(--text-base)] [&_svg:not([class*='size-'])]:size-4",
         /** Shadcn-kompatible Aliase */
         default:
           "h-8 gap-1.5 rounded-lg px-2.5 text-sm [&_svg:not([class*='size-'])]:size-4",

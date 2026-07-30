@@ -64,8 +64,8 @@ export function getCardBorderAccent(vorgang: Vorgang): CardBorderAccent {
 }
 
 export const CARD_BORDER_STYLES: Record<CardBorderAccent, string> = {
-  critical: "border-l-[#DC2626]",
-  high: "border-l-[#F97316]",
-  normal: "border-l-[#2563EB]",
-  done: "border-l-[#94A3B8]",
+  critical: "border-l-[var(--color-danger)]",
+  high: "border-l-[var(--color-warning)]",
+  normal: "border-l-[var(--color-primary)]",
+  done: "border-l-[var(--color-ink-4)]",
 };

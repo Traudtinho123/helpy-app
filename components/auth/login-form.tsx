@@ -55,7 +55,7 @@ export function LoginForm() {
         }
       }
     } catch {
-      // Middleware prüft erneut — Fallback Home
+      // Middleware prüft erneut
     }
 
     router.push(nextPath);
@@ -72,23 +72,23 @@ export function LoginForm() {
           Noch kein Konto?{" "}
           <Link
             href={AUTH_ROUTES.register}
-            className="font-semibold text-[#2563EB] hover:underline"
+            className="font-semibold text-[var(--color-primary)] hover:underline"
           >
             Registrieren
           </Link>
         </>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-2">
           <label
             htmlFor="email"
-            className="text-[12px] font-medium text-[#334155]"
+            className="text-[var(--text-sm)] font-medium text-[var(--color-ink-2)]"
           >
             E-Mail
           </label>
           <div className="relative">
-            <Mail className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#94A3B8]" />
+            <Mail className="absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-[var(--color-ink-4)]" />
             <Input
               id="email"
               type="email"
@@ -97,7 +97,7 @@ export function LoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@unternehmen.de"
-              className="h-11 rounded-[14px] border-[#CBD5E1]/60 bg-white pl-10 text-[13px]"
+              className="pl-10"
             />
           </div>
         </div>
@@ -105,7 +105,7 @@ export function LoginForm() {
         <div className="space-y-2">
           <label
             htmlFor="password"
-            className="text-[12px] font-medium text-[#334155]"
+            className="text-[var(--text-sm)] font-medium text-[var(--color-ink-2)]"
           >
             Passwort
           </label>
@@ -117,21 +117,16 @@ export function LoginForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="h-11 rounded-[14px] border-[#CBD5E1]/60 bg-white text-[13px]"
           />
         </div>
 
         {error && (
-          <p className="rounded-[12px] border border-[#FECACA] bg-[#FEF2F2] px-3 py-2 text-[12px] text-[#DC2626]">
+          <p className="rounded-[var(--radius-md)] border border-[color-mix(in_srgb,var(--color-danger)_25%,transparent)] bg-[var(--color-danger-light)] px-3 py-2 text-[var(--text-sm)] text-[var(--color-danger)]">
             {error}
           </p>
         )}
 
-        <Button
-          type="submit"
-          disabled={isLoading}
-          className="h-11 w-full rounded-[14px] bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-[13px] font-semibold text-white shadow-[0_4px_20px_rgba(37,99,235,0.35)]"
-        >
+        <Button type="submit" variant="primary" size="lg" disabled={isLoading} className="w-full">
           {isLoading ? (
             <>
               <Loader2 className="size-4 animate-spin" />
@@ -143,12 +138,12 @@ export function LoginForm() {
         </Button>
       </form>
 
-      <div className="relative my-6">
+      <div className="relative my-8">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-[#CBD5E1]/60" />
+          <div className="w-full border-t border-[var(--color-border)]" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-white/85 px-3 text-[11px] font-medium text-[#94A3B8]">
+          <span className="bg-[var(--color-surface)] px-3 text-[var(--text-xs)] font-medium text-[var(--color-ink-4)]">
             oder
           </span>
         </div>

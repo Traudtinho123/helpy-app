@@ -48,23 +48,15 @@ function TagesuebersichtCard({
   isLoading?: boolean;
 }) {
   return (
-    <Card
-      className={cn(
-        "relative overflow-hidden rounded-[24px] py-0",
-        "border border-[var(--card-border)] bg-[rgba(255,255,255,0.9)]",
-        "shadow-[0_2px_8px_rgba(0,0,0,0.04),0_12px_40px_rgba(99,102,241,0.08)]",
-        "ring-1 ring-white/80 backdrop-blur-[20px] [-webkit-backdrop-filter:blur(20px)]"
-      )}
-    >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[var(--primary)]/10 to-transparent" />
+    <Card variant="default" className="relative overflow-hidden py-0">
       <CardContent className="relative p-7 lg:p-8">
         <div className="mb-6 flex items-start gap-4">
-          <div className="flex size-12 shrink-0 items-center justify-center rounded-[16px] bg-gradient-to-br from-[var(--button-primary-from)] to-[var(--button-primary-to)] shadow-[var(--button-primary-shadow)]">
-            <Sparkles className="size-5 text-white" strokeWidth={2} />
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-primary-light)]">
+            <Sparkles className="size-5 text-[var(--color-primary)]" strokeWidth={2} />
           </div>
           <div>
-            <h2 className="helpy-h2 text-[1.25rem]">Tagesübersicht</h2>
-            <p className="mt-1 text-[13px] text-[var(--text-secondary)]">
+            <h2 className="helpy-h2">Tagesübersicht</h2>
+            <p className="mt-1 text-[var(--text-sm)] text-[var(--color-ink-3)]">
               {isLoading
                 ? "HELPY lädt deine Gmail-Vorgänge…"
                 : plan.summary}
@@ -76,19 +68,19 @@ function TagesuebersichtCard({
           {plan.statusMetrics.map(({ label, value }) => (
             <li
               key={label}
-              className="flex items-center gap-3.5 rounded-[16px] border border-[var(--card-border)] bg-[var(--background-secondary)]/80 px-4 py-3.5 backdrop-blur-sm"
+              className="flex items-center gap-3.5 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-bg-subtle)] px-4 py-3.5"
             >
               <div className="min-w-0">
                 <p
                   className={cn(
-                    "text-[1.375rem] font-bold leading-none tracking-[-0.03em] text-[var(--text-primary)]",
+                    "text-[48px] font-extrabold leading-none tracking-[var(--tracking-tight)] text-[var(--color-ink)]",
                     isLoading &&
-                      "inline-block min-w-[2ch] animate-pulse rounded-md bg-[var(--background-secondary)] text-transparent"
+                      "inline-block min-w-[2ch] animate-pulse rounded-md bg-[var(--color-bg-subtle)] text-transparent"
                   )}
                 >
                   {isLoading ? "0" : value}
                 </p>
-                <p className="mt-1 text-[12px] font-medium text-[var(--text-secondary)]">
+                <p className="mt-1 text-[var(--text-xs)] font-medium text-[var(--color-ink-3)]">
                   {label}
                 </p>
               </div>
@@ -385,11 +377,15 @@ export function MeinArbeitstagPage({
   }).format(new Date());
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-5 sm:px-8 lg:px-12 lg:py-14">
+    <div className="helpy-page py-5 lg:py-14">
       <header className="mb-8 lg:mb-12">
-        <p className="helpy-label text-[11px]">{today}</p>
-        <h1 className="helpy-h1 mt-2 text-[1.5rem] lg:mt-3 lg:text-[2rem]">{greeting}</h1>
-        <p className="helpy-greeting-sub mt-2 max-w-2xl text-[13px] lg:mt-4 lg:text-[15px]">
+        <p className="helpy-label text-[var(--text-xs)] uppercase tracking-[var(--tracking-wide)] text-[var(--color-ink-4)]">
+          {today}
+        </p>
+        <h1 className="helpy-display mt-2 text-[var(--text-3xl)] font-semibold text-[var(--color-ink)] lg:mt-3 lg:text-[28px]">
+          {greeting}
+        </h1>
+        <p className="mt-3 max-w-2xl text-[var(--text-base)] leading-[var(--leading-normal)] text-[var(--color-ink-3)]">
           Ich habe deinen Arbeitstag organisiert — fokussiert auf das, was heute
           zählt.
         </p>

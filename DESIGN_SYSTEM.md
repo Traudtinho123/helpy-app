@@ -1,6 +1,8 @@
-# HELPY Design System v1
+# HELPY Design System v3
 
 Grundlage für alle UI-Entwicklung in HELPY Office KI. Keine Ad-hoc-Werte — immer Tokens und UI-Komponenten verwenden.
+
+**Premium v3:** Warmes Off-White, Playfair Display + DM Sans, Indigo `#4F46E5`, solide Cards (kein Glassmorphism).
 
 ## Struktur
 
@@ -45,20 +47,15 @@ import { tokens, surfaces, typography } from "@/lib/design";
 4. **Deutsche UI** — Alle sichtbaren Texte auf Deutsch.
 5. **Prüfen & Bestätigen** — Keine Automatik-Sprache in Buttons oder Labels.
 
-## Farbsystem (Premium v2 — Indigo / Glass)
+## Farbsystem (Premium v3)
 
 | Token | Wert | Verwendung |
 |---|---|---|
-| `--background` | `#F4F4F8` | Hauptbereich (warmes Grau-Weiss) |
-| `--background-secondary` | `#EEEEF4` | Sections, Card-Footer |
-| `--sidebar-bg` | `#0F0E17` | Sidebar-Hintergrund |
-| `--primary` | `#6366F1` | Indigo — Hauptakzent |
-| `--primary-hover` | `#4F46E5` | Hover auf Primary |
-| `--primary-light` | `#EEF2FF` | Helle Indigo-Flächen |
-| `--card-bg` | `rgba(255,255,255,0.75)` | Glassmorphism Cards |
-| `--text-primary` | `#0F0E17` | Überschriften |
-| `--text-secondary` | `#6B7280` | Labels, Untertitel |
-| `--text-sidebar` | `#E5E7EB` | Sidebar-Text |
+| `--color-bg` | `#F7F6F2` | Seitenhintergrund |
+| `--color-surface` | `#FFFFFF` | Cards, Inputs |
+| `--color-primary` | `#4F46E5` | Indigo — Hauptakzent |
+| `--color-ink` | `#0A0A0A` | Überschriften |
+| `--sidebar-bg` | `#08080F` | Sidebar |
 
 Statusfarben: `lib/design/colors.ts` → `colors.status.*`
 

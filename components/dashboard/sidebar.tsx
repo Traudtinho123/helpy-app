@@ -42,23 +42,23 @@ function NavItem({
     <Link
       href={item.href}
       className={cn(
-        "group relative flex items-center gap-3 rounded-[10px] px-3 py-2 text-[13px] font-medium transition-all duration-150",
+        "group relative flex items-center gap-[var(--space-3)] rounded-[var(--radius-md)] px-3 py-2 text-[var(--text-sm)] font-medium transition-[color,background] duration-[var(--transition-fast)]",
         isActive
-          ? "border-l-[3px] border-l-[var(--primary)] bg-[var(--sidebar-active)] pl-[calc(0.75rem-3px)] text-white"
-          : "text-[var(--text-sidebar-muted)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-sidebar)]"
+          ? "border-l-2 border-l-[var(--color-primary)] bg-[var(--sidebar-active)] pl-[calc(0.75rem-2px)] text-white"
+          : "text-[var(--text-sidebar-muted)] hover:bg-[var(--sidebar-hover)] hover:text-[rgba(255,255,255,0.8)]"
       )}
     >
       <span
         className={cn(
-          "flex size-7 shrink-0 items-center justify-center rounded-[8px] text-[15px] transition-colors duration-150",
-          isActive ? "text-[var(--primary)]" : "text-[var(--text-sidebar-muted)] group-hover:text-[var(--text-sidebar)]"
+          "flex size-7 shrink-0 items-center justify-center text-[15px] transition-colors duration-[var(--transition-fast)]",
+          isActive ? "text-[var(--color-primary-mid)]" : "text-[var(--text-sidebar-muted)] group-hover:text-[rgba(255,255,255,0.8)]"
         )}
       >
         {item.emoji}
       </span>
-      <span className="flex-1 truncate tracking-[-0.02em]">{item.label}</span>
+      <span className="flex-1 truncate">{item.label}</span>
       {count !== undefined ? (
-        <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[var(--primary)] px-1.5 text-[10px] font-semibold tabular-nums text-white">
+        <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-[var(--radius-full)] bg-[var(--color-primary)] px-1.5 text-[10px] font-semibold tabular-nums text-white">
           {count}
         </span>
       ) : null}
@@ -111,7 +111,7 @@ export function Sidebar({ activeHref }: SidebarProps) {
   };
 
   return (
-    <aside className="helpy-layout-sidebar relative z-10 hidden h-screen w-[260px] shrink-0 flex-col bg-[var(--sidebar-bg)] shadow-[inset_-1px_0_0_rgba(255,255,255,0.04)] lg:flex">
+    <aside className="helpy-layout-sidebar relative z-10 hidden h-screen w-[240px] shrink-0 flex-col bg-[var(--sidebar-bg)] shadow-[inset_-1px_0_0_rgba(255,255,255,0.04)] lg:flex">
       <div className="flex shrink-0 items-center px-5 pt-6 pb-5">
         <HelpyLogo size="sidebar" variant="light" />
       </div>
@@ -125,7 +125,7 @@ export function Sidebar({ activeHref }: SidebarProps) {
 
           return (
             <section key={group.id}>
-              <p className="mb-2 px-3 text-[11px] font-semibold tracking-[0.08em] text-[var(--text-secondary)] uppercase">
+              <p className="mb-[var(--space-2)] px-3 pt-[var(--space-5)] text-[9px] font-bold tracking-[0.12em] text-[rgba(255,255,255,0.2)] uppercase">
                 {group.label}
               </p>
               <div className="space-y-0.5">
@@ -136,7 +136,7 @@ export function Sidebar({ activeHref }: SidebarProps) {
         })}
 
         <section className="mt-auto pt-2">
-          <p className="mb-2 px-3 text-[11px] font-semibold tracking-[0.08em] text-[var(--text-secondary)] uppercase">
+          <p className="mb-[var(--space-2)] px-3 pt-[var(--space-5)] text-[9px] font-bold tracking-[0.12em] text-[rgba(255,255,255,0.2)] uppercase">
             System
           </p>
           <div className="space-y-0.5">{settingsItems.map(renderNavItem)}</div>

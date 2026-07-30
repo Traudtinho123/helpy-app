@@ -2,20 +2,17 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-/**
- * Glassmorphism direkt als Tailwind-Klassen — nicht nur über .helpy-glass-card,
- * damit Styles garantiert greifen (Custom-Utilities in @layer können überschrieben werden).
- */
-const GLASS_CARD_CLASSES =
-  "rounded-[16px] border border-white/60 bg-[rgba(255,255,255,0.75)] shadow-[0_4px_6px_rgba(0,0,0,0.04),0_10px_40px_rgba(99,102,241,0.08)] backdrop-blur-[20px] [-webkit-backdrop-filter:blur(20px)]";
-
 type CardVariant = "default" | "workspace" | "info" | "action";
 
 const cardVariants: Record<CardVariant, string> = {
-  default: GLASS_CARD_CLASSES,
-  workspace: `${GLASS_CARD_CLASSES} py-0`,
-  info: `${GLASS_CARD_CLASSES} border-[color-mix(in_srgb,var(--primary)_20%,transparent)] bg-[color-mix(in_srgb,var(--primary-light)_60%,transparent)]`,
-  action: `${GLASS_CARD_CLASSES} helpy-glass-card-interactive cursor-pointer transition-all duration-200 hover:-translate-y-px hover:shadow-[0_8px_12px_rgba(0,0,0,0.06),0_20px_60px_rgba(99,102,241,0.12)]`,
+  default:
+    "rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-sm)]",
+  workspace:
+    "rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] py-0 shadow-[var(--shadow-sm)]",
+  info:
+    "rounded-[var(--radius-lg)] border border-[var(--color-primary-mid)] bg-[var(--color-primary-light)] shadow-[var(--shadow-sm)]",
+  action:
+    "rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-sm)] cursor-pointer transition-all duration-200 hover:-translate-y-px hover:border-[var(--color-border-strong)] hover:shadow-[var(--shadow-md)]",
 };
 
 type CardProps = React.ComponentProps<"div"> & {
@@ -31,15 +28,15 @@ function Card({
   interactive,
   ...props
 }: CardProps) {
+  const resolvedVariant = interactive ? "action" : variant;
+
   return (
     <div
       data-slot="card"
       data-size={size}
       className={cn(
-        "group/card flex flex-col text-sm text-card-foreground",
-        cardVariants[variant],
-        interactive && "helpy-glass-card-interactive cursor-pointer",
-        size === "sm" && "rounded-[16px]",
+        "group/card flex flex-col text-[var(--text-sm)] text-[var(--color-ink)]",
+        cardVariants[resolvedVariant],
         className
       )}
       {...props}
@@ -52,7 +49,7 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-header"
       className={cn(
-        "flex flex-col gap-1 border-b border-[var(--card-border)] px-5 py-4",
+        "flex flex-col gap-1 border-b border-[var(--color-border)] px-[var(--space-6)] py-[var(--space-4)]",
         className
       )}
       {...props}
@@ -65,7 +62,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-title"
       className={cn(
-        "text-[14px] font-semibold tracking-[-0.02em] text-[var(--text-primary)]",
+        "text-[var(--text-sm)] font-semibold tracking-[var(--tracking-tight)] text-[var(--color-ink)]",
         className
       )}
       {...props}
@@ -77,7 +74,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-description"
-      className={cn("text-[12px] text-[var(--text-secondary)]", className)}
+      className={cn("text-[var(--text-xs)] text-[var(--color-ink-3)]", className)}
       {...props}
     />
   );
@@ -95,7 +92,11 @@ function CardAction({ className, ...props }: React.ComponentProps<"div">) {
 
 function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div data-slot="card-content" className={cn("px-5 py-4", className)} {...props} />
+    <div
+      data-slot="card-content"
+      className={cn("px-[var(--space-6)] py-[var(--space-4)]", className)}
+      {...props}
+    />
   );
 }
 
@@ -104,7 +105,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-footer"
       className={cn(
-        "flex items-center border-t border-[var(--card-border)] bg-[var(--background-secondary)]/50 px-5 py-4",
+        "flex items-center border-t border-[var(--color-border)] bg-[var(--color-bg-subtle)] px-[var(--space-6)] py-[var(--space-4)]",
         className
       )}
       {...props}
