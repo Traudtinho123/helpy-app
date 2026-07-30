@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { GitBranch, Loader2 } from "lucide-react";
-import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { DealPipelineBoard } from "@/features/deals/components/deal-pipeline-board";
 import {
@@ -17,7 +16,15 @@ import type {
 } from "@/features/deals/types/deal-types";
 import { cn } from "@/lib/utils";
 
-export function DealPipelinePage() {
+type DealPipelineContentProps = {
+  /** Compact header when embedded as a Finanzen tab */
+  embedded?: boolean;
+};
+
+/** Kanban board + analytics — reusable inside Finanzen or standalone. */
+export function DealPipelineContent({
+  embedded = false,
+}: DealPipelineContentProps) {
   const [deals, setDeals] = useState<DealWithRelations[]>([]);
   const [analytics, setAnalytics] = useState<DealPipelineAnalytics | null>(null);
   const [dealType, setDealType] = useState<DealType>("verkauf");
@@ -46,8 +53,8 @@ export function DealPipelinePage() {
   const filteredDeals = deals.filter((deal) => deal.deal_type === dealType);
 
   return (
-    <DashboardShell activeHref="/pipeline">
-      <div className="helpy-page py-6 lg:py-10">
+    <div className={embedded ? undefined : "helpy-page py-6 lg:py-10"}>
+      {!embedded ? (
         <header className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className="mb-2 inline-flex items-center gap-2 text-[var(--color-primary)]">
@@ -78,45 +85,64 @@ export function DealPipelinePage() {
             ))}
           </div>
         </header>
-
-        {loading ? (
-          <div className="flex items-center justify-center py-20 text-[var(--color-ink-3)]">
-            <Loader2 className="mr-2 size-5 animate-spin" />
-            Pipeline wird geladen…
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {analytics ? (
-              <>
-                <DealPipelineAnalyticsHeader analytics={analytics} dealType={dealType} />
-                <DealPipelineConversionStrip analytics={analytics} dealType={dealType} />
-              </>
-            ) : null}
-
-            {filteredDeals.length === 0 ? (
-              <div
-                className={cn(
-                  "rounded-[var(--radius-xl)] border border-dashed border-[var(--color-border-strong)]",
-                  "bg-[var(--color-surface)] px-6 py-16 text-center"
-                )}
+      ) : (
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[var(--text-sm)] text-[var(--color-ink-3)]">
+            Kanban-Übersicht aller Interessenten — von der Anfrage bis zum Abschluss.
+          </p>
+          <div className="flex gap-2">
+            {(["verkauf", "vermietung"] as DealType[]).map((type) => (
+              <Button
+                key={type}
+                type="button"
+                variant={dealType === type ? "primary" : "secondary"}
+                size="sm"
+                onClick={() => setDealType(type)}
               >
-                <p className="text-[var(--text-lg)] font-semibold text-[var(--color-ink)]">
-                  Noch keine Deals in der Pipeline
-                </p>
-                <p className="mt-2 text-[var(--text-sm)] text-[var(--color-ink-3)]">
-                  Erstelle einen Deal aus einem Vorgang oder verknüpfe einen Interessenten mit einem Objekt.
-                </p>
-              </div>
-            ) : (
-              <DealPipelineBoard
-                deals={filteredDeals}
-                dealType={dealType}
-                onDealsChange={() => void reload()}
-              />
-            )}
+                {type === "verkauf" ? "Verkauf" : "Vermietung"}
+              </Button>
+            ))}
           </div>
-        )}
-      </div>
-    </DashboardShell>
+        </div>
+      )}
+
+      {loading ? (
+        <div className="flex items-center justify-center py-20 text-[var(--color-ink-3)]">
+          <Loader2 className="mr-2 size-5 animate-spin" />
+          Pipeline wird geladen…
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {analytics ? (
+            <>
+              <DealPipelineAnalyticsHeader analytics={analytics} dealType={dealType} />
+              <DealPipelineConversionStrip analytics={analytics} dealType={dealType} />
+            </>
+          ) : null}
+
+          {filteredDeals.length === 0 ? (
+            <div
+              className={cn(
+                "rounded-[var(--radius-xl)] border border-dashed border-[var(--color-border-strong)]",
+                "bg-[var(--color-surface)] px-6 py-16 text-center"
+              )}
+            >
+              <p className="text-[var(--text-lg)] font-semibold text-[var(--color-ink)]">
+                Noch keine Deals in der Pipeline
+              </p>
+              <p className="mt-2 text-[var(--text-sm)] text-[var(--color-ink-3)]">
+                Erstelle einen Deal aus einem Vorgang oder verknüpfe einen Interessenten mit einem Objekt.
+              </p>
+            </div>
+          ) : (
+            <DealPipelineBoard
+              deals={filteredDeals}
+              dealType={dealType}
+              onDealsChange={() => void reload()}
+            />
+          )}
+        </div>
+      )}
+    </div>
   );
 }

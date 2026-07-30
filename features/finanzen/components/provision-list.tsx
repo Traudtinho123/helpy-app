@@ -20,12 +20,15 @@ type ProvisionListProps = {
   provisions: ProvisionRow[];
   objektTitles: Map<string, string>;
   onRefresh: () => void;
+  /** `invoices` focuses on generate/status for billed rows */
+  mode?: "provisions" | "invoices";
 };
 
 export function ProvisionList({
   provisions,
   objektTitles,
   onRefresh,
+  mode = "provisions",
 }: ProvisionListProps) {
   const { profile } = useCompanyProfile();
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -34,6 +37,16 @@ export function ProvisionList({
   );
   const [invoiceRecipient, setInvoiceRecipient] = useState("");
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
+
+  const rows =
+    mode === "invoices"
+      ? provisions.filter(
+          (row) =>
+            row.provision_status === "verdient" ||
+            row.provision_status === "rechnungsgestellt" ||
+            row.provision_status === "bezahlt"
+        )
+      : provisions;
 
   const handleMarkPaid = useCallback(
     async (dealId: string) => {
@@ -85,14 +98,18 @@ export function ProvisionList({
     [onRefresh]
   );
 
-  if (provisions.length === 0) {
+  if (rows.length === 0) {
     return (
       <div className="rounded-[var(--radius-xl)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface)] px-6 py-16 text-center">
         <p className="text-[var(--text-lg)] font-semibold text-[var(--color-ink)]">
-          Noch keine Provisionen erfasst
+          {mode === "invoices"
+            ? "Noch keine Rechnungen"
+            : "Noch keine Provisionen erfasst"}
         </p>
         <p className="mt-2 text-[var(--text-sm)] text-[var(--color-ink-3)]">
-          Erfasse Provisionen auf Deal-Karten in der Pipeline.
+          {mode === "invoices"
+            ? "Sobald eine Provision verdient ist, kannst du hier die Rechnung erstellen."
+            : "Erfasse Provisionen auf Deal-Karten in der Pipeline."}
         </p>
       </div>
     );
@@ -116,7 +133,7 @@ export function ProvisionList({
               </tr>
             </thead>
             <tbody>
-              {provisions.map((row) => {
+              {rows.map((row) => {
                 const objektTitle =
                   objektTitles.get(row.objekt_id) ?? row.objekt_id;
                 const abschluss = row.abschluss_datum

@@ -1,5 +1,5 @@
-import { DealPipelinePage } from "@/features/deals/components/deal-pipeline-page";
+import { redirect } from "next/navigation";
 
-export default function PipelineRoutePage() {
-  return <DealPipelinePage />;
+export default function PipelineRedirectPage() {
+  redirect("/finanzen?tab=pipeline");
 }

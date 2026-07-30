@@ -5,7 +5,6 @@ import type { HelpySkill } from "@/features/workspace/services/workspace/skills"
 export type CoreNavItemId =
   | "arbeitstag"
   | "vorgaenge"
-  | "pipeline"
   | "kunden"
   | "portfolio"
   | "dokumente"
@@ -81,7 +80,7 @@ export const SKILL_PORTFOLIO_DESCRIPTION: Record<HelpySkill, string> =
 const CORE_NAV_PRIMARY: Omit<CoreNavItem, "label" | "emoji">[] = [
   { id: "arbeitstag", href: "/", section: "primary", navGroup: "arbeit" },
   { id: "vorgaenge", href: "/vorgaenge", section: "primary", navGroup: "arbeit", showMailCount: true },
-  { id: "pipeline", href: "/pipeline", section: "primary", navGroup: "arbeit", showDealCount: true },
+  { id: "finanzen", href: "/finanzen", section: "primary", navGroup: "arbeit", showDealCount: true },
   { id: "kalender", href: "/kalender", section: "primary", navGroup: "arbeit" },
   { id: "plattformen", href: "/plattformen", section: "primary", navGroup: "kommunikation" },
   { id: "telefonie", href: "/telefonie", section: "primary", navGroup: "kommunikation" },
@@ -89,7 +88,6 @@ const CORE_NAV_PRIMARY: Omit<CoreNavItem, "label" | "emoji">[] = [
   { id: "portfolio", href: "/objekte", section: "primary", navGroup: "ressourcen" },
   { id: "kunden", href: "/kunden", section: "primary", navGroup: "ressourcen" },
   { id: "dokumente", href: "/dokumente", section: "primary", navGroup: "ressourcen" },
-  { id: "finanzen", href: "/finanzen", section: "primary", navGroup: "ressourcen" },
 ];
 
 const CORE_NAV_PRIMARY_STATIC: Record<
@@ -98,7 +96,6 @@ const CORE_NAV_PRIMARY_STATIC: Record<
 > = {
   arbeitstag: { label: "Mein Arbeitsplatz", emoji: "🏠" },
   vorgaenge: { label: "Vorgänge", emoji: "📥" },
-  pipeline: { label: "Pipeline", emoji: "📊" },
   dokumente: { label: "Dokumente", emoji: "📄" },
   finanzen: { label: "Finanzen", emoji: "💰" },
   kalender: { label: "Kalender", emoji: "📅" },
@@ -203,10 +200,6 @@ const NAV_MATCHERS: Array<{ href: string; matches: (pathname: string) => boolean
     matches: (pathname) => pathname.startsWith("/kunden"),
   },
   {
-    href: "/pipeline",
-    matches: (pathname) => pathname.startsWith("/pipeline"),
-  },
-  {
     href: "/vorgaenge",
     matches: (pathname) =>
       pathname.startsWith("/vorgaenge") ||
@@ -221,7 +214,8 @@ const NAV_MATCHERS: Array<{ href: string; matches: (pathname: string) => boolean
   },
   {
     href: "/finanzen",
-    matches: (pathname) => pathname.startsWith("/finanzen"),
+    matches: (pathname) =>
+      pathname.startsWith("/finanzen") || pathname.startsWith("/pipeline"),
   },
   {
     href: "/kalender",
