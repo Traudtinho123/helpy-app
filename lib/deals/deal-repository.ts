@@ -233,6 +233,9 @@ export async function updateDealPhase(input: {
       beschreibung: input.beschreibung ?? `Phase ${vonPhase} → ${input.phase}`,
       erstellt_von: input.userId,
     });
+    if (input.phase >= 9 && updated.kunde_id) {
+      await promoteBestandskundeFromDeal(updated, input.companyId, now);
+    }
     return updated;
   }
 
@@ -276,7 +279,35 @@ export async function updateDealPhase(input: {
     erstellt_von: input.userId,
   });
 
-  return enrichDeal(rowToDeal(data as Record<string, unknown>));
+  const updated = await enrichDeal(rowToDeal(data as Record<string, unknown>));
+
+  if (input.phase >= 9 && updated.kunde_id) {
+    await promoteBestandskundeFromDeal(updated, input.companyId, now);
+  }
+
+  return updated;
+}
+
+async function promoteBestandskundeFromDeal(
+  deal: DealWithRelations,
+  companyId: string,
+  closedAt: string
+): Promise<void> {
+  if (!deal.kunde_id) return;
+  const { promoteKundeToBestandskunde, linkNurturingDealCreated } =
+    await import("@/lib/nurturing/nurturing-repository");
+  await promoteKundeToBestandskunde({
+    companyId,
+    kundeId: deal.kunde_id,
+    dealId: deal.id,
+    objektId: deal.objekt_id,
+    closedAt,
+  });
+  await linkNurturingDealCreated({
+    companyId,
+    kundeId: deal.kunde_id,
+    dealId: deal.id,
+  });
 }
 
 export async function recordDealActivity(input: {

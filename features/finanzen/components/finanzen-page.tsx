@@ -7,6 +7,7 @@ import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { ProvisionDashboard } from "@/features/finanzen/components/provision-dashboard";
 import { ProvisionList } from "@/features/finanzen/components/provision-list";
+import { NurturingRoiCard } from "@/features/nurturing/components/nurturing-roi-card";
 import {
   getMonatsziel,
   setMonatsziel,
@@ -146,6 +147,8 @@ export function FinanzenPage() {
                 onMonatszielChange={handleMonatszielChange}
               />
             ) : null}
+
+            <NurturingRoiCard />
 
             <section>
               <h2 className="mb-4 text-[var(--text-lg)] font-semibold text-[var(--color-ink)]">

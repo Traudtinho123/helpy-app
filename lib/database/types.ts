@@ -612,6 +612,11 @@ export type Database = {
           notizen: string | null;
           status: "interessent" | "aktiv" | "bestandskunde";
           erstellt_am: string;
+          letzter_kontakt: string | null;
+          letzter_deal_abschluss: string | null;
+          letzter_deal_id: string | null;
+          letzter_deal_objekt_id: string | null;
+          nurturing_aktiv: boolean;
         };
         Insert: {
           id?: string;
@@ -626,6 +631,11 @@ export type Database = {
           notizen?: string | null;
           status?: "interessent" | "aktiv" | "bestandskunde";
           erstellt_am?: string;
+          letzter_kontakt?: string | null;
+          letzter_deal_abschluss?: string | null;
+          letzter_deal_id?: string | null;
+          letzter_deal_objekt_id?: string | null;
+          nurturing_aktiv?: boolean;
         };
         Update: {
           id?: string;
@@ -640,6 +650,11 @@ export type Database = {
           notizen?: string | null;
           status?: "interessent" | "aktiv" | "bestandskunde";
           erstellt_am?: string;
+          letzter_kontakt?: string | null;
+          letzter_deal_abschluss?: string | null;
+          letzter_deal_id?: string | null;
+          letzter_deal_objekt_id?: string | null;
+          nurturing_aktiv?: boolean;
         };
         Relationships: [
           {

@@ -23,6 +23,11 @@ export type KundeRecord = {
   notizen: string | null;
   status: KundeDbStatus;
   erstellt_am: string;
+  letzter_kontakt: string | null;
+  letzter_deal_abschluss: string | null;
+  letzter_deal_id: string | null;
+  letzter_deal_objekt_id: string | null;
+  nurturing_aktiv: boolean;
 };
 
 export type KundeDuplicateMatch = {

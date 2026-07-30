@@ -4,6 +4,11 @@ import type {
   WeekdayId,
 } from "@/features/company-knowledge/types/company-knowledge-types";
 import { WEEKDAY_ORDER } from "@/features/company-knowledge/types/company-knowledge-types";
+import {
+  cloneNurturingSettings,
+  createDefaultNurturingSettings,
+  parseNurturingSettings,
+} from "@/features/nurturing/services/nurturing-templates";
 
 export function createDefaultBusinessHours(): Record<WeekdayId, BusinessDayHours> {
   const weekdayHours: BusinessDayHours = {
@@ -47,6 +52,7 @@ export function createEmptyCompanyKnowledge(
     defaultBufferMinutes: 15,
     internalRules: [],
     faq: [],
+    nurturing: createDefaultNurturingSettings(),
     updatedAt: new Date().toISOString(),
     updatedBy,
   };
@@ -67,6 +73,9 @@ export function cloneCompanyKnowledge(
     ) as CompanyKnowledge["businessHours"],
     internalRules: [...knowledge.internalRules],
     faq: knowledge.faq.map((item) => ({ ...item })),
+    nurturing: cloneNurturingSettings(
+      knowledge.nurturing ?? createDefaultNurturingSettings()
+    ),
   };
 }
 
@@ -76,3 +85,8 @@ export function companyKnowledgeEquals(
 ): boolean {
   return JSON.stringify(left) === JSON.stringify(right);
 }
+
+export {
+  createDefaultNurturingSettings,
+  parseNurturingSettings,
+};

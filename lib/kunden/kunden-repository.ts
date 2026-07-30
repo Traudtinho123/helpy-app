@@ -33,6 +33,19 @@ function rowToRecord(row: Record<string, unknown>): KundeRecord {
         ? row.status
         : "interessent",
     erstellt_am: String(row.erstellt_am ?? new Date().toISOString()),
+    letzter_kontakt:
+      typeof row.letzter_kontakt === "string" ? row.letzter_kontakt : null,
+    letzter_deal_abschluss:
+      typeof row.letzter_deal_abschluss === "string"
+        ? row.letzter_deal_abschluss
+        : null,
+    letzter_deal_id:
+      typeof row.letzter_deal_id === "string" ? row.letzter_deal_id : null,
+    letzter_deal_objekt_id:
+      typeof row.letzter_deal_objekt_id === "string"
+        ? row.letzter_deal_objekt_id
+        : null,
+    nurturing_aktiv: row.nurturing_aktiv !== false,
   };
 }
 
@@ -139,6 +152,11 @@ export async function createKundeRecord(
       id: generateDevId(),
       ...payload,
       erstellt_am: new Date().toISOString(),
+      letzter_kontakt: null,
+      letzter_deal_abschluss: null,
+      letzter_deal_id: null,
+      letzter_deal_objekt_id: null,
+      nurturing_aktiv: true,
     };
     devKunden.set(record.id, record);
     return { ok: true, record };

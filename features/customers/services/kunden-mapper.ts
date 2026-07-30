@@ -58,7 +58,16 @@ export function buildFirmenname(input: CreateKundeInput): string {
 export function createKundeInputToDbPayload(
   input: CreateKundeInput,
   context: { userId: string; companyId: string }
-): Omit<KundeRecord, "id" | "erstellt_am"> {
+): Omit<
+  KundeRecord,
+  | "id"
+  | "erstellt_am"
+  | "letzter_kontakt"
+  | "letzter_deal_abschluss"
+  | "letzter_deal_id"
+  | "letzter_deal_objekt_id"
+  | "nurturing_aktiv"
+> {
   return {
     user_id: context.userId,
     company_id: context.companyId,
@@ -75,11 +84,18 @@ export function createKundeInputToDbPayload(
 export function kundeRecordToCustomer(record: KundeRecord): Customer {
   const contact =
     record.ansprechpartner?.trim() || record.firmenname.trim() || "Unbekannt";
+  const contactAt = record.letzter_kontakt ?? record.erstellt_am;
   const createdLabel = new Intl.DateTimeFormat("de-CH", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
-  }).format(new Date(record.erstellt_am));
+  }).format(new Date(contactAt));
+  const lastContactDays = Math.max(
+    0,
+    Math.floor(
+      (Date.now() - new Date(contactAt).getTime()) / (1000 * 60 * 60 * 24)
+    )
+  );
 
   return {
     id: record.id,
@@ -94,16 +110,25 @@ export function kundeRecordToCustomer(record: KundeRecord): Customer {
     notes: record.notizen ?? "",
     tags: ["Datenbank"],
     status: mapDbStatusToCustomerStatus(record.status),
-    lastActivity: record.erstellt_am,
+    lastActivity: contactAt,
     lastActivityLabel: createdLabel,
+    lastObjectLabel: record.letzter_deal_objekt_id,
+    letzterDealAbschluss: record.letzter_deal_abschluss,
+    nurturingAktiv: record.nurturing_aktiv,
     timeline: [],
     helpy: {
       emailCount: 0,
       offerCount: 0,
       invoiceCount: 0,
-      lastContactDays: 0,
-      impression: "Kunde im HELPY-Stamm angelegt.",
-      recommendation: "Kontaktdaten prüfen und erste Aktivität dokumentieren.",
+      lastContactDays,
+      impression:
+        record.status === "bestandskunde"
+          ? "Bestandskunde — für Nurturing geeignet."
+          : "Kunde im HELPY-Stamm angelegt.",
+      recommendation:
+        record.status === "bestandskunde"
+          ? "Nächste Nurturing-Kampagne prüfen oder persönlich kontaktieren."
+          : "Kontaktdaten prüfen und erste Aktivität dokumentieren.",
     },
   };
 }

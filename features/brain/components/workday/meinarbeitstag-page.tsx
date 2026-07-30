@@ -23,6 +23,7 @@ import {
 } from "@/features/lead-scoring/components/hot-leads-section";
 import { FollowupsWorkdaySection } from "@/features/followup/components/followups-workday-section";
 import { MatchesWorkdaySection } from "@/features/matching/components/matches-workday-section";
+import { NurturingWorkdaySection } from "@/features/nurturing/components/nurturing-workday-section";
 import { WorkdayBerichtSection } from "@/features/workday/components/workday-bericht-section";
 import { WorkdayTermineHeuteSection } from "@/features/workday/components/workday-termine-heute-section";
 import type { WorkdayAnalytics } from "@/features/analytics/services/workday-analytics";
@@ -409,6 +410,8 @@ export function MeinArbeitstagPage({
         )}
 
         <FollowupsWorkdaySection />
+
+        <NurturingWorkdaySection />
 
         <MatchesWorkdaySection />
 

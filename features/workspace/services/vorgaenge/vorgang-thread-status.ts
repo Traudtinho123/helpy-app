@@ -155,6 +155,13 @@ export function applyThreadSnapshotToVorgang(
     startFollowUpFromGmailSend(vorgang, snapshot.latestMessageAt);
   }
 
+  if (
+    snapshot.latestMessageDirection === "incoming" &&
+    snapshot.latestMessageFrom
+  ) {
+    void detectNurturingReply(snapshot);
+  }
+
   if (awaitingReply) {
     return {
       ...next,
@@ -170,6 +177,23 @@ export function applyThreadSnapshotToVorgang(
   }
 
   return next;
+}
+
+function detectNurturingReply(snapshot: GmailThreadSnapshot): void {
+  if (typeof window === "undefined") return;
+  const fromEmail =
+    snapshot.latestMessageFrom.match(/<([^>]+)>/)?.[1] ??
+    snapshot.latestMessageFrom;
+  void fetch("/api/nurturing/reply", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      gmailThreadId: snapshot.threadId,
+      fromEmail: fromEmail.trim(),
+    }),
+  }).catch(() => {
+    /* best-effort reply tracking */
+  });
 }
 
 export function applyThreadSnapshotsToVorgaenge(

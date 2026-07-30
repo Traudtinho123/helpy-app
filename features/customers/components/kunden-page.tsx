@@ -31,7 +31,42 @@ import { sortCustomersByLeadScore } from "@/features/lead-scoring/services/lead-
 import { useConfirmedKundenakten } from "@/features/kundenakte/hooks/use-kundenakte";
 import { mergeCustomersWithConfirmedKundenakten } from "@/features/kundenakte/services/kundenakte-mapper";
 import { normalizePhone } from "@/features/crm/services/crm-merge";
+import {
+  createDefaultNurturingSettings,
+  nextCampaignHint,
+} from "@/features/nurturing";
 import { cn } from "@/lib/utils";
+
+function sortBestandskundenByLongestWithoutContact(
+  customers: Customer[]
+): Customer[] {
+  return [...customers].sort((a, b) => {
+    const aDays = a.helpy.lastContactDays ?? 0;
+    const bDays = b.helpy.lastContactDays ?? 0;
+    if (bDays !== aDays) return bDays - aDays;
+    return a.contactPerson.localeCompare(b.contactPerson, "de");
+  });
+}
+
+function enrichBestandskundenCampaignHints(
+  customers: Customer[]
+): Customer[] {
+  const settings = createDefaultNurturingSettings();
+  return customers.map((customer) => {
+    if (customer.status !== "bestandskunde") return customer;
+    const hint = nextCampaignHint({
+      letzterDealAbschluss: customer.letzterDealAbschluss ?? null,
+      lastMarktupdateAt: null,
+      lastJahrestagAt: null,
+      lastWeiterempfehlungAt: null,
+      settings,
+    });
+    return {
+      ...customer,
+      nextCampaignLabel: hint?.label ?? null,
+    };
+  });
+}
 
 export function KundenPage() {
   const searchParams = useSearchParams();
@@ -53,7 +88,9 @@ export function KundenPage() {
       mockCustomers,
       confirmedKundenakten
     );
-    return mergeDbCustomersWithBase(mergedKundenakten, getDbKundenCustomers());
+    return enrichBestandskundenCampaignHints(
+      mergeDbCustomersWithBase(mergedKundenakten, getDbKundenCustomers())
+    );
   }, [confirmedKundenakten, dbRevision]);
 
   const customers = useLeadScores(baseCustomers);
@@ -86,6 +123,9 @@ export function KundenPage() {
   const filteredCustomers = useMemo(() => {
     const byFilter = filterCustomers(customers, activeFilter);
     const searched = searchCustomers(byFilter, searchQuery);
+    if (activeFilter === "bestandskunde" && !sortByScore) {
+      return sortBestandskundenByLongestWithoutContact(searched);
+    }
     return sortByScore ? sortCustomersByLeadScore(searched) : searched;
   }, [activeFilter, customers, searchQuery, sortByScore]);
 
@@ -131,6 +171,9 @@ export function KundenPage() {
             <h1 className="text-[1.125rem] font-semibold text-[#0F172A]">Kunden</h1>
             <p className="text-[12px] text-[#64748B]">
               Stammkunden verwalten und neue Kontakte anlegen
+              {activeFilter === "bestandskunde"
+                ? " — längster Kontaktabstand zuerst"
+                : ""}
             </p>
           </div>
           <button
@@ -180,6 +223,7 @@ export function KundenPage() {
               setMobileProfileOpen(true);
             }
           }}
+          bestandskundenMode={activeFilter === "bestandskunde"}
         />
         <div className="hidden min-h-0 flex-1 overflow-hidden lg:block">
           <CustomerProfile customer={selectedCustomer} />

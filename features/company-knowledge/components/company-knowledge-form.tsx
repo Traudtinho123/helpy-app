@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import {
   cloneCompanyKnowledge,
   companyKnowledgeEquals,
+  createDefaultNurturingSettings,
 } from "@/features/company-knowledge/services/company-knowledge-defaults";
 import {
   ensureCompanyKnowledgeLoaded,
@@ -27,6 +28,7 @@ import {
   type CompanyKnowledgeService,
   type ReplyStyleId,
 } from "@/features/company-knowledge/types/company-knowledge-types";
+import { NurturingSettingsSection } from "@/features/nurturing/components/nurturing-settings-section";
 import { DOCUMENT_LANGUAGE_LABELS } from "@/lib/company/company-profile-types";
 import { useUserProfileContext } from "@/lib/user/components/user-profile-context";
 import { cn } from "@/lib/utils";
@@ -744,6 +746,27 @@ export function CompanyKnowledgeForm() {
               </div>
             ))
           )}
+        </CardContent>
+      </Card>
+
+      <Card className="overflow-hidden border-[#E2E8F0]/80 shadow-none">
+        <CardHeader className="border-b border-[#E2E8F0]/80 bg-[#F8FAFC]/50 px-5 py-4">
+          <CardTitle className="text-[14px] font-semibold text-[#0F172A]">
+            Bestandskunden-Nurturing
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-5">
+          <NurturingSettingsSection
+            settings={
+              draft.nurturing ??
+              createDefaultNurturingSettings()
+            }
+            disabled={!canEditAISettings || isLoading || isSaving}
+            companyName={profile.companyName}
+            onChange={(nurturing) =>
+              setDraft((current) => ({ ...current, nurturing }))
+            }
+          />
         </CardContent>
       </Card>
 

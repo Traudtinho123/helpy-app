@@ -46,6 +46,12 @@ export type Customer = {
   status: CustomerStatus;
   lastActivity: string;
   lastActivityLabel: string;
+  /** Letztes Objekt / Deal-Objekt-Label (Bestandskunden). */
+  lastObjectLabel?: string | null;
+  letzterDealAbschluss?: string | null;
+  nurturingAktiv?: boolean;
+  /** Nächste geplante Nurturing-Kampagne (UI). */
+  nextCampaignLabel?: string | null;
   timeline: TimelineEntry[];
   helpy: HelpyCustomerInsight;
   /** Lead-Score 1–10 (regelbasiert, täglich/stündlich aktualisiert). */

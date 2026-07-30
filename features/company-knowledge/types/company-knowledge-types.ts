@@ -78,6 +78,8 @@ export type CompanyKnowledge = {
   defaultBufferMinutes: number;
   internalRules: string[];
   faq: CompanyKnowledgeFaqEntry[];
+  /** Bestandskunden-Nurturing (Kampagnen-Toggles + Vorlagen). */
+  nurturing?: import("@/features/nurturing/types/nurturing-types").NurturingSettings;
   updatedAt: string;
   updatedBy: string;
 };

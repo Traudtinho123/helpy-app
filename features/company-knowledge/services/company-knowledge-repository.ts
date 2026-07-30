@@ -4,6 +4,7 @@ import {
   cloneCompanyKnowledge,
   createEmptyCompanyKnowledge,
 } from "@/features/company-knowledge/services/company-knowledge-defaults";
+import { parseNurturingSettings } from "@/features/nurturing/services/nurturing-templates";
 import type {
   BusinessDayHours,
   CompanyKnowledge,
@@ -98,6 +99,9 @@ export function parseCompanyKnowledgeData(
       ? parsed.internalRules.filter((rule): rule is string => typeof rule === "string")
       : base.internalRules,
     faq: Array.isArray(parsed.faq) ? parsed.faq : base.faq,
+    nurturing: parseNurturingSettings(
+      (parsed as { nurturing?: unknown }).nurturing
+    ),
     updatedAt:
       typeof parsed.updatedAt === "string" ? parsed.updatedAt : base.updatedAt,
     updatedBy:
