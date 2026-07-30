@@ -4,6 +4,7 @@ import type { ComponentType } from "react";
 import { MapPin, Mail, Phone, StickyNote } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { CustomerMemorySection } from "@/features/memory/components";
+import { SuchprofilSection } from "@/features/matching/components/suchprofil-section";
 import { Timeline } from "@/features/customers/components/timeline";
 import { getTimelineEntryCount } from "@/features/customers/services/timeline";
 import { CompanyLogo } from "@/features/customers/components/company-logo";
@@ -121,6 +122,10 @@ export function CustomerProfile({ customer }: CustomerProfileProps) {
         </div>
 
         <CustomerMemorySection customerId={customer.id} />
+
+        <div className="mt-6">
+          <SuchprofilSection kundeId={customer.id} kundeName={customer.contactPerson} />
+        </div>
 
         <div className="mt-8">
           <div className="mb-5 flex items-end justify-between gap-4">

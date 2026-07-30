@@ -27,6 +27,7 @@ import {
 import { REVIEW_CONFIRM_MESSAGE } from "@/features/review/services/types";
 import { shouldPrepareArchive } from "@/features/spam-handling/services/archive-handling-engine";
 import type { Vorgang as ListeVorgang } from "@/features/workspace/services/vorgaenge/types";
+import { detectSuchprofilFromKundenakte } from "@/features/matching/services/suchprofil-detection-service";
 import type { Vorgang as WorkspaceVorgang } from "@/features/workspace/services/workspace/types";
 
 export const HELPY_KUNDENAKTE_CARD_TITLE = "Kundenakte von HELPY vorbereitet";
@@ -134,6 +135,11 @@ export function prepareKundenakteFromBundle(
     });
   }
 
+  detectSuchprofilFromKundenakte(
+    record,
+    `${extracted.betreff}\n${extracted.zusammenfassung}`
+  );
+
   return record;
 }
 
@@ -169,6 +175,11 @@ export function prepareKundenakteFromWorkspace(
       customerName: record.name,
     });
   }
+
+  detectSuchprofilFromKundenakte(
+    record,
+    `${extracted.betreff}\n${extracted.zusammenfassung}`
+  );
 
   return record;
 }

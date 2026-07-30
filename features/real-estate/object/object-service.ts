@@ -1,3 +1,4 @@
+import { triggerObjectMatching } from "@/features/matching/services/matching-trigger";
 import {
   getMailListeVorgang,
   getMailWorkspaceVorgang,
@@ -269,6 +270,7 @@ export function prepareRealEstateObjectFromBundle(
         .join("\n"),
       vorgangId: bundle.liste.id,
     });
+    triggerObjectMatching(saved);
   }
   return saved;
 }
@@ -413,6 +415,7 @@ function prepareRealEstateObjectFromDirectMail(
         .join("\n"),
       vorgangId: liste.id,
     });
+    triggerObjectMatching(saved);
   }
   return saved;
 }

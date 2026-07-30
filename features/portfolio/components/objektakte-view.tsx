@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { ObjectDossierPanel } from "@/features/portfolio/components/object-dossier-panel";
 import { ObjectPipelineTab } from "@/features/deals/components/object-pipeline-tab";
+import { ObjectMatchesTab } from "@/features/matching/components/object-matches-tab";
+import { MatchNotificationBanner } from "@/features/matching/components/match-notification-banner";
 import { getDocumentDisplayStatus } from "@/features/documents/services/types";
 import { REAL_ESTATE_OBJECT_STATUS_LABELS } from "@/features/real-estate/object";
 import { formatObjectListingPriceLabel } from "@/features/portfolio/services/object-pricing-utils";
@@ -44,10 +46,10 @@ type ObjektakteViewProps = {
   /** Herkunft für kontextuelles Zurück (Vorgang / Kundenakte / Portfolio). */
   navigationOrigin?: ObjectNavigationOrigin;
   /** Beim Anlegen eines Objekts direkt den Dossier-Tab öffnen. */
-  initialTab?: "uebersicht" | "pipeline" | "dossier";
+  initialTab?: "uebersicht" | "pipeline" | "dossier" | "matches";
 };
 
-type ObjektTab = "uebersicht" | "pipeline" | "dossier";
+type ObjektTab = "uebersicht" | "pipeline" | "dossier" | "matches";
 
 function ObjectTitleEditor({
   objectId,
@@ -232,10 +234,15 @@ export function ObjektakteView({
       )}
 
       <div className={embedded ? "px-6 py-6 lg:px-8" : undefined}>
+      <MatchNotificationBanner
+        objectId={object.objectId}
+        objectTitle={object.titel}
+      />
       <div className="mb-5 flex gap-1.5">
         {(
           [
             { id: "uebersicht" as const, label: "Übersicht" },
+            { id: "matches" as const, label: "Passende Interessenten" },
             { id: "pipeline" as const, label: "Pipeline" },
             { id: "dossier" as const, label: "Dossier" },
           ] as const
@@ -263,6 +270,8 @@ export function ObjektakteView({
           objectId={object.objectId}
           dealType={object.transaktion === "Miete" ? "vermietung" : "verkauf"}
         />
+      ) : activeTab === "matches" ? (
+        <ObjectMatchesTab objectId={object.objectId} />
       ) : (
       <>
       <section className="overflow-hidden rounded-[24px] border border-[#CBD5E1]/40 bg-white/90 shadow-[0_2px_8px_rgba(15,23,42,0.04)]">

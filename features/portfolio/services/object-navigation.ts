@@ -65,7 +65,7 @@ export function parseObjectNavigationOrigin(
 
 export function parseObjektInitialTab(
   searchParams: URLSearchParams | Record<string, string | string[] | undefined>
-): "uebersicht" | "dossier" {
+): "uebersicht" | "pipeline" | "dossier" | "matches" {
   const get = (key: string): string | null => {
     if (searchParams instanceof URLSearchParams) {
       return searchParams.get(key);
@@ -75,7 +75,11 @@ export function parseObjektInitialTab(
     return value ?? null;
   };
 
-  return get("tab") === "dossier" ? "dossier" : "uebersicht";
+  const tab = get("tab");
+  if (tab === "dossier") return "dossier";
+  if (tab === "pipeline") return "pipeline";
+  if (tab === "matches") return "matches";
+  return "uebersicht";
 }
 
 export function resolveObjectBackNavigation(origin: ObjectNavigationOrigin): {

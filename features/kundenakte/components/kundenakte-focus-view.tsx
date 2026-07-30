@@ -38,6 +38,8 @@ import {
   refreshLeadScoresForCustomers,
 } from "@/features/lead-scoring/services/lead-score-refresh";
 import { getLeadScoreRecord } from "@/features/lead-scoring/services/lead-score-store";
+import { SuchprofilSection } from "@/features/matching/components/suchprofil-section";
+import { SuchprofilConfirmationBanner } from "@/features/matching/components/suchprofil-confirmation-banner";
 import { cn } from "@/lib/utils";
 
 type KundenakteFocusViewProps = {
@@ -64,6 +66,7 @@ export function KundenakteFocusView({ vorgangId }: KundenakteFocusViewProps) {
   const [reviewOpen, setReviewOpen] = useState(false);
   const [activeReview, setActiveReview] = useState<HelpyReview | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [suchprofilEditing, setSuchprofilEditing] = useState(false);
 
   useEffect(() => {
     if (!workspace) return;
@@ -273,9 +276,20 @@ export function KundenakteFocusView({ vorgangId }: KundenakteFocusViewProps) {
         </header>
 
         <div className="space-y-6">
+          <SuchprofilConfirmationBanner
+            kundeId={kundenakte.id}
+            onEdit={() => setSuchprofilEditing(true)}
+          />
+
           <KundenakteWidgetGrid
             vorgangId={vorgangId}
             customerEmail={kundenakte.email}
+          />
+
+          <SuchprofilSection
+            kundeId={kundenakte.id}
+            kundeName={kundenakte.name}
+            initialEditing={suchprofilEditing}
           />
 
           <KundenakteOpenTasksSection

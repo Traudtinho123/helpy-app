@@ -8,6 +8,7 @@ import type {
   RealEstateObjectStatus,
   RealEstateObjectTransaction,
 } from "@/features/real-estate/object/object-types";
+import { triggerObjectMatching } from "@/features/matching/services/matching-trigger";
 import { invalidatePortfolioSummariesCache } from "@/features/portfolio/services/portfolio-service";
 
 export type AddPortfolioObjectInput = {
@@ -107,6 +108,7 @@ export function addPortfolioObject(input: AddPortfolioObjectInput): RealEstateOb
 
   const saved = upsertRealEstateObject(object);
   invalidatePortfolioSummariesCache();
+  triggerObjectMatching(saved);
   return saved;
 }
 
