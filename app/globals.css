@@ -613,11 +613,11 @@
   }
   html {
     @apply font-sans antialiased overflow-x-hidden;
-    font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-body);
   }
   body {
     @apply bg-background text-foreground overflow-x-hidden;
-    font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-body);
     color: var(--text-primary);
   }
 
