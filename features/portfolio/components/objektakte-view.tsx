@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { ObjectDossierPanel } from "@/features/portfolio/components/object-dossier-panel";
+import { ObjectPipelineTab } from "@/features/deals/components/object-pipeline-tab";
 import { getDocumentDisplayStatus } from "@/features/documents/services/types";
 import { REAL_ESTATE_OBJECT_STATUS_LABELS } from "@/features/real-estate/object";
 import { formatObjectListingPriceLabel } from "@/features/portfolio/services/object-pricing-utils";
@@ -43,10 +44,10 @@ type ObjektakteViewProps = {
   /** Herkunft für kontextuelles Zurück (Vorgang / Kundenakte / Portfolio). */
   navigationOrigin?: ObjectNavigationOrigin;
   /** Beim Anlegen eines Objekts direkt den Dossier-Tab öffnen. */
-  initialTab?: "uebersicht" | "dossier";
+  initialTab?: "uebersicht" | "pipeline" | "dossier";
 };
 
-type ObjektTab = "uebersicht" | "dossier";
+type ObjektTab = "uebersicht" | "pipeline" | "dossier";
 
 function ObjectTitleEditor({
   objectId,
@@ -235,6 +236,7 @@ export function ObjektakteView({
         {(
           [
             { id: "uebersicht" as const, label: "Übersicht" },
+            { id: "pipeline" as const, label: "Pipeline" },
             { id: "dossier" as const, label: "Dossier" },
           ] as const
         ).map((tab) => (
@@ -256,6 +258,11 @@ export function ObjektakteView({
 
       {activeTab === "dossier" ? (
         <ObjectDossierPanel objectId={object.objectId} />
+      ) : activeTab === "pipeline" ? (
+        <ObjectPipelineTab
+          objectId={object.objectId}
+          dealType={object.transaktion === "Miete" ? "vermietung" : "verkauf"}
+        />
       ) : (
       <>
       <section className="overflow-hidden rounded-[24px] border border-[#CBD5E1]/40 bg-white/90 shadow-[0_2px_8px_rgba(15,23,42,0.04)]">

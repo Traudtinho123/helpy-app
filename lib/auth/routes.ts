@@ -32,6 +32,7 @@ export const PROTECTED_ROUTE_PREFIXES = [
   "/",
   "/plattformen",
   "/vorgaenge",
+  "/pipeline",
   "/posteingang",
   "/immoscout24",
   "/kalender",

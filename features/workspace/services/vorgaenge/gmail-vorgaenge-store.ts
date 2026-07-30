@@ -58,6 +58,7 @@ import {
 import { seedRealEstateObjectsFromBundles, seedRealEstateObjectsFromListeVorgaenge } from "@/features/real-estate/object/object-service";
 import { seedRecognizedDocumentsFromBundles } from "@/features/documents/intelligence/document-recognition-service";
 import { seedPipelineFromGmailBundles, seedPipelineFromListeVorgaenge } from "@/features/crm/pipeline/pipeline-engine";
+import { syncDealPhasesFromGmailBundles } from "@/features/deals/services/deal-phase-sync";
 import {
   seedArchivePreparationsFromBundles,
   seedArchivePreparationsFromListeVorgaenge,
@@ -598,7 +599,9 @@ function mergeBundlesIntoCache(newBundles: GmailVorgangBundle[]): Vorgang[] {
   );
 
   if (addedVorgaenge.length > 0 || newMessageIds.length > 0) {
-    seedNewBundles(deduplicateBundles(newBundles));
+    const deduped = deduplicateBundles(newBundles);
+    seedNewBundles(deduped);
+    void syncDealPhasesFromGmailBundles(deduped);
   }
 
   notify();

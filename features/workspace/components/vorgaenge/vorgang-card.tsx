@@ -40,6 +40,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { useExternalStore } from "@/lib/hooks/use-external-store";
 import { triggerHapticFeedback } from "@/lib/mobile/haptics";
+import { CreateDealFromVorgangButton } from "@/features/deals/components/create-deal-from-vorgang-button";
 import { cn } from "@/lib/utils";
 
 type ActivePanel = "none" | "reply" | "appointment";
@@ -323,6 +324,7 @@ export function VorgangCard({
             className="flex shrink-0 flex-col gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100 max-sm:hidden"
             onClick={(event) => event.stopPropagation()}
           >
+            <CreateDealFromVorgangButton vorgangId={vorgang.id} />
             <button
               type="button"
               title="Erledigt"

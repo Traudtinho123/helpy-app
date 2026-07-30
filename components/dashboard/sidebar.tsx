@@ -22,8 +22,13 @@ import {
   resolveCoreNavActiveHref,
   type CoreNavItem,
 } from "@/lib/navigation";
-import { useExternalStore } from "@/lib/hooks/use-external-store";
+import {
+  getOpenDealCountSnapshot,
+  fetchDeals,
+  subscribeDeals,
+} from "@/features/deals/services/deal-client-store";
 import { cn } from "@/lib/utils";
+import { useExternalStore } from "@/lib/hooks/use-external-store";
 
 type SidebarProps = {
   activeHref?: string;
@@ -87,7 +92,14 @@ export function Sidebar({ activeHref }: SidebarProps) {
     () => 0
   );
 
+  const openDealCount = useExternalStore(
+    subscribeDeals,
+    getOpenDealCountSnapshot,
+    () => 0
+  );
+
   useEffect(() => {
+    void fetchDeals({ openOnly: true });
     return startWhatsappSummaryPolling();
   }, []);
 
@@ -98,7 +110,9 @@ export function Sidebar({ activeHref }: SidebarProps) {
         ? openMailCasesCount
         : item.showWhatsappCount && openWhatsappCount > 0
           ? openWhatsappCount
-          : undefined;
+          : item.showDealCount && openDealCount > 0
+            ? openDealCount
+            : undefined;
 
     return (
       <NavItem

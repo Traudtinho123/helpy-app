@@ -5,6 +5,7 @@ import type { HelpySkill } from "@/features/workspace/services/workspace/skills"
 export type CoreNavItemId =
   | "arbeitstag"
   | "vorgaenge"
+  | "pipeline"
   | "kunden"
   | "portfolio"
   | "dokumente"
@@ -25,6 +26,7 @@ export type CoreNavItem = {
   navGroup?: CoreNavGroupId;
   showMailCount?: boolean;
   showWhatsappCount?: boolean;
+  showDealCount?: boolean;
 };
 
 export const CORE_NAV_GROUPS: { id: CoreNavGroupId; label: string }[] = [
@@ -78,6 +80,7 @@ export const SKILL_PORTFOLIO_DESCRIPTION: Record<HelpySkill, string> =
 const CORE_NAV_PRIMARY: Omit<CoreNavItem, "label" | "emoji">[] = [
   { id: "arbeitstag", href: "/", section: "primary", navGroup: "arbeit" },
   { id: "vorgaenge", href: "/vorgaenge", section: "primary", navGroup: "arbeit", showMailCount: true },
+  { id: "pipeline", href: "/pipeline", section: "primary", navGroup: "arbeit", showDealCount: true },
   { id: "kalender", href: "/kalender", section: "primary", navGroup: "arbeit" },
   { id: "plattformen", href: "/plattformen", section: "primary", navGroup: "kommunikation" },
   { id: "telefonie", href: "/telefonie", section: "primary", navGroup: "kommunikation" },
@@ -93,6 +96,7 @@ const CORE_NAV_PRIMARY_STATIC: Record<
 > = {
   arbeitstag: { label: "Mein Arbeitsplatz", emoji: "🏠" },
   vorgaenge: { label: "Vorgänge", emoji: "📥" },
+  pipeline: { label: "Pipeline", emoji: "📊" },
   dokumente: { label: "Dokumente", emoji: "📄" },
   kalender: { label: "Kalender", emoji: "📅" },
   telefonie: { label: "Helpy-Phone", emoji: "📞" },
@@ -194,6 +198,10 @@ const NAV_MATCHERS: Array<{ href: string; matches: (pathname: string) => boolean
   {
     href: "/kunden",
     matches: (pathname) => pathname.startsWith("/kunden"),
+  },
+  {
+    href: "/pipeline",
+    matches: (pathname) => pathname.startsWith("/pipeline"),
   },
   {
     href: "/vorgaenge",

@@ -52,6 +52,7 @@ export function buildMobileMoreNavItems(skill: HelpySkill): MobileMoreNavItem[] 
   const portfolio = SKILL_PORTFOLIO_NAV[skill];
 
   return [
+    { label: "Pipeline", emoji: "📊", href: "/pipeline" },
     { label: portfolio.label, emoji: portfolio.emoji, href: "/objekte" },
     { label: "Dokumente", emoji: "📄", href: "/dokumente" },
     { label: "Helpy-Phone", emoji: "📞", href: "/telefonie" },
@@ -76,6 +77,7 @@ export function resolveMobileActiveTab(
   if (pathname.startsWith("/kalender")) return "kalender";
 
   const morePaths = [
+    "/pipeline",
     "/objekte",
     "/objekt/",
     "/dokumente",
