@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDocuSignConfig, isDocuSignConfigured } from "@/lib/docusign/config";
-import { testDocuSignConnection } from "@/lib/docusign/test-connection";
+import { testDocuSignConnection } from "@/lib/docusign/client";
 
 export const runtime = "nodejs";
 

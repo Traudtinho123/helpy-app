@@ -214,6 +214,105 @@ export async function downloadSignedDocuSignPdf(
   return Buffer.from(arrayBuffer);
 }
 
+export async function testDocuSignConnection(config: NonNullable<
+  ReturnType<typeof getDocuSignConfig>
+>) {
+  let accessToken: string;
+  let tokenExpiresIn: number | null = null;
+
+  try {
+    const privateKey = await importPKCS8(config.privateKey, "RS256");
+    const assertion = await new SignJWT({
+      scope: "signature impersonation",
+    })
+      .setProtectedHeader({ alg: "RS256" })
+      .setIssuer(config.integrationKey)
+      .setSubject(config.userId)
+      .setAudience(`https://${config.oauthHost}/oauth/token`)
+      .setIssuedAt()
+      .setExpirationTime("10m")
+      .sign(privateKey);
+
+    const tokenResponse = await fetch(`https://${config.oauthHost}/oauth/token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+        assertion,
+      }),
+    });
+
+    const tokenBody = (await tokenResponse.json()) as {
+      access_token?: string;
+      expires_in?: number;
+      error?: string;
+      error_description?: string;
+    };
+
+    if (!tokenResponse.ok || !tokenBody.access_token) {
+      return {
+        ok: false as const,
+        error:
+          tokenBody.error_description ??
+          tokenBody.error ??
+          "DocuSign OAuth fehlgeschlagen.",
+        details: tokenBody,
+      };
+    }
+
+    accessToken = tokenBody.access_token;
+    tokenExpiresIn = tokenBody.expires_in ?? null;
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "DocuSign OAuth fehlgeschlagen.";
+    return {
+      ok: false as const,
+      error: message,
+      details: null,
+    };
+  }
+
+  const accountResponse = await fetch(
+    `${config.baseUrl}/v2.1/accounts/${config.accountId}`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }
+  );
+
+  const accountBody = (await accountResponse.json()) as {
+    accountId?: string;
+    accountName?: string;
+    accountIdLabel?: string;
+    planName?: string;
+    created?: string;
+    message?: string;
+    errorCode?: string;
+  };
+
+  if (!accountResponse.ok) {
+    return {
+      ok: false as const,
+      error:
+        accountBody.message ??
+        accountBody.errorCode ??
+        "DocuSign Account-Informationen konnten nicht geladen werden.",
+      details: accountBody,
+    };
+  }
+
+  return {
+    ok: true as const,
+    accountId: accountBody.accountId ?? config.accountId,
+    userName: accountBody.accountName ?? accountBody.accountIdLabel ?? null,
+    account: {
+      name: accountBody.accountName ?? null,
+      plan: accountBody.planName ?? null,
+      created: accountBody.created ?? null,
+    },
+    tokenExpiresIn,
+  };
+}
+
 export function mapDocuSignEnvelopeStatus(
   status: string,
   signerCount: number,
