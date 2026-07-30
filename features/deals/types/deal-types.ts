@@ -2,7 +2,11 @@ export type DealType = "verkauf" | "vermietung";
 
 export type DealPhase = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
-export type ProvisionStatus = "ausstehend" | "verdient" | "bezahlt";
+export type ProvisionStatus =
+  | "ausstehend"
+  | "verdient"
+  | "rechnungsgestellt"
+  | "bezahlt";
 
 export type DealActivityType =
   | "phase_wechsel"
@@ -21,6 +25,11 @@ export type DealRecord = {
   phase_updated_at: string;
   provision_prozent: number | null;
   provision_chf: number | null;
+  provision_mwst_prozent: number | null;
+  verkaufspreis_chf: number | null;
+  provision_rechnung_nr: string | null;
+  provision_rechnung_url: string | null;
+  provision_bezahlt_am: string | null;
   provision_status: ProvisionStatus;
   notizen: string | null;
   naechste_aktion: string | null;
@@ -55,6 +64,8 @@ export type CreateDealInput = {
   phase?: DealPhase;
   provision_prozent?: number | null;
   provision_chf?: number | null;
+  provision_mwst_prozent?: number | null;
+  verkaufspreis_chf?: number | null;
   notizen?: string | null;
   naechste_aktion?: string | null;
   naechste_aktion_datum?: string | null;

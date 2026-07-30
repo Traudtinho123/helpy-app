@@ -103,12 +103,26 @@ export type DossierPayload = {
   imageUrls: string[];
 };
 
+export type RechnungPayload = {
+  kind: "rechnung";
+  invoiceNumber: string;
+  issuedAt: string;
+  dueAt: string;
+  customer: DocumentParty;
+  lineItems: DocumentLineItem[];
+  vatRate: number;
+  paymentTerms: string;
+  objectLabel?: string;
+  closing?: string;
+};
+
 export type ProfessionalDocumentPayload =
   | AngebotPayload
   | OffertePayload
   | ExposePayload
   | BesichtigungsterminPayload
-  | DossierPayload;
+  | DossierPayload
+  | RechnungPayload;
 
 export type PdfDocumentKind = ProfessionalDocumentPayload["kind"];
 
@@ -118,6 +132,7 @@ export const PDF_DOCUMENT_KINDS: PdfDocumentKind[] = [
   "expose",
   "besichtigungstermin",
   "dossier",
+  "rechnung",
 ];
 
 export function isPdfDocumentKind(

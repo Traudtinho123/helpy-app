@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { updateDealPhase } from "@/lib/deals/deal-repository";
+import {
+  markDealProvisionPaid,
+  updateDealPhase,
+  updateDealProvision,
+} from "@/lib/deals/deal-repository";
 import {
   createDevCompanyContext,
   requireCompanyContext,
@@ -18,11 +22,52 @@ export async function PATCH(request: Request, { params }: RouteContext) {
 
   const { dealId } = await params;
 
-  let body: { phase?: number; beschreibung?: string; typ?: "phase_wechsel" | "auto_erkannt" };
+  let body: {
+    phase?: number;
+    beschreibung?: string;
+    typ?: "phase_wechsel" | "auto_erkannt";
+    provision_prozent?: number | null;
+    provision_chf?: number | null;
+    provision_mwst_prozent?: number | null;
+    verkaufspreis_chf?: number | null;
+    mark_paid?: boolean;
+  };
   try {
     body = (await request.json()) as typeof body;
   } catch {
     return NextResponse.json({ error: "Ungültiger Body." }, { status: 400 });
+  }
+
+  if (body.mark_paid) {
+    const deal = await markDealProvisionPaid({
+      dealId,
+      companyId: context.companyId,
+    });
+    if (!deal) {
+      return NextResponse.json({ error: "Deal nicht gefunden." }, { status: 404 });
+    }
+    return NextResponse.json({ deal });
+  }
+
+  const hasProvisionUpdate =
+    body.provision_prozent !== undefined ||
+    body.provision_chf !== undefined ||
+    body.provision_mwst_prozent !== undefined ||
+    body.verkaufspreis_chf !== undefined;
+
+  if (hasProvisionUpdate) {
+    const deal = await updateDealProvision({
+      dealId,
+      companyId: context.companyId,
+      provision_prozent: body.provision_prozent,
+      provision_chf: body.provision_chf,
+      provision_mwst_prozent: body.provision_mwst_prozent,
+      verkaufspreis_chf: body.verkaufspreis_chf,
+    });
+    if (!deal) {
+      return NextResponse.json({ error: "Deal nicht gefunden." }, { status: 404 });
+    }
+    return NextResponse.json({ deal });
   }
 
   if (!body.phase || body.phase < 1 || body.phase > 9) {

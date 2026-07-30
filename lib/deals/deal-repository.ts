@@ -28,6 +28,24 @@ function rowToDeal(row: Record<string, unknown>): DealRecord {
     provision_prozent:
       row.provision_prozent != null ? Number(row.provision_prozent) : null,
     provision_chf: row.provision_chf != null ? Number(row.provision_chf) : null,
+    provision_mwst_prozent:
+      row.provision_mwst_prozent != null
+        ? Number(row.provision_mwst_prozent)
+        : null,
+    verkaufspreis_chf:
+      row.verkaufspreis_chf != null ? Number(row.verkaufspreis_chf) : null,
+    provision_rechnung_nr:
+      typeof row.provision_rechnung_nr === "string"
+        ? row.provision_rechnung_nr
+        : null,
+    provision_rechnung_url:
+      typeof row.provision_rechnung_url === "string"
+        ? row.provision_rechnung_url
+        : null,
+    provision_bezahlt_am:
+      typeof row.provision_bezahlt_am === "string"
+        ? row.provision_bezahlt_am
+        : null,
     provision_status: (row.provision_status as ProvisionStatus) ?? "ausstehend",
     notizen: typeof row.notizen === "string" ? row.notizen : null,
     naechste_aktion:
@@ -126,6 +144,11 @@ export async function createDealRecord(
     phase_updated_at: now,
     provision_prozent: input.provision_prozent ?? null,
     provision_chf: input.provision_chf ?? null,
+    provision_mwst_prozent: input.provision_mwst_prozent ?? null,
+    verkaufspreis_chf: input.verkaufspreis_chf ?? null,
+    provision_rechnung_nr: null,
+    provision_rechnung_url: null,
+    provision_bezahlt_am: null,
     provision_status: "ausstehend" as const,
     notizen: input.notizen ?? null,
     naechste_aktion: input.naechste_aktion ?? null,
@@ -299,4 +322,171 @@ export async function findDealByVorgangId(
 ): Promise<DealWithRelations | null> {
   const deals = await listDealsForCompany(companyId);
   return deals.find((deal) => deal.vorgang_id === vorgangId) ?? null;
+}
+
+export async function getDealById(
+  companyId: string,
+  dealId: string
+): Promise<DealWithRelations | null> {
+  const deals = await listDealsForCompany(companyId);
+  return deals.find((deal) => deal.id === dealId) ?? null;
+}
+
+export async function updateDealProvision(input: {
+  dealId: string;
+  companyId: string;
+  provision_prozent?: number | null;
+  provision_chf?: number | null;
+  provision_mwst_prozent?: number | null;
+  verkaufspreis_chf?: number | null;
+}): Promise<DealWithRelations | null> {
+  const now = new Date().toISOString();
+  const updates: Record<string, unknown> = { updated_at: now };
+
+  if (input.provision_prozent !== undefined) {
+    updates.provision_prozent = input.provision_prozent;
+  }
+  if (input.provision_chf !== undefined) {
+    updates.provision_chf = input.provision_chf;
+  }
+  if (input.provision_mwst_prozent !== undefined) {
+    updates.provision_mwst_prozent = input.provision_mwst_prozent;
+  }
+  if (input.verkaufspreis_chf !== undefined) {
+    updates.verkaufspreis_chf = input.verkaufspreis_chf;
+  }
+
+  if (!isSupabaseConfigured()) {
+    const existing = devDeals.get(input.dealId);
+    if (!existing || existing.company_id !== input.companyId) return null;
+    const updated: DealWithRelations = {
+      ...existing,
+      ...updates,
+      provision_prozent:
+        input.provision_prozent !== undefined
+          ? input.provision_prozent
+          : existing.provision_prozent,
+      provision_chf:
+        input.provision_chf !== undefined
+          ? input.provision_chf
+          : existing.provision_chf,
+      provision_mwst_prozent:
+        input.provision_mwst_prozent !== undefined
+          ? input.provision_mwst_prozent
+          : existing.provision_mwst_prozent,
+      verkaufspreis_chf:
+        input.verkaufspreis_chf !== undefined
+          ? input.verkaufspreis_chf
+          : existing.verkaufspreis_chf,
+      updated_at: now,
+    };
+    devDeals.set(input.dealId, updated);
+    return updated;
+  }
+
+  const supabase = await createClient();
+  if (!supabase) return null;
+
+  const { data, error } = await supabase
+    .from("deals")
+    .update(updates as never)
+    .eq("id", input.dealId)
+    .eq("company_id", input.companyId)
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    console.error("[deals] provision update failed:", error?.message);
+    return null;
+  }
+
+  return enrichDeal(rowToDeal(data as Record<string, unknown>));
+}
+
+export async function markDealProvisionPaid(input: {
+  dealId: string;
+  companyId: string;
+}): Promise<DealWithRelations | null> {
+  const now = new Date().toISOString();
+
+  if (!isSupabaseConfigured()) {
+    const existing = devDeals.get(input.dealId);
+    if (!existing || existing.company_id !== input.companyId) return null;
+    const updated: DealWithRelations = {
+      ...existing,
+      provision_status: "bezahlt",
+      provision_bezahlt_am: now,
+      updated_at: now,
+    };
+    devDeals.set(input.dealId, updated);
+    return updated;
+  }
+
+  const supabase = await createClient();
+  if (!supabase) return null;
+
+  const { data, error } = await supabase
+    .from("deals")
+    .update({
+      provision_status: "bezahlt",
+      provision_bezahlt_am: now,
+      updated_at: now,
+    } as never)
+    .eq("id", input.dealId)
+    .eq("company_id", input.companyId)
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    console.error("[deals] mark paid failed:", error?.message);
+    return null;
+  }
+
+  return enrichDeal(rowToDeal(data as Record<string, unknown>));
+}
+
+export async function updateDealAfterInvoice(input: {
+  dealId: string;
+  companyId: string;
+  rechnungNr: string;
+  rechnungUrl?: string | null;
+}): Promise<DealWithRelations | null> {
+  const now = new Date().toISOString();
+
+  if (!isSupabaseConfigured()) {
+    const existing = devDeals.get(input.dealId);
+    if (!existing || existing.company_id !== input.companyId) return null;
+    const updated: DealWithRelations = {
+      ...existing,
+      provision_status: "rechnungsgestellt",
+      provision_rechnung_nr: input.rechnungNr,
+      provision_rechnung_url: input.rechnungUrl ?? null,
+      updated_at: now,
+    };
+    devDeals.set(input.dealId, updated);
+    return updated;
+  }
+
+  const supabase = await createClient();
+  if (!supabase) return null;
+
+  const { data, error } = await supabase
+    .from("deals")
+    .update({
+      provision_status: "rechnungsgestellt",
+      provision_rechnung_nr: input.rechnungNr,
+      provision_rechnung_url: input.rechnungUrl ?? null,
+      updated_at: now,
+    } as never)
+    .eq("id", input.dealId)
+    .eq("company_id", input.companyId)
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    console.error("[deals] invoice update failed:", error?.message);
+    return null;
+  }
+
+  return enrichDeal(rowToDeal(data as Record<string, unknown>));
 }

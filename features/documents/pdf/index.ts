@@ -6,6 +6,7 @@ export type {
   ExposeHighlight,
   ExposePayload,
   OffertePayload,
+  RechnungPayload,
   PdfDocumentKind,
   ProfessionalDocumentPayload,
 } from "@/features/documents/pdf/types";

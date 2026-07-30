@@ -10,6 +10,7 @@ type DealCardProps = {
   lastContactLabel?: string;
   onDragStart?: (dealId: string) => void;
   onDragEnd?: () => void;
+  onClick?: (deal: DealWithRelations) => void;
 };
 
 function leadScoreColor(score: number): string {
@@ -24,17 +25,38 @@ export function DealCard({
   lastContactLabel,
   onDragStart,
   onDragEnd,
+  onClick,
 }: DealCardProps) {
   const leadScore =
     deal.kunde_id != null
       ? (getLeadScoreRecord(deal.kunde_id)?.score ?? 5)
       : 5;
 
+  const provisionLabel =
+    deal.provision_chf && deal.provision_prozent
+      ? `Provision: ${deal.provision_prozent} % = CHF ${deal.provision_chf.toLocaleString("de-CH")}`
+      : deal.provision_chf
+        ? `Provision: CHF ${deal.provision_chf.toLocaleString("de-CH")}`
+        : null;
+
   return (
     <article
       draggable
       onDragStart={() => onDragStart?.(deal.id)}
       onDragEnd={onDragEnd}
+      onClick={() => onClick?.(deal)}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={
+        onClick
+          ? (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                onClick(deal);
+              }
+            }
+          : undefined
+      }
       className={cn(
         "cursor-grab rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3 shadow-[var(--shadow-sm)]",
         "transition-all duration-[var(--transition-fast)] hover:border-[var(--color-border-strong)] hover:shadow-[var(--shadow-md)] active:cursor-grabbing"
@@ -63,11 +85,11 @@ export function DealCard({
             → {deal.naechste_aktion}
           </p>
         ) : null}
-        {deal.provision_chf ? (
-          <p className="font-medium text-[var(--color-ink-2)]">
-            CHF {deal.provision_chf.toLocaleString("de-CH")}
-          </p>
-        ) : null}
+        {provisionLabel ? (
+          <p className="font-medium text-[var(--color-success)]">{provisionLabel}</p>
+        ) : (
+          <p className="text-[var(--color-ink-4)] italic">Provision erfassen…</p>
+        )}
       </div>
     </article>
   );

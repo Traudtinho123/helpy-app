@@ -9,6 +9,7 @@ export type CoreNavItemId =
   | "kunden"
   | "portfolio"
   | "dokumente"
+  | "finanzen"
   | "kalender"
   | "telefonie"
   | "whatsapp"
@@ -88,6 +89,7 @@ const CORE_NAV_PRIMARY: Omit<CoreNavItem, "label" | "emoji">[] = [
   { id: "portfolio", href: "/objekte", section: "primary", navGroup: "ressourcen" },
   { id: "kunden", href: "/kunden", section: "primary", navGroup: "ressourcen" },
   { id: "dokumente", href: "/dokumente", section: "primary", navGroup: "ressourcen" },
+  { id: "finanzen", href: "/finanzen", section: "primary", navGroup: "ressourcen" },
 ];
 
 const CORE_NAV_PRIMARY_STATIC: Record<
@@ -98,6 +100,7 @@ const CORE_NAV_PRIMARY_STATIC: Record<
   vorgaenge: { label: "Vorgänge", emoji: "📥" },
   pipeline: { label: "Pipeline", emoji: "📊" },
   dokumente: { label: "Dokumente", emoji: "📄" },
+  finanzen: { label: "Finanzen", emoji: "💰" },
   kalender: { label: "Kalender", emoji: "📅" },
   telefonie: { label: "Helpy-Phone", emoji: "📞" },
   whatsapp: { label: "Helpy-WhatsApp", emoji: "💬" },
@@ -215,6 +218,10 @@ const NAV_MATCHERS: Array<{ href: string; matches: (pathname: string) => boolean
     href: "/dokumente",
     matches: (pathname) =>
       pathname.startsWith("/dokumente") || pathname.startsWith("/angebote"),
+  },
+  {
+    href: "/finanzen",
+    matches: (pathname) => pathname.startsWith("/finanzen"),
   },
   {
     href: "/kalender",

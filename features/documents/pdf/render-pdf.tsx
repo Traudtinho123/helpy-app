@@ -7,6 +7,7 @@ import { OffertePdfDocument } from "@/features/documents/pdf/templates/offerte-p
 import { ExposePdfDocument } from "@/features/documents/pdf/templates/expose-pdf";
 import { BesichtigungsterminPdfDocument } from "@/features/documents/pdf/templates/besichtigungstermin-pdf";
 import { DossierPdfDocument } from "@/features/documents/pdf/templates/dossier-pdf";
+import { RechnungPdfDocument } from "@/features/documents/pdf/templates/rechnung-pdf";
 import type { CompanyProfile } from "@/lib/company/company-profile-types";
 
 function buildPdfElement(
@@ -36,6 +37,11 @@ function buildPdfElement(
       }) as ReactElement<DocumentProps>;
     case "dossier":
       return createElement(DossierPdfDocument, {
+        branding,
+        payload,
+      }) as ReactElement<DocumentProps>;
+    case "rechnung":
+      return createElement(RechnungPdfDocument, {
         branding,
         payload,
       }) as ReactElement<DocumentProps>;
@@ -75,5 +81,7 @@ export function suggestPdfFileName(payload: ProfessionalDocumentPayload): string
       return `Besichtigung-${safe(payload.dateLabel)}.pdf`;
     case "dossier":
       return `Dossier-${safe(payload.title)}.pdf`;
+    case "rechnung":
+      return `${safe(payload.invoiceNumber)}.pdf`;
   }
 }

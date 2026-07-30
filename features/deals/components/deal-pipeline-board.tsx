@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { DealCard } from "@/features/deals/components/deal-card";
+import { ProvisionModal } from "@/features/deals/components/provision-modal";
 import {
   moveDealToPhase,
   pushDealNotification,
@@ -29,6 +30,9 @@ export function DealPipelineBoard({
 }: DealPipelineBoardProps) {
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<number | null>(null);
+  const [provisionDeal, setProvisionDeal] = useState<DealWithRelations | null>(
+    null
+  );
   const phases = getDealPhases(dealType);
 
   const objektTitles = useMemo(() => {
@@ -143,6 +147,7 @@ export function DealPipelineBoard({
                         setDraggingId(null);
                         setDropTarget(null);
                       }}
+                      onClick={(selected) => setProvisionDeal(selected)}
                     />
                   ))
                 )}
@@ -151,6 +156,18 @@ export function DealPipelineBoard({
           );
         })}
       </div>
+
+      <ProvisionModal
+        deal={provisionDeal}
+        objektTitle={
+          provisionDeal
+            ? objektTitles.get(provisionDeal.objekt_id)
+            : undefined
+        }
+        open={provisionDeal != null}
+        onClose={() => setProvisionDeal(null)}
+        onSaved={() => onDealsChange?.()}
+      />
     </div>
   );
 }
