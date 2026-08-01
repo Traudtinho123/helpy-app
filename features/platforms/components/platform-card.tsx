@@ -1,6 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import {
+  PlatformBrandLogo,
+  type PlatformBrandId,
+} from "@/features/platforms/components/platform-brand-logo";
 
 export type PlatformCardStatus =
   | "verbunden"
@@ -9,67 +13,57 @@ export type PlatformCardStatus =
   | "bald_verfuegbar";
 
 const STATUS_STYLES: Record<PlatformCardStatus, string> = {
-  verbunden: "border-[#A7F3D0]/60 bg-[#ECFDF5]/80 text-[#047857]",
+  verbunden: "border-[#A7F3D0]/70 bg-[#ECFDF5] text-[#047857]",
   nicht_verbunden: "border-[#E2E8F0] bg-[#F8FAFC] text-[#64748B]",
-  fehler: "border-[#FECACA]/60 bg-[#FEF2F2]/80 text-[#DC2626]",
+  fehler: "border-[#FECACA]/70 bg-[#FEF2F2] text-[#DC2626]",
   bald_verfuegbar: "border-[#E2E8F0] bg-[#F8FAFC] text-[#94A3B8]",
 };
 
 const STATUS_LABELS: Record<PlatformCardStatus, string> = {
   verbunden: "Verbunden",
   nicht_verbunden: "Nicht verbunden",
-  fehler: "Fehler",
+  fehler: "Verbindung prüfen",
   bald_verfuegbar: "Bald verfügbar",
 };
 
-function DetailRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between gap-3 text-[11px]">
-      <span className="text-[#94A3B8]">{label}</span>
-      <span className="truncate text-right font-medium text-[#334155]">{value}</span>
-    </div>
-  );
-}
-
 type PlatformCardProps = {
-  emoji: string;
+  brand: PlatformBrandId;
   name: string;
   description: string;
   status: PlatformCardStatus;
   account?: string | null;
-  lastSync?: string | null;
-  eventsToday?: number | null;
   errorMessage?: string | null;
   actions: React.ReactNode;
   className?: string;
 };
 
 export function PlatformCard({
-  emoji,
+  brand,
   name,
   description,
   status,
   account,
-  lastSync,
-  eventsToday,
   errorMessage,
   actions,
   className,
 }: PlatformCardProps) {
+  const connected = status === "verbunden";
+
   return (
     <article
       className={cn(
-        "flex h-full min-h-[320px] flex-col rounded-[20px] border border-[#E2E8F0] bg-white p-5 shadow-sm",
+        "group flex h-full min-h-[240px] flex-col rounded-[20px] border bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-200 hover:shadow-[0_8px_24px_rgba(15,23,42,0.06)]",
+        connected
+          ? "border-[#BBF7D0]/80 ring-1 ring-[#DCFCE7]/60"
+          : "border-[#E2E8F0]",
         className
       )}
     >
       <div className="flex items-start justify-between gap-3">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-[#F8FAFC] text-xl">
-          {emoji}
-        </span>
+        <PlatformBrandLogo brand={brand} />
         <span
           className={cn(
-            "rounded-full border px-2.5 py-1 text-[10px] font-semibold",
+            "rounded-full border px-2.5 py-1 text-[10px] font-semibold tracking-wide",
             STATUS_STYLES[status]
           )}
         >
@@ -77,31 +71,26 @@ export function PlatformCard({
         </span>
       </div>
 
-      <h3 className="mt-4 text-[14px] font-semibold text-[#0F172A]">{name}</h3>
-      <p className="mt-1.5 line-clamp-2 min-h-[2.5rem] text-[12px] leading-relaxed text-[#64748B]">
+      <h3 className="mt-4 text-[15px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+        {name}
+      </h3>
+      <p className="mt-1.5 line-clamp-2 text-[12px] leading-relaxed text-[#64748B]">
         {description}
       </p>
 
-      <div className="mt-4 space-y-2 rounded-[12px] border border-[#F1F5F9] bg-[#F8FAFC]/80 px-3.5 py-3">
-        <DetailRow label="Konto" value={account?.trim() || "—"} />
-        <DetailRow label="Sync" value={lastSync?.trim() || "—"} />
-        <DetailRow
-          label="Heute"
-          value={
-            eventsToday !== null && eventsToday !== undefined
-              ? String(eventsToday)
-              : "—"
-          }
-        />
-      </div>
+      {connected && account?.trim() ? (
+        <p className="mt-3 truncate rounded-[10px] bg-[#F8FAFC] px-3 py-2 text-[11px] font-medium text-[#475569]">
+          {account.trim()}
+        </p>
+      ) : null}
 
-      {errorMessage && (
+      {errorMessage ? (
         <p className="mt-3 rounded-[10px] border border-[#FECACA]/60 bg-[#FEF2F2]/80 px-3 py-2 text-[11px] text-[#DC2626]">
           {errorMessage}
         </p>
-      )}
+      ) : null}
 
-      <div className="mt-auto flex flex-col gap-2 pt-4">{actions}</div>
+      <div className="mt-auto flex flex-col gap-2 pt-5">{actions}</div>
     </article>
   );
 }
@@ -123,11 +112,11 @@ export function PlatformCardButton({
       onClick={onClick}
       disabled={disabled || variant === "disabled"}
       className={cn(
-        "flex h-9 w-full items-center justify-center gap-1.5 rounded-[10px] text-[12px] font-semibold transition-colors",
+        "flex h-10 w-full items-center justify-center gap-1.5 rounded-[12px] text-[12px] font-semibold transition-colors",
         variant === "primary" &&
           "bg-[#2563EB] text-white hover:bg-[#1D4ED8] disabled:opacity-60",
         variant === "outline" &&
-          "border border-[#E2E8F0] bg-white text-[#475569] hover:bg-[#F8FAFC] disabled:opacity-60",
+          "border border-[#E2E8F0] bg-white text-[#475569] hover:border-[#CBD5E1] hover:bg-[#F8FAFC] disabled:opacity-60",
         variant === "disabled" &&
           "cursor-not-allowed border border-[#E2E8F0] bg-[#F8FAFC] text-[#94A3B8]"
       )}

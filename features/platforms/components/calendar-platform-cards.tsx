@@ -1,17 +1,14 @@
 "use client";
 
-import { Loader2, RefreshCw, Unplug } from "lucide-react";
+import { Loader2, Unplug } from "lucide-react";
 import { useState } from "react";
 import { AppleCalendarConnectModal } from "@/features/apple-calendar/components/apple-calendar-connect-modal";
 import {
   connectAppleCalendar,
-  formatAppleCalendarLastSync,
   getAppleCalendarServerSnapshot,
   getAppleCalendarSyncState,
   subscribeAppleCalendarSync,
-  syncAppleCalendarEvents,
 } from "@/features/apple-calendar/services/apple-calendar-sync";
-import { getZurichDateString } from "@/features/apple-calendar/services/apple-caldav-timezone";
 import {
   connectAppleCalendarPlatform,
   connectGoogleCalendarPlatform,
@@ -19,12 +16,11 @@ import {
   getConnectedCalendarPlatform,
   subscribeCalendarPlatform,
 } from "@/features/calendar/services/calendar-platform";
-import { getIntegrationById } from "@/features/integration-manager/services/integration-manager";
 import {
   PlatformCard,
   PlatformCardButton,
 } from "@/features/platforms/components/platform-card";
-import { useEffect, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 
 export function CalendarPlatformCards() {
   const platform = useSyncExternalStore(
@@ -42,15 +38,8 @@ export function CalendarPlatformCards() {
   );
   const [appleModalOpen, setAppleModalOpen] = useState(false);
 
-  useEffect(() => {
-    if (platform !== "apple") return;
-    void syncAppleCalendarEvents();
-  }, [platform]);
-
-  const appleIntegration = getIntegrationById("apple-calendar");
-  const todayAppleEvents = appleState.events.filter(
-    (event) => event.date === getZurichDateString()
-  ).length;
+  const googleConnected = platform === "google";
+  const appleConnected = platform === "apple";
 
   const handleAppleConnect = async (input: {
     appleIdEmail: string;
@@ -73,19 +62,14 @@ export function CalendarPlatformCards() {
     return result;
   };
 
-  const googleConnected = platform === "google";
-  const appleConnected = platform === "apple";
-
   return (
     <>
       <PlatformCard
-        emoji="📅"
+        brand="google-calendar"
         name="Google Kalender"
-        description="Termine aus Google Workspace und Android synchronisieren."
+        description="Termine aus Google Workspace und Android in HELPY einbinden."
         status={googleConnected ? "verbunden" : "nicht_verbunden"}
-        account={googleConnected ? "Google-Konto" : "—"}
-        lastSync="—"
-        eventsToday={googleConnected ? 0 : null}
+        account={googleConnected ? "Google-Konto verbunden" : null}
         actions={
           googleConnected ? (
             <PlatformCardButton
@@ -124,54 +108,30 @@ export function CalendarPlatformCards() {
       />
 
       <PlatformCard
-        emoji="🍎"
+        brand="apple-calendar"
         name="Apple Kalender"
         description="Termine von iPhone und iCloud in HELPY einbinden."
         status={appleConnected ? "verbunden" : "nicht_verbunden"}
-        account={appleState.connection.appleIdEmail ?? "—"}
-        lastSync={
-          appleConnected
-            ? formatAppleCalendarLastSync(appleState.connection.lastSyncAt)
-            : "—"
-        }
-        eventsToday={
-          appleConnected
-            ? appleIntegration?.eventsToday ?? todayAppleEvents
-            : null
-        }
+        account={appleState.connection.appleIdEmail}
         errorMessage={appleState.connection.errorMessage}
         actions={
           appleConnected ? (
-            <>
-              <PlatformCardButton
-                onClick={() => {
-                  setBusyPlatform("apple");
-                  void syncAppleCalendarEvents().finally(() =>
-                    setBusyPlatform(null)
-                  );
-                }}
-                disabled={busyPlatform === "apple"}
-              >
-                {busyPlatform === "apple" ? (
-                  <Loader2 className="size-3.5 animate-spin" />
-                ) : (
-                  <RefreshCw className="size-3.5" />
-                )}
-                Synchronisieren
-              </PlatformCardButton>
-              <PlatformCardButton
-                variant="outline"
-                onClick={() => {
-                  setBusyPlatform("apple");
-                  disconnectCalendarPlatform("apple");
-                  setBusyPlatform(null);
-                }}
-                disabled={busyPlatform === "apple"}
-              >
+            <PlatformCardButton
+              variant="outline"
+              onClick={() => {
+                setBusyPlatform("apple");
+                disconnectCalendarPlatform("apple");
+                setBusyPlatform(null);
+              }}
+              disabled={busyPlatform === "apple"}
+            >
+              {busyPlatform === "apple" ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
                 <Unplug className="size-3.5" />
-                Trennen
-              </PlatformCardButton>
-            </>
+              )}
+              Trennen
+            </PlatformCardButton>
           ) : (
             <PlatformCardButton onClick={() => setAppleModalOpen(true)}>
               Verbinden
@@ -181,13 +141,10 @@ export function CalendarPlatformCards() {
       />
 
       <PlatformCard
-        emoji="📅"
+        brand="outlook"
         name="Outlook Kalender"
-        description="Outlook-Termine mit HELPY synchronisieren."
+        description="Outlook-Termine mit HELPY verbinden."
         status="bald_verfuegbar"
-        account="—"
-        lastSync="—"
-        eventsToday={null}
         actions={<PlatformCardButton variant="disabled">Bald verfügbar</PlatformCardButton>}
       />
 

@@ -4,7 +4,7 @@ export const INTEGRATION_CATEGORY_LABELS: Record<IntegrationCategory, string> = 
   email: "E-Mail",
   kalender: "Kalender",
   immobilien: "Immobilien",
-  "sozial-media": "Sozial Media",
+  "sozial-media": "Social Media",
   kommunikation: "Kommunikation",
   formulare: "Formulare",
   dokumente: "Dokumente",
@@ -35,4 +35,10 @@ export const CALENDAR_PLATFORM_INTEGRATION_IDS = new Set([
   "google-calendar",
   "apple-calendar",
   "outlook-calendar",
+]);
+
+/** In der Social-Media-Sektion separat über OAuth-Karten abgedeckt. */
+export const SOCIAL_PLATFORM_INTEGRATION_IDS = new Set([
+  "facebook-leads",
+  "instagram-leads",
 ]);

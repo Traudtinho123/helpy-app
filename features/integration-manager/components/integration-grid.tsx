@@ -6,6 +6,7 @@ import {
   EMAIL_OAUTH_INTEGRATION_IDS,
   INTEGRATION_CATEGORY_LABELS,
   PLATFORM_CATEGORY_ORDER,
+  SOCIAL_PLATFORM_INTEGRATION_IDS,
 } from "@/features/integration-manager/types/integration-categories";
 import type {
   IntegrationCategory,
@@ -13,9 +14,7 @@ import type {
 } from "@/features/integration-manager/types/integration-types";
 import { CalendarPlatformCards } from "@/features/platforms/components/calendar-platform-cards";
 import { MailPlatformCard } from "@/features/platforms/components/mail-platform-card";
-import { loadOutlookVorgaenge } from "@/features/outlook/services/outlook-vorgaenge-store";
-import { syncGmailViaOAuthApi } from "@/features/oauth/services/oauth-connections-client";
-import { syncGmailVorgaengeFromOAuthAccounts } from "@/features/workspace/services/vorgaenge/gmail-oauth-sync";
+import { SocialPlatformCards } from "@/features/platforms/components/social-platform-cards";
 
 type IntegrationGridProps = {
   byCategory: Map<IntegrationCategory, IntegrationRecord[]>;
@@ -33,7 +32,7 @@ function PlatformSection({
 }) {
   return (
     <section>
-      <h2 className="mb-4 text-[12px] font-semibold tracking-[0.06em] text-[#64748B] uppercase">
+      <h2 className="mb-4 text-[11px] font-semibold tracking-[0.08em] text-[#64748B] uppercase">
         {title}
       </h2>
       <div className={PLATFORM_GRID_CLASS}>{children}</div>
@@ -51,23 +50,12 @@ export function IntegrationGrid({ byCategory }: IntegrationGridProps) {
               <MailPlatformCard
                 provider="google"
                 name="Gmail"
-                emoji="📧"
                 description="E-Mails erkennen und als Vorgänge vorbereiten."
-                onSyncAccount={async () => {
-                  const payload = await syncGmailViaOAuthApi();
-                  if (payload.ok) {
-                    await syncGmailVorgaengeFromOAuthAccounts(payload.accounts);
-                  }
-                }}
               />
               <MailPlatformCard
                 provider="microsoft"
                 name="Outlook / Microsoft 365"
-                emoji="📨"
                 description="Outlook-Postfächer verbinden und Eingänge synchronisieren."
-                onSyncAccount={async () => {
-                  await loadOutlookVorgaenge();
-                }}
               />
             </PlatformSection>
           );
@@ -81,11 +69,23 @@ export function IntegrationGrid({ byCategory }: IntegrationGridProps) {
           );
         }
 
+        if (category === "sozial-media") {
+          return (
+            <PlatformSection
+              key={category}
+              title={INTEGRATION_CATEGORY_LABELS["sozial-media"]}
+            >
+              <SocialPlatformCards />
+            </PlatformSection>
+          );
+        }
+
         const items =
           byCategory.get(category)?.filter(
             (integration) =>
               !EMAIL_OAUTH_INTEGRATION_IDS.has(integration.id) &&
-              !CALENDAR_PLATFORM_INTEGRATION_IDS.has(integration.id)
+              !CALENDAR_PLATFORM_INTEGRATION_IDS.has(integration.id) &&
+              !SOCIAL_PLATFORM_INTEGRATION_IDS.has(integration.id)
           ) ?? [];
 
         if (!items.length) return null;

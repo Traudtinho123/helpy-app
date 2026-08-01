@@ -1,27 +1,23 @@
 "use client";
 
-import { Loader2, RefreshCw, Unplug } from "lucide-react";
+import { Loader2, Unplug } from "lucide-react";
 import { useState } from "react";
 import { AppleCalendarConnectModal } from "@/features/apple-calendar/components/apple-calendar-connect-modal";
 import {
   connectAppleCalendar,
   disconnectAppleCalendar,
   getAppleCalendarSyncState,
-  syncAppleCalendarEvents,
 } from "@/features/apple-calendar/services/apple-calendar-sync";
 import {
   connectAppleCalendarIntegration,
   connectOutlookIntegration,
   disconnectOutlookIntegration,
   runIntegrationAction,
-  updateOutlookSyncMeta,
 } from "@/features/integration-manager/services/integration-manager";
 import {
   disconnectOutlookConnection,
-  refreshOutlookConnectionStatus,
   startOutlookConnect,
 } from "@/features/outlook/services/outlook-auth-service";
-import { loadOutlookVorgaenge } from "@/features/outlook/services/outlook-vorgaenge-store";
 import type {
   IntegrationAction,
   IntegrationRecord,
@@ -32,6 +28,7 @@ import {
   PlatformCardButton,
   type PlatformCardStatus,
 } from "@/features/platforms/components/platform-card";
+import { resolvePlatformBrand } from "@/features/platforms/components/platform-brand-logo";
 
 type IntegrationCardProps = {
   integration: IntegrationRecord;
@@ -60,42 +57,6 @@ export function IntegrationCard({ integration }: IntegrationCardProps) {
       void disconnectOutlookConnection().then(() => {
         disconnectOutlookIntegration();
       });
-    }
-
-    if (isOutlook && action === "sync") {
-      setBusy(action);
-      void loadOutlookVorgaenge().then((result) => {
-        void refreshOutlookConnectionStatus().then((status) => {
-          if (status.accountEmail) {
-            updateOutlookSyncMeta({
-              accountEmail: status.accountEmail,
-              messagesToday: result.ok ? result.count : 0,
-              lastSyncAt: new Date().toISOString(),
-              lastError: result.ok ? null : result.error,
-            });
-          }
-          runIntegrationAction(integration.id, action);
-          setBusy(null);
-        });
-      });
-      return;
-    }
-
-    if (isAppleCalendar && action === "sync") {
-      setBusy(action);
-      void syncAppleCalendarEvents().then(() => {
-        const state = getAppleCalendarSyncState();
-        if (state.connection.appleIdEmail) {
-          connectAppleCalendarIntegration({
-            accountEmail: state.connection.appleIdEmail,
-            calendarName: state.connection.calendarName ?? "iCloud Kalender",
-            eventsToday: state.events.length,
-          });
-        }
-        runIntegrationAction(integration.id, action);
-        setBusy(null);
-      });
-      return;
     }
 
     setBusy(action);
@@ -145,13 +106,11 @@ export function IntegrationCard({ integration }: IntegrationCardProps) {
   return (
     <>
       <PlatformCard
-        emoji={integration.emoji}
+        brand={resolvePlatformBrand(integration.id)}
         name={integration.name}
         description={integration.description}
         status={mapStatus(integration.status)}
         account={integration.accountEmail}
-        lastSync={integration.lastSync}
-        eventsToday={integration.eventsToday}
         errorMessage={integration.errorMessage}
         actions={
           isComingSoon ? (
@@ -174,23 +133,14 @@ export function IntegrationCard({ integration }: IntegrationCardProps) {
               </PlatformCardButton>
             </>
           ) : (
-            <>
-              <PlatformCardButton
-                onClick={() => runAction("sync")}
-                disabled={busy === "sync"}
-              >
-                {busy === "sync" ? (
-                  <Loader2 className="size-3.5 animate-spin" />
-                ) : (
-                  <RefreshCw className="size-3.5" />
-                )}
-                Synchronisieren
-              </PlatformCardButton>
-              <PlatformCardButton variant="outline" onClick={() => runAction("disconnect")}>
+            <PlatformCardButton variant="outline" onClick={() => runAction("disconnect")}>
+              {busy === "disconnect" ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
                 <Unplug className="size-3.5" />
-                Trennen
-              </PlatformCardButton>
-            </>
+              )}
+              Trennen
+            </PlatformCardButton>
           )
         }
       />

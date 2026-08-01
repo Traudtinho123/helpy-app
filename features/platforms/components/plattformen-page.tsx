@@ -4,7 +4,6 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { IntegrationGrid } from "@/features/integration-manager/components/integration-grid";
-import { SocialPlatformSettings } from "@/features/social-media/components/social-platform-settings";
 import {
   connectOutlookIntegration,
   getIntegrationsByCategory,
@@ -105,9 +104,6 @@ function PlattformenContent() {
       </header>
 
       <IntegrationGrid byCategory={byCategory} />
-      <div className="mt-8">
-        <SocialPlatformSettings />
-      </div>
     </div>
   );
 }
