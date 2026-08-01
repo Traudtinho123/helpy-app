@@ -163,6 +163,7 @@ export function upsertRealEstateObject(
   options?: UpsertRealEstateObjectOptions
 ): RealEstateObject {
   hydrate();
+  const previous = objects.get(object.objectId) ?? null;
   const normalized = normalizeObject(object);
   objects.set(normalized.objectId, normalized);
   rebuildVorgangIndex();
@@ -170,6 +171,15 @@ export function upsertRealEstateObject(
   if (options?.notifySubscribers !== false) {
     notify();
   }
+
+  if (typeof window !== "undefined") {
+    void import("@/features/social-media/services/social-media-trigger").then(
+      ({ queueSocialPostsIfActivated }) => {
+        queueSocialPostsIfActivated(previous, normalized);
+      }
+    );
+  }
+
   return { ...normalized };
 }
 

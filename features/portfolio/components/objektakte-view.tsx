@@ -29,6 +29,9 @@ import {
 } from "@/features/portal-publish";
 import { openDocumentCreationForObject } from "@/features/documents/services/open-document-creation";
 import { fetchPortalListing } from "@/features/portal-publish/services/portal-client-store";
+import { SocialPostEditor } from "@/features/social-media/components/social-post-editor";
+import { SocialPostHistory } from "@/features/social-media/components/social-post-history";
+import type { SocialPost } from "@/features/social-media/types/social-media-types";
 import { getDocumentDisplayStatus } from "@/features/documents/services/types";
 import { REAL_ESTATE_OBJECT_STATUS_LABELS } from "@/features/real-estate/object";
 import { formatObjectListingPriceLabel } from "@/features/portfolio/services/object-pricing-utils";
@@ -56,10 +59,16 @@ type ObjektakteViewProps = {
   /** Herkunft für kontextuelles Zurück (Vorgang / Kundenakte / Portfolio). */
   navigationOrigin?: ObjectNavigationOrigin;
   /** Beim Anlegen eines Objekts direkt den Dossier-Tab öffnen. */
-  initialTab?: "uebersicht" | "pipeline" | "dossier" | "matches" | "performance";
+  initialTab?: "uebersicht" | "pipeline" | "dossier" | "matches" | "performance" | "social";
 };
 
-type ObjektTab = "uebersicht" | "pipeline" | "dossier" | "matches" | "performance";
+type ObjektTab =
+  | "uebersicht"
+  | "pipeline"
+  | "dossier"
+  | "matches"
+  | "performance"
+  | "social";
 
 function ObjectTitleEditor({
   objectId,
@@ -181,11 +190,23 @@ export function ObjektakteView({
   const [immoscoutConfigured, setImmoscoutConfigured] = useState<boolean | null>(
     null
   );
+  const [socialPosts, setSocialPosts] = useState<SocialPost[]>([]);
 
   useEffect(() => {
     void fetchPortalListing(objectId).then((data) => {
       setImmoscoutConfigured(data.config.immoscout24);
     });
+  }, [objectId]);
+
+  useEffect(() => {
+    void fetch(
+      `/api/social-media/generate?objekt_id=${encodeURIComponent(objectId)}`
+    )
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload: { posts?: SocialPost[] } | null) => {
+        if (payload?.posts) setSocialPosts(payload.posts);
+      })
+      .catch(() => undefined);
   }, [objectId]);
 
   useEffect(() => {
@@ -267,6 +288,7 @@ export function ObjektakteView({
             { id: "pipeline" as const, label: "Pipeline" },
             { id: "dossier" as const, label: "Dossier" },
             { id: "performance" as const, label: "Performance" },
+            { id: "social" as const, label: "📱 Social Media" },
           ] as const
         ).map((tab) => (
           <button
@@ -296,6 +318,12 @@ export function ObjektakteView({
         <ObjectMatchesTab objectId={object.objectId} />
       ) : activeTab === "performance" ? (
         <ObjectPortalPerformanceTab objectId={object.objectId} />
+      ) : activeTab === "social" ? (
+        <SocialPostEditor
+          object={object}
+          initialPosts={socialPosts}
+          onPostsChange={setSocialPosts}
+        />
       ) : (
       <>
       <section className="overflow-hidden rounded-[24px] border border-[#CBD5E1]/40 bg-white/90 shadow-[0_2px_8px_rgba(15,23,42,0.04)]">
@@ -335,6 +363,7 @@ export function ObjektakteView({
             Status: {REAL_ESTATE_OBJECT_STATUS_LABELS[object.status]} · {object.quelle}
           </p>
           <PortalPublishStatus objectId={object.objectId} />
+          <SocialPostHistory posts={socialPosts} />
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"

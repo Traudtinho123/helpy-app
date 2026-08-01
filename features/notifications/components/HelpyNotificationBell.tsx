@@ -13,6 +13,7 @@ import {
   Mail,
   Phone,
   Send,
+  Share2,
   ShieldAlert,
   Sparkles,
   UserPlus,
@@ -44,6 +45,7 @@ const kindIcons: Record<HelpyNotificationKind, typeof Bell> = {
   followup_angebot_offen: FileText,
   voice_notfall: Phone,
   voice_anruf: Phone,
+  social_media_bereit: Share2,
 };
 
 function NotificationItem({

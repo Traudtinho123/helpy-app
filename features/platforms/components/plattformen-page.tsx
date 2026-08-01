@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { IntegrationGrid } from "@/features/integration-manager/components/integration-grid";
+import { SocialPlatformSettings } from "@/features/social-media/components/social-platform-settings";
 import {
   connectOutlookIntegration,
   getIntegrationsByCategory,
@@ -28,7 +29,13 @@ function PlattformenContent() {
   useEffect(() => {
     const oauthState = searchParams.get("oauth");
     const provider = searchParams.get("provider");
+    const socialOauth = searchParams.get("social_oauth");
+    const socialProvider = searchParams.get("social_provider");
     const legacyOutlook = searchParams.get("outlook");
+
+    if (socialOauth === "connected" && socialProvider) {
+      return;
+    }
 
     if (oauthState === "connected" && provider === "microsoft") {
       void refreshOutlookConnectionStatus().then(async (status) => {
@@ -98,6 +105,9 @@ function PlattformenContent() {
       </header>
 
       <IntegrationGrid byCategory={byCategory} />
+      <div className="mt-8">
+        <SocialPlatformSettings />
+      </div>
     </div>
   );
 }

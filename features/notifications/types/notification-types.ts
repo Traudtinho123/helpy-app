@@ -10,7 +10,8 @@ export type HelpyNotificationKind =
   | "followup_kunde_wartet"
   | "followup_angebot_offen"
   | "voice_notfall"
-  | "voice_anruf";
+  | "voice_anruf"
+  | "social_media_bereit";
 
 export type HelpyNotification = {
   id: string;
@@ -44,4 +45,5 @@ export const NOTIFICATION_KIND_LABELS: Record<HelpyNotificationKind, string> = {
   followup_angebot_offen: "Angebot offen",
   voice_notfall: "Notfall — Telefon",
   voice_anruf: "Telefonanruf",
+  social_media_bereit: "Social Media bereit",
 };

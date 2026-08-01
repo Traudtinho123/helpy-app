@@ -44,6 +44,7 @@ export const PROTECTED_ROUTE_PREFIXES = [
   "/kunden",
   "/objekte",
   "/objekt",
+  "/social-media",
   "/aufgaben",
   "/analytics",
   "/einstellungen",
