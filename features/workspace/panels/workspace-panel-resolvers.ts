@@ -112,7 +112,7 @@ export function resolveDokumentPanelView(
     documentId?: string;
     fileName?: string;
     messageId?: string;
-    focus?: "expose" | "offerte" | "dokument";
+    focus?: "expose" | "offerte" | "angebot" | "dokument";
   }
 ): WorkspacePanelViewModel {
   const { workspaceId, vorgang, mailAttachments, recognizedDocuments } = context;

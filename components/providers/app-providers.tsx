@@ -4,6 +4,7 @@ import { PermissionsProvider } from "@/components/auth/permissions-provider";
 import { ActiveSkillProvider } from "@/components/user-menu/active-skill-context";
 import { CompanyProfileProvider } from "@/components/company/company-profile-context";
 import { GmailAutoSyncProvider } from "@/components/gmail/gmail-auto-sync-provider";
+import { CreateDocumentModalHost } from "@/features/documents/components/create-document-modal";
 import { VoiceIntakeSyncProvider } from "@/components/voice/voice-intake-sync-provider";
 import { SkillAccessProvider } from "@/components/auth/skill-access-provider";
 import { SubscriptionSkillGate } from "@/components/subscription/subscription-skill-gate";
@@ -19,6 +20,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
             <GmailAutoSyncProvider>
               <VoiceIntakeSyncProvider>
                 <SubscriptionSkillGate>{children}</SubscriptionSkillGate>
+                <CreateDocumentModalHost />
               </VoiceIntakeSyncProvider>
             </GmailAutoSyncProvider>
             </ActiveSkillProvider>

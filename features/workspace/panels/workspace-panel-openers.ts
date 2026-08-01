@@ -138,7 +138,7 @@ export function openDokumentPanel(input: {
   documentId?: string;
   fileName?: string;
   messageId?: string;
-  focus?: "expose" | "offerte" | "dokument";
+  focus?: "expose" | "offerte" | "angebot" | "dokument";
 }): WorkspacePanelOpenResult {
   const fallbackHref = getDokumentePath({
     vorgangId: input.vorgangId,

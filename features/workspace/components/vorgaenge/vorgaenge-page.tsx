@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Phone, Plus, Sparkles } from "lucide-react";
 import { HelpyCharacter } from "@/components/helpy/helpy-character";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
@@ -76,6 +77,7 @@ const filterOrder: VorgangFilter[] = [
   "alle",
   "neu",
   "termine_anfragen",
+  "plattformen",
   "in_bearbeitung",
   "wartend",
   "erledigt",
@@ -86,6 +88,7 @@ const filterOrder: VorgangFilter[] = [
 type ActivePanel = "none" | "reply" | "appointment";
 
 export function VorgaengePage() {
+  const searchParams = useSearchParams();
   const { vorgaenge: vorgaengeLabel, skill } = useTerminology();
   const filterLabels = useMemo(
     () => getSkillVorgangFilterLabels(skill),
@@ -110,6 +113,17 @@ export function VorgaengePage() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    const urlFilter = searchParams.get("filter");
+    if (
+      urlFilter === "plattformen" ||
+      urlFilter === "immoscout" ||
+      urlFilter === "homegate"
+    ) {
+      setActiveFilter("plattformen");
+    }
+  }, [searchParams]);
 
   useEffect(() => subscribeAllMailVorgaenge(() => setMailRevision((tick) => tick + 1)), []);
   useEffect(() => subscribeHiddenVorgaenge(() => setMailRevision((tick) => tick + 1)), []);

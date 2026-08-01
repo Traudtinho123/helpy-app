@@ -512,7 +512,7 @@ export function findWorkspaceDocument(
   context: WorkspaceContext,
   input: {
     documentId?: string;
-    focus?: "expose" | "offerte" | "dokument";
+    focus?: "expose" | "offerte" | "angebot" | "dokument";
   }
 ): PreparedDocument | undefined {
   const { documentId, focus } = input;

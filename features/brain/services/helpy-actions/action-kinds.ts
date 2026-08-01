@@ -116,11 +116,12 @@ export function resolveActionKind(action: HelpyAction): HelpyActionKind {
 
 export function resolveDocumentFocus(
   action: HelpyAction
-): "expose" | "offerte" | "dokument" {
+): "expose" | "offerte" | "angebot" | "dokument" {
   const haystack =
     `${action.id} ${action.title} ${action.primaryLabel}`.toLowerCase();
 
   if (/exposé|expose/.test(haystack)) return "expose";
-  if (/offerte|angebot/.test(haystack)) return "offerte";
+  if (/offerte/.test(haystack)) return "offerte";
+  if (/angebot/.test(haystack)) return "angebot";
   return "dokument";
 }

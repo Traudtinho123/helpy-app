@@ -11,7 +11,7 @@ export function getKundenaktePath(vorgangId: string): string {
 type DokumentePathOptions = {
   vorgangId?: string | null;
   documentId?: string | null;
-  focus?: "expose" | "offerte" | "dokument" | null;
+  focus?: "expose" | "offerte" | "angebot" | "dokument" | null;
   selected?: string | null;
 };
 

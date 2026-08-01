@@ -16,7 +16,7 @@ export type ResolvedHelpyAction = HelpyAction & {
   disabledReason?: string;
   routeAddress?: string;
   phoneNumber?: string;
-  documentFocus?: "expose" | "offerte" | "dokument";
+  documentFocus?: "expose" | "offerte" | "angebot" | "dokument";
 };
 
 function resolveDisabledState(

@@ -10,6 +10,9 @@ import {
 import { toListeVorgangFromWorkspace } from "@/features/brain/services/helpy-actions/workspace-vorgang-adapter";
 import type { HelpyActionExecutionState } from "@/features/brain/services/helpy-actions/types";
 import {
+  openDocumentCreationForVorgang,
+} from "@/features/documents/services/open-document-creation";
+import {
   openDokumentPanel,
   openKundePanel,
   openObjektPanel,
@@ -96,6 +99,19 @@ export function useHelpyActionExecutor({
 
           case "document": {
             const focus = action.documentFocus ?? "dokument";
+            const kind =
+              focus === "expose"
+                ? "expose"
+                : focus === "offerte"
+                  ? "offerte"
+                  : focus === "angebot"
+                    ? "angebot"
+                    : null;
+
+            if (kind && openDocumentCreationForVorgang({ vorgangId: vorgang.id, kind })) {
+              break;
+            }
+
             const panelResult = openDokumentPanel({
               vorgangId: vorgang.id,
               focus,

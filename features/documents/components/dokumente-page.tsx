@@ -25,6 +25,7 @@ import {
   hasRealOverviewDocuments,
 } from "@/features/documents/services/documents-overview-engine";
 import { prepareExposeFromVorgang } from "@/features/documents/services/vorgang-expose-engine";
+import { openDocumentCreationForFocus } from "@/features/documents/services/open-document-creation";
 import { getBrainV2Vorgaenge } from "@/features/workspace/services/vorgaenge/mock-vorgaenge";
 import { getGmailListeVorgang } from "@/features/workspace/services/vorgaenge/gmail-vorgaenge-store";
 import { fetchAllSignatures } from "@/features/signatures/services/signature-client-store";
@@ -96,7 +97,16 @@ export function DokumentePage() {
       return;
     }
 
-    if (focusDocument) {
+    if (focusDocument && focusVorgangId) {
+      const opened = openDocumentCreationForFocus({
+        vorgangId: focusVorgangId,
+        focus: focusMode,
+      });
+      if (opened) {
+        setOpenError(null);
+        return;
+      }
+
       setSelectedDocument(focusDocument);
       setPreviewOpen(true);
       setActiveFilter("expose");
@@ -105,7 +115,7 @@ export function DokumentePage() {
     }
 
     setOpenError(null);
-  }, [focusDocument, selectedDocumentId, documentsRevision]);
+  }, [focusDocument, focusMode, focusVorgangId, selectedDocumentId, documentsRevision]);
 
   const counts = useMemo(
     () => getOverviewFilterCounts(),

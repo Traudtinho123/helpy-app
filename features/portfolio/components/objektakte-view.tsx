@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
@@ -26,6 +27,8 @@ import {
   PortalPublishModal,
   PortalPublishStatus,
 } from "@/features/portal-publish";
+import { openDocumentCreationForObject } from "@/features/documents/services/open-document-creation";
+import { fetchPortalListing } from "@/features/portal-publish/services/portal-client-store";
 import { getDocumentDisplayStatus } from "@/features/documents/services/types";
 import { REAL_ESTATE_OBJECT_STATUS_LABELS } from "@/features/real-estate/object";
 import { formatObjectListingPriceLabel } from "@/features/portfolio/services/object-pricing-utils";
@@ -171,9 +174,19 @@ export function ObjektakteView({
   navigationOrigin = { from: "portfolio" },
   initialTab = "uebersicht",
 }: ObjektakteViewProps) {
+  const router = useRouter();
   const revision = useStoreRevision(subscribePortfolioStores);
   const [activeTab, setActiveTab] = useState<ObjektTab>(initialTab);
   const [publishOpen, setPublishOpen] = useState(false);
+  const [immoscoutConfigured, setImmoscoutConfigured] = useState<boolean | null>(
+    null
+  );
+
+  useEffect(() => {
+    void fetchPortalListing(objectId).then((data) => {
+      setImmoscoutConfigured(data.config.immoscout24);
+    });
+  }, [objectId]);
 
   useEffect(() => {
     setActiveTab(initialTab);
@@ -325,12 +338,45 @@ export function ObjektakteView({
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
-              onClick={() => setPublishOpen(true)}
-              className="h-9 rounded-[12px] bg-[#2563EB] px-3.5 text-[12px] font-semibold text-white hover:bg-[#1D4ED8]"
+              onClick={() =>
+                openDocumentCreationForObject({ object, kind: "expose" })
+              }
+              variant="outline"
+              className="h-9 rounded-[12px] px-3.5 text-[12px] font-semibold"
             >
-              <Radio className="mr-1.5 size-3.5" />
-              📡 Auf Portalen publizieren
+              <FileText className="mr-1.5 size-3.5" />
+              Exposé erstellen
             </Button>
+            <Button
+              type="button"
+              onClick={() =>
+                openDocumentCreationForObject({ object, kind: "angebot" })
+              }
+              variant="outline"
+              className="h-9 rounded-[12px] px-3.5 text-[12px] font-semibold"
+            >
+              <FileText className="mr-1.5 size-3.5" />
+              Angebot erstellen
+            </Button>
+            {immoscoutConfigured === false ? (
+              <Button
+                type="button"
+                onClick={() => router.push("/plattformen")}
+                className="h-9 rounded-[12px] bg-[#F59E0B] px-3.5 text-[12px] font-semibold text-white hover:bg-[#D97706]"
+              >
+                <Radio className="mr-1.5 size-3.5" />
+                ImmoScout24 verbinden
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                onClick={() => setPublishOpen(true)}
+                className="h-9 rounded-[12px] bg-[#2563EB] px-3.5 text-[12px] font-semibold text-white hover:bg-[#1D4ED8]"
+              >
+                <Radio className="mr-1.5 size-3.5" />
+                Auf ImmoScout24 publizieren
+              </Button>
+            )}
           </div>
           <div className="rounded-[14px] border border-[#BFDBFE]/50 bg-[#EFF6FF]/45 px-3.5 py-3">
             <p className="text-[12px] leading-relaxed text-[#334155]">{detail.summary}</p>

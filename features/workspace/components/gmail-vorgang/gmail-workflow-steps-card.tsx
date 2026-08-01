@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useGmailWorkspaceActions } from "@/features/workspace/components/gmail-vorgang/gmail-workspace-actions-context";
 import {
+  openDocumentCreationForFocus,
+  openDocumentCreationForVorgang,
+} from "@/features/documents/services/open-document-creation";
+import {
   openAngebotPanel,
   openDokumentPanel,
   openKundePanel,
@@ -78,21 +82,33 @@ function executeWorkflowStepAction(
       actions?.triggerAppointmentReview();
       openWorkspacePanelWithFallback(openTerminPanel({ vorgangId }), navigate);
     },
-    expose: () =>
+    expose: () => {
+      if (
+        openDocumentCreationForVorgang({ vorgangId, kind: "expose" })
+      ) {
+        return;
+      }
       openWorkspacePanelWithFallback(
         openDokumentPanel({ vorgangId, focus: "expose" }),
         navigate
-      ),
+      );
+    },
     antwort: () => {
       actions?.triggerReplyReview();
       scrollToAnchor("workspace-vorbereitet");
     },
     checkliste: () => scrollToAnchor("workspace-vorbereitet"),
-    offerte: () =>
+    offerte: () => {
+      if (
+        openDocumentCreationForVorgang({ vorgangId, kind: "offerte" })
+      ) {
+        return;
+      }
       openWorkspacePanelWithFallback(
         openAngebotPanel({ vorgangId }),
         navigate
-      ),
+      );
+    },
     materialliste: () =>
       openWorkspacePanelWithFallback(
         openDokumentPanel({ vorgangId, focus: "dokument" }),

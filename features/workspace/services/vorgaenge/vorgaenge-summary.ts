@@ -13,7 +13,7 @@ import {
   isVorgangAwaitingCustomerReply,
   isVorgangErledigt,
 } from "@/features/workspace/services/vorgaenge/vorgang-effective-status";
-import { isTerminAnfrageVorgang } from "@/features/workspace/services/vorgaenge/mock-vorgaenge";
+import { isTerminAnfrageVorgang, isPlatformInquiryVorgang } from "@/features/workspace/services/vorgaenge/mock-vorgaenge";
 import { deduplicateVorgaenge } from "@/features/workspace/services/vorgaenge/vorgang-deduplication";
 import {
   getAllMailVorgaenge,
@@ -60,6 +60,7 @@ function buildFilterCounts(vorgaenge: Vorgang[]): VorgaengeFilterCounts {
       .length,
     helpy_reports: helpyReports.length,
     helpy_phone: helpyPhone.length,
+    plattformen: vorgaenge.filter((item) => isPlatformInquiryVorgang(item)).length,
     helpy_reports_unread: countUnreadHelpyReports(
       helpyReports.map((item) => item.id)
     ),

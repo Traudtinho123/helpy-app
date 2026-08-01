@@ -36,7 +36,8 @@ export type VorgangFilter =
   | "alle"
   | "termine_anfragen"
   | "helpy_reports"
-  | "helpy_phone";
+  | "helpy_phone"
+  | "plattformen";
 
 export type Vorgang = {
   id: string;
@@ -136,6 +137,7 @@ export const VORGANG_FILTER_LABELS: Record<VorgangFilter, string> = {
   wartend: "Warten auf Antwort",
   helpy_reports: "HELPY Reports",
   helpy_phone: "HELPY Phone",
+  plattformen: "ImmoScout24 / Homegate",
 };
 
 /** Skill-spezifische Filter-Labels (z. B. Besichtigungen, Kurse, Reservationen). */
@@ -148,5 +150,6 @@ export function getSkillVorgangFilterLabels(
     termine_anfragen: config.termine,
     helpy_reports: "HELPY Reports",
     helpy_phone: "HELPY Phone",
+    plattformen: "ImmoScout24 / Homegate",
   };
 }

@@ -44,6 +44,16 @@ export function isTerminAnfrageVorgang(vorgang: Vorgang): boolean {
   );
 }
 
+export function isPlatformInquiryVorgang(vorgang: Vorgang): boolean {
+  const quelle = vorgang.quelle.toLowerCase();
+  return (
+    quelle.includes("immoscout") ||
+    quelle.includes("homegate") ||
+    vorgang.intent === "interessentenanfrage" ||
+    vorgang.intent === "besichtigung"
+  );
+}
+
 export function filterVorgaenge(
   vorgaenge: Vorgang[],
   filter: VorgangFilter
@@ -56,6 +66,10 @@ export function filterVorgaenge(
     return sortHelpyPhoneVorgaenge(
       vorgaenge.filter((v) => isHelpyPhoneArchiveVorgang(v))
     );
+  }
+
+  if (filter === "plattformen") {
+    return vorgaenge.filter((v) => isPlatformInquiryVorgang(v));
   }
 
   const customerVorgaenge = vorgaenge.filter(
@@ -101,6 +115,7 @@ export function getVorgangFilterCounts(
       .length,
     helpy_reports: vorgaenge.filter((v) => isHelpyReportVorgang(v)).length,
     helpy_phone: vorgaenge.filter((v) => isHelpyPhoneArchiveVorgang(v)).length,
+    plattformen: vorgaenge.filter((v) => isPlatformInquiryVorgang(v)).length,
   };
 }
 

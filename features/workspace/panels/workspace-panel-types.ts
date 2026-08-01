@@ -22,7 +22,7 @@ export type WorkspacePanelDokumentPayload = {
   documentId?: string;
   fileName?: string;
   messageId?: string;
-  focus?: "expose" | "offerte" | "dokument";
+  focus?: "expose" | "offerte" | "angebot" | "dokument";
 };
 
 export type WorkspacePanelTerminPayload = {
