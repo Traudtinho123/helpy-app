@@ -11,6 +11,7 @@ import {
 } from "react";
 import {
   getCompanyProfileHydrationState,
+  getCompanyProfileHydrationStateServerSnapshot,
   getCompanyProfileSnapshot,
   getCompanyProfileServerSnapshot,
   hydrateCompanyProfileFromApi,
@@ -40,7 +41,7 @@ function useHydrationState() {
   return useSyncExternalStore(
     subscribeCompanyProfileStore,
     getCompanyProfileHydrationState,
-    () => ({ isHydrating: false, error: null })
+    getCompanyProfileHydrationStateServerSnapshot
   );
 }
 

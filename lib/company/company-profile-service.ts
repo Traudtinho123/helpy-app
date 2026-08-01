@@ -21,6 +21,31 @@ let companyProfileSnapshot: CompanyProfile = MOCK_COMPANY_PROFILE;
 let hydrationError: string | null = null;
 let isHydrating = false;
 
+export const COMPANY_PROFILE_HYDRATION_IDLE: {
+  isHydrating: boolean;
+  error: string | null;
+} = { isHydrating: false, error: null };
+
+let hydrationStateSnapshot: {
+  isHydrating: boolean;
+  error: string | null;
+} = COMPANY_PROFILE_HYDRATION_IDLE;
+
+function recomputeHydrationStateSnapshot(): {
+  isHydrating: boolean;
+  error: string | null;
+} {
+  if (
+    hydrationStateSnapshot.isHydrating === isHydrating &&
+    hydrationStateSnapshot.error === hydrationError
+  ) {
+    return hydrationStateSnapshot;
+  }
+
+  hydrationStateSnapshot = { isHydrating, error: hydrationError };
+  return hydrationStateSnapshot;
+}
+
 function notify(): void {
   listeners.forEach((listener) => listener());
 }
@@ -127,7 +152,14 @@ export function getCompanyProfileHydrationState(): {
   isHydrating: boolean;
   error: string | null;
 } {
-  return { isHydrating, error: hydrationError };
+  return recomputeHydrationStateSnapshot();
+}
+
+export function getCompanyProfileHydrationStateServerSnapshot(): {
+  isHydrating: boolean;
+  error: string | null;
+} {
+  return COMPANY_PROFILE_HYDRATION_IDLE;
 }
 
 export function getLoadedCompanyId(): string | null {
