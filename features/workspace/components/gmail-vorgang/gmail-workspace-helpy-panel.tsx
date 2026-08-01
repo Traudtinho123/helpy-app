@@ -5,8 +5,10 @@ import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Mail } from "lucide-react";
 import { HelpyAvatar } from "@/components/helpy/helpy-avatar";
 import { HelpyPanelShell } from "@/components/helpy/helpy-panel-shell";
+import { ActionCards } from "@/components/helpy/ActionCards";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useActiveSkill } from "@/components/user-menu/active-skill-context";
 import { HelpyChatComposer } from "@/features/helpy-chat/components/helpy-chat-composer";
 import { HelpyChatThread } from "@/features/helpy-chat/components/helpy-chat-thread";
 import { useHelpyChat } from "@/features/helpy-chat/hooks/use-helpy-chat";
@@ -24,8 +26,10 @@ import {
   HELPY_APPOINTMENT_SAVED_PANEL,
 } from "@/features/appointment-suggestions/types/appointment-suggestion-types";
 import { useGmailWorkspaceActions } from "@/features/workspace/components/gmail-vorgang/gmail-workspace-actions-context";
+import { useWorkspaceFlow } from "@/features/workspace/components/workspace-flow-context";
 import { HelpyPanelResponseTimerHint } from "@/features/workspace/components/response-timer/helpy-panel-response-timer-hint";
 import { useWorkspaceContext } from "@/features/workspace/context";
+import { peekWorkspaceContext } from "@/features/workspace/context/workspace-context-service";
 import {
   HELPY_BUTTON_ANTWORT_PRUEFEN,
   HELPY_BUTTON_TERMIN_PRUEFEN,
@@ -53,6 +57,8 @@ type GmailWorkspaceHelpyPanelProps = {
 
 export function GmailWorkspaceHelpyPanel({ vorgang }: GmailWorkspaceHelpyPanelProps) {
   const actions = useGmailWorkspaceActions();
+  const { activeSkill } = useActiveSkill();
+  const { openWorkflow } = useWorkspaceFlow();
   const [feedback, setFeedback] = useState<string | null>(null);
   const followUp = useFollowUp(vorgang.id);
   const initializedFollowUpRef = useRef<string | null>(null);
@@ -183,6 +189,18 @@ export function GmailWorkspaceHelpyPanel({ vorgang }: GmailWorkspaceHelpyPanelPr
     .filter(Boolean)
     .join(" · ");
 
+  const actionHints = useMemo(() => {
+    const context = peekWorkspaceContext(vorgang.id);
+    const routeAddressHint =
+      context?.object?.adresse?.trim() ||
+      context?.object?.platform?.adresse?.trim() ||
+      null;
+    const phoneHint =
+      context?.customer?.telefon?.trim() || vorgang.kunde.telefon?.trim() || null;
+
+    return { routeAddressHint, phoneHint };
+  }, [vorgang.id, vorgang.kunde.telefon]);
+
   const { messages, isSending, error, sendMessage } = useHelpyChat({
     context: {
       surface: "gmail-workspace",
@@ -280,6 +298,24 @@ export function GmailWorkspaceHelpyPanel({ vorgang }: GmailWorkspaceHelpyPanelPr
             )}
 
             <HelpyErinnertSichCard hints={memoryHints} />
+
+            {!isArchive && (
+              <div className="mt-5">
+                <p className="mb-3 text-[12px] font-semibold text-[#475569]">
+                  HELPY Aktionen
+                </p>
+                <ActionCards
+                  key={`${vorgang.id}-${activeSkill}`}
+                  vorgang={vorgang}
+                  skill={activeSkill}
+                  onOpenWorkflow={openWorkflow}
+                  onOpenReplyReview={actions?.triggerReplyReview}
+                  onOpenAppointmentReview={actions?.triggerAppointmentReview}
+                  routeAddressHint={actionHints.routeAddressHint}
+                  phoneHint={actionHints.phoneHint}
+                />
+              </div>
+            )}
 
             {(feedback || appointmentConfirmed) && (
               <p className="mt-4 rounded-[12px] border border-[#A7F3D0]/50 bg-[#ECFDF5]/60 px-3.5 py-2.5 text-[11px] leading-relaxed text-[#047857]">

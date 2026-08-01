@@ -18,7 +18,47 @@ type ActionCardsContentProps = {
   onOpenWorkflow?: () => void;
   onOpenReplyReview?: () => void;
   onOpenAppointmentReview?: () => void;
+  routeAddressHint?: string | null;
+  phoneHint?: string | null;
 };
+
+function applyActionHints(
+  actions: ReturnType<typeof analyzeHelpyActions>["actions"],
+  hints: { routeAddressHint?: string | null; phoneHint?: string | null }
+) {
+  const { routeAddressHint, phoneHint } = hints;
+  if (!routeAddressHint && !phoneHint) return actions;
+
+  return actions.map((action) => {
+    if (
+      action.executionKind === "route" &&
+      action.disabled &&
+      routeAddressHint?.trim()
+    ) {
+      return {
+        ...action,
+        disabled: false,
+        disabledReason: undefined,
+        routeAddress: routeAddressHint.trim(),
+      };
+    }
+
+    if (
+      action.executionKind === "call" &&
+      action.disabled &&
+      phoneHint?.trim()
+    ) {
+      return {
+        ...action,
+        disabled: false,
+        disabledReason: undefined,
+        phoneNumber: phoneHint.trim(),
+      };
+    }
+
+    return action;
+  });
+}
 
 function ActionCardsContent({
   vorgang,
@@ -27,13 +67,18 @@ function ActionCardsContent({
   onOpenWorkflow,
   onOpenReplyReview,
   onOpenAppointmentReview,
+  routeAddressHint,
+  phoneHint,
 }: ActionCardsContentProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(true);
 
-  const analysis = useMemo(
-    () => analyzeHelpyActions({ vorgang, skill }),
-    [vorgang, skill]
-  );
+  const analysis = useMemo(() => {
+    const base = analyzeHelpyActions({ vorgang, skill });
+    return {
+      ...base,
+      actions: applyActionHints(base.actions, { routeAddressHint, phoneHint }),
+    };
+  }, [phoneHint, routeAddressHint, vorgang, skill]);
 
   const {
     executeAction,
@@ -137,6 +182,8 @@ type ActionCardsProps = {
   onOpenWorkflow?: () => void;
   onOpenReplyReview?: () => void;
   onOpenAppointmentReview?: () => void;
+  routeAddressHint?: string | null;
+  phoneHint?: string | null;
 };
 
 export const ActionCards = memo(function ActionCards({
@@ -146,6 +193,8 @@ export const ActionCards = memo(function ActionCards({
   onOpenWorkflow,
   onOpenReplyReview,
   onOpenAppointmentReview,
+  routeAddressHint,
+  phoneHint,
 }: ActionCardsProps) {
   return (
     <ActionCardsContent
@@ -156,6 +205,8 @@ export const ActionCards = memo(function ActionCards({
       onOpenWorkflow={onOpenWorkflow}
       onOpenReplyReview={onOpenReplyReview}
       onOpenAppointmentReview={onOpenAppointmentReview}
+      routeAddressHint={routeAddressHint}
+      phoneHint={phoneHint}
     />
   );
 });
