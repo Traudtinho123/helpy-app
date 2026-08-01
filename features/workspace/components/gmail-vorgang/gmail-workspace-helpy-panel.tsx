@@ -2,11 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowUp, CheckCircle2, Mail } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Mail } from "lucide-react";
 import { HelpyAvatar } from "@/components/helpy/helpy-avatar";
 import { HelpyPanelShell } from "@/components/helpy/helpy-panel-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { HelpyChatComposer } from "@/features/helpy-chat/components/helpy-chat-composer";
+import { HelpyChatThread } from "@/features/helpy-chat/components/helpy-chat-thread";
+import { useHelpyChat } from "@/features/helpy-chat/hooks/use-helpy-chat";
 import { HelpyErinnertSichCard } from "@/features/memory/components/HelpyErinnertSichCard";
 import {
   getBackgroundMemoryWorkspaceHintsServerSnapshot,
@@ -172,6 +175,23 @@ export function GmailWorkspaceHelpyPanel({ vorgang }: GmailWorkspaceHelpyPanelPr
     ? PLATFORM_INQUIRY_PANEL_INTRO
     : HELPY_GMAIL_WORKSPACE_INTRO;
 
+  const vorgangSummary = [
+    recommendation?.decisionTitle,
+    mail.replyDraft?.subject,
+    vorgang.letzteEmail.zusammenfassung,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  const { messages, isSending, error, sendMessage } = useHelpyChat({
+    context: {
+      surface: "gmail-workspace",
+      vorgangId: vorgang.id,
+      vorgangTitle: vorgang.aufgabe.titel,
+      vorgangSummary,
+    },
+  });
+
   if (!isConnectedMailVorgang(vorgang)) {
     return null;
   }
@@ -194,22 +214,13 @@ export function GmailWorkspaceHelpyPanel({ vorgang }: GmailWorkspaceHelpyPanelPr
           <p className="mb-3 text-[12px] font-semibold text-[#475569]">
             Frage HELPY zu diesem Vorgang
           </p>
-          <div className="rounded-[20px] border border-[#CBD5E1]/50 bg-white p-2.5 shadow-sm">
-            <textarea
-              rows={2}
-              placeholder="Frag HELPY…"
-              className="w-full resize-none bg-transparent px-3 py-2 text-[13px] text-[#0F172A] placeholder:text-[#94A3B8] outline-none"
-            />
-            <div className="flex justify-end px-1 pb-1">
-              <Button
-                size="icon-sm"
-                className="size-8 rounded-[12px] bg-[#2563EB] shadow-[0_4px_12px_rgba(37,99,235,0.35)]"
-                aria-label="Senden"
-              >
-                <ArrowUp className="size-4" strokeWidth={2.5} />
-              </Button>
-            </div>
-          </div>
+          <HelpyChatComposer
+            onSend={sendMessage}
+            isSending={isSending}
+            placeholder="Frag HELPY…"
+            variant="footer"
+            showHint={false}
+          />
         </>
       }
     >
@@ -275,6 +286,13 @@ export function GmailWorkspaceHelpyPanel({ vorgang }: GmailWorkspaceHelpyPanelPr
                 {feedback ?? HELPY_APPOINTMENT_SAVED_PANEL}
               </p>
             )}
+
+            <HelpyChatThread
+              messages={messages}
+              isSending={isSending}
+              error={error}
+              className="mt-5"
+            />
 
             <div className="mt-5 space-y-2">
               <Button

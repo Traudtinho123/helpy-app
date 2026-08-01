@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { ArrowUp, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { ActionCards } from "@/components/helpy/ActionCards";
 import { HelpyErinnertSichCard } from "@/features/memory/components/HelpyErinnertSichCard";
 import {
@@ -16,8 +16,10 @@ import { HelpyPanelResponseTimerHint } from "@/features/workspace/components/res
 import { useWorkspaceFlow } from "@/features/workspace/components/workspace-flow-context";
 import { useActiveSkill } from "@/components/user-menu/active-skill-context";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { HelpyAvatar } from "@/components/helpy/helpy-avatar";
+import { HelpyChatComposer } from "@/features/helpy-chat/components/helpy-chat-composer";
+import { HelpyChatThread } from "@/features/helpy-chat/components/helpy-chat-thread";
+import { useHelpyChat } from "@/features/helpy-chat/hooks/use-helpy-chat";
 import { HelpyPanelShell } from "@/components/helpy/helpy-panel-shell";
 import {
   getOrEvaluateHelpyDecisionForWorkspace,
@@ -114,6 +116,20 @@ export function WorkspaceHelpyPanel({ vorgang }: WorkspaceHelpyPanelProps) {
   const erkannt =
     helpy.erkannt ?? helpy.begruessung ?? vorgang.letzteEmail.zusammenfassung;
 
+  const vorgangSummary = [erkannt, empfehlung, naechsterSchritt]
+    .filter(Boolean)
+    .join(" · ");
+
+  const { messages, isSending, error, sendMessage } = useHelpyChat({
+    context: {
+      surface: "workspace",
+      vorgangId: vorgang.id,
+      vorgangTitle: vorgang.aufgabe.titel,
+      vorgangSummary,
+      skill: activeSkill,
+    },
+  });
+
   return (
     <HelpyPanelShell
       variant="workspace"
@@ -132,22 +148,13 @@ export function WorkspaceHelpyPanel({ vorgang }: WorkspaceHelpyPanelProps) {
           <p className="mb-3 text-[12px] font-semibold text-[#475569]">
             Frage HELPY zu diesem Vorgang
           </p>
-          <div className="rounded-[20px] border border-[#CBD5E1]/50 bg-white p-2.5 shadow-sm">
-            <textarea
-              rows={2}
-              placeholder="Frag HELPY…"
-              className="w-full resize-none bg-transparent px-3 py-2 text-[13px] text-[#0F172A] placeholder:text-[#94A3B8] outline-none"
-            />
-            <div className="flex justify-end px-1 pb-1">
-              <Button
-                size="icon-sm"
-                className="size-8 rounded-[12px] bg-[#2563EB] shadow-[0_4px_12px_rgba(37,99,235,0.35)]"
-                aria-label="Senden"
-              >
-                <ArrowUp className="size-4" strokeWidth={2.5} />
-              </Button>
-            </div>
-          </div>
+          <HelpyChatComposer
+            onSend={sendMessage}
+            isSending={isSending}
+            placeholder="Frag HELPY…"
+            variant="footer"
+            showHint={false}
+          />
         </>
       }
     >
@@ -248,6 +255,13 @@ export function WorkspaceHelpyPanel({ vorgang }: WorkspaceHelpyPanelProps) {
             )}
 
             <HelpyErinnertSichCard hints={memoryHints} />
+
+            <HelpyChatThread
+              messages={messages}
+              isSending={isSending}
+              error={error}
+              className="mt-5"
+            />
           </div>
         </div>
     </HelpyPanelShell>

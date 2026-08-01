@@ -1,7 +1,10 @@
-import { ArrowUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
+"use client";
+
 import { HelpyAvatar } from "@/components/helpy/helpy-avatar";
 import { HelpyPanelShell } from "@/components/helpy/helpy-panel-shell";
+import { HelpyChatComposer } from "@/features/helpy-chat/components/helpy-chat-composer";
+import { HelpyChatThread } from "@/features/helpy-chat/components/helpy-chat-thread";
+import { useHelpyChat } from "@/features/helpy-chat/hooks/use-helpy-chat";
 import { HELPY_PANEL_REVIEW_INTRO } from "@/features/review/services/safety";
 
 const suggestions = [
@@ -11,6 +14,10 @@ const suggestions = [
 ];
 
 export function AiAssistantPanel() {
+  const { messages, isSending, error, sendMessage } = useHelpyChat({
+    context: { surface: "dashboard" },
+  });
+
   return (
     <HelpyPanelShell variant="sidebar" showOnlineBadge>
       <div className="flex-1 space-y-6 overflow-y-auto px-1 pt-2">
@@ -45,42 +52,22 @@ export function AiAssistantPanel() {
             </div>
           </div>
         </div>
+
+        <HelpyChatThread
+          messages={messages}
+          isSending={isSending}
+          error={error}
+        />
       </div>
 
-      <div className="mt-5 space-y-4 px-1">
-        <div className="flex flex-wrap gap-2 px-0.5">
-          {suggestions.map((suggestion) => (
-            <Button
-              key={suggestion}
-              variant="secondary"
-              size="sm"
-              className="h-8 rounded-full px-3.5 text-[11px] font-medium"
-            >
-              {suggestion}
-            </Button>
-          ))}
-        </div>
-
-        <div className="helpy-glass-card rounded-[20px] p-2.5 transition-all duration-200 focus-within:shadow-[var(--button-primary-shadow)]">
-          <textarea
-            rows={2}
-            placeholder="Frag HELPY…"
-            className="w-full resize-none bg-transparent px-3.5 py-2.5 text-[13px] leading-relaxed text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none"
-          />
-          <div className="flex items-center justify-between px-2 pb-1">
-            <p className="text-[10px] font-medium text-[var(--text-muted)]">
-              Eingabe zum Senden
-            </p>
-            <Button
-              size="icon-sm"
-              variant="primary"
-              className="size-8 rounded-[8px]"
-              aria-label="Nachricht senden"
-            >
-              <ArrowUp className="size-4" strokeWidth={2.5} />
-            </Button>
-          </div>
-        </div>
+      <div className="mt-5 px-1">
+        <HelpyChatComposer
+          onSend={sendMessage}
+          isSending={isSending}
+          suggestions={suggestions}
+          placeholder="Frag HELPY…"
+          variant="glass"
+        />
       </div>
     </HelpyPanelShell>
   );
