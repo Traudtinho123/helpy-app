@@ -107,6 +107,23 @@ export function upsertPreparedDocument(
   return linked;
 }
 
+export function updatePreparedDocumentStatus(
+  documentId: string,
+  status: PreparedDocument["status"]
+): PreparedDocument | undefined {
+  ensureInitialized();
+  const index = documentsCache.findIndex((doc) => doc.id === documentId);
+  if (index < 0) return undefined;
+
+  documentsCache[index] = {
+    ...documentsCache[index],
+    status,
+    lastEdited: new Date().toISOString(),
+  };
+  notify();
+  return documentsCache[index];
+}
+
 export function getDocumentsForVorgang(vorgangId: string): PreparedDocument[] {
   ensureInitialized();
   return dedupeDocumentsByAttachment(

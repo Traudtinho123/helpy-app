@@ -10,6 +10,7 @@ import { completeVorgang } from "@/features/workspace/services/vorgaenge/complet
 import { getGmailListeVorgang } from "@/features/workspace/services/vorgaenge/gmail-vorgaenge-store";
 import { getSkillConfig } from "@/features/workspace/services/workspace/skills";
 import type { Vorgang } from "@/features/workspace/services/workspace/types";
+import { displayName } from "@/lib/format/display";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -57,7 +58,7 @@ export function FocusBar({ vorgang }: FocusBarProps) {
                 Kunde
               </p>
               <p className="truncate text-[13px] font-semibold text-[#0F172A]">
-                {kunde.firmenname}
+                {displayName(kunde.firmenname)}
               </p>
             </div>
             <div className="min-w-0">

@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
-import {
-  createDevCompanyContext,
-  requireCompanyContext,
-} from "@/lib/tenant/require-company-context";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { requireCompanyContext } from "@/lib/tenant/require-company-context";
 
 type TerminPatchBody = {
   termin_slots?: unknown;
@@ -20,8 +18,15 @@ export async function PATCH(
   context: { params: Promise<{ vorgangId: string }> }
 ) {
   const auth = await requireCompanyContext();
-  const companyContext = auth.ok ? auth.context : createDevCompanyContext();
+  if (!auth.ok && isSupabaseConfigured()) {
+    return NextResponse.json({ error: "Nicht autorisiert." }, { status: 401 });
+  }
+  const companyContext = auth.ok ? auth.context : null;
   const { vorgangId } = await context.params;
+
+  if (!companyContext) {
+    return NextResponse.json({ ok: true, dev: true });
+  }
 
   let body: TerminPatchBody;
   try {
@@ -69,7 +74,7 @@ export async function PATCH(
     // Neue Termin-Spalten — Typen nach SQL-Migration in Supabase generieren
     .update(patch as never)
     .eq("id", vorgangId)
-    .eq("company_id", companyContext.companyId);
+    .eq("company_id", companyContext!.companyId);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

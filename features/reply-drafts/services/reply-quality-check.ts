@@ -4,6 +4,10 @@ import type {
   ReplyQualityWarning,
 } from "@/features/reply-drafts/types/mail-analysis-types";
 import { isGenericReplyPhrase } from "@/features/reply-drafts/services/mail-analysis-extraction";
+import {
+  containsSenderName,
+  ensureSingleReplyGreeting,
+} from "@/features/reply-drafts/services/reply-greeting";
 
 const GENERIC_REPLY_MARKERS = [
   "zur kenntnis genommen",
@@ -29,33 +33,6 @@ function questionAnswered(question: string, answer: string): boolean {
   const answerLower = answer.toLowerCase();
   const hits = questionTokens.filter((token) => answerLower.includes(token));
   return hits.length >= Math.min(2, questionTokens.length);
-}
-
-function containsSenderName(name: string, answer: string): boolean {
-  const parts = name
-    .split(/\s+/)
-    .map((part) => part.trim())
-    .filter((part) => part.length >= 2);
-
-  if (parts.length === 0) return false;
-
-  const answerLower = answer.toLowerCase();
-  return parts.some((part) => answerLower.includes(part.toLowerCase()));
-}
-
-function buildGreetingLine(analysis: MailAnalysisExtraction): string {
-  const name = analysis.absender_name;
-  if (analysis.sprache === "en") {
-    return analysis.ton === "informell" ? `Hi ${name},` : `Dear ${name},`;
-  }
-  if (analysis.sprache === "fr") {
-    return analysis.ton === "informell"
-      ? `Bonjour ${name},`
-      : `Madame, Monsieur ${name},`;
-  }
-  return analysis.ton === "informell"
-    ? `Hallo ${name},`
-    : `Guten Tag ${name},`;
 }
 
 export function runReplyQualityCheck(input: {
@@ -98,14 +75,7 @@ export function ensureSenderNameInReply(
   draftText: string,
   analysis: MailAnalysisExtraction
 ): string {
-  if (containsSenderName(analysis.absender_name, draftText)) {
-    return draftText;
-  }
-
-  const greeting = buildGreetingLine(analysis);
-  const trimmed = draftText.trim();
-  if (!trimmed) return `${greeting}\n\n`;
-  return `${greeting}\n\n${trimmed}`;
+  return ensureSingleReplyGreeting(draftText, analysis);
 }
 
 export function countWords(text: string): number {

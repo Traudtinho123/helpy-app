@@ -3,6 +3,7 @@ import { applyCompanyKnowledgeToReplyDraft } from "@/features/reply-drafts/servi
 import {
   buildReplyGenerationContext,
 } from "@/features/reply-drafts/services/reply-generation-prompt";
+import { buildReplyGreetingLine } from "@/features/reply-drafts/services/reply-greeting";
 import {
   buildVariantsFromSingleDraft,
   ensureSenderNameInReply,
@@ -30,18 +31,7 @@ function replySubject(originalSubject: string): string {
 }
 
 function buildGreeting(analysis: MailAnalysisExtraction): string {
-  const name = analysis.absender_name;
-  if (analysis.sprache === "en") {
-    return analysis.ton === "informell" ? `Hi ${name},` : `Dear ${name},`;
-  }
-  if (analysis.sprache === "fr") {
-    return analysis.ton === "informell"
-      ? `Bonjour ${name},`
-      : `Madame, Monsieur ${name},`;
-  }
-  return analysis.ton === "informell"
-    ? `Hallo ${name},`
-    : `Guten Tag ${name},`;
+  return buildReplyGreetingLine(analysis);
 }
 
 function answerQuestionsBlock(
@@ -190,12 +180,36 @@ export function buildReplyGenerationResult(input: {
   selectedVariant?: ReplyDraftVariantId;
 }): ReplyGenerationResult {
   const selectedVariant = input.selectedVariant ?? "detailed";
+
+  function finalizeDraft(rawDraft: string): string {
+    if (input.generationSource === "enriched-template") {
+      return rawDraft;
+    }
+
+    const withGreeting = ensureSenderNameInReply(rawDraft, input.context.analysis);
+    const styled = applyCompanyKnowledgeToReplyDraft(
+      {
+        draftText: withGreeting,
+        tone: "",
+        subject: input.subject ?? "",
+        missingInfo: [],
+        suggestedAttachments: [],
+      },
+      {
+        senderName: input.context.analysis.absender_name,
+        mailTon: input.context.analysis.ton,
+        mailSprache: input.context.analysis.sprache,
+      }
+    );
+    return styled.draftText;
+  }
+
   const rawDraft =
     selectedVariant === "short"
       ? input.variants.short
       : input.variants.detailed;
 
-  const draftText = ensureSenderNameInReply(rawDraft, input.context.analysis);
+  const draftText = finalizeDraft(rawDraft);
   const qualityWarnings = runReplyQualityCheck({
     draftText,
     analysis: input.context.analysis,
@@ -203,14 +217,8 @@ export function buildReplyGenerationResult(input: {
 
   return {
     variants: {
-      short: trimToWordLimit(
-        ensureSenderNameInReply(input.variants.short, input.context.analysis),
-        80
-      ),
-      detailed: trimToWordLimit(
-        ensureSenderNameInReply(input.variants.detailed, input.context.analysis),
-        150
-      ),
+      short: trimToWordLimit(finalizeDraft(input.variants.short), 80),
+      detailed: trimToWordLimit(finalizeDraft(input.variants.detailed), 150),
     },
     selectedVariant,
     draftText,

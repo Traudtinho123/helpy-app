@@ -2,10 +2,8 @@ import { NextResponse } from "next/server";
 import type { AppointmentSlot } from "@/features/appointment-suggestions/types/appointment-suggestion-types";
 import { generateIntelligentReplyDraft } from "@/features/reply-drafts/services/reply-generation-pipeline";
 import type { ReplyDraftInput } from "@/features/reply-drafts/types/reply-draft-types";
-import {
-  createDevCompanyContext,
-  requireCompanyContext,
-} from "@/lib/tenant/require-company-context";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { requireCompanyContext } from "@/lib/tenant/require-company-context";
 
 type GenerateReplyDraftBody = {
   draftInput: ReplyDraftInput;
@@ -27,11 +25,8 @@ function parseBody(body: unknown): GenerateReplyDraftBody | null {
 
 export async function POST(request: Request) {
   const auth = await requireCompanyContext();
-  if (!auth.ok) {
-    const devContext = createDevCompanyContext();
-    if (!devContext) {
-      return NextResponse.json({ error: "Nicht autorisiert." }, { status: 401 });
-    }
+  if (!auth.ok && isSupabaseConfigured()) {
+    return NextResponse.json({ error: "Nicht autorisiert." }, { status: 401 });
   }
 
   let body: unknown;

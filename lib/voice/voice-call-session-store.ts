@@ -127,7 +127,7 @@ export function appendVoiceCallTurn(
   }
   session.updatedAt = Date.now();
   sessions.set(callSid, session);
-  console.log("[voice] SESSION TURNS:", JSON.stringify(session.turns));
+  console.log("[voice] SESSION TURNS:", session.turns.length, "turns");
   return session;
 }
 

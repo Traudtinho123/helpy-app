@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getDocuSignConfig, isDocuSignConfigured } from "@/lib/docusign/config";
 import { testDocuSignConnection } from "@/lib/docusign/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { requireCompanyContext } from "@/lib/tenant/require-company-context";
 
 export const runtime = "nodejs";
 
@@ -9,6 +11,11 @@ function isPemPrivateKey(value: string): boolean {
 }
 
 export async function GET() {
+  const auth = await requireCompanyContext();
+  if (!auth.ok && isSupabaseConfigured()) {
+    return NextResponse.json({ error: "Nicht autorisiert." }, { status: 401 });
+  }
+
   if (!isDocuSignConfigured()) {
     return NextResponse.json(
       {

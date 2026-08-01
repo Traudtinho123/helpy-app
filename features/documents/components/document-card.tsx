@@ -19,6 +19,7 @@ import {
 import {
   DOCUMENT_STATUS_STYLES,
   getDocumentDisplayStatus,
+  updatePreparedDocumentStatus,
   type PreparedDocument,
 } from "@/features/documents/services";
 import { DocumentSignatureActions } from "@/features/signatures/components/document-signature-actions";
@@ -138,6 +139,9 @@ export function DocumentCard({
         <Button
           type="button"
           variant="outline"
+          onClick={() => {
+            updatePreparedDocumentStatus(document.id, "freigegeben");
+          }}
           className="h-9 w-full justify-center gap-1.5 rounded-[10px] border-[#CBD5E1]/60 bg-white px-3 text-[11px] font-semibold text-[#334155]"
         >
           <CheckCircle2 className="size-3.5" />
@@ -146,6 +150,7 @@ export function DocumentCard({
         <Button
           type="button"
           variant="outline"
+          onClick={() => onOpen(document)}
           className="h-9 w-full justify-center gap-1.5 rounded-[10px] border-[#CBD5E1]/60 bg-white px-3 text-[11px] font-semibold text-[#334155]"
         >
           <Send className="size-3.5" />

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { extractMailAnalysisRuleBased } from "@/features/reply-drafts/services/mail-analysis-extraction";
 import { buildEnrichedTemplateGenerationResult } from "@/features/reply-drafts/services/reply-enriched-template";
+import { ensureSingleReplyGreeting } from "@/features/reply-drafts/services/reply-greeting";
 import { lookupObjectsForMailQueries } from "@/features/reply-drafts/services/reply-object-lookup";
 import { runReplyQualityCheck } from "@/features/reply-drafts/services/reply-quality-check";
 import type { ReplyDraftInput } from "@/features/reply-drafts/types/reply-draft-types";
@@ -84,6 +85,24 @@ describe("enriched reply generation", () => {
 
     expect(result.analysis.ton).toBe("informell");
     expect(result.draftText).toMatch(/Hallo|dir|dein|Hallo Thomas/i);
+  });
+});
+
+describe("reply greeting normalization", () => {
+  it("ersetzt generische Anrede statt doppeltes Guten Tag", () => {
+    const analysis = extractMailAnalysisRuleBased({
+      from: "Thomas Müller <thomas@example.com>",
+      subject: "Anfrage",
+      body: "Guten Tag, ich habe eine Frage.",
+    });
+
+    const result = ensureSingleReplyGreeting(
+      "Guten Tag,\n\nVielen Dank für Ihre Nachricht.",
+      analysis
+    );
+
+    expect(result).toMatch(/^Guten Tag Thomas Müller,/);
+    expect(result.match(/Guten Tag/g)?.length).toBe(1);
   });
 });
 

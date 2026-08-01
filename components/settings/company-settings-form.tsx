@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,6 +42,13 @@ const inputClass =
 
 export function CompanySettingsForm() {
   const { profile, updateProfile } = useCompanyProfile();
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+  const handleSave = () => {
+    updateProfile({ ...profile });
+    setSaveMessage("Änderungen gespeichert.");
+    window.setTimeout(() => setSaveMessage(null), 3000);
+  };
 
   return (
     <SettingsShell
@@ -239,9 +247,13 @@ export function CompanySettingsForm() {
 
         <WeeklyReportSettingsCard />
 
-        <div className="flex justify-end pb-6">
+        <div className="flex flex-col items-end gap-2 pb-6">
+          {saveMessage ? (
+            <p className="text-[12px] font-medium text-[#047857]">{saveMessage}</p>
+          ) : null}
           <Button
             type="button"
+            onClick={handleSave}
             className="h-10 gap-2 rounded-[12px] bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-5 text-[12px] font-semibold text-white shadow-sm"
           >
             <Save className="size-4" />

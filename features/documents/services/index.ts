@@ -12,6 +12,7 @@ export {
   getPreparedDocumentForVorgang,
   searchDocuments,
   subscribeDocuments,
+  updatePreparedDocumentStatus,
   upsertPreparedDocument,
 } from "@/features/documents/services/document-engine";
 
