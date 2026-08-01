@@ -119,6 +119,7 @@ export function ProvisionModal({
       open={open}
       onClose={onClose}
       title="Provision erfassen"
+      maxWidth="lg"
       description={
         objektTitle
           ? `${objektTitle} — ${deal.kunde_name ?? "Interessent"}`

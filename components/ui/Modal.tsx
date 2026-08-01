@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -15,13 +16,14 @@ type ModalProps = {
   footer?: React.ReactNode;
   onClose: () => void;
   className?: string;
-  maxWidth?: "sm" | "md" | "lg";
+  maxWidth?: "sm" | "md" | "lg" | "xl";
 };
 
 const maxWidthClass = {
   sm: "max-w-md",
   md: "max-w-lg",
   lg: "max-w-2xl",
+  xl: "max-w-3xl",
 };
 
 function Modal({
@@ -34,6 +36,12 @@ function Modal({
   className,
   maxWidth = "md",
 }: ModalProps) {
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   React.useEffect(() => {
     if (!open) return;
 
@@ -50,11 +58,11 @@ function Modal({
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[130] flex items-end justify-center bg-[#0F172A]/40 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+      className="fixed inset-0 z-[140] flex items-end justify-center bg-[#0F172A]/40 p-0 backdrop-blur-sm sm:items-center sm:p-4"
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
@@ -65,7 +73,7 @@ function Modal({
         aria-modal="true"
         aria-labelledby="helpy-modal-title"
         className={cn(
-          "flex max-h-[85vh] w-full flex-col overflow-hidden sm:max-h-[90vh]",
+          "flex max-h-[92vh] w-full flex-col overflow-hidden sm:max-h-[94vh]",
           maxWidthClass[maxWidth],
           surfaces.modalCard,
           "rounded-t-[24px] shadow-[0_24px_64px_rgba(15,23,42,0.18)] sm:rounded-[24px]",
@@ -96,7 +104,9 @@ function Modal({
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-5">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-5">
+          {children}
+        </div>
 
         {footer && (
           <div className="border-t border-[#CBD5E1]/40 bg-[#F8FAFC]/80 px-6 py-4">
@@ -104,7 +114,8 @@ function Modal({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

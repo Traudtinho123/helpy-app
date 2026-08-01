@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Loader2, Mail, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,6 +58,12 @@ export function GmailSendConfirmModal({
   onConfirm,
   onCancel,
 }: GmailSendConfirmModalProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const handleSendClick = () => {
     void onConfirm();
   };
@@ -76,15 +83,15 @@ export function GmailSendConfirmModal({
     };
   }, [loading, onCancel, open]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
-  return (
-    <div className="fixed inset-0 z-[130] flex items-center justify-center bg-[#0F172A]/40 p-4 backdrop-blur-sm">
+  return createPortal(
+    <div className="fixed inset-0 z-[140] flex items-end justify-center bg-[#0F172A]/40 p-0 backdrop-blur-sm sm:items-center sm:p-4">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="gmail-send-title"
-        className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-[24px] border border-[#CBD5E1]/50 bg-white shadow-[0_24px_64px_rgba(15,23,42,0.18)]"
+        className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[24px] border border-[#CBD5E1]/50 bg-white shadow-[0_24px_64px_rgba(15,23,42,0.18)] sm:max-h-[94vh] sm:rounded-[24px]"
       >
         <div className="flex items-start justify-between border-b border-[#CBD5E1]/40 px-6 py-5">
           <div>
@@ -165,6 +172,7 @@ export function GmailSendConfirmModal({
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

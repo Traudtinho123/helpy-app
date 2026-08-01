@@ -126,6 +126,31 @@ export function SendForSignatureModal({
       onClose={() => onOpenChange(false)}
       title="Zur Unterschrift senden"
       description="Unterzeichner erhalten eine E-Mail mit Link zur elektronischen Signatur."
+      maxWidth="xl"
+      footer={
+        <div className="flex flex-wrap justify-end gap-2">
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            Abbrechen
+          </Button>
+          <Button
+            type="button"
+            disabled={busy || !canSign}
+            onClick={() => void handleSend()}
+          >
+            {busy ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Wird gesendet…
+              </>
+            ) : (
+              <>
+                <PenLine className="size-4" />
+                Senden
+              </>
+            )}
+          </Button>
+        </div>
+      }
     >
       <div className="space-y-4">
         <div className="rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
@@ -208,29 +233,6 @@ export function SendForSignatureModal({
           <p className="text-[11px] text-[#B45309]">{fallbackHint}</p>
         ) : null}
         {error ? <p className="text-[11px] text-[#DC2626]">{error}</p> : null}
-
-        <div className="flex justify-end gap-2 pt-1">
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Abbrechen
-          </Button>
-          <Button
-            type="button"
-            disabled={busy || !canSign}
-            onClick={() => void handleSend()}
-          >
-            {busy ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                Wird gesendet…
-              </>
-            ) : (
-              <>
-                <PenLine className="size-4" />
-                Senden
-              </>
-            )}
-          </Button>
-        </div>
       </div>
     </Modal>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Loader2, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VorgangStatusTimeline } from "@/features/workspace/components/vorgaenge/vorgang-status-timeline";
@@ -208,6 +209,11 @@ export function HelpyReviewModal({
   confirmDisabledReason = null,
 }: HelpyReviewModalProps) {
   const [, setTick] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!showHistory) return;
@@ -230,20 +236,20 @@ export function HelpyReviewModal({
     };
   }, [open, onCancel]);
 
-  if (!open || !review) return null;
+  if (!open || !review || !mounted) return null;
 
   const primaryLabel = review.content.primaryLabel;
   const history =
     showHistory && vorgangId ? getStatusHistory(vorgangId) : [];
   const showEditButton = Boolean(onEdit);
 
-  return (
-    <div className="fixed inset-0 z-[130] flex items-center justify-center bg-[#0F172A]/40 p-4 backdrop-blur-sm">
+  return createPortal(
+    <div className="fixed inset-0 z-[140] flex items-end justify-center bg-[#0F172A]/40 p-0 backdrop-blur-sm sm:items-center sm:p-4">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="helpy-review-title"
-        className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-[24px] border border-[#CBD5E1]/50 bg-white shadow-[0_24px_64px_rgba(15,23,42,0.18)]"
+        className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[24px] border border-[#CBD5E1]/50 bg-white shadow-[0_24px_64px_rgba(15,23,42,0.18)] sm:max-h-[94vh] sm:rounded-[24px]"
       >
         <div className="flex items-start justify-between border-b border-[#CBD5E1]/40 px-6 py-5">
           <div>
@@ -348,6 +354,7 @@ export function HelpyReviewModal({
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

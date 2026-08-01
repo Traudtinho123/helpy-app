@@ -201,6 +201,30 @@ export function DocumentPdfActions({
         onClose={() => setForwardOpen(false)}
         title="Dokument weitersenden"
         description="PDF wird als Anhang über Gmail versendet."
+        maxWidth="lg"
+        footer={
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setForwardOpen(false)}
+            >
+              Abbrechen
+            </Button>
+            <Button
+              type="button"
+              disabled={busy === "send"}
+              onClick={() => void handleSend()}
+            >
+              {busy === "send" ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Send className="size-4" />
+              )}
+              Per Gmail senden
+            </Button>
+          </div>
+        }
       >
         <div className="space-y-3">
           <div className="space-y-1.5">
@@ -238,27 +262,6 @@ export function DocumentPdfActions({
           {error ? (
             <p className="text-[11px] text-[#DC2626]">{error}</p>
           ) : null}
-          <div className="flex justify-end gap-2 pt-1">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setForwardOpen(false)}
-            >
-              Abbrechen
-            </Button>
-            <Button
-              type="button"
-              disabled={busy === "send"}
-              onClick={() => void handleSend()}
-            >
-              {busy === "send" ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Send className="size-4" />
-              )}
-              Per Gmail senden
-            </Button>
-          </div>
         </div>
       </Modal>
     </>
