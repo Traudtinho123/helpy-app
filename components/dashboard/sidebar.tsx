@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { NavBrandIcon } from "@/components/dashboard/nav-brand-icon";
 import { SidebarSkillStatus } from "@/components/dashboard/sidebar-skill-status";
 import { DataPrivacySidebarHint } from "@/components/privacy/data-privacy-sidebar-hint";
 import { HelpyLogo } from "@/components/helpy/helpy-logo";
@@ -59,7 +60,11 @@ function NavItem({
           isActive ? "text-[var(--color-primary-mid)]" : "text-[var(--text-sidebar-muted)] group-hover:text-[rgba(255,255,255,0.8)]"
         )}
       >
-        {item.emoji}
+        {item.brandIcon ? (
+          <NavBrandIcon brand={item.brandIcon} />
+        ) : (
+          item.emoji
+        )}
       </span>
       <span className="flex-1 truncate">{item.label}</span>
       {count !== undefined ? (

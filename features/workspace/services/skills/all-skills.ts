@@ -79,7 +79,7 @@ export const ALL_INDUSTRY_SKILLS: Record<IndustrySkillId, SkillConfig> = {
     nav: {
       objekte: "Objekte",
       kalender: "Kalender",
-      kunden: "Interessenten",
+      kunden: "Kunden",
       vorgaenge: "Vorgänge",
     },
   },

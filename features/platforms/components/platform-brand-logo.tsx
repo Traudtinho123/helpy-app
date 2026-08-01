@@ -150,9 +150,9 @@ function HomegateLogo() {
   );
 }
 
-function WhatsAppLogo() {
+function WhatsAppLogo({ className = "size-7" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 48 48" className="size-7" aria-hidden>
+    <svg viewBox="0 0 48 48" className={className} aria-hidden>
       <rect width="48" height="48" rx="12" fill="#25D366" />
       <path
         fill="#fff"
@@ -194,12 +194,16 @@ const LOGOS: Record<PlatformBrandId, () => React.ReactElement> = {
   immoscout24: ImmoScoutLogo,
   homegate: HomegateLogo,
   newhome: HomegateLogo,
-  whatsapp: WhatsAppLogo,
+  whatsapp: () => <WhatsAppLogo />,
   microsoft: MicrosoftLogo,
   dropbox: DefaultLogo,
   bexio: DefaultLogo,
   default: DefaultLogo,
 };
+
+export function WhatsAppBrandIcon({ className }: { className?: string }) {
+  return <WhatsAppLogo className={className ?? "size-[18px]"} />;
+}
 
 export function PlatformBrandLogo({
   brand,

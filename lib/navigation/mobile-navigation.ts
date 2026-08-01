@@ -1,5 +1,9 @@
 import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
-import { buildCoreNavItems, SKILL_PORTFOLIO_NAV } from "@/lib/navigation/core-navigation";
+import {
+  buildCoreNavItems,
+  SKILL_PORTFOLIO_NAV,
+  type NavBrandIconId,
+} from "@/lib/navigation/core-navigation";
 
 export type MobileTabId = "heute" | "vorgaenge" | "kunden" | "kalender" | "mehr";
 
@@ -15,6 +19,7 @@ export type MobileMoreNavItem = {
   label: string;
   emoji: string;
   href: string;
+  brandIcon?: NavBrandIconId;
 };
 
 export function buildMobileTabItems(skill: HelpySkill): MobileTabItem[] {
@@ -56,7 +61,7 @@ export function buildMobileMoreNavItems(skill: HelpySkill): MobileMoreNavItem[] 
     { label: portfolio.label, emoji: portfolio.emoji, href: "/objekte" },
     { label: "Dokumente", emoji: "📄", href: "/dokumente" },
     { label: "Helpy-Phone", emoji: "📞", href: "/telefonie" },
-    { label: "WhatsApp", emoji: "💬", href: "/whatsapp" },
+    { label: "WhatsApp", emoji: "💬", href: "/whatsapp", brandIcon: "whatsapp" },
     { label: "Einstellungen", emoji: "⚙️", href: "/einstellungen" },
   ];
 }

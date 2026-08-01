@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { NavBrandIcon } from "@/components/dashboard/nav-brand-icon";
 import { useActiveSkill } from "@/components/user-menu/active-skill-context";
 import { SlideUpSheet } from "@/components/mobile/slide-up-sheet";
 import {
@@ -121,7 +122,13 @@ export function MobileBottomNav({ activeHref }: MobileBottomNavProps) {
               onClick={() => setMoreOpen(false)}
               className="flex min-h-[48px] items-center gap-3 rounded-[14px] px-4 text-[15px] font-medium text-[#0F172A] transition-colors hover:bg-[#F8FAFC] active:bg-[#EFF6FF]"
             >
-              <span className="text-xl">{item.emoji}</span>
+              <span className="flex size-6 items-center justify-center text-xl">
+                {item.brandIcon ? (
+                  <NavBrandIcon brand={item.brandIcon} className="size-5" />
+                ) : (
+                  item.emoji
+                )}
+              </span>
               {item.label}
             </Link>
           ))}

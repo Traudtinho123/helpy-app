@@ -14,5 +14,6 @@ export type {
   CoreNavGroupId,
   CoreNavItem,
   CoreNavItemId,
+  NavBrandIconId,
   SettingsNavItem,
 } from "@/lib/navigation/core-navigation";
