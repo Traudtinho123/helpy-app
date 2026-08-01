@@ -20,6 +20,7 @@ import {
 import {
   closeCreateDocumentModal,
   getCreateDocumentModalState,
+  getCreateDocumentModalServerSnapshot,
   subscribeCreateDocumentModal,
   type CreateDocumentModalRequest,
 } from "@/features/documents/services/create-document-modal-store";
@@ -295,7 +296,7 @@ export function CreateDocumentModalHost() {
   const state = useSyncExternalStore(
     subscribeCreateDocumentModal,
     getCreateDocumentModalState,
-    () => ({ open: false, request: null })
+    getCreateDocumentModalServerSnapshot
   );
 
   if (!state.open || !state.request) return null;

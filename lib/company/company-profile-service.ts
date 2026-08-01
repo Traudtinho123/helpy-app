@@ -42,6 +42,11 @@ function recomputeHydrationStateSnapshot(): {
     return hydrationStateSnapshot;
   }
 
+  if (!isHydrating && hydrationError === null) {
+    hydrationStateSnapshot = COMPANY_PROFILE_HYDRATION_IDLE;
+    return hydrationStateSnapshot;
+  }
+
   hydrationStateSnapshot = { isHydrating, error: hydrationError };
   return hydrationStateSnapshot;
 }
