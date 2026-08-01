@@ -6,6 +6,7 @@ import {
 import {
   extractSenderName,
 } from "@/features/brain/services/brain-result-to-vorgang";
+import { resolveVorgangSender } from "@/features/workspace/services/vorgaenge/resolve-vorgang-sender";
 import { getHelpyDecision, getOrEvaluateHelpyDecision } from "@/features/decision/services/decision-engine";
 import { GMAIL_SEND_CONFIRM_BUTTON_LABEL } from "@/features/gmail/services/gmail-drafts";
 import {
@@ -87,12 +88,16 @@ export function buildReplyDraftInputFromListe(
     skillFromLabel(vorgang.skillLabel);
   const platformEmail = resolvePlatformInteressentEmail(vorgang);
   const platformName = resolvePlatformInteressentName(vorgang);
-  const originalFrom = vorgang.from ?? "";
+  const resolvedSender = resolveVorgangSender(vorgang);
+  const originalFrom =
+    vorgang.from?.trim() ||
+    vorgang.latestMessageFrom?.trim() ||
+    resolvedSender.from;
   const from = originalFrom;
   const senderName =
-    platformName ?? extractSenderName(from || vorgang.kunde);
+    platformName ?? resolvedSender.name ?? extractSenderName(from || vorgang.kunde);
   const senderEmail =
-    platformEmail ?? extractEmailAddress(from) ?? "";
+    platformEmail ?? resolvedSender.email ?? extractEmailAddress(from) ?? "";
   const resolvedOriginalFrom = platformEmail
     ? `${senderName} <${platformEmail}>`
     : originalFrom;

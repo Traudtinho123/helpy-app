@@ -29,6 +29,8 @@ function rowToRecord(row: Record<string, unknown>): VorgangDbRecord {
     termin_datum: (row.termin_datum as string | null) ?? null,
     termin_uhrzeit: (row.termin_uhrzeit as string | null) ?? null,
     whatsapp_message_id: (row.whatsapp_message_id as string | null) ?? null,
+    absender_name: (row.absender_name as string | null) ?? null,
+    absender_email: (row.absender_email as string | null) ?? null,
     created_at: String(row.created_at),
     updated_at: String(row.updated_at),
   };
@@ -109,6 +111,8 @@ export async function insertVorgangRecord(
     termin_datum: input.termin_datum ?? null,
     termin_uhrzeit: input.termin_uhrzeit ?? null,
     whatsapp_message_id: input.whatsapp_message_id ?? null,
+    absender_name: input.absender_name ?? null,
+    absender_email: input.absender_email ?? null,
     created_at: now,
     updated_at: now,
   };
@@ -142,6 +146,8 @@ export async function insertVorgangRecord(
       termin_datum: row.termin_datum,
       termin_uhrzeit: row.termin_uhrzeit,
       whatsapp_message_id: row.whatsapp_message_id,
+      absender_name: row.absender_name,
+      absender_email: row.absender_email,
     })
     .select("*")
     .single();

@@ -27,6 +27,7 @@ import {
   deduplicateVorgaenge,
   sortDeduplicatedVorgaenge,
 } from "@/features/workspace/services/vorgaenge/vorgang-deduplication";
+import { enrichVorgangSender } from "@/features/workspace/services/vorgaenge/resolve-vorgang-sender";
 import { filterVisibleVorgaenge } from "@/features/workspace/services/vorgang-visibility-store";
 import type { Vorgang } from "@/features/workspace/services/vorgaenge/types";
 
@@ -39,7 +40,9 @@ export function getAllMailVorgaenge(): Vorgang[] {
     ...getDbVorgaenge(),
   ];
   const { vorgaenge } = deduplicateVorgaenge(combined);
-  return filterVisibleVorgaenge(sortDeduplicatedVorgaenge(vorgaenge));
+  return filterVisibleVorgaenge(
+    sortDeduplicatedVorgaenge(vorgaenge.map((item) => enrichVorgangSender(item)))
+  );
 }
 
 export function subscribeAllMailVorgaenge(listener: () => void): () => void {

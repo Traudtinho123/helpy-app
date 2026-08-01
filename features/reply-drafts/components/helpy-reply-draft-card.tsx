@@ -372,7 +372,7 @@ export function HelpyReplyDraftCard({
         <div className="space-y-3">
           <Field
             label="Empfänger"
-            value={draft.recipient}
+            value={draft.recipientEmail ?? draft.recipient}
             error={sendDisabled ? RECIPIENT_UNKNOWN_MESSAGE : null}
           />
           {editing ? (

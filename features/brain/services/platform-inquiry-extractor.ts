@@ -11,10 +11,13 @@ const FIELD_PATTERNS: Record<
 > = {
   interessentName: [
     /(?:name|kontakt|interessent|absender|von)[:\s]+([^\n\r|<]+)/i,
-    /(?:kontaktname|contact name)[:\s]+([^\n\r|<]+)/i,
+    /(?:kontaktname|contact name|name des interessenten|vorname und name)[:\s]+([^\n\r|<]+)/i,
+    /(?:kontaktdaten[\s\S]{0,120}?name)[:\s]+([^\n\r|<]+)/i,
   ],
   interessentEmail: [
-    /(?:e-?mail|mail)[:\s]+([^\s\n\r<>]+@[^\s\n\r<>]+)/i,
+    /(?:e-?mail(?:-adresse)?|mail)[:\s]+([^\s\n\r<>]+@[^\s\n\r<>]+)/i,
+    /(?:reply[\s-]?to|antwort an|kontakt[\s-]?e-?mail)[:\s]+([^\s\n\r<>]+@[^\s\n\r<>]+)/i,
+    /(?:kontaktdaten[\s\S]{0,160}?e-?mail)[:\s]+([^\s\n\r<>]+@[^\s\n\r<>]+)/i,
   ],
   telefon: [
     /(?:telefon|tel\.?|mobile|handy|phone)[:\s]+([+\d\s()/.\-]{8,})/i,

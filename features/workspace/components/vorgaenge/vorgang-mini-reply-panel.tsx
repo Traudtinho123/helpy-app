@@ -11,6 +11,7 @@ import {
   getOrEvaluateReplyDraft,
   subscribeReplyDraft,
 } from "@/features/reply-drafts/services/reply-draft-engine";
+import { RECIPIENT_UNKNOWN_MESSAGE } from "@/features/gmail/services/extract-email-address";
 import { sendPreparedReplyDraft } from "@/features/reply-drafts/services/send-reply-draft";
 import type { Vorgang } from "@/features/workspace/services/vorgaenge/types";
 import { createClient } from "@/lib/supabase/client";
@@ -91,9 +92,16 @@ export function VorgangMiniReplyPanel({
       <p className="text-[10px] font-semibold tracking-[0.05em] text-[#2563EB] uppercase">
         Vorbereitete Antwort
       </p>
+      <p className="mt-2 text-[11px] text-[#64748B]">
+        <span className="font-medium text-[#475569]">An: </span>
+        {draft.recipientEmail ?? draft.recipient}
+      </p>
       <p className="mt-2 line-clamp-3 text-[12px] leading-relaxed text-[#334155]">
         {draft.draftText}
       </p>
+      {!draft.recipientValid ? (
+        <p className="mt-2 text-[11px] text-[#DC2626]">{RECIPIENT_UNKNOWN_MESSAGE}</p>
+      ) : null}
       {error ? (
         <p className="mt-2 text-[11px] text-[#DC2626]">{error}</p>
       ) : null}

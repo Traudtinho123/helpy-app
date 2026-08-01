@@ -10,6 +10,7 @@ import type { Vorgang, VorgangPriority, VorgangStatus } from "@/features/workspa
 import { isHelpyPhoneSource } from "@/features/voice/services/helpy-phone-detector";
 import type { UnifiedMailAttachment } from "@/features/mail/types/unified-mail-types";
 import { mergeThreadAttachments } from "@/features/mail/services/mail-attachment-mapper";
+import { pickBestVorgangSender } from "@/features/workspace/services/vorgaenge/resolve-vorgang-sender";
 
 const PRIORITY_RANK: Record<VorgangPriority, number> = {
   kritisch: 0,
@@ -151,9 +152,20 @@ export function mergeVorgaengeGroup(group: Vorgang[]): Vorgang {
           ? `thread-${canonical.threadId}`
           : newest.id);
 
+  const sender = pickBestVorgangSender(group);
+  const platformContext =
+    group.find((item) =>
+      item.detectedContext?.some((line) => line.startsWith("E-Mail:"))
+    )?.detectedContext ??
+    newest.detectedContext ??
+    canonical.detectedContext;
+
   return {
     ...canonical,
     id: resolvedId,
+    kunde: sender.name,
+    from: sender.from,
+    detectedContext: platformContext,
     prioritaet:
       newest.latestMessageDirection === "outgoing"
         ? "niedrig"

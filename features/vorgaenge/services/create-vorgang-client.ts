@@ -1,3 +1,5 @@
+import { extractEmailAddress } from "@/features/gmail/services/extract-email-address";
+import { extractSenderName } from "@/features/brain/services/brain-result-to-vorgang";
 import type { GmailVorgangBundle } from "@/features/brain/services/brain-result-to-vorgang";
 import {
   ingestDbVorgangBundle,
@@ -73,6 +75,18 @@ export async function persistMailBundleToDb(
   bundle: GmailVorgangBundle
 ): Promise<void> {
   const source = resolveMailSourceFromQuelle(bundle.liste.quelle);
+  const fromHeader =
+    bundle.liste.from?.trim() ||
+    bundle.message.from?.trim() ||
+    bundle.liste.kunde;
+  const absenderEmail =
+    extractEmailAddress(fromHeader) ??
+    extractEmailAddress(bundle.message.from) ??
+    null;
+  const absenderName =
+    bundle.liste.kunde?.trim() ||
+    extractSenderName(fromHeader) ||
+    null;
 
   await createVorgangClient({
     source,
@@ -87,5 +101,7 @@ export async function persistMailBundleToDb(
     kunden_id: bundle.liste.kundenAkteId ?? null,
     gmail_message_id: bundle.message.id,
     gmail_thread_id: bundle.message.threadId ?? null,
+    absender_name: absenderName,
+    absender_email: absenderEmail,
   });
 }

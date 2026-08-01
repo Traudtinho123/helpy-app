@@ -31,6 +31,8 @@ export type CreateVorgangInput = {
   termin_datum?: string | null;
   termin_uhrzeit?: string | null;
   whatsapp_message_id?: string | null;
+  absender_name?: string | null;
+  absender_email?: string | null;
 };
 
 export type VorgangDbRecord = {
@@ -50,6 +52,8 @@ export type VorgangDbRecord = {
   termin_datum: string | null;
   termin_uhrzeit: string | null;
   whatsapp_message_id: string | null;
+  absender_name: string | null;
+  absender_email: string | null;
   created_at: string;
   updated_at: string;
 };

@@ -51,6 +51,8 @@ export async function createVorgang(
     termin_datum: input.termin_datum?.trim() || null,
     termin_uhrzeit: input.termin_uhrzeit?.trim() || null,
     whatsapp_message_id: input.whatsapp_message_id?.trim() || null,
+    absender_name: input.absender_name?.trim() || null,
+    absender_email: input.absender_email?.trim() || null,
   });
 
   return { id: record.id, record, created: true };

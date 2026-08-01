@@ -7,6 +7,7 @@ import {
 } from "@/features/vorgaenge/types/create-vorgang-types";
 import { HELPY_PHONE_QUELLE } from "@/features/voice/services/helpy-phone-detector";
 import type { Vorgang as ListeVorgang } from "@/features/workspace/services/vorgaenge/types";
+import { resolveVorgangSenderFromText } from "@/features/workspace/services/vorgaenge/resolve-vorgang-sender";
 import { buildWorkspaceVorgangFromListe } from "@/features/workspace/services/workspace/workspace-engine";
 import type { Vorgang as WorkspaceVorgang } from "@/features/workspace/services/workspace/types";
 
@@ -59,8 +60,19 @@ export function mapVorgangDbRecordToListeVorgang(
   record: VorgangDbRecord,
   options?: { kundeName?: string | null }
 ): ListeVorgang {
+  const sender = resolveVorgangSenderFromText({
+    fromHeader: record.absender_email
+      ? `${record.absender_name ?? ""} <${record.absender_email}>`.trim()
+      : record.absender_name ?? "",
+    bodyText: record.inhalt,
+    subject: record.titel,
+    fallbackName: options?.kundeName ?? record.absender_name ?? record.anrufer_nummer ?? undefined,
+  });
+
   const kunde =
     options?.kundeName?.trim() ||
+    record.absender_name?.trim() ||
+    sender.name ||
     record.anrufer_nummer?.trim() ||
     "Unbekannt";
 
@@ -74,6 +86,7 @@ export function mapVorgangDbRecordToListeVorgang(
     titel: record.titel,
     emoji: resolveEmoji(record.source),
     kunde,
+    from: sender.from,
     quelle: resolveQuelle(record.source),
     prioritaet: mapCreatePriorityToVorgang(
       record.prioritaet as "kritisch" | "hoch" | "normal" | "niedrig"

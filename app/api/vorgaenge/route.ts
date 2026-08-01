@@ -72,6 +72,8 @@ function parseCreateInput(
     termin_datum: parsed.termin_datum?.trim() || null,
     termin_uhrzeit: parsed.termin_uhrzeit?.trim() || null,
     whatsapp_message_id: parsed.whatsapp_message_id?.trim() || null,
+    absender_name: parsed.absender_name?.trim() || null,
+    absender_email: parsed.absender_email?.trim() || null,
   };
 }
 
