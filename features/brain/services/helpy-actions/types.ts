@@ -1,5 +1,6 @@
 import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
 import type { Vorgang } from "@/features/workspace/services/workspace/types";
+import type { ResolvedHelpyAction } from "@/features/brain/services/helpy-actions/resolve-action-execution";
 
 export type HelpyAction = {
   id: string;
@@ -26,7 +27,7 @@ export type HelpyActionAnalysis = {
   scenario: HelpyActionScenario;
   scenarioLabel: string;
   analysisText: string;
-  actions: HelpyAction[];
+  actions: ResolvedHelpyAction[];
 };
 
 export type AnalyzeActionsInput = {

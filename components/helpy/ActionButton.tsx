@@ -7,6 +7,7 @@ type ActionButtonProps = {
   label: string;
   onClick?: () => void;
   disabled?: boolean;
+  disabledReason?: string;
   loading?: boolean;
   completed?: boolean;
   className?: string;
@@ -16,6 +17,7 @@ export function ActionButton({
   label,
   onClick,
   disabled = false,
+  disabledReason,
   loading = false,
   completed = false,
   className,
@@ -25,6 +27,8 @@ export function ActionButton({
       type="button"
       onClick={onClick}
       disabled={disabled || loading || completed}
+      title={disabled && disabledReason ? disabledReason : undefined}
+      aria-label={disabled && disabledReason ? `${label}: ${disabledReason}` : label}
       className={cn(
         "group/action inline-flex w-full items-center justify-center gap-2 rounded-[12px] px-4 py-2.5 text-[12px] font-semibold tracking-[-0.01em] transition-all duration-300",
         completed

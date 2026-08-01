@@ -1,20 +1,16 @@
 "use client";
 
-import { memo, useCallback, useState } from "react";
+import { memo } from "react";
 import { CheckCircle2, Sparkles } from "lucide-react";
 import { ActionButton } from "@/components/helpy/ActionButton";
-import type {
-  HelpyAction,
-  HelpyActionExecutionState,
-} from "@/features/brain/services/helpy-actions";
+import type { HelpyActionExecutionState } from "@/features/brain/services/helpy-actions";
+import type { ResolvedHelpyAction } from "@/features/brain/services/helpy-actions/resolve-action-execution";
 import { cn } from "@/lib/utils";
 
-const PREPARING_DURATION_MS = 1800;
-
 type RecommendationCardProps = {
-  action: HelpyAction;
+  action: ResolvedHelpyAction;
   status: HelpyActionExecutionState;
-  onExecute: (actionId: string) => void;
+  onExecute: (action: ResolvedHelpyAction) => void;
   className?: string;
 };
 
@@ -94,14 +90,20 @@ export const RecommendationCard = memo(function RecommendationCard({
           )}
 
           {!isDone && (
-            <div className="mt-3.5">
+            <div className="mt-3.5 space-y-2">
               <ActionButton
                 label={action.primaryLabel}
                 loading={isPreparing}
                 completed={isDone}
-                disabled={isPreparing}
-                onClick={() => onExecute(action.id)}
+                disabled={action.disabled || isPreparing}
+                disabledReason={action.disabledReason}
+                onClick={() => onExecute(action)}
               />
+              {action.disabled && action.disabledReason ? (
+                <p className="text-[10px] leading-relaxed text-[#94A3B8]">
+                  {action.disabledReason}
+                </p>
+              ) : null}
             </div>
           )}
         </div>
@@ -109,34 +111,3 @@ export const RecommendationCard = memo(function RecommendationCard({
     </article>
   );
 });
-
-export function useActionExecution(onComplete?: (actionId: string) => void) {
-  const [states, setStates] = useState<Record<string, HelpyActionExecutionState>>(
-    {}
-  );
-
-  const executeAction = useCallback(
-    (actionId: string) => {
-      setStates((current) => ({ ...current, [actionId]: "preparing" }));
-
-      window.setTimeout(() => {
-        setStates((current) => ({ ...current, [actionId]: "done" }));
-        onComplete?.(actionId);
-      }, PREPARING_DURATION_MS);
-    },
-    [onComplete]
-  );
-
-  const getStatus = useCallback(
-    (actionId: string): HelpyActionExecutionState => states[actionId] ?? "idle",
-    [states]
-  );
-
-  const reset = useCallback(() => {
-    setStates((current) =>
-      Object.keys(current).length === 0 ? current : {}
-    );
-  }, []);
-
-  return { executeAction, getStatus, reset, states };
-}

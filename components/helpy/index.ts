@@ -1,9 +1,6 @@
 export { ActionButton } from "@/components/helpy/ActionButton";
 export { ActionCards } from "@/components/helpy/ActionCards";
-export {
-  RecommendationCard,
-  useActionExecution,
-} from "@/components/helpy/RecommendationCard";
+export { RecommendationCard } from "@/components/helpy/RecommendationCard";
 export { HelpyAvatar } from "@/components/helpy/helpy-avatar";
 export { HelpyCharacter } from "@/components/helpy/helpy-character";
 export { HelpyAtDesk } from "@/components/helpy/helpy-at-desk";

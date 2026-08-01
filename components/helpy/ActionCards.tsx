@@ -2,11 +2,10 @@
 
 import { memo, useEffect, useMemo, useState } from "react";
 import { BrainCircuit, Sparkles } from "lucide-react";
-import {
-  RecommendationCard,
-  useActionExecution,
-} from "@/components/helpy/RecommendationCard";
-import { analyzeHelpyActions } from "@/features/brain/services/helpy-actions";
+import { RecommendationCard } from "@/components/helpy/RecommendationCard";
+import { analyzeHelpyActions, useHelpyActionExecutor } from "@/features/brain/services/helpy-actions";
+import { VorgangMiniAppointmentPanel } from "@/features/workspace/components/vorgaenge/vorgang-mini-appointment-panel";
+import { VorgangMiniReplyPanel } from "@/features/workspace/components/vorgaenge/vorgang-mini-reply-panel";
 import { HELPY_PREPARED_LABEL } from "@/features/review/services/safety";
 import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
 import type { Vorgang } from "@/features/workspace/services/workspace/types";
@@ -16,20 +15,39 @@ type ActionCardsContentProps = {
   vorgang: Vorgang;
   skill: HelpySkill;
   className?: string;
+  onOpenWorkflow?: () => void;
+  onOpenReplyReview?: () => void;
+  onOpenAppointmentReview?: () => void;
 };
 
 function ActionCardsContent({
   vorgang,
   skill,
   className,
+  onOpenWorkflow,
+  onOpenReplyReview,
+  onOpenAppointmentReview,
 }: ActionCardsContentProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(true);
-  const { executeAction, getStatus } = useActionExecution();
 
   const analysis = useMemo(
     () => analyzeHelpyActions({ vorgang, skill }),
     [vorgang, skill]
   );
+
+  const {
+    executeAction,
+    getStatus,
+    inlinePanel,
+    setInlinePanel,
+    feedback,
+    listeVorgang,
+  } = useHelpyActionExecutor({
+    vorgang,
+    onOpenWorkflow,
+    onOpenReplyReview,
+    onOpenAppointmentReview,
+  });
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -69,6 +87,28 @@ function ActionCardsContent({
         )}
       </div>
 
+      {!isAnalyzing && inlinePanel === "reply" ? (
+        <VorgangMiniReplyPanel
+          vorgang={listeVorgang}
+          onClose={() => setInlinePanel("none")}
+          onDone={() => setInlinePanel("none")}
+        />
+      ) : null}
+
+      {!isAnalyzing && inlinePanel === "appointment" ? (
+        <VorgangMiniAppointmentPanel
+          vorgang={listeVorgang}
+          onClose={() => setInlinePanel("none")}
+          onDone={() => setInlinePanel("none")}
+        />
+      ) : null}
+
+      {feedback ? (
+        <p className="rounded-[12px] border border-[#A7F3D0]/50 bg-[#ECFDF5]/60 px-3.5 py-2.5 text-[11px] leading-relaxed text-[#047857]">
+          {feedback}
+        </p>
+      ) : null}
+
       {!isAnalyzing && (
         <div className="space-y-3">
           {analysis.actions.map((action, index) => (
@@ -94,12 +134,18 @@ type ActionCardsProps = {
   vorgang: Vorgang;
   skill: HelpySkill;
   className?: string;
+  onOpenWorkflow?: () => void;
+  onOpenReplyReview?: () => void;
+  onOpenAppointmentReview?: () => void;
 };
 
 export const ActionCards = memo(function ActionCards({
   vorgang,
   skill,
   className,
+  onOpenWorkflow,
+  onOpenReplyReview,
+  onOpenAppointmentReview,
 }: ActionCardsProps) {
   return (
     <ActionCardsContent
@@ -107,6 +153,9 @@ export const ActionCards = memo(function ActionCards({
       vorgang={vorgang}
       skill={skill}
       className={className}
+      onOpenWorkflow={onOpenWorkflow}
+      onOpenReplyReview={onOpenReplyReview}
+      onOpenAppointmentReview={onOpenAppointmentReview}
     />
   );
 });

@@ -1,4 +1,5 @@
 import { getScenarioActions } from "@/features/brain/services/helpy-actions/action-catalog";
+import { resolveHelpyActionExecution } from "@/features/brain/services/helpy-actions/resolve-action-execution";
 import type {
   AnalyzeActionsInput,
   HelpyAction,
@@ -231,7 +232,7 @@ export function analyzeHelpyActions({
       })
     ),
     vorgang
-  );
+  ).map((action) => resolveHelpyActionExecution(action, vorgang));
 
   return {
     scenario,

@@ -14,6 +14,7 @@ import { WorkspaceArbeitsablaufPanel } from "@/features/workspace/components/wor
 import { WorkspaceDecisionPanel } from "@/features/workspace/components/workspace-decision-panel";
 import { HelpyPanelResponseTimerHint } from "@/features/workspace/components/response-timer/helpy-panel-response-timer-hint";
 import { useWorkspaceFlow } from "@/features/workspace/components/workspace-flow-context";
+import { useGmailWorkspaceActions } from "@/features/workspace/components/gmail-vorgang/gmail-workspace-actions-context";
 import { useActiveSkill } from "@/components/user-menu/active-skill-context";
 import { Badge } from "@/components/ui/badge";
 import { HelpyAvatar } from "@/components/helpy/helpy-avatar";
@@ -48,6 +49,7 @@ export function WorkspaceHelpyPanel({ vorgang }: WorkspaceHelpyPanelProps) {
   const { helpy, aufgabe } = vorgang;
   const { activeSkill } = useActiveSkill();
   const { openWorkflow } = useWorkspaceFlow();
+  const gmailActions = useGmailWorkspaceActions();
   const isConnectedMail = isConnectedMailVorgang(vorgang);
 
   const listeVorgang = useMemo(
@@ -250,6 +252,9 @@ export function WorkspaceHelpyPanel({ vorgang }: WorkspaceHelpyPanelProps) {
                   key={`${vorgang.id}-${activeSkill}`}
                   vorgang={vorgang}
                   skill={activeSkill}
+                  onOpenWorkflow={openWorkflow}
+                  onOpenReplyReview={gmailActions?.triggerReplyReview}
+                  onOpenAppointmentReview={gmailActions?.triggerAppointmentReview}
                 />
               </div>
             )}
