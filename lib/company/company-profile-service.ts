@@ -3,6 +3,11 @@ import {
   type CompanyDocumentBranding,
   type CompanyProfile,
 } from "@/lib/company/company-profile-types";
+import {
+  fetchCompanyProfileFromApi,
+  saveCompanyProfileToApi,
+  type CompanyProfileSaveResult,
+} from "@/lib/company/company-profile-client";
 
 const COMPANY_PROFILES: Record<string, CompanyProfile> = {
   [MOCK_COMPANY_PROFILE.companyId]: MOCK_COMPANY_PROFILE,
@@ -13,6 +18,8 @@ const listeners = new Set<() => void>();
 let loadedCompanyId: string | null = MOCK_COMPANY_PROFILE.companyId;
 let companyProfile: CompanyProfile = { ...MOCK_COMPANY_PROFILE };
 let companyProfileSnapshot: CompanyProfile = MOCK_COMPANY_PROFILE;
+let hydrationError: string | null = null;
+let isHydrating = false;
 
 function notify(): void {
   listeners.forEach((listener) => listener());
@@ -56,13 +63,71 @@ function recomputeCompanySnapshot(): CompanyProfile {
   return companyProfileSnapshot;
 }
 
-export function loadCompanyProfileById(companyId: string): CompanyProfile {
-  const profile = COMPANY_PROFILES[companyId] ?? MOCK_COMPANY_PROFILE;
+export function loadCompanyProfileById(
+  companyId: string,
+  profileOverride?: CompanyProfile
+): CompanyProfile {
+  const profile =
+    profileOverride ??
+    COMPANY_PROFILES[companyId] ??
+    ({ ...MOCK_COMPANY_PROFILE, companyId } satisfies CompanyProfile);
+
   loadedCompanyId = companyId;
-  companyProfile = { ...profile };
+  companyProfile = { ...profile, companyId };
+  COMPANY_PROFILES[companyId] = { ...companyProfile };
+  hydrationError = null;
   recomputeCompanySnapshot();
   notify();
   return getLoadedCompanyProfile();
+}
+
+export async function hydrateCompanyProfileFromApi(
+  companyId: string
+): Promise<
+  | { ok: true; profile: CompanyProfile }
+  | { ok: false; error: string }
+> {
+  if (typeof window === "undefined") {
+    return { ok: false, error: "Nur im Browser verfügbar." };
+  }
+
+  isHydrating = true;
+  hydrationError = null;
+  notify();
+
+  const result = await fetchCompanyProfileFromApi();
+  isHydrating = false;
+
+  if (!result.ok) {
+    hydrationError = result.error;
+    loadCompanyProfileById(companyId);
+    notify();
+    return result;
+  }
+
+  const profile = loadCompanyProfileById(companyId, {
+    ...result.profile,
+    companyId,
+  });
+  notify();
+  return { ok: true, profile };
+}
+
+export async function persistCompanyProfile(
+  profile: CompanyProfile
+): Promise<CompanyProfileSaveResult> {
+  const result = await saveCompanyProfileToApi(profile);
+  if (result.ok) {
+    loadCompanyProfileById(result.profile.companyId, result.profile);
+  }
+  return result;
+}
+
+export function getCompanyProfileHydrationState(): {
+  isHydrating: boolean;
+  error: string | null;
+} {
+  return { isHydrating, error: hydrationError };
 }
 
 export function getLoadedCompanyId(): string | null {

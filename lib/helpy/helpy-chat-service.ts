@@ -5,7 +5,8 @@ import type {
   HelpyChatRequest,
   HelpyChatResponse,
 } from "@/features/helpy-chat/types/helpy-chat-types";
-import { getCompanyProfileSnapshot } from "@/lib/company/company-profile-service";
+import { resolveCompanyProfileForServer } from "@/lib/company/company-profile-server";
+import { createClient } from "@/lib/supabase/server";
 
 const OPENAI_CHAT_URL = "https://api.openai.com/v1/chat/completions";
 const MODEL = "gpt-4o-mini";
@@ -70,11 +71,15 @@ function buildLocalHelpyReply(
   return "Verstanden. Ich bereite das für dich vor — schau in die Vorgänge oder den Posteingang, dort findest du meine konkreten Vorschläge zum Prüfen.";
 }
 
-async function callHelpyChatGpt(input: HelpyChatRequest): Promise<string | null> {
+async function callHelpyChatGpt(
+  input: HelpyChatRequest,
+  companyId?: string | null
+): Promise<string | null> {
   const apiKey = getOpenAiApiKey();
   if (!apiKey) return null;
 
-  const profile = getCompanyProfileSnapshot();
+  const supabase = await createClient();
+  const profile = await resolveCompanyProfileForServer(supabase, companyId);
   const companyContext = buildReplyDraftCompanyContext(profile);
   const companyLines = buildCompanyKnowledgeContextLines(profile);
 
@@ -127,9 +132,10 @@ async function callHelpyChatGpt(input: HelpyChatRequest): Promise<string | null>
 }
 
 export async function generateHelpyChatReply(
-  input: HelpyChatRequest
+  input: HelpyChatRequest,
+  companyId?: string | null
 ): Promise<HelpyChatResponse> {
-  const gptReply = await callHelpyChatGpt(input);
+  const gptReply = await callHelpyChatGpt(input, companyId);
   if (gptReply) {
     return { reply: gptReply, source: "gpt" };
   }

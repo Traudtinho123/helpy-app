@@ -13,13 +13,13 @@ import {
   createRechnungRecord,
   getNextRechnungNummer,
 } from "@/lib/finanzen/rechnung-repository";
-import { MOCK_COMPANY_PROFILE } from "@/lib/company/company-profile-types";
-import { getCompanyProfileServerSnapshot } from "@/lib/company/company-profile-service";
+import { resolveCompanyProfileForServer } from "@/lib/company/company-profile-server";
 import {
   createDevCompanyContext,
   requireCompanyContext,
 } from "@/lib/tenant/require-company-context";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
@@ -68,7 +68,11 @@ export async function POST(request: Request) {
     );
   }
 
-  const profile = getCompanyProfileServerSnapshot() ?? MOCK_COMPANY_PROFILE;
+  const supabase = await createClient();
+  const profile = await resolveCompanyProfileForServer(
+    supabase,
+    context.companyId
+  );
   const nummer = await getNextRechnungNummer(context.companyId);
   const issuedAt = new Date();
   const dueAt = addDays(issuedAt, 30);

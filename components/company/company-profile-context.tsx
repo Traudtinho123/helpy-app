@@ -10,9 +10,11 @@ import {
   type ReactNode,
 } from "react";
 import {
+  getCompanyProfileHydrationState,
   getCompanyProfileSnapshot,
   getCompanyProfileServerSnapshot,
-  loadCompanyProfileById,
+  hydrateCompanyProfileFromApi,
+  persistCompanyProfile,
   subscribeCompanyProfileStore,
   updateLoadedCompanyProfile,
   resetLoadedCompanyProfile,
@@ -24,19 +26,31 @@ type CompanyProfileContextValue = {
   profile: CompanyProfile;
   updateProfile: (updates: Partial<CompanyProfile>) => void;
   resetProfile: () => void;
+  saveProfile: () => Promise<{ ok: true } | { ok: false; error: string }>;
   isLoaded: boolean;
+  isHydrating: boolean;
+  hydrationError: string | null;
 };
 
 const CompanyProfileContext = createContext<CompanyProfileContextValue | null>(
   null
 );
 
+function useHydrationState() {
+  return useSyncExternalStore(
+    subscribeCompanyProfileStore,
+    getCompanyProfileHydrationState,
+    () => ({ isHydrating: false, error: null })
+  );
+}
+
 export function CompanyProfileProvider({ children }: { children: ReactNode }) {
   const { profile: userProfile, isLoaded: userLoaded } = useUserProfileContext();
+  const hydration = useHydrationState();
 
   useEffect(() => {
     if (!userLoaded || !userProfile.companyId) return;
-    loadCompanyProfileById(userProfile.companyId);
+    void hydrateCompanyProfileFromApi(userProfile.companyId);
   }, [userLoaded, userProfile.companyId]);
 
   const profile = useSyncExternalStore(
@@ -53,14 +67,35 @@ export function CompanyProfileProvider({ children }: { children: ReactNode }) {
     resetLoadedCompanyProfile();
   }, []);
 
+  const saveProfile = useCallback(async () => {
+    const current = getCompanyProfileSnapshot();
+    const result = await persistCompanyProfile(current);
+    if (!result.ok) {
+      return { ok: false as const, error: result.error };
+    }
+    return { ok: true as const };
+  }, []);
+
   const value = useMemo(
     () => ({
       profile,
       updateProfile,
       resetProfile,
+      saveProfile,
       isLoaded: userLoaded && profile.companyId === userProfile.companyId,
+      isHydrating: hydration.isHydrating,
+      hydrationError: hydration.error,
     }),
-    [profile, resetProfile, updateProfile, userLoaded, userProfile.companyId]
+    [
+      hydration.error,
+      hydration.isHydrating,
+      profile,
+      resetProfile,
+      saveProfile,
+      updateProfile,
+      userLoaded,
+      userProfile.companyId,
+    ]
   );
 
   return (

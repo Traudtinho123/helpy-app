@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import type { AppointmentSlot } from "@/features/appointment-suggestions/types/appointment-suggestion-types";
 import { generateIntelligentReplyDraft } from "@/features/reply-drafts/services/reply-generation-pipeline";
 import type { ReplyDraftInput } from "@/features/reply-drafts/types/reply-draft-types";
+import { resolveCompanyProfileForServer } from "@/lib/company/company-profile-server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { requireCompanyContext } from "@/lib/tenant/require-company-context";
+import { createClient } from "@/lib/supabase/server";
 
 type GenerateReplyDraftBody = {
   draftInput: ReplyDraftInput;
@@ -42,6 +44,10 @@ export async function POST(request: Request) {
   }
 
   try {
+    const supabase = await createClient();
+    const companyId = auth.ok ? auth.context.companyId : null;
+    await resolveCompanyProfileForServer(supabase, companyId);
+
     const result = await generateIntelligentReplyDraft({
       draftInput: parsed.draftInput,
       mailBody: parsed.mailBody,

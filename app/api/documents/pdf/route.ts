@@ -6,8 +6,10 @@ import {
 import type { ProfessionalDocumentPayload } from "@/features/documents/pdf/types";
 import { isPdfDocumentKind } from "@/features/documents/pdf/types";
 import type { CompanyProfile } from "@/lib/company/company-profile-types";
-import { MOCK_COMPANY_PROFILE } from "@/lib/company/company-profile-types";
+import { resolveCompanyProfileForServer } from "@/lib/company/company-profile-server";
 import { requireSkillAccessApi } from "@/lib/auth/require-skill-access";
+import { requireOAuthContext } from "@/lib/oauth/require-oauth-context";
+import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
@@ -17,17 +19,27 @@ type PdfRequestBody = {
   fileName?: string;
 };
 
-function resolveProfile(partial?: Partial<CompanyProfile>): CompanyProfile {
+function resolveProfile(
+  base: CompanyProfile,
+  partial?: Partial<CompanyProfile>
+): CompanyProfile {
   return {
-    ...MOCK_COMPANY_PROFILE,
+    ...base,
     ...partial,
-    companyId: partial?.companyId ?? MOCK_COMPANY_PROFILE.companyId,
+    companyId: partial?.companyId ?? base.companyId,
   };
 }
 
 export async function POST(request: Request) {
   const access = await requireSkillAccessApi();
   if (!access.ok) return access.response;
+
+  const auth = await requireOAuthContext();
+  const supabase = await createClient();
+  const baseProfile = await resolveCompanyProfileForServer(
+    supabase,
+    auth.ok ? auth.context.companyId : null
+  );
 
   try {
     const body = (await request.json()) as PdfRequestBody;
@@ -40,7 +52,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const profile = resolveProfile(body.branding);
+    const profile = resolveProfile(baseProfile, body.branding);
     const pdfBuffer = await renderProfessionalPdf({ profile, payload });
     const fileName = body.fileName ?? suggestPdfFileName(payload);
 

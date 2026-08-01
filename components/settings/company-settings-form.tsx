@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Save } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ import {
 import { SettingsShell } from "@/components/settings/settings-shell";
 import { CompanyKnowledgeForm } from "@/features/company-knowledge/components/company-knowledge-form";
 import { WeeklyReportSettingsCard } from "@/components/settings/weekly-report-settings-card";
+import { useCanEditAISettings } from "@/components/auth/permissions-provider";
 
 function Field({
   label,
@@ -41,13 +42,28 @@ const inputClass =
   "h-10 rounded-[12px] border-[#CBD5E1]/60 bg-[#F8FAFC]/80 text-[13px]";
 
 export function CompanySettingsForm() {
-  const { profile, updateProfile } = useCompanyProfile();
+  const { profile, updateProfile, saveProfile, isHydrating, hydrationError } =
+    useCompanyProfile();
+  const canEdit = useCanEditAISettings();
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = () => {
-    updateProfile({ ...profile });
-    setSaveMessage("Änderungen gespeichert.");
-    window.setTimeout(() => setSaveMessage(null), 3000);
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSaveError(null);
+    setSaveMessage(null);
+
+    const result = await saveProfile();
+    setIsSaving(false);
+
+    if (!result.ok) {
+      setSaveError(result.error);
+      return;
+    }
+
+    setSaveMessage("Gespeichert ✓");
+    window.setTimeout(() => setSaveMessage(null), 4000);
   };
 
   return (
@@ -56,6 +72,31 @@ export function CompanySettingsForm() {
       description="Branding und Firmendaten für Angebote, Offerten, Rechnungen und Dokumente."
     >
       <div className="mx-auto max-w-3xl space-y-6">
+        {isHydrating ? (
+          <div className="rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
+            <p className="text-[12px] text-[#64748B]">Firmendaten werden geladen …</p>
+          </div>
+        ) : null}
+
+        {hydrationError ? (
+          <div className="rounded-[12px] border border-[#FECACA] bg-[#FEF2F2] px-4 py-3">
+            <p className="text-[12px] text-[#B91C1C]">{hydrationError}</p>
+            <p className="mt-1 text-[11px] text-[#991B1B]">
+              Änderungen werden lokal vorbereitet, aber erst nach erfolgreicher
+              Verbindung zu Supabase dauerhaft gespeichert.
+            </p>
+          </div>
+        ) : null}
+
+        {!canEdit ? (
+          <div className="rounded-[12px] border border-[#FDE68A] bg-[#FFFBEB] px-4 py-3">
+            <p className="text-[12px] text-[#92400E]">
+              Nur Admins können Firmendaten ändern.
+            </p>
+          </div>
+        ) : null}
+
+        <fieldset disabled={!canEdit || isSaving} className="space-y-6">
         <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
           <CardHeader className="border-b border-[#CBD5E1]/30 pb-4">
             <CardTitle className="text-[13px] font-semibold text-[#0F172A]">
@@ -246,18 +287,29 @@ export function CompanySettingsForm() {
         <CompanyKnowledgeForm />
 
         <WeeklyReportSettingsCard />
+        </fieldset>
 
         <div className="flex flex-col items-end gap-2 pb-6">
           {saveMessage ? (
             <p className="text-[12px] font-medium text-[#047857]">{saveMessage}</p>
           ) : null}
+          {saveError ? (
+            <p className="max-w-md text-right text-[12px] font-medium text-[#B91C1C]">
+              {saveError}
+            </p>
+          ) : null}
           <Button
             type="button"
-            onClick={handleSave}
-            className="h-10 gap-2 rounded-[12px] bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-5 text-[12px] font-semibold text-white shadow-sm"
+            disabled={!canEdit || isSaving || isHydrating}
+            onClick={() => void handleSave()}
+            className="h-10 gap-2 rounded-[12px] bg-gradient-to-r from-[#2563EB] to-[#3B82F6] px-5 text-[12px] font-semibold text-white shadow-sm disabled:opacity-50"
           >
-            <Save className="size-4" />
-            Änderungen speichern
+            {isSaving ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Save className="size-4" />
+            )}
+            {isSaving ? "Speichern …" : "Änderungen speichern"}
           </Button>
         </div>
       </div>

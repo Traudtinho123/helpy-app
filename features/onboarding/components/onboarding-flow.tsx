@@ -31,6 +31,7 @@ import {
 import { isAppleCalendarConnected } from "@/features/apple-calendar/services/apple-calendar-sync";
 import {
   getCompanyProfileSnapshot,
+  persistCompanyProfile,
   updateLoadedCompanyProfile,
 } from "@/lib/company/company-profile-service";
 import { cn } from "@/lib/utils";
@@ -132,6 +133,7 @@ export function OnboardingFlow({
       address: address.trim(),
       companySignature: greeting.trim(),
     });
+    await persistCompanyProfile(getCompanyProfileSnapshot());
     await saveOnboardingProgress({
       onboardingStep: 6,
       onboardingCompleted: true,
@@ -163,6 +165,7 @@ export function OnboardingFlow({
               website: website.trim(),
               address: address.trim(),
             });
+            void persistCompanyProfile(getCompanyProfileSnapshot());
             void completeStep(2, 3);
           }}
         >

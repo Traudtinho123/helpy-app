@@ -34,7 +34,8 @@ export async function POST(request: Request) {
   }
 
   try {
-    const result = await generateHelpyChatReply(parsed);
+    const companyId = auth.ok ? auth.context.companyId : undefined;
+    const result = await generateHelpyChatReply(parsed, companyId);
     return NextResponse.json(result);
   } catch (error) {
     console.error(

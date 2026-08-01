@@ -28,17 +28,27 @@ export async function loadVoiceCompanyContext(
 ): Promise<VoiceCompanyContext> {
   const admin = createAdminClient();
   let companyName = "Ihrem Unternehmen";
+  let contactLines: string[] = [];
 
   if (admin) {
     const { data: companyRow } = await admin
       .from("companies")
-      .select("name")
+      .select("name, phone, email, website, address, city, zip")
       .eq("id", companyId)
       .maybeSingle();
 
     if (companyRow?.name?.trim()) {
       companyName = companyRow.name.trim();
     }
+
+    contactLines = [
+      companyRow?.phone,
+      companyRow?.email,
+      companyRow?.website,
+      [companyRow?.address, companyRow?.zip, companyRow?.city]
+        .filter(Boolean)
+        .join(", "),
+    ].filter((line): line is string => Boolean(line));
 
     try {
       const knowledgeRow = await fetchCompanyKnowledgeRow(admin, companyId);
@@ -62,6 +72,9 @@ export async function loadVoiceCompanyContext(
 
         const systemContext = [
           `Firmenname: ${companyName}`,
+          contactLines.length > 0
+            ? `Kontakt: ${contactLines.join(" · ")}`
+            : null,
           knowledge.companyDescription
             ? `Beschreibung: ${knowledge.companyDescription}`
             : null,
@@ -91,7 +104,12 @@ export async function loadVoiceCompanyContext(
 
   return {
     companyName,
-    systemContext: `Firmenname: ${companyName}`,
+    systemContext: [
+      `Firmenname: ${companyName}`,
+      contactLines.length > 0 ? `Kontakt: ${contactLines.join(" · ")}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n"),
     greetingCompanyLine: companyName,
   };
 }
