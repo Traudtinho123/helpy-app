@@ -9,6 +9,7 @@ import {
   findVorgangByVoiceCallId,
   insertVorgangRecord,
 } from "@/lib/vorgaenge/vorgang-repository";
+import { createNotificationsForNewVorgang } from "@/lib/notifications/create-vorgang-notification";
 
 export async function createVorgang(
   input: CreateVorgangInput
@@ -53,6 +54,12 @@ export async function createVorgang(
     whatsapp_message_id: input.whatsapp_message_id?.trim() || null,
     absender_name: input.absender_name?.trim() || null,
     absender_email: input.absender_email?.trim() || null,
+  });
+
+  await createNotificationsForNewVorgang({
+    vorgangId: record.id,
+    createInput: input,
+    created: true,
   });
 
   return { id: record.id, record, created: true };

@@ -1,14 +1,17 @@
 export {
+  clearNotificationStore,
   getGroupedNotifications,
   getNotificationBellServerSnapshot,
   getNotificationBellSnapshot,
   getNotificationsServerSnapshot,
   getNotificationsSnapshot,
   getUnreadNotificationCount,
+  initNotificationStore,
   markAllNotificationsRead,
   markNotificationRead,
   pushNotification,
   subscribeNotifications,
+  teardownNotificationStore,
 } from "@/features/notifications/services/notification-store";
 
 export {
@@ -19,6 +22,10 @@ export {
   notifyFollowUpAngebotOffen,
   notifyFollowUpKundeWartet,
   notifyVoiceIntake,
+  notifyMailProcessed,
+  notifyCalendarSynced,
+  notifyWeeklyReportReady,
+  notifyUpcomingAppointment,
 } from "@/features/notifications/services/notification-emitter";
 
 export type {

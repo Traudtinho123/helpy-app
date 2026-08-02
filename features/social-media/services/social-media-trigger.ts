@@ -44,6 +44,7 @@ export async function triggerSocialPostsForObject(
       href: `/social-media?objektId=${encodeURIComponent(object.objectId)}`,
       createdAt: new Date().toISOString(),
       read: false,
+      priority: "normal",
     });
   } catch (error) {
     console.warn(

@@ -1,4 +1,5 @@
 import { appleCalDavClient } from "@/features/apple-calendar/services/apple-caldav-client";
+import { notifyCalendarSynced } from "@/features/notifications/services/notification-emitter";
 import { updateAppleCalendarSyncMeta } from "@/features/integration-manager/services/integration-manager";
 import type {
   AppleCalendarConnectInput,
@@ -361,6 +362,8 @@ export async function syncAppleCalendarEvents(): Promise<void> {
       calendarsFound,
       lastSyncAt: connection.lastSyncAt,
     });
+
+    notifyCalendarSynced(connection.calendarName ?? "Apple Kalender");
   } catch (error) {
     events = [];
     connection = {

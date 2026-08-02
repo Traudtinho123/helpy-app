@@ -3,22 +3,35 @@ import type {
   HelpyNotification,
   NotificationTimeGroup,
 } from "@/features/notifications/types/notification-types";
+import {
+  mapDbNotificationToHelpy,
+  mapHelpyNotificationToDbPayload,
+} from "@/features/notifications/services/notification-mapper";
+import { createClient } from "@/lib/supabase/client";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
-const STORAGE_KEY = "helpy-notification-center-v1";
+const STORAGE_KEY = "helpy-notification-center-v2";
 
 const listeners = new Set<() => void>();
 
 let notifications: HelpyNotification[] = [];
 let sessionHydrated = false;
+let companyId: string | null = null;
+let realtimeChannel: RealtimeChannel | null = null;
+let fetchInFlight: Promise<void> | null = null;
 
 export type NotificationBellSnapshot = {
   unreadCount: number;
+  unreadImportantCount: number;
+  badgeTone: "none" | "normal" | "important";
   grouped: GroupedHelpyNotifications[];
   hasNotifications: boolean;
 };
 
 const NOTIFICATION_BELL_SERVER_SNAPSHOT: NotificationBellSnapshot = {
   unreadCount: 0,
+  unreadImportantCount: 0,
+  badgeTone: "none",
   grouped: [],
   hasNotifications: false,
 };
@@ -28,12 +41,23 @@ let notificationBellSnapshot: NotificationBellSnapshot =
 
 function recomputeNotificationBellSnapshot(now = new Date()): void {
   const grouped = buildGroupedNotifications(now);
-  const unreadCount = notifications.filter(
+  const unread = notifications.filter(
     (item) => !item.read && resolveTimeGroup(item.createdAt, now) !== null
+  );
+  const unreadCount = unread.length;
+  const unreadImportantCount = unread.filter(
+    (item) => item.priority === "wichtig"
   ).length;
 
   notificationBellSnapshot = {
     unreadCount,
+    unreadImportantCount,
+    badgeTone:
+      unreadImportantCount > 0
+        ? "important"
+        : unreadCount > 0
+          ? "normal"
+          : "none",
     grouped,
     hasNotifications: grouped.length > 0,
   };
@@ -64,6 +88,149 @@ function hydrateFromSession(): void {
 function persistToSession(): void {
   if (typeof window === "undefined") return;
   window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
+}
+
+function upsertNotification(notification: HelpyNotification): boolean {
+  if (notifications.some((item) => item.id === notification.id)) {
+    return false;
+  }
+
+  notifications = [notification, ...notifications].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+  persistToSession();
+  notify();
+  return true;
+}
+
+function replaceNotifications(next: HelpyNotification[]): void {
+  notifications = next.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+  persistToSession();
+  notify();
+}
+
+async function persistNotificationToServer(
+  notification: HelpyNotification
+): Promise<void> {
+  if (typeof window === "undefined") return;
+
+  try {
+    const response = await fetch("/api/notifications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        typ: notification.kind,
+        titel: notification.title,
+        beschreibung: notification.message,
+        link: notification.href,
+        prioritaet: notification.priority,
+      }),
+    });
+
+    if (!response.ok) return;
+
+    const payload = (await response.json()) as {
+      notification?: {
+        id: string;
+        typ: string;
+        titel: string;
+        beschreibung: string | null;
+        link: string | null;
+        gelesen: boolean;
+        prioritaet: HelpyNotification["priority"];
+        created_at: string;
+        company_id: string;
+      };
+    };
+
+    if (!payload.notification) return;
+
+    const mapped = mapDbNotificationToHelpy(payload.notification);
+    notifications = notifications.filter((item) => item.id !== notification.id);
+    upsertNotification(mapped);
+  } catch {
+    // Offline / dev — lokale Notification bleibt sichtbar
+  }
+}
+
+async function fetchNotificationsFromServer(): Promise<void> {
+  if (typeof window === "undefined") return;
+
+  try {
+    const response = await fetch("/api/notifications", { cache: "no-store" });
+    if (!response.ok) return;
+
+    const payload = (await response.json()) as {
+      notifications?: Array<{
+        id: string;
+        typ: string;
+        titel: string;
+        beschreibung: string | null;
+        link: string | null;
+        gelesen: boolean;
+        prioritaet: HelpyNotification["priority"];
+        created_at: string;
+        company_id: string;
+      }>;
+    };
+
+    if (!payload.notifications) return;
+
+    replaceNotifications(payload.notifications.map(mapDbNotificationToHelpy));
+  } catch {
+    // Session-Cache bleibt Fallback
+  }
+}
+
+function subscribeRealtime(nextCompanyId: string): void {
+  const supabase = createClient();
+  if (!supabase) return;
+
+  if (realtimeChannel) {
+    void supabase.removeChannel(realtimeChannel);
+    realtimeChannel = null;
+  }
+
+  realtimeChannel = supabase
+    .channel(`notifications:${nextCompanyId}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "notifications",
+        filter: `company_id=eq.${nextCompanyId}`,
+      },
+      () => {
+        void fetchNotificationsFromServer();
+      }
+    )
+    .subscribe();
+}
+
+export function initNotificationStore(nextCompanyId: string): void {
+  if (typeof window === "undefined") return;
+  if (companyId === nextCompanyId && fetchInFlight) return;
+
+  companyId = nextCompanyId;
+  hydrateFromSession();
+
+  fetchInFlight = fetchNotificationsFromServer().finally(() => {
+    fetchInFlight = null;
+  });
+
+  subscribeRealtime(nextCompanyId);
+}
+
+export function teardownNotificationStore(): void {
+  const supabase = createClient();
+  if (supabase && realtimeChannel) {
+    void supabase.removeChannel(realtimeChannel);
+  }
+  realtimeChannel = null;
+  companyId = null;
 }
 
 export function subscribeNotifications(listener: () => void): () => void {
@@ -97,17 +264,16 @@ export function getUnreadNotificationCount(): number {
 export function pushNotification(notification: HelpyNotification): boolean {
   hydrateFromSession();
 
-  if (notifications.some((item) => item.id === notification.id)) {
-    return false;
+  const normalized: HelpyNotification = {
+    ...notification,
+    priority: notification.priority ?? "normal",
+  };
+
+  const added = upsertNotification(normalized);
+  if (added) {
+    void persistNotificationToServer(normalized);
   }
-
-  notifications = [notification, ...notifications].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
-
-  persistToSession();
-  notify();
-  return true;
+  return added;
 }
 
 export function markNotificationRead(id: string): void {
@@ -124,6 +290,10 @@ export function markNotificationRead(id: string): void {
   notifications = next;
   persistToSession();
   notify();
+
+  void fetch(`/api/notifications/${encodeURIComponent(id)}/read`, {
+    method: "PATCH",
+  });
 }
 
 export function markAllNotificationsRead(): void {
@@ -134,6 +304,8 @@ export function markAllNotificationsRead(): void {
   notifications = notifications.map((item) => ({ ...item, read: true }));
   persistToSession();
   notify();
+
+  void fetch("/api/notifications/read-all", { method: "POST" });
 }
 
 function startOfDay(date: Date): Date {
@@ -209,8 +381,13 @@ export function getGroupedNotifications(): GroupedHelpyNotifications[] {
 export function clearNotificationStore(): void {
   notifications = [];
   sessionHydrated = false;
+  companyId = null;
   if (typeof window !== "undefined") {
     window.sessionStorage.removeItem(STORAGE_KEY);
+    window.sessionStorage.removeItem("helpy-notification-center-v1");
   }
+  teardownNotificationStore();
   notify();
 }
+
+export { mapHelpyNotificationToDbPayload };

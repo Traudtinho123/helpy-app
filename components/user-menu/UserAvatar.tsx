@@ -9,6 +9,8 @@ type UserAvatarProps = {
   onClick?: () => void;
   isOpen?: boolean;
   className?: string;
+  /** Grüner Punkt = online, Amber = Gmail-Verbindung prüfen */
+  statusIndicator?: "online" | "warning";
 };
 
 function getInitials(name: string, email: string): string {
@@ -32,6 +34,7 @@ export function UserAvatar({
   onClick,
   isOpen = false,
   className,
+  statusIndicator = "online",
 }: UserAvatarProps) {
   const initials = getInitials(name, email);
   const hasImage = Boolean(avatarUrl);
@@ -60,7 +63,12 @@ export function UserAvatar({
         <span className="relative z-[1] tracking-[-0.02em]">{initials}</span>
       )}
 
-      <span className="absolute -right-0.5 -bottom-0.5 z-[2] size-2.5 rounded-full border-2 border-white bg-[#10B981] transition-transform duration-300 group-hover:scale-110" />
+      <span
+        className={cn(
+          "absolute -right-0.5 -bottom-0.5 z-[2] size-2.5 rounded-full border-2 border-white transition-transform duration-300 group-hover:scale-110",
+          statusIndicator === "warning" ? "bg-[#F59E0B]" : "bg-[#10B981]"
+        )}
+      />
     </button>
   );
 }

@@ -264,6 +264,50 @@ export type Database = {
           },
         ];
       };
+      notifications: {
+        Row: {
+          id: string;
+          company_id: string;
+          typ: string;
+          titel: string;
+          beschreibung: string | null;
+          link: string | null;
+          gelesen: boolean;
+          prioritaet: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          company_id: string;
+          typ: string;
+          titel: string;
+          beschreibung?: string | null;
+          link?: string | null;
+          gelesen?: boolean;
+          prioritaet?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          company_id?: string;
+          typ?: string;
+          titel?: string;
+          beschreibung?: string | null;
+          link?: string | null;
+          gelesen?: boolean;
+          prioritaet?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notifications_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       oauth_connections: {
         Row: {
           id: string;
@@ -1304,6 +1348,9 @@ export type VoiceCallUpdate = TablesUpdate<"voice_calls">;
 export type VorgangRow = Tables<"vorgaenge">;
 export type VorgangInsert = TablesInsert<"vorgaenge">;
 export type VorgangUpdate = TablesUpdate<"vorgaenge">;
+export type NotificationRow = Tables<"notifications">;
+export type NotificationInsert = TablesInsert<"notifications">;
+export type NotificationUpdate = TablesUpdate<"notifications">;
 export type VoiceStandardResponseRow = Tables<"voice_standard_responses">;
 export type VoiceStandardResponseInsert = TablesInsert<"voice_standard_responses">;
 export type VoiceStandardResponseUpdate = TablesUpdate<"voice_standard_responses">;

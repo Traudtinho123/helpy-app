@@ -19,6 +19,7 @@ type UserDropdownProps = {
   companyName: string | null;
   error: string | null;
   isSigningOut: boolean;
+  gmailConnectionWarning?: boolean;
   onClose: () => void;
   onSignOut: () => void;
 };
@@ -29,6 +30,7 @@ export function UserDropdown({
   companyName,
   error,
   isSigningOut,
+  gmailConnectionWarning = false,
   onClose,
   onSignOut,
 }: UserDropdownProps) {
@@ -54,6 +56,18 @@ export function UserDropdown({
       <div className="border-b border-[var(--border)]">
         <SkillSwitcher />
       </div>
+
+      {gmailConnectionWarning ? (
+        <Link
+          href="/plattformen"
+          role="menuitem"
+          onClick={onClose}
+          className="flex items-center gap-2 border-b border-[#FDE68A]/60 bg-[#FFFBEB] px-4 py-2.5 text-[11px] font-medium text-[#B45309]"
+        >
+          <span className="size-2 shrink-0 rounded-full bg-[#F59E0B]" />
+          Gmail-Verbindung prüfen
+        </Link>
+      ) : null}
 
       {error && (
         <p className="border-b border-[#FECACA]/60 bg-[#FEF2F2] px-4 py-2 text-[11px] text-[#DC2626]">

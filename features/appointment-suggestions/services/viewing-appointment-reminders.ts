@@ -1,7 +1,5 @@
 import type { AppointmentSlot } from "@/features/appointment-suggestions/types/appointment-suggestion-types";
-import { pushNotification } from "@/features/notifications/services/notification-store";
-import type { HelpyNotification } from "@/features/notifications/types/notification-types";
-import { getWorkspacePath } from "@/features/workspace/services/workspace";
+import { notifyUpcomingAppointment } from "@/features/notifications/services/notification-emitter";
 
 const STORAGE_KEY = "helpy-viewing-reminders-v1";
 
@@ -9,7 +7,7 @@ type ScheduledViewingReminder = {
   id: string;
   vorgangId: string;
   fireAt: string;
-  kind: "24h" | "1h";
+  kind: "24h" | "2h";
   title: string;
   message: string;
   fired: boolean;
@@ -33,21 +31,6 @@ function saveReminders(): void {
   window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(reminders));
 }
 
-function buildReminderNotification(
-  reminder: ScheduledViewingReminder
-): HelpyNotification {
-  return {
-    id: reminder.id,
-    kind: "kalender_termin",
-    title: reminder.title,
-    message: reminder.message,
-    vorgangId: reminder.vorgangId,
-    href: getWorkspacePath(reminder.vorgangId),
-    createdAt: new Date().toISOString(),
-    read: false,
-  };
-}
-
 function fireDueReminders(): void {
   const now = Date.now();
   let changed = false;
@@ -56,7 +39,11 @@ function fireDueReminders(): void {
     if (reminder.fired) continue;
     if (new Date(reminder.fireAt).getTime() > now) continue;
 
-    pushNotification(buildReminderNotification(reminder));
+    notifyUpcomingAppointment({
+      vorgangId: reminder.vorgangId,
+      title: reminder.title,
+      message: reminder.message,
+    });
     reminder.fired = true;
     changed = true;
   }
@@ -97,7 +84,7 @@ export function scheduleViewingAppointmentReminders(input: {
   const now = Date.now();
 
   const entries: Array<{
-    kind: "24h" | "1h";
+    kind: "24h" | "2h";
     offsetMs: number;
     title: string;
     message: string;
@@ -109,10 +96,10 @@ export function scheduleViewingAppointmentReminders(input: {
       message: `Morgen: Besichtigung ${input.objekt} um ${input.slot.start} Uhr mit ${input.customer}`,
     },
     {
-      kind: "1h",
-      offsetMs: 60 * 60 * 1000,
-      title: "Besichtigung in 1 Stunde",
-      message: `In 1 Stunde: Besichtigung ${input.objekt}`,
+      kind: "2h",
+      offsetMs: 2 * 60 * 60 * 1000,
+      title: "Termin in weniger als 2 Stunden",
+      message: `${input.customer} · ${input.objekt} um ${input.slot.start} Uhr`,
     },
   ];
 

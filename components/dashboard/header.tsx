@@ -1,6 +1,5 @@
 "use client";
 
-import { GmailSyncStatus } from "@/components/dashboard/gmail-sync-status";
 import { UserMenu } from "@/components/user-menu/UserMenu";
 import { useActiveSkill } from "@/components/user-menu/active-skill-context";
 import { HelpyNotificationBell } from "@/features/notifications/components/HelpyNotificationBell";
@@ -55,8 +54,6 @@ export function DashboardHeader() {
             👁 Vorschau: {skillConfig.label.replace("HELPY ", "")}
           </Badge>
         ) : null}
-
-        <GmailSyncStatus />
 
         <div className="flex items-center gap-2">
           <HelpyNotificationBell />

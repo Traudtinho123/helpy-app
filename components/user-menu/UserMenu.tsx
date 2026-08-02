@@ -16,10 +16,21 @@ import { useUserProfileContext } from "@/lib/user/components/user-profile-contex
 import { signOut } from "@/lib/auth/auth";
 import { getAuthErrorMessage } from "@/lib/auth/errors";
 import { AUTH_ROUTES } from "@/lib/auth/routes";
+import {
+  getGmailAutoSyncServerSnapshot,
+  getGmailAutoSyncState,
+  subscribeGmailAutoSync,
+} from "@/features/gmail/services/gmail-auto-sync";
+import { useExternalStore } from "@/lib/hooks/use-external-store";
 
 export function UserMenu() {
   const router = useRouter();
   const { profile } = useUserProfileContext();
+  const gmailSync = useExternalStore(
+    subscribeGmailAutoSync,
+    getGmailAutoSyncState,
+    getGmailAutoSyncServerSnapshot
+  );
   const menuRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -132,6 +143,7 @@ export function UserMenu() {
           companyName={profile.companyName}
           error={error}
           isSigningOut={isSigningOut}
+          gmailConnectionWarning={gmailSync.tokenMissing}
           onClose={closeMenu}
           onSignOut={handleSignOut}
         />
@@ -147,6 +159,7 @@ export function UserMenu() {
           avatarUrl={profile.avatarUrl}
           isOpen={open}
           onClick={handleToggle}
+          statusIndicator={gmailSync.tokenMissing ? "warning" : "online"}
         />
       </div>
 

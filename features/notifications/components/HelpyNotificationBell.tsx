@@ -14,7 +14,6 @@ import {
   Phone,
   Send,
   Share2,
-  ShieldAlert,
   Sparkles,
   UserPlus,
 } from "lucide-react";
@@ -29,22 +28,26 @@ import type {
   HelpyNotification,
   HelpyNotificationKind,
 } from "@/features/notifications/types/notification-types";
+import { formatNotificationRelativeTime } from "@/features/notifications/types/notification-types";
 import { useExternalStore } from "@/lib/hooks/use-external-store";
 import { cn } from "@/lib/utils";
 
 const kindIcons: Record<HelpyNotificationKind, typeof Bell> = {
+  besichtigungsanfrage: Building2,
+  neuer_interessent: UserPlus,
+  vorgang_prioritaet_hoch: Sparkles,
+  vorgang_wartet_24h: Clock,
+  voice_anruf: Phone,
+  voice_notfall: Phone,
+  termin_bald: CalendarDays,
+  mail_verarbeitet: Mail,
+  kalender_sync: CalendarDays,
+  weekly_report: FileText,
   anfrage: Building2,
   baustellen_anfrage: Hammer,
-  neuer_kunde: UserPlus,
   angebot_vorbereitet: FileText,
-  spam_archiv: ShieldAlert,
   gmail_entwurf: Mail,
   gmail_gesendet: Send,
-  kalender_termin: CalendarDays,
-  followup_kunde_wartet: Clock,
-  followup_angebot_offen: FileText,
-  voice_notfall: Phone,
-  voice_anruf: Phone,
   social_media_bereit: Share2,
 };
 
@@ -56,34 +59,61 @@ function NotificationItem({
   onNavigate: () => void;
 }) {
   const Icon = kindIcons[item.kind] ?? Sparkles;
+  const isImportant = item.priority === "wichtig";
 
   return (
-    <Link
-      href={item.href}
-      onClick={() => {
-        markNotificationRead(item.id);
-        onNavigate();
-      }}
+    <div
       className={cn(
-        "flex gap-3 rounded-[14px] px-3 py-3 transition-colors hover:bg-[var(--bg-elevated)]",
-        !item.read && "bg-[var(--accent-light)]/50"
+        "rounded-[14px] px-3 py-3 transition-colors",
+        !item.read && isImportant && "bg-[#FEF2F2]/80",
+        !item.read && !isImportant && "bg-[var(--accent-light)]/40",
+        item.read && "opacity-80"
       )}
     >
-      <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#EDE9FE] to-[#FAF5FF] text-[#7C3AED]">
-        <Icon className="size-3.5" strokeWidth={2.2} />
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-start justify-between gap-2">
-          <p className="text-[12px] font-semibold text-[var(--text-primary)]">{item.title}</p>
-          {!item.read && (
-            <span className="mt-1 size-2 shrink-0 rounded-full bg-[#EF4444]" />
+      <div className="flex gap-3">
+        <div
+          className={cn(
+            "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full",
+            isImportant
+              ? "bg-gradient-to-br from-[#FEE2E2] to-[#FEF2F2] text-[#DC2626]"
+              : "bg-gradient-to-br from-[#EDE9FE] to-[#FAF5FF] text-[#7C3AED]"
           )}
+        >
+          <Icon className="size-3.5" strokeWidth={2.2} />
         </div>
-        <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-[var(--text-secondary)]">
-          {item.message}
-        </p>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-[12px] font-semibold text-[var(--text-primary)]">
+              {item.title}
+            </p>
+            {!item.read && (
+              <span
+                className={cn(
+                  "mt-1 size-2 shrink-0 rounded-full",
+                  isImportant ? "bg-[#EF4444]" : "bg-[#3B82F6]"
+                )}
+              />
+            )}
+          </div>
+          <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-[var(--text-secondary)]">
+            {item.message}
+          </p>
+          <p className="mt-1.5 text-[10px] text-[var(--text-muted)]">
+            {formatNotificationRelativeTime(item.createdAt)}
+          </p>
+          <Link
+            href={item.href}
+            onClick={() => {
+              markNotificationRead(item.id);
+              onNavigate();
+            }}
+            className="mt-2 inline-flex text-[11px] font-semibold text-[var(--accent)] hover:underline"
+          >
+            {item.vorgangId ? "Vorgang öffnen →" : "Öffnen →"}
+          </Link>
+        </div>
       </div>
-    </Link>
+    </div>
   );
 }
 
@@ -94,7 +124,7 @@ export function HelpyNotificationBell() {
   const panelRef = useRef<HTMLDivElement>(null);
   const [panelPosition, setPanelPosition] = useState({ top: 0, right: 0 });
 
-  const { unreadCount, grouped, hasNotifications } = useExternalStore(
+  const { unreadCount, badgeTone, grouped, hasNotifications } = useExternalStore(
     subscribeNotifications,
     getNotificationBellSnapshot,
     getNotificationBellServerSnapshot
@@ -159,11 +189,8 @@ export function HelpyNotificationBell() {
   }, [open]);
 
   const handleToggle = useCallback(() => {
-    if (!open) {
-      markAllNotificationsRead();
-    }
     setOpen((current) => !current);
-  }, [open]);
+  }, []);
 
   const panel =
     open && mounted ? (
@@ -178,15 +205,23 @@ export function HelpyNotificationBell() {
         className="w-[min(22rem,calc(100vw-1.5rem))] overflow-hidden rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] shadow-[0_20px_60px_rgba(15,23,42,0.12)]"
       >
         <div className="border-b border-[var(--border)] bg-gradient-to-r from-[#FAF5FF]/80 to-[#EFF6FF]/60 px-4 py-3.5">
-          <div className="flex items-center gap-2">
-            <Bell className="size-4 text-[#7C3AED]" strokeWidth={2.2} />
-            <p className="text-[13px] font-semibold text-[var(--text-primary)]">
-              HELPY Meldungen
-            </p>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Bell className="size-4 text-[#7C3AED]" strokeWidth={2.2} />
+              <p className="text-[13px] font-semibold text-[var(--text-primary)]">
+                HELPY Meldungen
+              </p>
+            </div>
+            {unreadCount > 0 ? (
+              <button
+                type="button"
+                onClick={() => markAllNotificationsRead()}
+                className="text-[10px] font-semibold text-[var(--accent)] hover:underline"
+              >
+                Alle als gelesen
+              </button>
+            ) : null}
           </div>
-          <p className="mt-1 text-[11px] text-[var(--text-secondary)]">
-            Interne Hinweise — keine Browser-Benachrichtigungen
-          </p>
         </div>
 
         <div className="max-h-[min(28rem,70vh)] overflow-y-auto p-2">
@@ -196,7 +231,7 @@ export function HelpyNotificationBell() {
                 Keine Meldungen
               </p>
               <p className="mt-1 text-[11px] text-[var(--text-muted)]">
-                HELPY informiert dich hier über neue Vorgänge.
+                Neue Vorgänge, Anrufe und Termine erscheinen hier.
               </p>
             </div>
           ) : (
@@ -237,7 +272,14 @@ export function HelpyNotificationBell() {
         >
           <Bell className="size-[17px]" strokeWidth={2.2} />
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 flex min-w-[18px] items-center justify-center rounded-full bg-[#EF4444] px-1 py-0.5 text-[10px] font-bold text-white shadow-[0_2px_8px_rgba(239,68,68,0.45)]">
+            <span
+              className={cn(
+                "absolute -top-1 -right-1 flex min-w-[18px] items-center justify-center rounded-full px-1 py-0.5 text-[10px] font-bold text-white shadow-sm",
+                badgeTone === "important"
+                  ? "bg-[#EF4444] shadow-[0_2px_8px_rgba(239,68,68,0.45)]"
+                  : "bg-[#3B82F6] shadow-[0_2px_8px_rgba(59,130,246,0.45)]"
+              )}
+            >
               {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           )}

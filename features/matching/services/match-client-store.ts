@@ -364,6 +364,7 @@ export function pushMatchNotification(
     href: `/objekte/${encodeURIComponent(object.objectId)}?tab=matches`,
     createdAt: new Date().toISOString(),
     read: false,
+    priority: "wichtig",
   });
 
   if (typeof window !== "undefined" && "Notification" in window) {

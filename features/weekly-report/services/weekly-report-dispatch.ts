@@ -1,5 +1,6 @@
 import { buildWeeklyReport } from "@/features/weekly-report/services/weekly-report-builder";
 import { sendWeeklyReportEmail } from "@/features/weekly-report/services/weekly-report-sender";
+import { insertNotification } from "@/lib/notifications/notification-repository";
 import { getIsoWeekKeyInTimezone, getPreviousWeekRangeInTimezone, DEFAULT_ANALYTICS_TIMEZONE } from "@/lib/datetime/timezone-week";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -192,6 +193,15 @@ export async function dispatchWeeklyReports(
           updateError.message
         );
       }
+
+      await insertNotification({
+        company_id: recipient.companyId,
+        typ: "weekly_report",
+        titel: "📊 Wöchentlicher Report bereit",
+        beschreibung: "Dein Wochenbericht ist bereit",
+        link: "/einstellungen/analytics",
+        prioritaet: "normal",
+      });
 
       result.sent += 1;
       result.details.push({

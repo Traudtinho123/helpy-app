@@ -11,6 +11,7 @@ import { syncGmailViaOAuthApi } from "@/features/oauth/services/oauth-connection
 import { syncOutlookVorgaengeIncremental } from "@/features/outlook/services/outlook-vorgaenge-store";
 import { refreshOutlookConnectionStatus } from "@/features/outlook/services/outlook-auth-service";
 import { ensureCompletedVorgaengeLoaded } from "@/features/workspace/services/vorgaenge/completed-vorgaenge-store";
+import { notifyMailProcessed } from "@/features/notifications/services/notification-emitter";
 import { syncGmailVorgaengeFromOAuthAccounts } from "@/features/workspace/services/vorgaenge/gmail-oauth-sync";
 import { createClient } from "@/lib/supabase/client";
 
@@ -62,6 +63,10 @@ async function runGmailAutoSync(): Promise<void> {
       newCount: result.newCount,
       newVorgaenge: [],
     });
+
+    if (result.newCount > 0) {
+      notifyMailProcessed(result.newCount);
+    }
   } catch (error) {
     console.log("[HELPY Gmail Auto Sync] Sync Fehler:", error);
     markGmailAutoSyncError();
