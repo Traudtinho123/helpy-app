@@ -2,6 +2,7 @@ import { getBrainV2Items } from "@/features/brain/services/brain-v2";
 import { mapPreparedWorkItemsToVorgaenge } from "@/features/workspace/services/vorgaenge/brain-v2-mapper";
 import { isHelpyPhoneArchiveVorgang } from "@/features/voice/services/helpy-phone-detector";
 import { isHelpyReportVorgang } from "@/features/workspace/services/vorgaenge/helpy-report-detector";
+import { isEchterVorgang } from "@/features/workspace/services/vorgaenge/vorgang-archive";
 import {
   getEffectiveVorgangStatus,
   isVorgangActiveOpen,
@@ -74,6 +75,7 @@ export function filterVorgaenge(
 
   const customerVorgaenge = vorgaenge.filter(
     (v) =>
+      isEchterVorgang(v) &&
       !isHelpyReportVorgang(v) &&
       !isHelpyPhoneArchiveVorgang(v)
   );
@@ -96,7 +98,10 @@ export function getVorgangFilterCounts(
   vorgaenge: Vorgang[]
 ): Record<VorgangFilter, number> {
   const customerVorgaenge = vorgaenge.filter(
-    (v) => !isHelpyReportVorgang(v) && !isHelpyPhoneArchiveVorgang(v)
+    (v) =>
+      isEchterVorgang(v) &&
+      !isHelpyReportVorgang(v) &&
+      !isHelpyPhoneArchiveVorgang(v)
   );
   const activeOpen = customerVorgaenge.filter((v) => isVorgangActiveOpen(v));
 
@@ -113,6 +118,7 @@ export function getVorgangFilterCounts(
       .length,
     wartend: customerVorgaenge.filter((v) => isVorgangAwaitingCustomerReply(v))
       .length,
+    zu_archivieren: vorgaenge.filter((v) => v.status === "zu_archivieren").length,
     helpy_reports: vorgaenge.filter((v) => isHelpyReportVorgang(v)).length,
     helpy_phone: vorgaenge.filter((v) => isHelpyPhoneArchiveVorgang(v)).length,
     plattformen: vorgaenge.filter((v) => isPlatformInquiryVorgang(v)).length,

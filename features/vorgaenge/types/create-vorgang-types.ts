@@ -1,4 +1,8 @@
-import type { VorgangPriority, VorgangStatus } from "@/features/workspace/services/vorgaenge/types";
+import type {
+  VorgangPriority,
+  VorgangStatus,
+  VorgangArchiveCategory,
+} from "@/features/workspace/services/vorgaenge/types";
 
 export type VorgangSource =
   | "gmail"
@@ -13,7 +17,8 @@ export type CreateVorgangPriority = "kritisch" | "hoch" | "normal" | "niedrig";
 export type CreateVorgangStatus =
   | "neu"
   | "in_bearbeitung"
-  | "warten_auf_antwort";
+  | "warten_auf_antwort"
+  | "zu_archivieren";
 
 export type CreateVorgangInput = {
   company_id: string;
@@ -33,6 +38,7 @@ export type CreateVorgangInput = {
   whatsapp_message_id?: string | null;
   absender_name?: string | null;
   absender_email?: string | null;
+  archiv_kategorie?: string | null;
 };
 
 export type VorgangDbRecord = {
@@ -54,6 +60,7 @@ export type VorgangDbRecord = {
   whatsapp_message_id: string | null;
   absender_name: string | null;
   absender_email: string | null;
+  archiv_kategorie: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -75,6 +82,7 @@ export function mapCreateStatusToVorgang(
   status: CreateVorgangStatus
 ): VorgangStatus {
   if (status === "warten_auf_antwort") return "wartend";
+  if (status === "zu_archivieren") return "zu_archivieren";
   return status;
 }
 

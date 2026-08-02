@@ -25,6 +25,8 @@ export const EMPTY_MAIL_SUMMARY: MailSummary = {
   total: 0,
   active: 0,
   erledigt: 0,
+  archiveTotal: 0,
+  archiveToday: 0,
   filterCounts: {
     alle: 0,
     neu: 0,
@@ -32,6 +34,7 @@ export const EMPTY_MAIL_SUMMARY: MailSummary = {
     in_bearbeitung: 0,
     erledigt: 0,
     wartend: 0,
+    zu_archivieren: 0,
     helpy_reports: 0,
     helpy_phone: 0,
     helpy_reports_unread: 0,

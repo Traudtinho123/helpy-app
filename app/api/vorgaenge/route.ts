@@ -34,6 +34,7 @@ const VALID_STATUSES: CreateVorgangStatus[] = [
   "neu",
   "in_bearbeitung",
   "warten_auf_antwort",
+  "zu_archivieren",
 ];
 
 function parseCreateInput(
@@ -74,6 +75,7 @@ function parseCreateInput(
     whatsapp_message_id: parsed.whatsapp_message_id?.trim() || null,
     absender_name: parsed.absender_name?.trim() || null,
     absender_email: parsed.absender_email?.trim() || null,
+    archiv_kategorie: parsed.archiv_kategorie?.trim() || null,
   };
 }
 

@@ -31,6 +31,7 @@ function rowToRecord(row: Record<string, unknown>): VorgangDbRecord {
     whatsapp_message_id: (row.whatsapp_message_id as string | null) ?? null,
     absender_name: (row.absender_name as string | null) ?? null,
     absender_email: (row.absender_email as string | null) ?? null,
+    archiv_kategorie: (row.archiv_kategorie as string | null) ?? null,
     created_at: String(row.created_at),
     updated_at: String(row.updated_at),
   };
@@ -113,6 +114,7 @@ export async function insertVorgangRecord(
     whatsapp_message_id: input.whatsapp_message_id ?? null,
     absender_name: input.absender_name ?? null,
     absender_email: input.absender_email ?? null,
+    archiv_kategorie: input.archiv_kategorie ?? null,
     created_at: now,
     updated_at: now,
   };
@@ -130,6 +132,7 @@ export async function insertVorgangRecord(
 
   const { data, error } = await admin
     .from("vorgaenge")
+    // archiv_kategorie: Spalte via Migration — DB-Typen folgen separat
     .insert({
       company_id: row.company_id,
       source: row.source,
@@ -148,7 +151,9 @@ export async function insertVorgangRecord(
       whatsapp_message_id: row.whatsapp_message_id,
       absender_name: row.absender_name,
       absender_email: row.absender_email,
-    })
+      archiv_kategorie: row.archiv_kategorie,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any)
     .select("*")
     .single();
 
@@ -219,6 +224,7 @@ export type UpdateVorgangInput = {
   absender_name?: string | null;
   absender_email?: string | null;
   status?: string;
+  archiv_kategorie?: string | null;
 };
 
 export async function updateVorgangRecord(
@@ -254,8 +260,10 @@ export async function updateVorgangRecord(
       absender_name: updated.absender_name,
       absender_email: updated.absender_email,
       status: updated.status,
+      archiv_kategorie: updated.archiv_kategorie,
       updated_at: updated.updated_at,
-    })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any)
     .eq("id", vorgangId)
     .eq("company_id", companyId)
     .select("*")
@@ -267,4 +275,36 @@ export async function updateVorgangRecord(
   }
 
   return rowToRecord(data as Record<string, unknown>);
+}
+
+export async function deleteVorgangRecord(
+  vorgangId: string,
+  companyId: string
+): Promise<boolean> {
+  const existing = await getVorgangRecordById(vorgangId, companyId);
+  if (!existing) return false;
+
+  if (!isSupabaseAdminConfigured()) {
+    devVorgaenge.delete(vorgangId);
+    return true;
+  }
+
+  const admin = createAdminClient();
+  if (!admin) {
+    devVorgaenge.delete(vorgangId);
+    return true;
+  }
+
+  const { error } = await admin
+    .from("vorgaenge")
+    .delete()
+    .eq("id", vorgangId)
+    .eq("company_id", companyId);
+
+  if (error) {
+    console.error("[vorgaenge] delete failed:", error.message);
+    return false;
+  }
+
+  return true;
 }

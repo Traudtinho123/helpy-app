@@ -121,6 +121,18 @@ export function HelpyVorgaengePanel({
                   </span>
                 </li>
                 <li className="flex items-center justify-between text-[12px] text-[var(--text-secondary)]">
+                  <span>🗄️ Aussortiert</span>
+                  <span className="font-semibold text-[var(--text-muted)]">
+                    {centralSummary.archiveTotal}
+                  </span>
+                </li>
+                {centralSummary.archiveToday > 0 ? (
+                  <li className="rounded-[10px] bg-[var(--bg-elevated)] px-2.5 py-2 text-[11px] leading-relaxed text-[var(--text-muted)]">
+                    HELPY hat heute {centralSummary.archiveToday} Newsletter
+                    automatisch aussortiert.
+                  </li>
+                ) : null}
+                <li className="flex items-center justify-between text-[12px] text-[var(--text-secondary)]">
                   <span>{t("customerNew", { form: "plural" })}</span>
                   <span className="font-semibold text-[var(--accent)]">
                     {neueKundenCount}

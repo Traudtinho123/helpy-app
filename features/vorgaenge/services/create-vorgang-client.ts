@@ -69,6 +69,7 @@ export async function createVorgangClient(
 }
 
 function mapMailStatusToCreate(status: ListeVorgang["status"]): CreateVorgangStatus {
+  if (status === "zu_archivieren") return "zu_archivieren";
   if (status === "in_bearbeitung") return "in_bearbeitung";
   if (status === "wartend") return "warten_auf_antwort";
   return "neu";
@@ -87,6 +88,29 @@ export async function persistMailBundleToDb(
     bundle.liste.snippet?.trim() ||
     bundle.message.snippet?.trim() ||
     "";
+
+  if (bundle.liste.status === "zu_archivieren") {
+    const sender = resolveVorgangSenderFromText({
+      fromHeader,
+      bodyText,
+      subject: bundle.liste.titel,
+      fallbackName: bundle.liste.kunde,
+    });
+
+    await createVorgangClient({
+      source,
+      titel: bundle.liste.titel,
+      inhalt: bodyText || bundle.liste.titel,
+      prioritaet: "niedrig",
+      status: "zu_archivieren",
+      gmail_message_id: bundle.message.id,
+      gmail_thread_id: bundle.message.threadId ?? null,
+      absender_name: sender.name || bundle.liste.kunde,
+      absender_email: sender.email,
+      archiv_kategorie: bundle.liste.archiveCategory ?? "spam",
+    });
+    return;
+  }
 
   const intake = evaluateMailIntake({
     from: fromHeader,

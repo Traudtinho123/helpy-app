@@ -14,6 +14,10 @@ export {
 
 /** Einheitlicher Effektiv-Status für Filter, Counts und UI. */
 export function getEffectiveVorgangStatus(vorgang: Vorgang): VorgangStatus {
+  if (vorgang.status === "zu_archivieren") {
+    return "zu_archivieren";
+  }
+
   if (shouldSuppressReopenedVorgang(vorgang)) {
     // Erledigt + Antwort vom Unternehmen → „Warten auf Antwort“, nicht wieder aktiv.
     if (vorgang.latestMessageDirection === "outgoing") {

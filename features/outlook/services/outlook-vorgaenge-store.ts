@@ -168,7 +168,10 @@ async function mergeMessagesIntoCacheAsync(
   );
 
   const bundles = await buildAllMailVorgangBundles(incomingOnly);
-  const customerBundles = bundles.customerBundles;
+  const customerBundles = [
+    ...bundles.customerBundles,
+    ...bundles.archiveBundles,
+  ];
   const rawVorgaenge = customerBundles.map((bundle) => bundle.liste);
   const combined = [...rawVorgaenge, ...(cache?.vorgaenge ?? [])];
   const { vorgaenge: uniqueVorgaenge } = deduplicateVorgaenge(combined);

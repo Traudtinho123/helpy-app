@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Phone, Plus, Sparkles } from "lucide-react";
-import { HelpyCharacter } from "@/components/helpy/helpy-character";
+import { Plus, Sparkles } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { useTerminology } from "@/hooks/useTerminology";
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,7 @@ import { CreateVorgangModal } from "@/features/vorgaenge/components/create-vorga
 import { loadDbVorgaengeFromApi } from "@/features/vorgaenge/services/db-vorgaenge-store";
 import { getDbKundenCustomers, setDbKundenCustomers } from "@/features/customers/services/kunden-store";
 import { MobileBackHeader } from "@/components/mobile/mobile-back-header";
+import { VorgangArchiveCard } from "@/features/workspace/components/vorgaenge/vorgang-archive-card";
 import { HelpyReportCard } from "@/features/workspace/components/vorgaenge/helpy-report-card";
 import { HelpyVorgaengePanel } from "@/features/workspace/components/vorgaenge/helpy-vorgaenge-panel";
 import { VorgangCard } from "@/features/workspace/components/vorgaenge/vorgang-card";
@@ -26,7 +26,6 @@ import {
   initStatusForVorgaenge,
 } from "@/features/workspace/services/status";
 import {
-  filterVorgaenge,
   getBrainV2Vorgaenge,
 } from "@/features/workspace/services/vorgaenge/mock-vorgaenge";
 import { isHelpyReportVorgang } from "@/features/workspace/services/vorgaenge/helpy-report-detector";
@@ -69,20 +68,39 @@ import {
   completeVorgang,
 } from "@/features/workspace/services/vorgaenge/complete-vorgang-service";
 import { getEffectiveVorgangStatus } from "@/features/workspace/services/vorgaenge/vorgang-effective-status";
-import { getSkillVorgangFilterLabels, type VorgangFilter } from "@/features/workspace/services/vorgaenge/types";
+import {
+  buildArchiveVorgangFilterCounts,
+  buildRealVorgangFilterCounts,
+  filterEchteVorgaenge,
+  filterArchiveVorgaenge,
+} from "@/features/workspace/services/vorgaenge/vorgang-archive";
+import { deleteArchivedVorgaengeOlderThanDays } from "@/features/workspace/services/vorgaenge/vorgang-restore-service";
+import {
+  ARCHIVE_VORGANG_FILTER_LABELS,
+  REAL_VORGANG_FILTER_LABELS,
+  type ArchiveVorgangFilter,
+  type RealVorgangFilter,
+  type VorgaengeMainArea,
+} from "@/features/workspace/services/vorgaenge/types";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
-const filterOrder: VorgangFilter[] = [
+const realFilterOrder: RealVorgangFilter[] = [
   "alle",
   "neu",
-  "termine_anfragen",
-  "plattformen",
+  "besichtigungen",
+  "anfragen",
   "in_bearbeitung",
   "wartend",
   "erledigt",
-  "helpy_reports",
-  "helpy_phone",
+];
+
+const archiveFilterOrder: ArchiveVorgangFilter[] = [
+  "alle",
+  "newsletter",
+  "werbung",
+  "system",
+  "spam",
 ];
 
 type ActivePanel = "none" | "reply" | "appointment";
@@ -91,11 +109,9 @@ export function VorgaengePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { vorgaenge: vorgaengeLabel, skill } = useTerminology();
-  const filterLabels = useMemo(
-    () => getSkillVorgangFilterLabels(skill),
-    [skill]
-  );
-  const [activeFilter, setActiveFilter] = useState<VorgangFilter>("alle");
+  const [mainArea, setMainArea] = useState<VorgaengeMainArea>("vorgaenge");
+  const [realFilter, setRealFilter] = useState<RealVorgangFilter>("alle");
+  const [archiveFilter, setArchiveFilter] = useState<ArchiveVorgangFilter>("alle");
   const [quickFilter, setQuickFilter] = useState<VorgaengeQuickFilter>("none");
   const [mounted, setMounted] = useState(false);
   const [mailRevision, setMailRevision] = useState(0);
@@ -122,7 +138,11 @@ export function VorgaengePage() {
       urlFilter === "immoscout" ||
       urlFilter === "homegate"
     ) {
-      setActiveFilter("plattformen");
+      setMainArea("vorgaenge");
+      setRealFilter("anfragen");
+    }
+    if (urlFilter === "archiv") {
+      setMainArea("archiv");
     }
   }, [searchParams]);
 
@@ -208,46 +228,57 @@ export function VorgaengePage() {
 
   const brainSummary = useMemo(() => getBrainV2Summary(), []);
 
-  const filterCounts = useMemo(
-    () => buildVorgaengeCentralSummary(allVorgaenge).filterCounts,
+  const centralSummary = useMemo(
+    () => buildVorgaengeCentralSummary(allVorgaenge),
+    [allVorgaenge, countsRevision]
+  );
+
+  const realFilterCounts = useMemo(
+    () => buildRealVorgangFilterCounts(allVorgaenge),
+    [allVorgaenge, countsRevision]
+  );
+
+  const archiveFilterCounts = useMemo(
+    () => buildArchiveVorgangFilterCounts(allVorgaenge),
     [allVorgaenge, countsRevision]
   );
 
   const filteredVorgaenge = useMemo(() => {
-    let filtered = filterVorgaenge(allVorgaenge, activeFilter);
+    let filtered =
+      mainArea === "archiv"
+        ? filterArchiveVorgaenge(allVorgaenge, archiveFilter)
+        : filterEchteVorgaenge(allVorgaenge, realFilter);
+
     filtered = filterNotSnoozed(filtered);
     filtered = filtered.map(applyPriorityOverride);
 
-    if (quickFilter === "heute") {
+    if (mainArea === "vorgaenge" && quickFilter === "heute") {
       const heuteIds = new Set(filterHeuteZuErledigen(filtered).map((item) => item.id));
       filtered = filtered.filter((item) => heuteIds.has(item.id));
     }
 
     const { vorgaenge } = deduplicateVorgaenge(filtered);
-    if (activeFilter === "helpy_reports" || activeFilter === "helpy_phone") {
-      return vorgaenge;
-    }
-    return sortDeduplicatedVorgaenge(vorgaenge);
-  }, [activeFilter, allVorgaenge, quickFilter]);
+    return mainArea === "archiv"
+      ? vorgaenge.sort(
+          (a, b) => Date.parse(b.receivedAt) - Date.parse(a.receivedAt)
+        )
+      : sortDeduplicatedVorgaenge(vorgaenge);
+  }, [allVorgaenge, archiveFilter, mainArea, quickFilter, realFilter]);
 
   const actionableVorgaenge = useMemo(
     () =>
       filteredVorgaenge.filter(
         (item) =>
+          mainArea === "vorgaenge" &&
           !isHelpyReportVorgang(item) &&
           getEffectiveVorgangStatus(item) !== "erledigt"
       ),
-    [filteredVorgaenge]
+    [filteredVorgaenge, mainArea]
   );
 
   const openVorgaengeCount = useMemo(
-    () =>
-      allVorgaenge.filter(
-        (item) =>
-          !isHelpyReportVorgang(item) &&
-          getEffectiveVorgangStatus(item) !== "erledigt"
-      ).length,
-    [allVorgaenge]
+    () => centralSummary.active,
+    [centralSummary.active]
   );
 
   const selectedVorgang = useMemo(
@@ -274,9 +305,13 @@ export function VorgaengePage() {
   const isLoading = mounted && (!mailReady || isMailSyncLoading());
   const showAllDoneEmpty =
     !isLoading &&
-    activeFilter === "alle" &&
+    mainArea === "vorgaenge" &&
+    realFilter === "alle" &&
     quickFilter === "none" &&
     openVorgaengeCount === 0;
+
+  const showArchiveEmpty =
+    !isLoading && mainArea === "archiv" && filteredVorgaenge.length === 0;
 
   const handleCompleted = useCallback((message: string, helpyPanelMessage: string) => {
     setSuccessMessage(message);
@@ -312,7 +347,7 @@ export function VorgaengePage() {
     <DashboardShell
       activeHref="/vorgaenge"
       rightPanel={
-        isSplitView ? null : (
+        isSplitView || mainArea === "archiv" ? null : (
           <HelpyVorgaengePanel
             allVorgaenge={allVorgaenge}
             summary={brainSummary}
@@ -389,77 +424,132 @@ export function VorgaengePage() {
           </p>
         ) : null}
 
+        <div className="mb-4 flex gap-2">
+          {(
+            [
+              { id: "vorgaenge", label: "📋 Vorgänge" },
+              { id: "archiv", label: "🗄️ Zu archivieren" },
+            ] as const
+          ).map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setMainArea(tab.id)}
+              className={cn(
+                "min-h-[44px] flex-1 rounded-[14px] border px-4 py-2.5 text-[14px] font-semibold transition-all",
+                mainArea === tab.id
+                  ? "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--text-accent)] shadow-[var(--shadow-accent)]"
+                  : "border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-secondary)]"
+              )}
+            >
+              {tab.label}
+              <span className="ml-2 tabular-nums opacity-70">
+                {tab.id === "vorgaenge"
+                  ? realFilterCounts.alle
+                  : archiveFilterCounts.alle}
+              </span>
+            </button>
+          ))}
+        </div>
+
         <div className="mb-4 -mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <div className="flex w-max min-w-full flex-nowrap gap-1.5 sm:flex-wrap">
-          {filterOrder.map((filter) => {
-            const isActive = activeFilter === filter;
-            const count = filterCounts[filter];
-            const unreadReports =
-              filter === "helpy_reports" ? filterCounts.helpy_reports_unread : 0;
-
-            return (
-              <button
-                key={filter}
-                type="button"
-                onClick={() => setActiveFilter(filter)}
-                className={cn(
-                  "rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-all duration-150",
-                  isActive
-                    ? "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--text-accent)] shadow-[var(--shadow-accent)]"
-                    : "border-transparent bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-overlay)] hover:text-[var(--text-primary)]"
-                )}
-              >
-                {filter === "helpy_reports" && (
-                  <span className="mr-1.5 inline-flex align-middle">
-                    <HelpyCharacter size={14} variant="head" animated={false} showLabel={false} />
-                  </span>
-                )}
-                {filter === "helpy_phone" && (
-                  <Phone className="mr-1.5 inline size-3.5 -translate-y-px align-middle" strokeWidth={2.25} />
-                )}
-                {filterLabels[filter]}
-                {mounted && filter === "helpy_reports" ? (
-                  unreadReports > 0 ? (
-                    <span className="ml-1.5 rounded-full bg-[var(--bg-overlay)] px-1.5 py-0.5 text-[10px] tabular-nums font-medium text-[var(--text-muted)]">
-                      {unreadReports}
-                    </span>
-                  ) : count > 0 ? (
-                    <span className="ml-1.5 tabular-nums opacity-50">{count}</span>
-                  ) : null
-                ) : (
-                  mounted && (
-                    <span className="ml-1.5 tabular-nums opacity-70">{count}</span>
-                  )
-                )}
-              </button>
-            );
-          })}
+            {mainArea === "vorgaenge"
+              ? realFilterOrder.map((filter) => {
+                  const isActive = realFilter === filter;
+                  const count = realFilterCounts[filter];
+                  return (
+                    <button
+                      key={filter}
+                      type="button"
+                      onClick={() => setRealFilter(filter)}
+                      className={cn(
+                        "rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-all duration-150",
+                        isActive
+                          ? "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--text-accent)] shadow-[var(--shadow-accent)]"
+                          : "border-transparent bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-overlay)] hover:text-[var(--text-primary)]"
+                      )}
+                    >
+                      {REAL_VORGANG_FILTER_LABELS[filter]}
+                      {mounted && (
+                        <span className="ml-1.5 tabular-nums opacity-70">{count}</span>
+                      )}
+                    </button>
+                  );
+                })
+              : archiveFilterOrder.map((filter) => {
+                  const isActive = archiveFilter === filter;
+                  const count = archiveFilterCounts[filter];
+                  return (
+                    <button
+                      key={filter}
+                      type="button"
+                      onClick={() => setArchiveFilter(filter)}
+                      className={cn(
+                        "rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-all duration-150",
+                        isActive
+                          ? "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--text-accent)] shadow-[var(--shadow-accent)]"
+                          : "border-transparent bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-overlay)] hover:text-[var(--text-primary)]"
+                      )}
+                    >
+                      {ARCHIVE_VORGANG_FILTER_LABELS[filter]}
+                      {mounted && (
+                        <span className="ml-1.5 tabular-nums opacity-70">{count}</span>
+                      )}
+                    </button>
+                  );
+                })}
           </div>
         </div>
 
-        <div className="mb-5">
-          <button
-            type="button"
-            onClick={() =>
-              setQuickFilter((current) => (current === "heute" ? "none" : "heute"))
-            }
-            className={cn(
-              "inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-all",
-              quickFilter === "heute"
-                ? "border-[var(--warning-light)] bg-[var(--warning-light)] text-[var(--warning)]"
-                : "border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:border-[var(--border-strong)]"
-            )}
-          >
-            <Sparkles className="size-3.5" />
-            Heute zu erledigen
-          </button>
-        </div>
+        {mainArea === "vorgaenge" ? (
+          <div className="mb-5">
+            <button
+              type="button"
+              onClick={() =>
+                setQuickFilter((current) => (current === "heute" ? "none" : "heute"))
+              }
+              className={cn(
+                "inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-all",
+                quickFilter === "heute"
+                  ? "border-[var(--warning-light)] bg-[var(--warning-light)] text-[var(--warning)]"
+                  : "border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:border-[var(--border-strong)]"
+              )}
+            >
+              <Sparkles className="size-3.5" />
+              Heute zu erledigen
+            </button>
+          </div>
+        ) : (
+          <div className="mb-5">
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-[44px] rounded-[10px] text-[13px]"
+              onClick={() => {
+                void deleteArchivedVorgaengeOlderThanDays(
+                  filterArchiveVorgaenge(allVorgaenge, "alle"),
+                  30
+                ).then((count) => {
+                  if (count > 0) {
+                    setSuccessMessage(`${count} archivierte Mails gelöscht.`);
+                    setMailRevision((tick) => tick + 1);
+                  }
+                });
+              }}
+            >
+              Alle älter als 30 Tage löschen
+            </Button>
+          </div>
+        )}
 
-        <VorgaengeBulkBar
-          vorgaenge={filteredVorgaenge}
-          onCompleted={handleCompleted}
-          className="mb-4"
-        />
+        {mainArea === "vorgaenge" ? (
+          <VorgaengeBulkBar
+            vorgaenge={filteredVorgaenge}
+            onCompleted={handleCompleted}
+            className="mb-4"
+          />
+        ) : null}
 
         <div
           className={cn(
@@ -484,6 +574,16 @@ export function VorgaengePage() {
                   HELPY überwacht weiter deine Mails.
                 </p>
               </div>
+            ) : showArchiveEmpty ? (
+              <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--bg-surface)] px-8 py-16 text-center">
+                <p className="text-2xl">✓</p>
+                <p className="mt-3 text-lg font-semibold text-[var(--text-primary)]">
+                  Noch keine archivierten Mails.
+                </p>
+                <p className="mt-2 text-[14px] text-[var(--text-secondary)]">
+                  HELPY filtert Spam und Newsletter automatisch aus.
+                </p>
+              </div>
             ) : filteredVorgaenge.length === 0 ? (
               <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--bg-surface)] px-8 py-16 text-center">
                 <p className="text-sm font-medium text-[var(--text-secondary)]">
@@ -496,6 +596,16 @@ export function VorgaengePage() {
                   (item) => item.id === vorgang.id
                 );
                 const isFocused = actionIndex === focusedIndex;
+
+                if (mainArea === "archiv") {
+                  return (
+                    <VorgangArchiveCard
+                      key={vorgang.id}
+                      vorgang={vorgang}
+                      onChanged={() => setMailRevision((tick) => tick + 1)}
+                    />
+                  );
+                }
 
                 return isHelpyReportVorgang(vorgang) ? (
                   <HelpyReportCard key={vorgang.id} vorgang={vorgang} />

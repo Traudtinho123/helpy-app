@@ -4,6 +4,11 @@ import { subscribeCompletedVorgaenge } from "@/features/workspace/services/vorga
 import { isHelpyPhoneArchiveVorgang } from "@/features/voice/services/helpy-phone-detector";
 import { isHelpyReportVorgang } from "@/features/workspace/services/vorgaenge/helpy-report-detector";
 import {
+  countArchiveVorgaengeToday,
+  isEchterVorgang,
+  isZuArchivierenVorgang,
+} from "@/features/workspace/services/vorgaenge/vorgang-archive";
+import {
   countUnreadHelpyReports,
   subscribeHelpyReportReads,
 } from "@/features/workspace/services/vorgaenge/helpy-report-read-store";
@@ -34,13 +39,18 @@ export type VorgaengeCentralSummary = {
   total: number;
   active: number;
   erledigt: number;
+  archiveTotal: number;
+  archiveToday: number;
   filterCounts: VorgaengeFilterCounts;
   dailyStatus: DailyStatusSummary;
 };
 
 function buildFilterCounts(vorgaenge: Vorgang[]): VorgaengeFilterCounts {
   const customerVorgaenge = vorgaenge.filter(
-    (item) => !isHelpyReportVorgang(item) && !isHelpyPhoneArchiveVorgang(item)
+    (item) =>
+      isEchterVorgang(item) &&
+      !isHelpyReportVorgang(item) &&
+      !isHelpyPhoneArchiveVorgang(item)
   );
   const activeOpen = customerVorgaenge.filter((item) => isVorgangActiveOpen(item));
   const helpyReports = vorgaenge.filter((item) => isHelpyReportVorgang(item));
@@ -58,6 +68,7 @@ function buildFilterCounts(vorgaenge: Vorgang[]): VorgaengeFilterCounts {
     erledigt: customerVorgaenge.filter((item) => isVorgangErledigt(item)).length,
     wartend: customerVorgaenge.filter((item) => isVorgangAwaitingCustomerReply(item))
       .length,
+    zu_archivieren: vorgaenge.filter((item) => isZuArchivierenVorgang(item)).length,
     helpy_reports: helpyReports.length,
     helpy_phone: helpyPhone.length,
     plattformen: vorgaenge.filter((item) => isPlatformInquiryVorgang(item)).length,
@@ -72,14 +83,19 @@ export function buildVorgaengeCentralSummary(
   vorgaenge: Vorgang[]
 ): VorgaengeCentralSummary {
   const { vorgaenge: unique } = deduplicateVorgaenge(vorgaenge);
-  const customerVorgaenge = unique.filter((item) => !isHelpyReportVorgang(item));
+  const customerVorgaenge = unique.filter(
+    (item) => isEchterVorgang(item) && !isHelpyReportVorgang(item)
+  );
   const active = customerVorgaenge.filter((item) => isVorgangActiveOpen(item));
   const erledigt = customerVorgaenge.filter((item) => isVorgangErledigt(item));
+  const archiveItems = unique.filter(isZuArchivierenVorgang);
 
   return {
     total: customerVorgaenge.length,
     active: active.length,
     erledigt: erledigt.length,
+    archiveTotal: archiveItems.length,
+    archiveToday: countArchiveVorgaengeToday(unique),
     filterCounts: buildFilterCounts(unique),
     dailyStatus: getDailyStatusSummary(customerVorgaenge),
   };

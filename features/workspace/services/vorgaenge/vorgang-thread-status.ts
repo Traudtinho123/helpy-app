@@ -43,6 +43,10 @@ export function isVorgangAwaitingCustomerReply(vorgang: Vorgang): boolean {
 
 /** Aktive offene Vorgänge für Sidebar, Prioritäten und Arbeitstag. */
 export function isVorgangActiveOpen(vorgang: Vorgang): boolean {
+  if (vorgang.status === "zu_archivieren") {
+    return false;
+  }
+
   if (vorgang.typ === "helpy_report") {
     return false;
   }

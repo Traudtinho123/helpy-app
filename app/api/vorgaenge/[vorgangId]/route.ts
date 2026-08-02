@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { updateVorgangRecord } from "@/lib/vorgaenge/vorgang-repository";
+import {
+  deleteVorgangRecord,
+  updateVorgangRecord,
+} from "@/lib/vorgaenge/vorgang-repository";
 import {
   createDevCompanyContext,
   requireCompanyContext,
@@ -31,6 +34,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     absender_name?: string | null;
     absender_email?: string | null;
     status?: string;
+    archiv_kategorie?: string | null;
   };
 
   const updated = await updateVorgangRecord(vorgangId, context.companyId, parsed);
@@ -39,4 +43,22 @@ export async function PATCH(request: Request, { params }: RouteParams) {
   }
 
   return NextResponse.json({ ok: true, vorgang: updated });
+}
+
+export async function DELETE(_request: Request, { params }: RouteParams) {
+  const auth = await requireCompanyContext();
+  const context = auth.ok ? auth.context : createDevCompanyContext();
+
+  if (!auth.ok && isSupabaseConfigured()) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
+  const { vorgangId } = await params;
+  const deleted = await deleteVorgangRecord(vorgangId, context.companyId);
+
+  if (!deleted) {
+    return NextResponse.json({ error: "Vorgang nicht gefunden." }, { status: 404 });
+  }
+
+  return NextResponse.json({ ok: true });
 }

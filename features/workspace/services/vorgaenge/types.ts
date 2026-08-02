@@ -29,7 +29,28 @@ export type VorgangStatus =
   | "neu"
   | "in_bearbeitung"
   | "erledigt"
-  | "wartend";
+  | "wartend"
+  | "zu_archivieren";
+
+export type VorgangArchiveCategory = "newsletter" | "werbung" | "system" | "spam";
+
+export type VorgaengeMainArea = "vorgaenge" | "archiv";
+
+export type RealVorgangFilter =
+  | "alle"
+  | "neu"
+  | "besichtigungen"
+  | "anfragen"
+  | "in_bearbeitung"
+  | "wartend"
+  | "erledigt";
+
+export type ArchiveVorgangFilter =
+  | "alle"
+  | "newsletter"
+  | "werbung"
+  | "system"
+  | "spam";
 
 export type VorgangFilter =
   | VorgangStatus
@@ -92,6 +113,8 @@ export type Vorgang = {
   hasUnreadExternalMessage?: boolean;
   /** Soft-Delete: ISO-Zeitstempel — Vorgang aus Listen ausblenden (persistiert separat). */
   hiddenAt?: string | null;
+  /** Kategorie für zu_archivieren (Newsletter, Werbung, …). */
+  archiveCategory?: VorgangArchiveCategory;
   /** HELPY Reports: Gelesen-Zeitpunkt (client-seitig persistiert). */
   helpyReportReadAt?: string | null;
 };
@@ -128,6 +151,25 @@ export const VORGANG_STATUS_LABELS: Record<VorgangStatus, string> = {
   in_bearbeitung: "In Bearbeitung",
   erledigt: "Erledigt",
   wartend: "Warten auf Antwort",
+  zu_archivieren: "Zu archivieren",
+};
+
+export const REAL_VORGANG_FILTER_LABELS: Record<RealVorgangFilter, string> = {
+  alle: "Alle",
+  neu: "Neu",
+  besichtigungen: "Besichtigungen",
+  anfragen: "Anfragen",
+  in_bearbeitung: "In Bearbeitung",
+  wartend: "Warten auf Antwort",
+  erledigt: "Erledigt",
+};
+
+export const ARCHIVE_VORGANG_FILTER_LABELS: Record<ArchiveVorgangFilter, string> = {
+  alle: "Alle",
+  newsletter: "Newsletter",
+  werbung: "Werbung",
+  system: "System",
+  spam: "Spam",
 };
 
 export const VORGANG_FILTER_LABELS: Record<VorgangFilter, string> = {
@@ -137,6 +179,7 @@ export const VORGANG_FILTER_LABELS: Record<VorgangFilter, string> = {
   in_bearbeitung: "In Bearbeitung",
   erledigt: "Erledigt",
   wartend: "Warten auf Antwort",
+  zu_archivieren: "Zu archivieren",
   helpy_reports: "HELPY Reports",
   helpy_phone: "HELPY Phone",
   plattformen: "ImmoScout24 / Homegate",

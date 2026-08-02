@@ -2,6 +2,7 @@ import {
   type GmailVorgangBundle,
 } from "@/features/brain/services/brain-result-to-vorgang";
 import { mapGmailMessageToUnifiedMail } from "@/features/mail/services/unified-mail-mapper";
+import { inferArchiveCategoryFromText } from "@/features/mail/services/vorgang-classification-types";
 import { evaluateMailIntake } from "@/features/mail/services/mail-intake-gate";
 import { buildAllMailVorgangBundles } from "@/features/mail/mail-vorgang-bundles";
 import { persistMailBundleToDb } from "@/features/vorgaenge/services/create-vorgang-client";
@@ -115,7 +116,7 @@ async function buildBundlesFromMessages(
   );
   const result = await buildAllMailVorgangBundles(unified, skill);
   markGmailMessagesProcessed(result.processedMessageIds);
-  return result.customerBundles;
+  return [...result.customerBundles, ...result.archiveBundles];
 }
 
 function markGmailMessagesProcessed(messageIds: string[]): void {
@@ -335,12 +336,29 @@ function purgeJunkVorgaengeFromCache(): boolean {
   hydrateFromSession();
   if (!cache?.vorgaenge.length) return false;
 
-  const filtered = cache.vorgaenge.filter((item) => !shouldHideJunkVorgang(item));
-  if (filtered.length === cache.vorgaenge.length) return false;
+  let changed = false;
+  cache.vorgaenge = cache.vorgaenge.map((item) => {
+    if (item.status === "zu_archivieren") return item;
+    if (!shouldHideJunkVorgang(item)) return item;
+
+    changed = true;
+    return {
+      ...item,
+      status: "zu_archivieren" as const,
+      archiveCategory: inferArchiveCategoryFromText({
+        from: item.from ?? item.kunde,
+        subject: item.titel,
+        snippet: item.snippet ?? item.summary,
+      }),
+      intentLabel: "Automatisch archiviert",
+    };
+  });
+
+  if (!changed) return false;
 
   cache = {
     ...cache,
-    vorgaenge: applyCompletionStateToAll(filtered),
+    vorgaenge: applyCompletionStateToAll(cache.vorgaenge),
   };
   persistToSession();
   invalidateListeSnapshot();
@@ -448,9 +466,20 @@ async function applyThreadStatusToCache(
 }
 
 function seedNewBundles(bundles: GmailVorgangBundle[]): void {
-  const customerBundles = bundles.filter(
+  const relevantBundles = bundles.filter(
     (bundle) => !isHelpyReportVorgang(bundle.liste)
   );
+  const archiveBundles = relevantBundles.filter(
+    (bundle) => bundle.liste.status === "zu_archivieren"
+  );
+  const customerBundles = relevantBundles.filter(
+    (bundle) => bundle.liste.status !== "zu_archivieren"
+  );
+
+  for (const bundle of archiveBundles) {
+    void persistMailBundleToDb(bundle);
+  }
+
   if (customerBundles.length === 0) return;
 
   seedGmailVorgangStatusesSilent(customerBundles.map((bundle) => bundle.liste));
@@ -901,6 +930,45 @@ export async function syncGmailVorgaengeIncremental(
     syncing = false;
     notify();
   }
+}
+
+export function patchMailVorgangInCache(
+  vorgangId: string,
+  patch: Partial<Vorgang>
+): boolean {
+  hydrateFromSession();
+  if (!cache) return false;
+
+  let changed = false;
+  cache.vorgaenge = cache.vorgaenge.map((item) => {
+    if (item.id !== vorgangId) return item;
+    changed = true;
+    return { ...item, ...patch };
+  });
+
+  if (!changed) return false;
+  persistToSession();
+  invalidateListeSnapshot();
+  notify();
+  return true;
+}
+
+export function removeMailVorgangFromCache(vorgangId: string): boolean {
+  hydrateFromSession();
+  if (!cache) return false;
+
+  const next = cache.vorgaenge.filter((item) => item.id !== vorgangId);
+  if (next.length === cache.vorgaenge.length) return false;
+
+  cache = {
+    ...cache,
+    vorgaenge: next,
+  };
+  delete cache.workspaces[vorgangId];
+  persistToSession();
+  invalidateListeSnapshot();
+  notify();
+  return true;
 }
 
 export function clearGmailVorgaengeCache(): void {

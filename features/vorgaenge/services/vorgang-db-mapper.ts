@@ -6,7 +6,10 @@ import {
   type VorgangSource,
 } from "@/features/vorgaenge/types/create-vorgang-types";
 import { HELPY_PHONE_QUELLE } from "@/features/voice/services/helpy-phone-detector";
-import type { Vorgang as ListeVorgang } from "@/features/workspace/services/vorgaenge/types";
+import type {
+  VorgangArchiveCategory,
+  Vorgang as ListeVorgang,
+} from "@/features/workspace/services/vorgaenge/types";
 import { resolveVorgangSenderFromText, isUnknownSenderLabel } from "@/features/workspace/services/vorgaenge/resolve-vorgang-sender";
 import { buildWorkspaceVorgangFromListe } from "@/features/workspace/services/workspace/workspace-engine";
 import type { Vorgang as WorkspaceVorgang } from "@/features/workspace/services/workspace/types";
@@ -92,9 +95,13 @@ export function mapVorgangDbRecordToListeVorgang(
     prioritaet: mapCreatePriorityToVorgang(
       record.prioritaet as "kritisch" | "hoch" | "normal" | "niedrig"
     ),
-    status: mapCreateStatusToVorgang(
-      record.status as "neu" | "in_bearbeitung" | "warten_auf_antwort"
-    ),
+    status: record.status === "zu_archivieren"
+      ? "zu_archivieren"
+      : mapCreateStatusToVorgang(
+          record.status as "neu" | "in_bearbeitung" | "warten_auf_antwort"
+        ),
+    archiveCategory:
+      (record.archiv_kategorie as VorgangArchiveCategory | null) ?? undefined,
     summary: record.inhalt,
     detectedContext:
       record.termin_datum && record.termin_uhrzeit
