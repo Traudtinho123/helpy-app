@@ -60,6 +60,8 @@ const TRAVEL_OFFER_KEYWORDS = [
   "ab-in-den-urlaub",
   "urlaub",
   "reisen",
+  "urlaubsfavoriten",
+  "strandlage",
   "hotel",
   "flug",
   "deal",
@@ -338,7 +340,9 @@ export function analyzeNonServiceInquiry(
   const matchedCategories = countMatchedCategories(combined);
 
   const isNonService =
-    clearNonServiceSender || matchedCategories >= 2 || signalCount >= 2;
+    clearNonServiceSender ||
+    matchedCategories >= 1 ||
+    signalCount >= 2;
 
   return {
     isNonService,

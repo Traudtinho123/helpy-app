@@ -178,9 +178,17 @@ export async function classifyMailsForVorgangClient(
       return parseClassificationPayload(null, inputs);
     }
 
-    const payload = (await response.json()) as {
+    const raw = await response.text();
+    let payload: {
       results?: Array<MailVorgangClassification & { messageId: string }>;
     };
+    try {
+      payload = JSON.parse(raw) as {
+        results?: Array<MailVorgangClassification & { messageId: string }>;
+      };
+    } catch {
+      return parseClassificationPayload(null, inputs);
+    }
 
     const mapped = new Map<string, MailVorgangClassification>();
     for (const result of payload.results ?? []) {

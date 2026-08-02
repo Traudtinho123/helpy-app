@@ -281,6 +281,46 @@ export async function upsertCompletedVorgangToSupabase(
         warnTableMissing("insert", error);
         return null;
       }
+
+      const isDuplicate =
+        error.code === "23505" ||
+        error.message.includes("idx_completed_vorgaenge_provider_thread_company") ||
+        error.message.toLowerCase().includes("duplicate key");
+
+      if (isDuplicate && payload.provider_thread_id) {
+        const duplicate = await findExistingRow({
+          companyId: resolvedCompanyId,
+          provider: record.provider,
+          providerThreadId: payload.provider_thread_id,
+          caseId: record.caseId,
+        });
+        if (duplicate) {
+          const { data: updated, error: updateError } = await supabase
+            .from("completed_vorgaenge")
+            .update({
+              company_id: payload.company_id,
+              provider: payload.provider,
+              provider_thread_id: payload.provider_thread_id,
+              provider_message_id: payload.provider_message_id,
+              case_id: payload.case_id,
+              vorgang_id: payload.vorgang_id,
+              status: payload.status,
+              completed_at: payload.completed_at,
+              completed_by: payload.completed_by,
+              last_known_incoming_message_at: payload.last_known_incoming_message_at,
+              last_known_outgoing_message_at: payload.last_known_outgoing_message_at,
+              updated_at: payload.updated_at,
+            })
+            .eq("id", duplicate.id)
+            .select("*")
+            .maybeSingle();
+
+          if (!updateError && updated) {
+            return mapRowToRecord(updated);
+          }
+        }
+      }
+
       console.warn("[HELPY] completed_vorgaenge insert failed:", error.message);
       return null;
     }

@@ -159,6 +159,14 @@ const MARKETING_SUBJECT_KEYWORDS = [
   "build failed",
   "production deploy",
   "stell alles auf den kopf",
+  "urlaubsfavoriten",
+  "strandlage",
+  "urlaub",
+  "reise",
+  "reisen",
+  "hotel",
+  "flug",
+  "🌴",
 ] as const;
 
 const AUTO_NOTIFICATION_SUBJECT_KEYWORDS = [

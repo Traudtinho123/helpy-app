@@ -47,6 +47,24 @@ describe("mail intake gate", () => {
     expect(decision.shouldCreateVorgang).toBe(false);
   });
 
+  it("rejects travel newsletter subject", () => {
+    const decision = evaluateMailIntake({
+      from: "Reisen <news@travel-offers.com>",
+      subject: "Urlaubsfavoriten mit direkter Strandlage 🌴",
+      snippet: "Jetzt buchen",
+    });
+    expect(decision.shouldCreateVorgang).toBe(false);
+  });
+
+  it("rejects System placeholder sender", () => {
+    const decision = evaluateMailIntake({
+      from: "",
+      subject: "Some marketing mail",
+      snippet: "Buy now",
+    });
+    expect(decision.shouldCreateVorgang).toBe(false);
+  });
+
   it("allows real customer inquiry", () => {
     const decision = evaluateMailIntake({
       from: "Thomas Müller <thomas@gmail.com>",

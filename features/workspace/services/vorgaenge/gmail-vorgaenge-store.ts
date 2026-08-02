@@ -2,6 +2,7 @@ import {
   type GmailVorgangBundle,
 } from "@/features/brain/services/brain-result-to-vorgang";
 import { mapGmailMessageToUnifiedMail } from "@/features/mail/services/unified-mail-mapper";
+import { evaluateMailIntake } from "@/features/mail/services/mail-intake-gate";
 import { buildAllMailVorgangBundles } from "@/features/mail/mail-vorgang-bundles";
 import { persistMailBundleToDb } from "@/features/vorgaenge/services/create-vorgang-client";
 import { isHelpyReportVorgang } from "@/features/workspace/services/vorgaenge/helpy-report-detector";
@@ -311,6 +312,39 @@ function hydrateFromSession(): void {
 function persistToSession(): void {
   if (typeof window === "undefined" || !cache) return;
   window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(cache));
+}
+
+function shouldHideJunkVorgang(vorgang: Vorgang): boolean {
+  const kunde = vorgang.kunde?.trim().toLowerCase() ?? "";
+  if (kunde === "system" || kunde === "kein absender" || kunde === "unbekannt") {
+    return true;
+  }
+
+  const from = vorgang.from ?? vorgang.kunde ?? "";
+  const decision = evaluateMailIntake({
+    from,
+    subject: vorgang.titel,
+    snippet: vorgang.snippet,
+    bodyPreview: vorgang.summary,
+  });
+
+  return !decision.shouldCreateVorgang;
+}
+
+function purgeJunkVorgaengeFromCache(): boolean {
+  hydrateFromSession();
+  if (!cache?.vorgaenge.length) return false;
+
+  const filtered = cache.vorgaenge.filter((item) => !shouldHideJunkVorgang(item));
+  if (filtered.length === cache.vorgaenge.length) return false;
+
+  cache = {
+    ...cache,
+    vorgaenge: applyCompletionStateToAll(filtered),
+  };
+  persistToSession();
+  invalidateListeSnapshot();
+  return true;
 }
 
 function getKnownMessageIds(): Set<string> {
@@ -732,6 +766,9 @@ export async function loadGmailVorgaenge(
   try {
     await ensureCompletedVorgaengeLoaded();
     hydrateFromSession();
+    if (purgeJunkVorgaengeFromCache()) {
+      notify();
+    }
     const messages = await fetchRecentGmailMessages(providerToken, 50, {
       ownEmail: context.ownEmail,
     });
@@ -806,6 +843,11 @@ export async function syncGmailVorgaengeIncremental(
 
   try {
     await ensureCompletedVorgaengeLoaded();
+    hydrateFromSession();
+    if (purgeJunkVorgaengeFromCache()) {
+      notify();
+    }
+
     const messages =
       context.prefetchedMessages ??
       (await fetchRecentGmailMessages(providerToken, 50, {

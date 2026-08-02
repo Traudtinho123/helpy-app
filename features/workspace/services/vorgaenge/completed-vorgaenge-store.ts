@@ -754,11 +754,9 @@ async function backfillLocalCompletedVorgaengeToSupabase(
   const localRecords = getCompletedVorgangRecords();
   if (localRecords.length === 0) return;
 
-  await Promise.all(
-    localRecords.map((record) =>
-      upsertCompletedVorgangToSupabase(record, userId, companyId)
-    )
-  );
+  for (const record of localRecords) {
+    await upsertCompletedVorgangToSupabase(record, userId, companyId);
+  }
 }
 
 /** Nur für Tests: simuliert Reload/Login ohne localStorage zu leeren. */

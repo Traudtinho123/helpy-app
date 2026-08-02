@@ -23,6 +23,10 @@ export async function markGmailMessageAsRead(
   );
 
   if (!response.ok) {
+    if (response.status === 403) {
+      // gmail.readonly / gmail.compose — kein gmail.modify Scope
+      return;
+    }
     const detail = await response.text().catch(() => "");
     throw new GmailConnectorError(
       detail || `Gmail konnte nicht aktualisiert werden (${response.status})`,

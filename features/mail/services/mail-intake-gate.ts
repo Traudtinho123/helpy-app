@@ -58,6 +58,22 @@ export function evaluateMailIntake(input: MailIntakeInput): MailIntakeDecision {
   const combined = `${input.subject} ${input.from} ${input.snippet ?? ""} ${input.bodyPreview ?? ""}`;
   const parsed = parseEmailFrom(input.from);
 
+  if (
+    parsed.name.toLowerCase() === "system" ||
+    parsed.name.toLowerCase() === "kein absender"
+  ) {
+    return {
+      shouldCreateVorgang: false,
+      reason: "System-Absender ohne echte Person",
+      systemMail: {
+        isSystemMail: true,
+        category: "system_transaction",
+        reason: "Absender ist System/Platzhalter",
+      },
+      classification: null,
+    };
+  }
+
   if (!parsed.email) {
     return {
       shouldCreateVorgang: false,

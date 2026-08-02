@@ -60,7 +60,13 @@ export async function refreshOutlookConnectionStatus(): Promise<OutlookConnectio
     const response = await fetch("/api/outlook/auth/status", {
       cache: "no-store",
     });
-    const payload = (await response.json()) as OutlookConnectionState;
+    const raw = await response.text();
+    let payload: OutlookConnectionState;
+    try {
+      payload = JSON.parse(raw) as OutlookConnectionState;
+    } catch {
+      throw new Error("Ungültige Outlook-Status-Antwort.");
+    }
     cachedStatus = payload;
     persistStatusCache(payload);
     notify();

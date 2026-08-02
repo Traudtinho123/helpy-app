@@ -46,9 +46,16 @@ async function runGmailAutoSync(): Promise<void> {
 
     const result = await syncGmailVorgaengeFromOAuthAccounts(payload.accounts);
 
-    const outlookStatus = await refreshOutlookConnectionStatus();
-    if (outlookStatus.status === "connected") {
-      await syncOutlookVorgaengeIncremental();
+    try {
+      const outlookStatus = await refreshOutlookConnectionStatus();
+      if (outlookStatus.status === "connected") {
+        await syncOutlookVorgaengeIncremental();
+      }
+    } catch (outlookError) {
+      console.warn(
+        "[HELPY Gmail Auto Sync] Outlook-Sync übersprungen:",
+        outlookError instanceof Error ? outlookError.message : outlookError
+      );
     }
 
     if (!result.ok && result.newCount === 0) {
