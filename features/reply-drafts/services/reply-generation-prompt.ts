@@ -19,6 +19,7 @@ import {
 } from "@/features/reply-drafts/services/reply-object-lookup";
 import type { ReplyGenerationContext } from "@/features/reply-drafts/types/mail-analysis-types";
 import type { ReplyDraftInput } from "@/features/reply-drafts/types/reply-draft-types";
+import { buildReplySalutation } from "@/features/reply-drafts/services/reply-salutation";
 import { getCompanyProfileSnapshot } from "@/lib/company/company-profile-service";
 
 function resolveMailBody(input: ReplyDraftInput): string {
@@ -89,47 +90,44 @@ export function buildReplyGenerationUserPrompt(
       ? context.appointmentSlotLines.join("\n")
       : "Keine Kalender-Slots verfügbar — schlage 2–3 realistische Termine vor.";
 
-  return `Du bist ${context.companyName} und antwortest auf eine eingehende Mail. Schreibe eine professionelle, persönliche Antwort.
+  const salutation = buildReplySalutation(context.analysis.absender_name);
 
-WICHTIGE REGELN:
-1. Beantworte ALLE konkreten Fragen aus der Mail
-2. Spreche den Absender mit Namen an: ${context.analysis.absender_name}
-3. Beziehe dich auf KONKRETE Details aus der Mail (Objektname, Datum, genannte Wünsche)
-4. Antwortstil: ${context.replyStyleLabel}
-5. Falls Objekt-Infos vorhanden: nutze sie exakt
-6. Falls Terminwunsch: schlage 2-3 konkrete Termine vor (aus Kalender-Verfügbarkeit)
-7. Keine generischen Floskeln wie "Vielen Dank für Ihre Anfrage" — direkt auf den Inhalt eingehen
-8. Max. 150 Wörter — kurz und klar
-9. Sprache der Antwort: ${context.analysis.sprache}
-10. Anrede/Ton: ${context.analysis.ton === "informell" ? "du-Form, freundlich" : "Sie-Form, professionell"}
+  return `Du bist ${context.companyName} und schreibst eine E-Mail-Antwort. Halte dich EXAKT an die vorgegebene Struktur.
 
-FIRMENWISSEN:
-${context.companyPromptBlock}
-
-KUNDEN-KONTEXT:
-${customerBlock}
-
-MAIL-ANALYSE:
-${analysisJson}
-
-OBJEKT-INFOS:
-${objectBlock}
-
-KALENDER-VERFÜGBARKEIT:
-${appointmentBlock}
-
-VORHERIGE KOMMUNIKATION:
-${previousBlock}
+ABSENDER: ${context.analysis.absender_name}
+ANREDE: ${salutation.line}
+ANLIEGEN: ${context.analysis.anliegen}
+OBJEKT: ${objectBlock}
+TERMINE: ${appointmentBlock}
+SIGNATUR: (exakt aus Firmenwissen unten)
 
 ORIGINAL-MAIL:
 ${context.mailBody}
 
+STRUKTUR (halte dich exakt daran):
+Zeile 1: ${salutation.line}
+Zeile 2: leer
+Zeile 3-5: Antwort auf Anliegen (1-2 Sätze, konkret)
+Zeile 6: leer
+${context.appointmentSlotLines.length > 0 ? "Zeile 7-11: Terminvorschläge\nZeile 12: leer\n" : ""}Zeile ${context.appointmentSlotLines.length > 0 ? "13" : "7"}: Abschluss-Satz
+Zeile ${context.appointmentSlotLines.length > 0 ? "14" : "8"}: leer
+Zeile ${context.appointmentSlotLines.length > 0 ? "15+" : "9+"}: Signatur aus Firmenwissen
+
+REGELN:
+- Keine doppelte Begrüssung
+- Keine Platzhalter wie [NAME] oder [DATUM]
+- Keine generischen Floskeln ohne Bezug zur Mail
+- Max. 150 Wörter
+
+FIRMENWISSEN:
+${context.companyPromptBlock}
+
 Antworte NUR als JSON:
 {
-  "short": "Kurz & direkt, max. 80 Wörter",
-  "detailed": "Ausführlich, max. 150 Wörter"
+  "short": "Fertiger Mail-Text (kurz)",
+  "detailed": "Fertiger Mail-Text (ausführlich, max. 150 Wörter)"
 }`;
 }
 
 export const REPLY_GENERATION_SYSTEM_PROMPT =
-  "Du bist HELPY, der KI-Büroassistent. Erstelle präzise, persönliche E-Mail-Antworten auf Deutsch, Englisch oder Französisch — je nach Mail-Analyse. Keine generischen Floskeln. Nur valides JSON.";
+  "Du bist HELPY und schreibst E-Mail-Antworten. Halte dich EXAKT an die vorgegebene Struktur. Keine Abweichungen, keine doppelten Begrüssungen. Nur valides JSON.";

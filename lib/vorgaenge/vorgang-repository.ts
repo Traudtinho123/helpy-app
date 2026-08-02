@@ -212,3 +212,59 @@ export async function getVorgangRecordById(
   if (error || !data) return null;
   return rowToRecord(data as Record<string, unknown>);
 }
+
+export type UpdateVorgangInput = {
+  kunden_id?: string | null;
+  objekt_id?: string | null;
+  absender_name?: string | null;
+  absender_email?: string | null;
+  status?: string;
+};
+
+export async function updateVorgangRecord(
+  vorgangId: string,
+  companyId: string,
+  input: UpdateVorgangInput
+): Promise<VorgangDbRecord | null> {
+  const existing = await getVorgangRecordById(vorgangId, companyId);
+  if (!existing) return null;
+
+  const updated: VorgangDbRecord = {
+    ...existing,
+    ...input,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (!isSupabaseAdminConfigured()) {
+    devVorgaenge.set(vorgangId, updated);
+    return updated;
+  }
+
+  const admin = createAdminClient();
+  if (!admin) {
+    devVorgaenge.set(vorgangId, updated);
+    return updated;
+  }
+
+  const { data, error } = await admin
+    .from("vorgaenge")
+    .update({
+      kunden_id: updated.kunden_id,
+      objekt_id: updated.objekt_id,
+      absender_name: updated.absender_name,
+      absender_email: updated.absender_email,
+      status: updated.status,
+      updated_at: updated.updated_at,
+    })
+    .eq("id", vorgangId)
+    .eq("company_id", companyId)
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    console.error("[vorgaenge] update failed:", error?.message);
+    return null;
+  }
+
+  return rowToRecord(data as Record<string, unknown>);
+}

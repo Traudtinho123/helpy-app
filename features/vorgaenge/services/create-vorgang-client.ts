@@ -1,5 +1,7 @@
 import { extractEmailAddress } from "@/features/gmail/services/extract-email-address";
-import { extractSenderName } from "@/features/brain/services/brain-result-to-vorgang";
+import {
+  resolveVorgangSenderFromText,
+} from "@/features/workspace/services/vorgaenge/resolve-vorgang-sender";
 import type { GmailVorgangBundle } from "@/features/brain/services/brain-result-to-vorgang";
 import {
   ingestDbVorgangBundle,
@@ -79,29 +81,55 @@ export async function persistMailBundleToDb(
     bundle.liste.from?.trim() ||
     bundle.message.from?.trim() ||
     bundle.liste.kunde;
-  const absenderEmail =
-    extractEmailAddress(fromHeader) ??
-    extractEmailAddress(bundle.message.from) ??
-    null;
-  const absenderName =
-    bundle.liste.kunde?.trim() ||
-    extractSenderName(fromHeader) ||
-    null;
+  const bodyText =
+    bundle.liste.summary?.trim() ||
+    bundle.liste.snippet?.trim() ||
+    bundle.message.snippet?.trim() ||
+    "";
+
+  const sender = resolveVorgangSenderFromText({
+    fromHeader,
+    bodyText,
+    subject: bundle.liste.titel,
+    fallbackName: bundle.liste.kunde,
+  });
+
+  let kundenId = bundle.liste.kundenAkteId ?? null;
+
+  if (!kundenId && sender.email) {
+    try {
+      const response = await fetch("/api/vorgaenge/intelligence", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fromEmail: sender.email,
+          fromName: sender.name,
+          subject: bundle.liste.titel,
+          body: bodyText,
+          isSpam: bundle.liste.intent === "spam_newsletter",
+        }),
+      });
+      if (response.ok) {
+        const payload = (await response.json()) as {
+          intelligence?: { kundeId?: string | null; objektId?: string | null };
+        };
+        kundenId = payload.intelligence?.kundeId ?? kundenId;
+      }
+    } catch {
+      // Lookup optional — Vorgang wird trotzdem gespeichert
+    }
+  }
 
   await createVorgangClient({
     source,
     titel: bundle.liste.titel,
-    inhalt:
-      bundle.liste.summary?.trim() ||
-      bundle.liste.snippet?.trim() ||
-      bundle.message.snippet?.trim() ||
-      bundle.liste.titel,
+    inhalt: bodyText || bundle.liste.titel,
     prioritaet: mapVorgangPriorityToCreate(bundle.liste.prioritaet),
     status: mapMailStatusToCreate(bundle.liste.status),
-    kunden_id: bundle.liste.kundenAkteId ?? null,
+    kunden_id: kundenId,
     gmail_message_id: bundle.message.id,
     gmail_thread_id: bundle.message.threadId ?? null,
-    absender_name: absenderName,
-    absender_email: absenderEmail,
+    absender_name: sender.name,
+    absender_email: sender.email,
   });
 }

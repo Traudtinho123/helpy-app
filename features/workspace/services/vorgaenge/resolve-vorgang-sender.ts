@@ -64,7 +64,7 @@ export function resolveVorgangSenderFromText(input: {
       : null) ??
     (!isUnknownSenderLabel(input.fallbackName) ? input.fallbackName?.trim() : null) ??
     (!isUnknownSenderLabel(headerName) ? headerName : null) ??
-    (email ? email.split("@")[0]?.replace(/[._-]+/g, " ").trim() || "Kontakt" : "Unbekannt");
+    (email ? email.split("@")[0]?.replace(/[._-]+/g, " ").trim() || email : "Kein Absender");
 
   return {
     name,
@@ -142,7 +142,7 @@ export function pickBestVorgangSender(
     >
   >
 ): { name: string; email: string | null; from: string } {
-  let best = resolveVorgangSender(items[0] ?? { kunde: "Unbekannt", titel: "" });
+  let best = resolveVorgangSender(items[0] ?? { kunde: "Kein Absender", titel: "" });
 
   for (const item of items.slice(1)) {
     const candidate = resolveVorgangSender(item);

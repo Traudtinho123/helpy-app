@@ -57,7 +57,7 @@ function mapMessage(message: GmailMessagePayload): GmailConnectorMessage {
     id: message.id,
     threadId: message.threadId,
     subject: getHeader(message.payload?.headers, "Subject") || "(Kein Betreff)",
-    from: getHeader(message.payload?.headers, "From") || "(Unbekannt)",
+    from: getHeader(message.payload?.headers, "From") || "",
     snippet: message.snippet ?? "",
     date: resolveDate(message),
     labelIds: message.labelIds,

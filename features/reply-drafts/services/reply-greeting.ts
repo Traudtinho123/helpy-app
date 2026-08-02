@@ -1,21 +1,20 @@
 import type { MailAnalysisExtraction } from "@/features/reply-drafts/types/mail-analysis-types";
+import { buildReplySalutation } from "@/features/reply-drafts/services/reply-salutation";
 
 const GREETING_LINE_PATTERN =
   /^(guten tag|hallo|hi|hello|dear|bonjour|sehr geehrte|madame,\s*monsieur)/i;
 
 export function buildReplyGreetingLine(analysis: MailAnalysisExtraction): string {
-  const name = analysis.absender_name;
+  const salutation = buildReplySalutation(analysis.absender_name);
   if (analysis.sprache === "en") {
-    return analysis.ton === "informell" ? `Hi ${name},` : `Dear ${name},`;
+    return analysis.ton === "informell" ? `Hi ${analysis.absender_name},` : `Dear ${analysis.absender_name},`;
   }
   if (analysis.sprache === "fr") {
     return analysis.ton === "informell"
-      ? `Bonjour ${name},`
-      : `Madame, Monsieur ${name},`;
+      ? `Bonjour ${analysis.absender_name},`
+      : `Madame, Monsieur ${analysis.absender_name},`;
   }
-  return analysis.ton === "informell"
-    ? `Hallo ${name},`
-    : `Guten Tag ${name},`;
+  return salutation.line;
 }
 
 export function hasReplyGreetingLine(text: string): boolean {
@@ -44,10 +43,6 @@ export function ensureSingleReplyGreeting(
   draftText: string,
   analysis: MailAnalysisExtraction
 ): string {
-  if (containsSenderName(analysis.absender_name, draftText)) {
-    return draftText;
-  }
-
   const greeting = buildReplyGreetingLine(analysis);
   const lines = draftText.split("\n");
   const firstContentIndex = lines.findIndex((line) => line.trim().length > 0);

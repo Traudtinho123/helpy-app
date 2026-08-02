@@ -73,6 +73,45 @@ export async function listKundenForCompany(companyId: string): Promise<KundeReco
   return (data ?? []).map((row) => rowToRecord(row as Record<string, unknown>));
 }
 
+export async function findKundeByEmail(
+  companyId: string,
+  email: string
+): Promise<KundeRecord | null> {
+  const normalized = normalizeEmail(email);
+  if (!normalized) return null;
+
+  const all = await listKundenForCompany(companyId);
+  return (
+    all.find((item) => normalizeEmail(item.email ?? "") === normalized) ?? null
+  );
+}
+
+export async function findKundeIdFromVorgaengeByEmail(
+  companyId: string,
+  email: string
+): Promise<string | null> {
+  const normalized = normalizeEmail(email);
+  if (!normalized) return null;
+
+  const { findKundeIdFromVorgaengeByEmail: lookup } = await import(
+    "@/lib/vorgaenge/vorgang-lookup"
+  );
+  return lookup(companyId, normalized);
+}
+
+export async function findKundeIdFromDealsByEmail(
+  companyId: string,
+  email: string
+): Promise<string | null> {
+  const normalized = normalizeEmail(email);
+  if (!normalized) return null;
+
+  const { findKundeIdFromDealsByEmail: lookup } = await import(
+    "@/lib/deals/deal-lookup"
+  );
+  return lookup(companyId, normalized);
+}
+
 export async function findKundeByPhone(
   companyId: string,
   phone: string

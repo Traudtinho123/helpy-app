@@ -268,12 +268,6 @@ export function VorgangCard({
             </span>
           </div>
 
-          {vorgang.summary ? (
-            <p className="mt-1 line-clamp-1 text-[12px] text-[#64748B]">
-              {vorgang.summary}
-            </p>
-          ) : null}
-
           <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] text-[var(--color-ink-4)]">
             <span>{vorgang.receivedLabel}</span>
             {isHelpyPhone ? (

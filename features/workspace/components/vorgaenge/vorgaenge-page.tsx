@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Phone, Plus, Sparkles } from "lucide-react";
 import { HelpyCharacter } from "@/components/helpy/helpy-character";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
@@ -88,6 +88,7 @@ const filterOrder: VorgangFilter[] = [
 type ActivePanel = "none" | "reply" | "appointment";
 
 export function VorgaengePage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { vorgaenge: vorgaengeLabel, skill } = useTerminology();
   const filterLabels = useMemo(
@@ -509,8 +510,7 @@ export function VorgaengePage() {
                       setCardPanelById((prev) => ({ ...prev, [vorgang.id]: panel }));
                     }}
                     onOpen={(id) => {
-                      setSelectedDetailId(id);
-                      if (actionIndex >= 0) setFocusedIndex(actionIndex);
+                      router.push(`/workspace/${id}`);
                     }}
                     onCompleted={handleCompleted}
                     onRequestReply={(id) => {
