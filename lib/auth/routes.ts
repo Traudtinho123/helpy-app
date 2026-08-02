@@ -7,11 +7,18 @@ export const AUTH_ROUTES = {
   home: "/",
 } as const;
 
+export const LEGAL_ROUTES = {
+  privacy: "/datenschutz",
+  terms: "/agb",
+} as const;
+
 /** Öffentliche Routen — kein Login erforderlich. */
 export const PUBLIC_ROUTES = [
   AUTH_ROUTES.login,
   AUTH_ROUTES.register,
   AUTH_ROUTES.callback,
+  LEGAL_ROUTES.privacy,
+  LEGAL_ROUTES.terms,
 ] as const;
 
 /** Eingeloggt, wartet auf Freischaltung. */

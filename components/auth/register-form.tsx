@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/Select";
 import { signUpWithEmail } from "@/lib/auth/auth";
 import { getAuthErrorMessage } from "@/lib/auth/errors";
-import { AUTH_ROUTES } from "@/lib/auth/routes";
+import { AUTH_ROUTES, LEGAL_ROUTES } from "@/lib/auth/routes";
 import { createClient } from "@/lib/supabase/client";
 
 const SKILL_OPTIONS = [
@@ -265,7 +265,15 @@ export function RegisterForm() {
             onChange={(e) => setAcceptedTerms(e.target.checked)}
             className="mt-0.5"
           />
-          Ich akzeptiere die AGB und Datenschutzbestimmungen.
+          Ich akzeptiere die{" "}
+          <Link href={LEGAL_ROUTES.terms} className="text-[var(--color-primary)] hover:underline">
+            AGB
+          </Link>{" "}
+          und{" "}
+          <Link href={LEGAL_ROUTES.privacy} className="text-[var(--color-primary)] hover:underline">
+            Datenschutzbestimmungen
+          </Link>
+          .
         </label>
 
         {error ? (

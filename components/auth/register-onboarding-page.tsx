@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { signUpWithEmail } from "@/lib/auth/auth";
 import { getAuthErrorMessage } from "@/lib/auth/errors";
-import { AUTH_ROUTES } from "@/lib/auth/routes";
+import { AUTH_ROUTES, LEGAL_ROUTES } from "@/lib/auth/routes";
 import {
   ONBOARDING_INDUSTRIES,
   resolveSkillFromIndustry,
@@ -184,7 +184,14 @@ export function RegisterOnboardingPage() {
                   onChange={(e) => setAcceptedTerms(e.target.checked)}
                   className="mt-0.5 accent-[#4F46E5]"
                 />
-                Ich akzeptiere die AGB und Datenschutzerklärung
+                Ich akzeptiere die{" "}
+                <Link href={LEGAL_ROUTES.terms} className="text-[#4F46E5] hover:underline">
+                  AGB
+                </Link>{" "}
+                und{" "}
+                <Link href={LEGAL_ROUTES.privacy} className="text-[#4F46E5] hover:underline">
+                  Datenschutzerklärung
+                </Link>
               </label>
 
               {error ? (
