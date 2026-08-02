@@ -8,8 +8,9 @@ import {
 } from "@/features/apple-calendar/services/apple-calendar-sync";
 import {
   getConnectedCalendarPlatform,
-  getGoogleCalendarEventsForToday,
+  getGoogleCalendarEventsInRange,
 } from "@/features/calendar/services/calendar-platform";
+import { buildHelpyTasksFromVorgaenge } from "@/features/calendar/services/calendar-vorgang-tasks";
 import {
   DEFAULT_ANALYTICS_TIMEZONE,
   endOfWeekInTimezone,
@@ -81,15 +82,35 @@ export function useCalendarStore() {
 function getPlatformCalendarEvents(): CalendarEvent[] {
   if (typeof window === "undefined") return [];
 
-  if (isAppleCalendarConnected()) {
-    return getAppleCalendarEvents();
+  const platform = getConnectedCalendarPlatform();
+
+  if (platform === "apple" || isAppleCalendarConnected()) {
+    return getAppleCalendarEvents().map((event) => ({
+      ...event,
+      sourcePlatform: "apple" as const,
+      helpyHint: event.helpyHint.includes("Apple")
+        ? event.helpyHint
+        : "Termin aus Apple Kalender.",
+    }));
   }
 
-  if (getConnectedCalendarPlatform() === "google") {
-    return getGoogleCalendarEventsForToday();
+  if (platform === "google") {
+    return getGoogleCalendarEventsInRange();
   }
 
   return [];
+}
+
+function mergeHelpyTasks(platformEvents: CalendarEvent[]): CalendarEvent[] {
+  const helpyTasks = buildHelpyTasksFromVorgaenge(platformEvents);
+  const platformIds = new Set(platformEvents.map((e) => e.id));
+
+  const uniqueHelpy = helpyTasks.filter((task) => {
+    if (platformIds.has(task.id)) return false;
+    return true;
+  });
+
+  return [...platformEvents, ...uniqueHelpy];
 }
 
 export function getAllCalendarEvents(): CalendarEvent[] {
@@ -100,18 +121,33 @@ export function getAllCalendarEvents(): CalendarEvent[] {
     typeof window !== "undefined" && isAppleCalendarConnected();
 
   if (appleConnected || platform) {
-    const merged = [...getPlatformCalendarEvents(), ...state.addedEvents];
+    const merged = mergeHelpyTasks([
+      ...getPlatformCalendarEvents(),
+      ...state.addedEvents,
+    ]);
     return merged.sort((a, b) => {
       if (a.date !== b.date) return a.date.localeCompare(b.date);
       return a.time.localeCompare(b.time);
     });
   }
 
-  const merged = [...mockCalendarEvents, ...state.addedEvents];
+  const merged = mergeHelpyTasks([...mockCalendarEvents, ...state.addedEvents]);
   return merged.sort((a, b) => {
     if (a.date !== b.date) return a.date.localeCompare(b.date);
     return a.time.localeCompare(b.time);
   });
+}
+
+export function detectCalendarProviderMismatch(): boolean {
+  if (typeof window === "undefined") return false;
+  const platform = getConnectedCalendarPlatform();
+  if (platform !== "apple" && !isAppleCalendarConnected()) return false;
+
+  return getAllCalendarEvents().some(
+    (event) =>
+      event.sourcePlatform === "google" ||
+      event.helpyHint.includes("Google Kalender")
+  );
 }
 
 export function getEventsForDay(date: string): CalendarEvent[] {
@@ -210,13 +246,48 @@ export function dismissAppointment(emailId: string) {
   notify();
 }
 
+export function addBlockedTimeEvent(input: {
+  title: string;
+  date: string;
+  time: string;
+  durationMinutes: number;
+}): CalendarEvent {
+  initStore();
+
+  const endMinutes =
+    parseInt(input.time.split(":")[0] ?? "0", 10) * 60 +
+    parseInt(input.time.split(":")[1] ?? "0", 10) +
+    input.durationMinutes;
+  const endTime = `${String(Math.floor(endMinutes / 60)).padStart(2, "0")}:${String(endMinutes % 60).padStart(2, "0")}`;
+
+  const newEvent: CalendarEvent = {
+    id: `blocked-${Date.now()}`,
+    time: input.time,
+    endTime,
+    title: input.title.trim() || "Blockierte Zeit",
+    type: "termin",
+    helpyHint: "Manuell blockierte Zeit.",
+    date: input.date,
+  };
+
+  state = {
+    ...state,
+    addedEvents: [...state.addedEvents, newEvent],
+  };
+  persist();
+  notify();
+  return newEvent;
+}
+
+export function dateFromParts(day: number, month: number, year: number): string {
+  const m = String(month + 1).padStart(2, "0");
+  const d = String(day).padStart(2, "0");
+  return `${year}-${m}-${d}`;
+}
+
 export function dateFromDay(day: number, month?: number, year?: number): string {
   const now = new Date();
-  const resolvedYear = year ?? now.getFullYear();
-  const resolvedMonth = month ?? now.getMonth();
-  const m = String(resolvedMonth + 1).padStart(2, "0");
-  const d = String(day).padStart(2, "0");
-  return `${resolvedYear}-${m}-${d}`;
+  return dateFromParts(day, month ?? now.getMonth(), year ?? now.getFullYear());
 }
 
 export function getTodayDateString(): string {
@@ -278,11 +349,34 @@ export function formatDayLabel(day: number, month?: number, year?: number): stri
 
 export const TODAY_DAY = getTodayDayNumber();
 
-export function getDaysWithEvents(): number[] {
+export function getDaysWithEventsForMonth(month: number, year: number): number[] {
+  const prefix = `${year}-${String(month + 1).padStart(2, "0")}`;
   const days = new Set<number>();
   getAllCalendarEvents().forEach((e) => {
+    if (!e.date.startsWith(prefix)) return;
     const day = parseInt(e.date.split("-")[2], 10);
     if (!Number.isNaN(day)) days.add(day);
   });
   return [...days].sort((a, b) => a - b);
+}
+
+export function getDaysWithEvents(): number[] {
+  const now = new Date();
+  return getDaysWithEventsForMonth(now.getMonth(), now.getFullYear());
+}
+
+export function isSameCalendarDay(
+  a: { day: number; month: number; year: number },
+  b: { day: number; month: number; year: number }
+): boolean {
+  return a.day === b.day && a.month === b.month && a.year === b.year;
+}
+
+export function isToday(day: number, month: number, year: number): boolean {
+  const now = new Date();
+  return (
+    day === now.getDate() &&
+    month === now.getMonth() &&
+    year === now.getFullYear()
+  );
 }

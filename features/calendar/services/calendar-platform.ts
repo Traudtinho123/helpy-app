@@ -113,6 +113,7 @@ export function getGoogleCalendarEventsForDate(date: string): CalendarEvent[] {
         type: "termin",
         helpyHint: "Termin aus Google Kalender.",
         date,
+        sourcePlatform: "google",
       },
       {
         id: `google-${date}-2`,
@@ -123,6 +124,7 @@ export function getGoogleCalendarEventsForDate(date: string): CalendarEvent[] {
         type: "termin",
         helpyHint: "Termin aus Google Kalender.",
         date,
+        sourcePlatform: "google",
       },
     ];
   }
@@ -137,8 +139,22 @@ export function getGoogleCalendarEventsForDate(date: string): CalendarEvent[] {
       type: "termin",
       helpyHint: "Termin aus Google Kalender.",
       date,
+      sourcePlatform: "google",
     },
   ];
+}
+
+export function getGoogleCalendarEventsInRange(daysBack = 7, daysForward = 60): CalendarEvent[] {
+  const events: CalendarEvent[] = [];
+  const base = new Date();
+
+  for (let offset = -daysBack; offset <= daysForward; offset++) {
+    const date = new Date(base);
+    date.setDate(base.getDate() + offset);
+    events.push(...getGoogleCalendarEventsForDate(formatLocalDate(date)));
+  }
+
+  return events;
 }
 
 /** Mock-Termine für Google Kalender — nur für heute. */
@@ -154,6 +170,7 @@ export function getGoogleCalendarEventsForToday(): CalendarEvent[] {
       type: "angebot",
       helpyHint: "Termin aus Google Kalender.",
       date: today,
+      sourcePlatform: "google",
     },
     {
       id: "google-today-2",
@@ -163,6 +180,7 @@ export function getGoogleCalendarEventsForToday(): CalendarEvent[] {
       type: "telefonat",
       helpyHint: "Termin aus Google Kalender.",
       date: today,
+      sourcePlatform: "google",
     },
     {
       id: "google-today-3",
@@ -172,6 +190,7 @@ export function getGoogleCalendarEventsForToday(): CalendarEvent[] {
       type: "besichtigung",
       helpyHint: "Termin aus Google Kalender.",
       date: today,
+      sourcePlatform: "google",
     },
     {
       id: "google-today-4",
@@ -181,6 +200,7 @@ export function getGoogleCalendarEventsForToday(): CalendarEvent[] {
       type: "termin",
       helpyHint: "Termin aus Google Kalender.",
       date: today,
+      sourcePlatform: "google",
     },
   ];
 }

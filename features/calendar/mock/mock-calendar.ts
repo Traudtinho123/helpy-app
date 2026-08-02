@@ -2,7 +2,8 @@ export type CalendarEventType =
   | "angebot"
   | "telefonat"
   | "besichtigung"
-  | "termin";
+  | "termin"
+  | "helpy_aufgabe";
 
 export type CalendarEvent = {
   id: string;
@@ -122,6 +123,11 @@ export const eventTypeStyles: Record<
     dot: "bg-[#7C3AED]",
     badge: "border-[#E9D5FF] bg-[#FAF5FF] text-[#7C3AED]",
     ring: "border-l-[#7C3AED]",
+  },
+  helpy_aufgabe: {
+    dot: "bg-[#6366F1]",
+    badge: "border-[#C7D2FE] bg-[#EEF2FF] text-[#4338CA]",
+    ring: "border-l-[#6366F1]",
   },
 };
 

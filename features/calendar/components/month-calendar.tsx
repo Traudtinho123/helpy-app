@@ -2,18 +2,34 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getDaysWithEvents, useCalendarStore } from "@/features/calendar/services/calendar-events-store";
+import {
+  getDaysWithEventsForMonth,
+  isToday,
+  useCalendarStore,
+} from "@/features/calendar/services/calendar-events-store";
 import { cn } from "@/lib/utils";
 
 const WEEKDAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"] as const;
 
-const TODAY = new Date(2026, 6, 6); // 6. Juli 2026
-const MONTH_LABEL = "Juli 2026";
+const MONTH_NAMES = [
+  "Januar",
+  "Februar",
+  "März",
+  "April",
+  "Mai",
+  "Juni",
+  "Juli",
+  "August",
+  "September",
+  "Oktober",
+  "November",
+  "Dezember",
+] as const;
 
 function getMonthGrid(year: number, month: number) {
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
-  const startOffset = (firstDay.getDay() + 6) % 7; // Mo = 0
+  const startOffset = (firstDay.getDay() + 6) % 7;
   const daysInMonth = lastDay.getDate();
 
   const cells: (number | null)[] = [];
@@ -24,36 +40,57 @@ function getMonthGrid(year: number, month: number) {
   return cells;
 }
 
-type MonthCalendarProps = {
-  selectedDay: number;
-  onSelectDay: (day: number) => void;
+export type CalendarMonthView = {
+  month: number;
+  year: number;
 };
 
-export function MonthCalendar({ selectedDay, onSelectDay }: MonthCalendarProps) {
+type MonthCalendarProps = {
+  viewMonth: CalendarMonthView;
+  selectedDay: number;
+  onSelectDay: (day: number) => void;
+  onChangeMonth: (view: CalendarMonthView) => void;
+};
+
+export function MonthCalendar({
+  viewMonth,
+  selectedDay,
+  onSelectDay,
+  onChangeMonth,
+}: MonthCalendarProps) {
   useCalendarStore();
-  const eventDays = getDaysWithEvents();
-  const cells = getMonthGrid(TODAY.getFullYear(), TODAY.getMonth());
+  const eventDays = getDaysWithEventsForMonth(viewMonth.month, viewMonth.year);
+  const cells = getMonthGrid(viewMonth.year, viewMonth.month);
+
+  const shiftMonth = (delta: number) => {
+    const next = new Date(viewMonth.year, viewMonth.month + delta, 1);
+    onChangeMonth({ month: next.getMonth(), year: next.getFullYear() });
+  };
 
   return (
     <div className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-[13px] font-semibold text-[var(--text-primary)]">
-          {MONTH_LABEL}
+          {MONTH_NAMES[viewMonth.month]} {viewMonth.year}
         </h3>
         <div className="flex gap-1">
           <Button
+            type="button"
             variant="outline"
             size="icon-sm"
             className="size-7 rounded-lg border-[var(--border)]"
             aria-label="Vorheriger Monat"
+            onClick={() => shiftMonth(-1)}
           >
             <ChevronLeft className="size-3.5" />
           </Button>
           <Button
+            type="button"
             variant="outline"
             size="icon-sm"
             className="size-7 rounded-lg border-[var(--border)]"
             aria-label="Nächster Monat"
+            onClick={() => shiftMonth(1)}
           >
             <ChevronRight className="size-3.5" />
           </Button>
@@ -74,25 +111,33 @@ export function MonthCalendar({ selectedDay, onSelectDay }: MonthCalendarProps) 
             return <div key={`empty-${i}`} className="aspect-square" />;
           }
 
-          const isToday = day === TODAY.getDate();
+          const isTodayCell = isToday(day, viewMonth.month, viewMonth.year);
           const isSelected = day === selectedDay;
           const hasEvents = eventDays.includes(day);
 
           return (
             <button
-              key={day}
+              key={`${viewMonth.year}-${viewMonth.month}-${day}`}
               type="button"
               onClick={() => onSelectDay(day)}
               className={cn(
                 "relative flex aspect-square items-center justify-center rounded-[10px] text-[12px] font-medium transition-all duration-200",
-                isToday && !isSelected && "bg-[#2563EB] text-white shadow-md shadow-[#2563EB]/30",
-                isSelected && !isToday && "bg-[var(--accent-light)] text-[var(--accent)] ring-1 ring-[#2563EB]/20",
-                isSelected && isToday && "bg-[#2563EB] text-white ring-2 ring-[#93C5FD]",
-                !isToday && !isSelected && "text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"
+                isTodayCell &&
+                  !isSelected &&
+                  "bg-[#2563EB] text-white shadow-md shadow-[#2563EB]/30",
+                isSelected &&
+                  !isTodayCell &&
+                  "bg-[var(--accent-light)] text-[var(--accent)] ring-1 ring-[#2563EB]/20",
+                isSelected &&
+                  isTodayCell &&
+                  "bg-[#2563EB] text-white ring-2 ring-[#93C5FD]",
+                !isTodayCell &&
+                  !isSelected &&
+                  "text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"
               )}
             >
               {day}
-              {hasEvents && !isToday && (
+              {hasEvents && !isTodayCell && (
                 <span className="absolute bottom-1 size-1 rounded-full bg-[#2563EB]" />
               )}
             </button>

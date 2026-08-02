@@ -1,18 +1,21 @@
 "use client";
 
+import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { HelpyCharacter } from "@/components/helpy/helpy-character";
-import { HelpyIconBadge } from "@/components/helpy/helpy-icon-badge";
 import { eventTypeStyles, type CalendarEvent } from "@/features/calendar/mock/mock-calendar";
+import type { CalendarMonthView } from "@/features/calendar/components/month-calendar";
 import {
-  dateFromDay,
   formatDayLabel,
   getEventsForDay,
+  getTodayDateString,
   useCalendarStore,
 } from "@/features/calendar/services/calendar-events-store";
 import { cn } from "@/lib/utils";
 
 type DayTimelineProps = {
+  selectedDate: string;
+  viewMonth: CalendarMonthView;
   selectedDay: number;
   selectedEventId: string;
 };
@@ -41,22 +44,40 @@ function TimelineItem({
       </div>
 
       <div className="relative flex flex-1 flex-col pb-8">
-        <div className="absolute top-2 -left-[1.625rem] size-3 rounded-full border-2 border-white bg-[#2563EB] shadow-sm" />
+        <div
+          className={cn(
+            "absolute top-2 -left-[1.625rem] size-3 rounded-full border-2 border-white shadow-sm",
+            event.type === "helpy_aufgabe" ? "bg-[#6366F1]" : "bg-[#2563EB]"
+          )}
+        />
         <div
           className={cn(
             "rounded-[20px] border border-[var(--border)] border-l-4 bg-[var(--bg-surface)] p-5 shadow-sm transition-all duration-300",
             styles.ring,
             isSelected &&
               "shadow-[0_4px_24px_rgba(37,99,235,0.12)] ring-1 ring-[#2563EB]/15",
-            event.sourceEmailId && "helpy-fade-in"
+            event.sourceEmailId && "helpy-fade-in",
+            event.type === "helpy_aufgabe" && "border-[#C7D2FE]/60 bg-[#EEF2FF]/30"
           )}
         >
+          {event.type === "helpy_aufgabe" ? (
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-[#4338CA]">
+              HELPY Aufgabe
+            </p>
+          ) : null}
+
           <h4 className="text-[14px] font-semibold text-[var(--text-primary)]">
-            {event.title}
+            {event.vorgangId ? (
+              <Link href={`/workspace/${event.vorgangId}`} className="hover:underline">
+                {event.title}
+              </Link>
+            ) : (
+              event.title
+            )}
           </h4>
-          {event.subtitle && (
+          {event.subtitle ? (
             <p className="mt-0.5 text-[12px] text-[var(--text-secondary)]">{event.subtitle}</p>
-          )}
+          ) : null}
 
           <div className="mt-4 rounded-[14px] border border-[var(--border-accent)]/50 bg-[var(--accent-light)] px-4 py-3">
             <div className="flex items-center gap-2">
@@ -75,10 +96,17 @@ function TimelineItem({
   );
 }
 
-export function DayTimeline({ selectedDay, selectedEventId }: DayTimelineProps) {
+export function DayTimeline({
+  selectedDate,
+  viewMonth,
+  selectedDay,
+  selectedEventId,
+}: DayTimelineProps) {
   useCalendarStore();
-  const date = dateFromDay(selectedDay);
-  const events = getEventsForDay(date);
+  const events = getEventsForDay(selectedDate);
+  const todayKey = getTodayDateString();
+  const showFreeTimeHint =
+    selectedDate === todayKey && events.some((e) => e.time >= "11:00" && e.time <= "14:00");
 
   return (
     <div className="flex h-full min-w-0 flex-1 flex-col overflow-y-auto bg-[var(--bg-surface)]">
@@ -90,7 +118,7 @@ export function DayTimeline({ selectedDay, selectedEventId }: DayTimelineProps) 
           HELPY organisiert deinen Arbeitstag.
         </p>
         <p className="mt-2 text-[12px] font-medium text-[var(--text-muted)]">
-          {formatDayLabel(selectedDay)} · Tagesübersicht
+          {formatDayLabel(selectedDay, viewMonth.month, viewMonth.year)} · Tagesübersicht
         </p>
       </div>
 
@@ -117,14 +145,13 @@ export function DayTimeline({ selectedDay, selectedEventId }: DayTimelineProps) 
           </div>
         )}
 
-        {events.length > 0 && selectedDay === 6 && (
+        {showFreeTimeHint ? (
           <div className="mt-4 flex items-center gap-2 rounded-[14px] border border-dashed border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-3">
-            <HelpyIconBadge size={14} pose="typing" />
             <p className="text-[12px] text-[var(--text-secondary)]">
-              Freie Zeit erkannt: 11:15 – 13:30 Uhr
+              Freie Zeit erkannt — siehe HELPY Panel rechts.
             </p>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

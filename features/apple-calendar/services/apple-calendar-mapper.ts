@@ -28,21 +28,6 @@ function inferEventType(summary: string, description?: string): CalendarEventTyp
   return "termin";
 }
 
-function buildHelpyHint(event: AppleCalDavEvent): string {
-  const parts: string[] = [];
-
-  if (event.calendarName) {
-    parts.push(event.calendarName);
-  }
-
-  if (event.attendees && event.attendees.length > 0) {
-    parts.push(`Teilnehmer: ${event.attendees.join(", ")}`);
-  } else if (event.description) {
-    parts.push(event.description);
-  }
-
-  return parts.length > 0 ? parts.join(" — ") : "Aus Apple Kalender übernommen.";
-}
 
 /** Mappt iCloud-CalDAV-Events auf den gemeinsamen CalendarEvent-Typ. */
 export function mapAppleEventToCalendarEvent(event: AppleCalDavEvent): CalendarEvent {
@@ -57,11 +42,12 @@ export function mapAppleEventToCalendarEvent(event: AppleCalDavEvent): CalendarE
     title: event.summary,
     subtitle: event.location ?? event.calendarName,
     type: inferEventType(event.summary, event.description),
-    helpyHint: buildHelpyHint(event),
+    helpyHint: "Termin aus Apple Kalender.",
     date,
     location: event.location,
     participants: event.attendees,
     calendarName: event.calendarName,
+    sourcePlatform: "apple",
   };
 }
 
