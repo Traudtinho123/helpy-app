@@ -22,7 +22,7 @@ export function DashboardShell({
   const helpyPanel = rightPanel ?? <AiAssistantPanel />;
 
   return (
-    <div className="relative flex h-[100dvh] overflow-hidden bg-[var(--color-bg)] text-[var(--color-ink)]">
+    <div className="relative flex h-[100dvh] overflow-hidden bg-[var(--bg-base)] text-[var(--text-primary)]">
 
       <Sidebar activeHref={activeHref} />
 

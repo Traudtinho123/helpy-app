@@ -1,13 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { LayoutGrid, Plus } from "lucide-react";
-import { MobileBackHeader } from "@/components/mobile/mobile-back-header";
+import { Plus } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { AddObjectDialog } from "@/features/portfolio/components/add-object-dialog";
-import { ObjektakteView } from "@/features/portfolio/components/objektakte-view";
-import { ObjektePicker } from "@/features/portfolio/components/objekte-picker";
-import { ObjekteToolbar } from "@/features/portfolio/components/objekte-toolbar";
+import {
+  ObjekteToolbar,
+  type ObjekteViewMode,
+} from "@/features/portfolio/components/objekte-toolbar";
+import { PortfolioObjectGrid } from "@/features/portfolio/components/portfolio-object-grid";
+import { PortfolioObjectList } from "@/features/portfolio/components/portfolio-object-list";
 import {
   filterPortfolioSummaries,
   getPortfolioFilterCounts,
@@ -36,14 +38,9 @@ export function ObjektePage() {
   const description = SKILL_PORTFOLIO_DESCRIPTION[activeSkill];
   const isRealEstate = activeSkill === "real-estate";
   const [addDialogOpen, setAddDialogOpen] = useState(false);
-  const [initialObjectTab, setInitialObjectTab] = useState<"uebersicht" | "dossier">(
-    "uebersicht"
-  );
   const [activeFilter, setActiveFilter] = useState<PortfolioObjectFilter>("alle");
   const [searchQuery, setSearchQuery] = useState("");
-  /** Leer = Browse-Modus (volle Leiste). Gesetzt = Fokus-Modus (nur Dropdown). */
-  const [selectedId, setSelectedId] = useState("");
-  const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<ObjekteViewMode>("grid");
 
   const revision = useStoreRevision(
     isRealEstate ? subscribePortfolioStores : noopSubscribe
@@ -66,61 +63,31 @@ export function ObjektePage() {
     return searchPortfolioSummaries(byFilter, searchQuery);
   }, [activeFilter, searchQuery, summaries]);
 
-  const hasSelection =
-    selectedId !== "" && summaries.some((item) => item.objectId === selectedId);
-
-  const selectedObjectId = hasSelection ? selectedId : "";
-
-  /** Im Fokus-Modus alle Objekte im Dropdown; im Browse-Modus die gefilterte Liste. */
-  const pickerSummaries = hasSelection
-    ? [...summaries]
-    : filteredSummaries;
-
-  const handleFilterChange = (filter: PortfolioObjectFilter) => {
-    setActiveFilter(filter);
-  };
-
-  const handleSearchChange = (query: string) => {
-    setSearchQuery(query);
-  };
-
-  const handleSelectObject = (id: string) => {
-    setSelectedId(id);
-    setInitialObjectTab("uebersicht");
-    if (typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches) {
-      setMobileDetailOpen(true);
-    }
-  };
-
-  const handleBackToOverview = () => {
-    setSelectedId("");
-  };
-
   return (
     <DashboardShell activeHref="/objekte">
       {!isRealEstate ? (
-        <div className="mx-auto max-w-5xl px-8 py-12 lg:px-12 lg:py-14">
-          <header className="mb-10">
-            <p className="text-[11px] font-semibold tracking-[0.06em] text-[#2563EB] uppercase">
+        <div className="mx-auto max-w-5xl px-6 py-10 lg:px-10 lg:py-12">
+          <header className="mb-8">
+            <p className="text-[11px] font-bold tracking-[0.15em] text-[var(--text-accent)] uppercase">
               Portfolio
             </p>
-            <h1 className="mt-2 text-[2rem] font-semibold tracking-[-0.035em] text-[#0F172A] lg:text-[2.25rem]">
+            <h1 className="helpy-display mt-2 text-[2rem] font-semibold tracking-[-0.035em] text-[var(--text-primary)] lg:text-[2.25rem]">
               {portfolioNav.label}
             </h1>
-            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[#64748B]">
+            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[var(--text-secondary)]">
               {description}
             </p>
           </header>
 
-          <Card className="rounded-[24px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-[0_2px_8px_rgba(15,23,42,0.04)]">
+          <Card className="py-0">
             <CardContent className="flex flex-col items-center gap-4 p-12 text-center">
-              <span className="flex size-14 items-center justify-center rounded-[18px] bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] text-2xl shadow-[0_4px_20px_rgba(37,99,235,0.35)]">
+              <span className="flex size-14 items-center justify-center rounded-[18px] bg-[var(--accent-light)] text-2xl shadow-[var(--shadow-accent)]">
                 {portfolioNav.emoji}
               </span>
-              <p className="text-[15px] font-semibold text-[#0F172A]">
+              <p className="text-[15px] font-semibold text-[var(--text-primary)]">
                 {portfolioNav.label} folgen in Kürze
               </p>
-              <p className="max-w-md text-[13px] leading-relaxed text-[#64748B]">
+              <p className="max-w-md text-[13px] leading-relaxed text-[var(--text-secondary)]">
                 Die Portfolio-Ansicht für deinen Skill wird vorbereitet.
               </p>
             </CardContent>
@@ -128,120 +95,60 @@ export function ObjektePage() {
         </div>
       ) : (
         <div className="flex h-full min-h-0 flex-col overflow-hidden">
+          <ObjekteToolbar
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
+            filterCounts={filterCounts}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            onAddObject={() => setAddDialogOpen(true)}
+          />
+
           {summaries.length === 0 ? (
-            <>
-              <ObjekteToolbar
-                activeFilter={activeFilter}
-                onFilterChange={handleFilterChange}
-                filterCounts={filterCounts}
-                searchQuery={searchQuery}
-                onSearchChange={handleSearchChange}
-                onAddObject={() => setAddDialogOpen(true)}
-              />
-              <div className="flex flex-1 items-center justify-center px-6 py-12 lg:px-8">
-                <Card className="w-full max-w-lg rounded-[24px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-[0_2px_8px_rgba(15,23,42,0.04)]">
-                  <CardContent className="flex flex-col items-center gap-4 p-12 text-center">
-                    <span className="flex size-14 items-center justify-center rounded-[18px] bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] text-2xl shadow-[0_4px_20px_rgba(37,99,235,0.35)]">
-                      {portfolioNav.emoji}
-                    </span>
-                    <p className="text-[15px] font-semibold text-[#0F172A]">
-                      Noch keine {portfolioNav.label.toLowerCase()}
-                    </p>
-                    <p className="max-w-md text-[13px] leading-relaxed text-[#64748B]">
-                      HELPY erkennt Objekte automatisch aus Vorgängen und Plattform-Anfragen.
-                    </p>
-                    <Button
-                      type="button"
-                      variant="primary"
-                      onClick={() => setAddDialogOpen(true)}
-                    >
-                      <Plus className="size-4" strokeWidth={2.5} />
-                      Objekt hinzufügen
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            </>
-          ) : hasSelection ? (
-            <>
-              <ObjektePicker
-                summaries={pickerSummaries}
-                selectedId={selectedObjectId}
-                onSelect={handleSelectObject}
-                compact
-                trailing={
+            <div className="flex flex-1 items-center justify-center px-6 py-12 lg:px-8">
+              <Card className="w-full max-w-lg py-0">
+                <CardContent className="flex flex-col items-center gap-4 p-12 text-center">
+                  <span className="flex size-14 items-center justify-center rounded-[18px] bg-[var(--accent-light)] text-2xl shadow-[var(--shadow-accent)]">
+                    {portfolioNav.emoji}
+                  </span>
+                  <p className="text-[15px] font-semibold text-[var(--text-primary)]">
+                    Noch keine {portfolioNav.label.toLowerCase()}
+                  </p>
+                  <p className="max-w-md text-[13px] leading-relaxed text-[var(--text-secondary)]">
+                    HELPY erkennt Objekte automatisch aus Vorgängen und Plattform-Anfragen.
+                  </p>
                   <Button
                     type="button"
-                    variant="outline"
-                    className="h-8 gap-1.5 rounded-[10px] border-[#CBD5E1]/60 px-3 text-[12px] font-medium text-[#64748B]"
-                    onClick={handleBackToOverview}
+                    variant="primary"
+                    onClick={() => setAddDialogOpen(true)}
                   >
-                    <LayoutGrid className="size-3.5" strokeWidth={2} />
-                    Übersicht
+                    <Plus className="size-4" strokeWidth={2.5} />
+                    Objekt hinzufügen
                   </Button>
-                }
-              />
-              <div className="hidden min-h-0 flex-1 overflow-hidden lg:block">
-                <ObjektakteView
-                  objectId={selectedObjectId}
-                  embedded
-                  initialTab={initialObjectTab}
-                />
-              </div>
-            </>
+                </CardContent>
+              </Card>
+            </div>
+          ) : viewMode === "grid" ? (
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              <PortfolioObjectGrid summaries={filteredSummaries} />
+            </div>
           ) : (
-            <>
-              <ObjekteToolbar
-                activeFilter={activeFilter}
-                onFilterChange={handleFilterChange}
-                filterCounts={filterCounts}
-                searchQuery={searchQuery}
-                onSearchChange={handleSearchChange}
-                onAddObject={() => setAddDialogOpen(true)}
-              />
-              <ObjektePicker
-                summaries={pickerSummaries}
-                selectedId=""
-                onSelect={handleSelectObject}
-                placeholderOption="Objekt wählen…"
-              />
-              <div className="flex min-h-0 flex-1 items-center justify-center bg-white/40 px-6">
-                <p className="text-sm text-[#64748B]">
-                  Wähle ein Objekt über die Suche, den Filter oder die Kartenleiste.
-                </p>
-              </div>
-            </>
+            <div className="min-h-0 flex-1 overflow-y-auto py-4">
+              <PortfolioObjectList summaries={filteredSummaries} />
+            </div>
           )}
         </div>
       )}
-
-      {isRealEstate && mobileDetailOpen && selectedObjectId ? (
-        <div className="fixed inset-0 z-40 flex flex-col bg-white lg:hidden">
-          <MobileBackHeader
-            title="Objektakte"
-            onBack={() => {
-              setMobileDetailOpen(false);
-              setSelectedId("");
-            }}
-          />
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            <ObjektakteView
-              objectId={selectedObjectId}
-              embedded
-              initialTab={initialObjectTab}
-            />
-          </div>
-        </div>
-      ) : null}
 
       {isRealEstate && (
         <AddObjectDialog
           open={addDialogOpen}
           onOpenChange={setAddDialogOpen}
           skill={activeSkill}
-          onSaved={({ objectId, openDossierTab }) => {
-            setSelectedId(objectId);
-            setInitialObjectTab(openDossierTab ? "dossier" : "uebersicht");
+          onSaved={() => {
+            setAddDialogOpen(false);
           }}
         />
       )}

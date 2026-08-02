@@ -2,14 +2,16 @@
 
 import {
   Calendar,
-  FileText,
-  Inbox,
+  ClipboardList,
+  Phone,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Card, CardContent } from "@/components/ui/card";
-import type { KpiAccent } from "@/components/dashboard/stripe-kpi-tile";
 import { cn } from "@/lib/utils";
+
+type KpiAccent = "accent" | "success" | "warning" | "danger";
 
 type KpiCardProps = {
   label: string;
@@ -24,9 +26,9 @@ const accentStyles: Record<
   KpiAccent,
   { iconColor: string; iconBg: string }
 > = {
-  primary: {
-    iconColor: "text-[var(--primary)]",
-    iconBg: "bg-[var(--primary-light)]",
+  accent: {
+    iconColor: "text-[var(--accent)]",
+    iconBg: "bg-[var(--accent-light)]",
   },
   success: {
     iconColor: "text-[var(--success)]",
@@ -35,6 +37,10 @@ const accentStyles: Record<
   warning: {
     iconColor: "text-[var(--warning)]",
     iconBg: "bg-[var(--warning-light)]",
+  },
+  danger: {
+    iconColor: "text-[var(--danger)]",
+    iconBg: "bg-[var(--danger-light)]",
   },
 };
 
@@ -49,15 +55,15 @@ function KpiCard({
   const styles = accentStyles[accent];
 
   return (
-    <Card className="helpy-glass-card helpy-glass-card-interactive helpy-fade-in-slide py-0">
+    <Card className="rounded-xl border-[var(--border)] bg-[var(--bg-surface)] py-0 transition-all duration-200 hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-sm)]">
       <CardContent className="p-5">
         <div
           className={cn(
-            "flex size-11 items-center justify-center rounded-full",
+            "flex size-8 items-center justify-center rounded-full",
             styles.iconBg
           )}
         >
-          <Icon className={cn("size-5", styles.iconColor)} strokeWidth={2} />
+          <Icon className={cn("size-[18px]", styles.iconColor)} strokeWidth={2} />
         </div>
 
         <div className="mt-4">
@@ -87,34 +93,42 @@ function KpiCard({
 
 const kpis: KpiCardProps[] = [
   {
-    label: "E-Mails analysiert",
-    value: 18,
-    trend: "+12 %",
+    label: "Vorgänge",
+    value: 49,
+    trend: "+23%",
     trendDirection: "up",
-    icon: Inbox,
+    icon: ClipboardList,
+    accent: "accent",
+  },
+  {
+    label: "Besichtigungen",
+    value: 7,
+    trend: "+40%",
+    trendDirection: "up",
+    icon: Calendar,
+    accent: "success",
+  },
+  {
+    label: "Neue Kd.",
+    value: 3,
+    trend: "+100%",
+    trendDirection: "up",
+    icon: Users,
     accent: "warning",
   },
   {
-    label: "Termine erkannt",
-    value: 4,
-    trend: "+2",
+    label: "Anrufe",
+    value: 12,
+    trend: "+20%",
     trendDirection: "up",
-    icon: Calendar,
-    accent: "primary",
-  },
-  {
-    label: "Angebote vorbereitet",
-    value: 2,
-    trend: "Bereit",
-    trendDirection: "neutral",
-    icon: FileText,
-    accent: "success",
+    icon: Phone,
+    accent: "danger",
   },
 ];
 
 export function KpiCards() {
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {kpis.map((kpi) => (
         <KpiCard key={kpi.label} {...kpi} />
       ))}

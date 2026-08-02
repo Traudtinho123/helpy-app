@@ -13,6 +13,7 @@ export type CoreNavItemId =
   | "telefonie"
   | "whatsapp"
   | "plattformen"
+  | "social-media"
   | "einstellungen";
 
 export type CoreNavGroupId = "arbeit" | "kommunikation" | "ressourcen";
@@ -34,8 +35,8 @@ export type CoreNavItem = {
 
 export const CORE_NAV_GROUPS: { id: CoreNavGroupId; label: string }[] = [
   { id: "arbeit", label: "Arbeit" },
-  { id: "ressourcen", label: "Ressourcen" },
   { id: "kommunikation", label: "Kommunikation" },
+  { id: "ressourcen", label: "Ressourcen" },
 ];
 
 export type SettingsNavItem = {
@@ -83,14 +84,15 @@ export const SKILL_PORTFOLIO_DESCRIPTION: Record<HelpySkill, string> =
 const CORE_NAV_PRIMARY: Omit<CoreNavItem, "label" | "emoji">[] = [
   { id: "arbeitstag", href: "/", section: "primary", navGroup: "arbeit" },
   { id: "vorgaenge", href: "/vorgaenge", section: "primary", navGroup: "arbeit", showMailCount: true },
-  { id: "finanzen", href: "/finanzen", section: "primary", navGroup: "arbeit", showDealCount: true },
   { id: "kalender", href: "/kalender", section: "primary", navGroup: "arbeit" },
-  { id: "portfolio", href: "/objekte", section: "primary", navGroup: "ressourcen" },
-  { id: "kunden", href: "/kunden", section: "primary", navGroup: "ressourcen" },
-  { id: "dokumente", href: "/dokumente", section: "primary", navGroup: "ressourcen" },
+  { id: "finanzen", href: "/finanzen", section: "primary", navGroup: "arbeit", showDealCount: true },
   { id: "plattformen", href: "/plattformen", section: "primary", navGroup: "kommunikation" },
   { id: "telefonie", href: "/telefonie", section: "primary", navGroup: "kommunikation" },
   { id: "whatsapp", href: "/whatsapp", section: "primary", navGroup: "kommunikation", showWhatsappCount: true },
+  { id: "social-media", href: "/social-media", section: "primary", navGroup: "kommunikation" },
+  { id: "portfolio", href: "/objekte", section: "primary", navGroup: "ressourcen" },
+  { id: "kunden", href: "/kunden", section: "primary", navGroup: "ressourcen" },
+  { id: "dokumente", href: "/dokumente", section: "primary", navGroup: "ressourcen" },
 ];
 
 const CORE_NAV_PRIMARY_STATIC: Record<
@@ -98,13 +100,14 @@ const CORE_NAV_PRIMARY_STATIC: Record<
   Pick<CoreNavItem, "label" | "emoji" | "brandIcon">
 > = {
   arbeitstag: { label: "Mein Arbeitsplatz", emoji: "🏠" },
-  vorgaenge: { label: "Vorgänge", emoji: "📥" },
+  vorgaenge: { label: "Vorgänge", emoji: "📋" },
   dokumente: { label: "Dokumente", emoji: "📄" },
   finanzen: { label: "Finanzen", emoji: "💰" },
   kalender: { label: "Kalender", emoji: "📅" },
   telefonie: { label: "Helpy-Phone", emoji: "📞" },
   whatsapp: { label: "WhatsApp", emoji: "💬", brandIcon: "whatsapp" },
   plattformen: { label: "Plattformen", emoji: "🔗" },
+  "social-media": { label: "Social Media", emoji: "📱" },
 };
 
 export const CORE_NAV_SETTINGS: CoreNavItem = {
@@ -233,6 +236,10 @@ const NAV_MATCHERS: Array<{ href: string; matches: (pathname: string) => boolean
   {
     href: "/whatsapp",
     matches: (pathname) => pathname.startsWith("/whatsapp"),
+  },
+  {
+    href: "/social-media",
+    matches: (pathname) => pathname.startsWith("/social-media"),
   },
   {
     href: "/plattformen",

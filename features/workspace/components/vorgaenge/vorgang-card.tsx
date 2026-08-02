@@ -202,13 +202,13 @@ export function VorgangCard({
       ref={cardRef}
       data-vorgang-id={vorgang.id}
       className={cn(
-        "group relative overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-border)] border-l-[3px] bg-[var(--color-surface)] shadow-[var(--shadow-sm)] transition-all duration-[var(--transition-base)]",
+        "group relative cursor-pointer overflow-hidden rounded-lg border border-[var(--border)] border-l-[3px] bg-[var(--bg-surface)] transition-all duration-150",
         CARD_BORDER_STYLES[borderAccent],
         compact ? "p-3.5" : "p-5",
-        focused && "ring-2 ring-[var(--color-primary)]/30",
-        isDetailOpen && "border-[var(--color-primary-mid)] bg-[var(--color-primary-light)]/40",
+        focused && "ring-2 ring-[var(--accent)]/30",
+        isDetailOpen && "border-[var(--border-accent)] bg-[var(--accent-light)]/40",
         exiting && "pointer-events-none -translate-x-full opacity-0",
-        "hover:border-[var(--color-border-strong)] hover:shadow-[var(--shadow-md)]"
+        "hover:bg-[var(--bg-elevated)]"
       )}
       style={{
         transform: swiping ? `translateX(${swipeX}px)` : undefined,
@@ -232,7 +232,7 @@ export function VorgangCard({
       <div className="flex items-start gap-2.5">
         <label
           className={cn(
-            "mt-0.5 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-[8px] border border-[#CBD5E1] bg-white transition-opacity sm:size-5 lg:opacity-0 lg:group-hover:opacity-100",
+            "mt-0.5 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-[var(--border-strong)] bg-[var(--bg-elevated)] transition-opacity sm:size-5 lg:opacity-0 lg:group-hover:opacity-100",
             isSelected && "opacity-100"
           )}
           onClick={(event) => event.stopPropagation()}
@@ -244,45 +244,49 @@ export function VorgangCard({
             onChange={() => setVorgangSelected(vorgang.id, !isSelected)}
           />
           {isSelected ? (
-            <Check className="size-3 text-[#2563EB]" strokeWidth={3} />
+            <Check className="size-3 text-[var(--accent)]" strokeWidth={3} />
           ) : null}
         </label>
 
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <span className="truncate text-[15px] font-semibold text-[var(--text-primary)]">
+                {vorgang.kunde}
+              </span>
+              <span className="hidden text-[var(--text-muted)] sm:inline">·</span>
+              <span className="min-w-0 truncate text-[14px] text-[var(--text-secondary)]">
+                {vorgang.titel}
+              </span>
+            </div>
+            <span className="shrink-0 text-[12px] text-[var(--text-muted)]">
+              {vorgang.receivedLabel}
+            </span>
+          </div>
+
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] text-[var(--text-muted)]">
+            {isHelpyPhone ? (
+              <Phone className="size-3 text-[var(--success)]" />
+            ) : (
+              <Mail className="size-3 text-[var(--accent)]" />
+            )}
+            <span className="rounded-full border border-[var(--border)] bg-[var(--bg-elevated)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-secondary)]">
+              {intentTag}
+            </span>
+            {vorgang.skillLabel ? (
+              <span className="rounded-full bg-[var(--accent-light)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-accent)]">
+                {vorgang.skillLabel}
+              </span>
+            ) : null}
             <Badge
               variant="outline"
               className={cn(
-                "h-5 rounded-full px-2 text-[9px] font-semibold",
+                "ml-auto h-5 rounded-full px-2 text-[9px] font-semibold",
                 priorityStyles[vorgang.prioritaet]
               )}
             >
               {VORGANG_PRIORITY_LABELS[vorgang.prioritaet]}
             </Badge>
-            <span className="truncate text-[15px] font-semibold text-[var(--color-ink)]">
-              {vorgang.kunde}
-            </span>
-            <span className="hidden text-[var(--color-ink-4)] sm:inline">·</span>
-            <span className="min-w-0 truncate text-[14px] text-[var(--color-ink-2)]">
-              {vorgang.titel}
-            </span>
-          </div>
-
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] text-[var(--color-ink-4)]">
-            <span>{vorgang.receivedLabel}</span>
-            {isHelpyPhone ? (
-              <Phone className="size-3 text-[#047857]" />
-            ) : (
-              <Mail className="size-3 text-[#2563EB]" />
-            )}
-            <span className="rounded-full bg-[#F1F5F9] px-2 py-0.5 text-[10px] font-medium text-[#64748B]">
-              {intentTag}
-            </span>
-            {vorgang.skillLabel ? (
-              <span className="rounded-full bg-[#EFF6FF] px-2 py-0.5 text-[10px] font-medium text-[#2563EB]">
-                {vorgang.skillLabel}
-              </span>
-            ) : null}
             {!compact ? <VorgangStatusBadge status={currentStatus} /> : null}
             {!isErledigt ? (
               <span

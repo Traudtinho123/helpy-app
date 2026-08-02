@@ -31,15 +31,15 @@ export function EntityBrowserToolbar<TFilter extends string>({
   trailing,
 }: EntityBrowserToolbarProps<TFilter>) {
   return (
-    <div className="border-b border-[#CBD5E1]/50 bg-white/70 px-5 py-2.5 backdrop-blur-xl lg:px-6">
+    <div className="border-b border-[var(--border)] bg-[var(--bg-surface)] px-5 py-3 lg:px-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
         <div className="relative w-full max-w-xs shrink-0">
-          <Search className="absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-[#94A3B8]" />
+          <Search className="absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-[var(--text-muted)]" />
           <Input
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder={searchPlaceholder}
-            className="h-8 rounded-[10px] border-[#CBD5E1]/60 bg-white/90 pl-8 text-[12px] placeholder:text-[#94A3B8]"
+            className="h-8 rounded-lg border-[var(--border-strong)] bg-[var(--bg-elevated)] pl-8 text-[12px] text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
           />
         </div>
 
@@ -54,10 +54,10 @@ export function EntityBrowserToolbar<TFilter extends string>({
                 type="button"
                 onClick={() => onFilterChange(filter.value)}
                 className={cn(
-                  "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium transition-all duration-300",
+                  "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium transition-all duration-150",
                   isActive
-                    ? "bg-[#2563EB] text-white shadow-sm"
-                    : "bg-[#F1F5F9] text-[#64748B] hover:bg-[#E2E8F0] hover:text-[#334155]"
+                    ? "bg-[var(--accent)] text-white shadow-[var(--shadow-accent)]"
+                    : "bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-overlay)] hover:text-[var(--text-primary)]"
                 )}
               >
                 {filter.label}

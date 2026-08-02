@@ -285,6 +285,12 @@ export function buildPortfolioSummary(object: RealEstateObject): PortfolioObject
     fromHelpy,
     coverImageUrl: getCoverImageUrl(images),
     imagesCount: images.filter((image) => image.status === "bestätigt").length,
+    zimmerLabel: object.zimmer
+      ? object.zimmer.includes("Zimmer")
+        ? object.zimmer
+        : `${object.zimmer} Zimmer`
+      : null,
+    flaecheLabel: object.wohnflaeche,
   };
 }
 

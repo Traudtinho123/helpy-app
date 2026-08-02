@@ -25,6 +25,8 @@ export type PortfolioObjectSummary = {
   fromHelpy: boolean;
   coverImageUrl: string | null;
   imagesCount: number;
+  zimmerLabel: string | null;
+  flaecheLabel: string | null;
 };
 
 export type ObjektInteressent = {
