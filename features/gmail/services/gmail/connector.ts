@@ -2,6 +2,7 @@ import {
   decodeGmailAttachmentData,
   extractGmailAttachmentsFromPayload,
 } from "@/features/gmail/services/gmail/attachment-parser";
+import { getGmailHeader } from "@/features/gmail/services/gmail-header-extractor";
 import type {
   GmailAttachmentData,
   GmailAttachmentMeta,
@@ -37,7 +38,7 @@ function getHeader(
 }
 
 function resolveDate(message: GmailMessagePayload): string {
-  const dateHeader = getHeader(message.payload?.headers, "Date");
+  const dateHeader = getGmailHeader(message.payload, "Date");
   if (dateHeader) {
     const parsed = Date.parse(dateHeader);
     if (!Number.isNaN(parsed)) {
@@ -52,17 +53,17 @@ function resolveDate(message: GmailMessagePayload): string {
 
 function mapMessage(message: GmailMessagePayload): GmailConnectorMessage {
   const attachments = extractGmailAttachmentsFromPayload(message.payload);
+  const payload = message.payload;
 
   return {
     id: message.id,
     threadId: message.threadId,
-    subject: getHeader(message.payload?.headers, "Subject") || "(Kein Betreff)",
-    from: getHeader(message.payload?.headers, "From") || "",
-    replyTo: getHeader(message.payload?.headers, "Reply-To") || undefined,
-    listUnsubscribe:
-      getHeader(message.payload?.headers, "List-Unsubscribe") || undefined,
-    precedence: getHeader(message.payload?.headers, "Precedence") || undefined,
-    xMailer: getHeader(message.payload?.headers, "X-Mailer") || undefined,
+    subject: getGmailHeader(payload, "Subject") || "(Kein Betreff)",
+    from: getGmailHeader(payload, "From") || "",
+    replyTo: getGmailHeader(payload, "Reply-To") || undefined,
+    listUnsubscribe: getGmailHeader(payload, "List-Unsubscribe") || undefined,
+    precedence: getGmailHeader(payload, "Precedence") || undefined,
+    xMailer: getGmailHeader(payload, "X-Mailer") || undefined,
     snippet: message.snippet ?? "",
     date: resolveDate(message),
     labelIds: message.labelIds,

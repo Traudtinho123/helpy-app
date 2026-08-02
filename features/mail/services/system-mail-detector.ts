@@ -1,4 +1,4 @@
-import { parseFrom } from "@/features/gmail/services/parse-from-header";
+import { parseEmailFrom } from "@/features/gmail/services/parse-from-header";
 import type { UnifiedMailMessage } from "@/features/mail/types/unified-mail-types";
 import type { GmailConnectorMessage } from "@/features/gmail/services/gmail/types";
 
@@ -23,6 +23,32 @@ export const SYSTEM_MAIL_DOMAINS = [
   "credit-suisse.com",
   "raiffeisen.ch",
   "zkb.ch",
+  "mediamarkt.ch",
+  "mediamarkt.de",
+  "galaxus.ch",
+  "digitec.ch",
+  "linkedin.com",
+  "facebook.com",
+  "instagram.com",
+  "twitter.com",
+  "x.com",
+  "amazon.com",
+  "amazon.de",
+  "ebay.com",
+  "ebay.de",
+  "zalando.ch",
+  "zalando.de",
+  "spotify.com",
+  "netflix.com",
+  "check24.de",
+  "booking.com",
+  "airbnb.com",
+  "migros.ch",
+  "coop.ch",
+  "lidl.ch",
+  "lidl.de",
+  "powerpay.ch",
+  "powerpay.de",
 ] as const;
 
 /** noreply/no-reply Local-Parts. */
@@ -37,6 +63,20 @@ export const SYSTEM_MAIL_LOCAL_PARTS = [
   "bounce",
   "notifications",
   "notification",
+  "newsletter",
+  "marketing",
+  "promo",
+  "info",
+  "news",
+  "updates",
+  "alert",
+  "alerts",
+  "security",
+  "account",
+  "accounts",
+  "support",
+  "hello",
+  "team",
 ] as const;
 
 const VERIFICATION_SUBJECT_KEYWORDS = [
@@ -53,6 +93,60 @@ const VERIFICATION_SUBJECT_KEYWORDS = [
   "two-factor",
   "security code",
   "sicherheitscode",
+  "login",
+  "log in",
+  "sign in",
+  "new device",
+  "neues gerät",
+  "neues geraet",
+  "device login",
+  "passcode",
+  "authentication",
+  "authentifizierung",
+] as const;
+
+const MARKETING_SUBJECT_KEYWORDS = [
+  "newsletter",
+  "angebot",
+  "sale",
+  "rabatt",
+  "promo",
+  "aktion",
+  "deal",
+  "unschlagbar",
+  "powerpay",
+  "mediamarkt",
+  "black friday",
+  "cyber monday",
+  "gratis",
+  "kostenlos",
+  "exklusiv",
+  "nur heute",
+  "limited",
+  "digest",
+  "weekly",
+  "wöchentlich",
+  "woechentlich",
+  "update",
+  "neuigkeiten",
+  "unsubscribe",
+  "abmelden",
+  "essai",
+  "trial",
+  "bienvenue",
+  "welcome",
+  "willkommen",
+  "finále",
+  "finale",
+  "startet",
+  "live",
+  "gewinn",
+  "gewinnen",
+  "❤",
+  "💥",
+  "🔥",
+  "sommers",
+  "uhr des",
 ] as const;
 
 const NEWSLETTER_X_MAILER_HINTS = [
@@ -65,6 +159,8 @@ const NEWSLETTER_X_MAILER_HINTS = [
   "constant contact",
   "brevo",
   "sendinblue",
+  "salesforce",
+  "emarsys",
 ] as const;
 
 export type SystemMailCategory =
@@ -105,6 +201,11 @@ function emailDomain(email: string): string {
   return email.split("@")[1]?.toLowerCase() ?? "";
 }
 
+function containsAny(text: string, keywords: readonly string[]): boolean {
+  const normalized = normalizeText(text);
+  return keywords.some((keyword) => normalized.includes(keyword.toLowerCase()));
+}
+
 export function isNoreplyAddress(email: string | null | undefined): boolean {
   if (!email) return false;
   const local = emailLocalPart(email);
@@ -122,26 +223,19 @@ export function isKnownSystemDomain(email: string | null | undefined): boolean {
 }
 
 export function isNonReplyableSystemSender(fromHeader: string): boolean {
-  const email = parseFrom(fromHeader).email || null;
+  const email = parseEmailFrom(fromHeader).email || null;
   if (!email) return false;
   return isNoreplyAddress(email) || isKnownSystemDomain(email);
 }
 
-function isVerificationMail(input: SystemMailDetectionInput, fromEmail: string | null): boolean {
-  const subject = normalizeText(input.subject);
-  const body = normalizeText(`${input.snippet ?? ""} ${input.bodyPreview ?? ""}`);
-  const hasVerificationSubject = VERIFICATION_SUBJECT_KEYWORDS.some((keyword) =>
-    subject.includes(keyword)
-  );
+function isVerificationMail(input: SystemMailDetectionInput): boolean {
+  const haystack = `${input.subject} ${input.snippet ?? ""} ${input.bodyPreview ?? ""}`;
+  return containsAny(haystack, VERIFICATION_SUBJECT_KEYWORDS);
+}
 
-  if (!hasVerificationSubject) return false;
-
-  const codeOnlyBody = /^(?:your code is|dein code|code:|verification code:)?\s*\d{4,8}\b/i.test(
-    body.trim()
-  );
-  const noreplySender = fromEmail ? isNoreplyAddress(fromEmail) : false;
-
-  return noreplySender || codeOnlyBody || hasVerificationSubject;
+function isMarketingSubject(input: SystemMailDetectionInput): boolean {
+  const haystack = `${input.subject} ${input.snippet ?? ""} ${input.bodyPreview ?? ""}`;
+  return containsAny(haystack, MARKETING_SUBJECT_KEYWORDS);
 }
 
 function isNewsletterMail(input: SystemMailDetectionInput): boolean {
@@ -153,7 +247,7 @@ function isNewsletterMail(input: SystemMailDetectionInput): boolean {
     return true;
   }
 
-  return false;
+  return isMarketingSubject(input);
 }
 
 function isOwnSentMail(input: SystemMailDetectionInput, fromEmail: string | null): boolean {
@@ -168,7 +262,7 @@ function isOwnSentMail(input: SystemMailDetectionInput, fromEmail: string | null
 export function detectSystemMail(
   input: SystemMailDetectionInput
 ): SystemMailDetectionResult {
-  const parsed = parseFrom(input.from);
+  const parsed = parseEmailFrom(input.from);
   const fromEmail = parsed.email || null;
 
   if (isOwnSentMail(input, fromEmail)) {
@@ -179,11 +273,19 @@ export function detectSystemMail(
     };
   }
 
-  if (isVerificationMail(input, fromEmail)) {
+  if (isVerificationMail(input)) {
     return {
       isSystemMail: true,
       category: "verification",
-      reason: "Verifizierungs- oder Code-Mail",
+      reason: "Verifizierungs-, Login- oder Code-Mail",
+    };
+  }
+
+  if (isNewsletterMail(input)) {
+    return {
+      isSystemMail: true,
+      category: "newsletter",
+      reason: "Newsletter, Werbung oder Marketing-Mail",
     };
   }
 
@@ -195,11 +297,11 @@ export function detectSystemMail(
     };
   }
 
-  if (isNewsletterMail(input)) {
+  if (!fromEmail && (isVerificationMail(input) || isMarketingSubject(input))) {
     return {
       isSystemMail: true,
-      category: "newsletter",
-      reason: "Newsletter oder Marketing-Mail",
+      category: "system_transaction",
+      reason: "Automatische Mail ohne persönlichen Absender",
     };
   }
 

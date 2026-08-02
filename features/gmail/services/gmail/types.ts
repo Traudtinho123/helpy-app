@@ -3,6 +3,7 @@ export type GmailMimePart = {
   partId?: string;
   mimeType?: string;
   filename?: string;
+  headers?: Array<{ name: string; value: string }>;
   body?: {
     attachmentId?: string;
     size?: number;

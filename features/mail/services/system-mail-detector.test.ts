@@ -44,6 +44,26 @@ describe("system mail detector", () => {
     expect(result.isSystemMail).toBe(false);
   });
 
+  it("detects marketing subjects", () => {
+    const result = detectSystemMail({
+      from: '"Mediamarkt" <info@mediamarkt.ch>',
+      subject: "mediamarkt.ch - POWERPAY",
+      snippet: "POWERPAY Angebot",
+    });
+
+    expect(result.isSystemMail).toBe(true);
+  });
+
+  it("detects login notification", () => {
+    const result = detectSystemMail({
+      from: "Security <security@google.com>",
+      subject: "New Device Login",
+      snippet: "A new sign-in on your account",
+    });
+
+    expect(result.isSystemMail).toBe(true);
+  });
+
   it("detects newsletter headers", () => {
     const result = detectSystemMail({
       from: "News <news@example.com>",

@@ -1,5 +1,3 @@
-import { hasCustomerInquirySignals } from "@/features/spam-handling/services/spam-detection";
-
 const OPENAI_CHAT_URL = "https://api.openai.com/v1/chat/completions";
 const MODEL = "gpt-4o";
 
@@ -74,14 +72,10 @@ function parseClassificationPayload(
   const fallback = new Map<string, MailVorgangClassification>();
 
   for (const input of inputs) {
-    const combined = `${input.subject} ${input.from} ${input.bodyPreview}`.toLowerCase();
-    const likelyCustomer = hasCustomerInquirySignals(combined);
     fallback.set(input.messageId, {
-      ist_vorgang: likelyCustomer,
-      grund: likelyCustomer
-        ? "Heuristische Kundenanfrage erkannt"
-        : "Im Zweifel kein Vorgang (Fallback ohne KI)",
-      kategorie: likelyCustomer ? "allgemeine_anfrage" : "system_mail",
+      ist_vorgang: false,
+      grund: "Im Zweifel kein Vorgang (Fallback)",
+      kategorie: "system_mail",
       absender_typ: "unbekannt",
     });
   }

@@ -1,14 +1,8 @@
-import { analyzeGmailMessages } from "@/features/brain/services/brain-v3";
 import {
-  buildGmailVorgangBundles,
   type GmailVorgangBundle,
 } from "@/features/brain/services/brain-result-to-vorgang";
 import { mapGmailMessageToUnifiedMail } from "@/features/mail/services/unified-mail-mapper";
 import { buildAllMailVorgangBundles } from "@/features/mail/mail-vorgang-bundles";
-import { isHelpySystemMail } from "@/features/workspace/services/vorgaenge/helpy-report-detector";
-import { buildHelpyReportBundleFromGmailMessage } from "@/features/workspace/services/vorgaenge/helpy-report-vorgang";
-import { buildSystemMailReportFromGmailMessage } from "@/features/workspace/services/vorgaenge/helpy-report-vorgang";
-import { detectSystemMailFromGmail } from "@/features/mail/services/system-mail-detector";
 import { persistMailBundleToDb } from "@/features/vorgaenge/services/create-vorgang-client";
 import { isHelpyReportVorgang } from "@/features/workspace/services/vorgaenge/helpy-report-detector";
 import {
@@ -111,66 +105,14 @@ async function buildBundlesFromMessages(
   context: GmailSyncContext
 ): Promise<GmailVorgangBundle[]> {
   const skill = resolveAnalyzeSkill();
-
-  if (context.connectionId) {
-    const unified = messages.map((message) =>
-      mapGmailMessageToUnifiedMail(
-        message,
-        context.ownEmail ?? null,
-        context.connectionId
-      )
-    );
-    return buildAllMailVorgangBundles(unified, skill);
-  }
-
-  const bundles: GmailVorgangBundle[] = [];
-  const forBrain: GmailConnectorMessage[] = [];
-
-  for (const message of messages) {
-    if (
-      isHelpySystemMail({
-        subject: message.subject,
-        from: message.from,
-        sourceAccountEmail: context.ownEmail ?? null,
-      })
-    ) {
-      bundles.push(
-        buildHelpyReportBundleFromGmailMessage(
-          message,
-          context.ownEmail ?? null,
-          context.connectionId
-        )
-      );
-      continue;
-    }
-
-    const systemDetection = detectSystemMailFromGmail(
+  const unified = messages.map((message) =>
+    mapGmailMessageToUnifiedMail(
       message,
-      context.ownEmail ?? null
-    );
-    if (systemDetection.isSystemMail) {
-      if (systemDetection.category !== "own_sent") {
-        bundles.push(
-          buildSystemMailReportFromGmailMessage(
-            message,
-            systemDetection,
-            context.ownEmail ?? null,
-            context.connectionId
-          )
-        );
-      }
-      continue;
-    }
-
-    forBrain.push(message);
-  }
-
-  if (forBrain.length > 0) {
-    const results = analyzeGmailMessages(forBrain, { activeSkill: skill });
-    bundles.push(...buildGmailVorgangBundles(results, forBrain));
-  }
-
-  return bundles;
+      context.ownEmail ?? null,
+      context.connectionId
+    )
+  );
+  return buildAllMailVorgangBundles(unified, skill);
 }
 
 /** Befüllt mailConnectionId + mailAttachments für bestehende Cache-Vorgänge. */

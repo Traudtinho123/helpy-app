@@ -1,4 +1,4 @@
-const EMAIL_PATTERN = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
+const EMAIL_PATTERN = /([^\s@<>]+@[^\s@<>]+\.[^\s@<>]+)/;
 
 export type ParsedFromHeader = {
   name: string;
@@ -9,8 +9,12 @@ function normalizeEmail(value: string): string {
   return value.trim().toLowerCase();
 }
 
-function isValidEmail(value: string): boolean {
-  return /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value.trim());
+function cleanDisplayName(value: string): string {
+  return value
+    .trim()
+    .replace(/^["']+|["']+$/g, "")
+    .replace(/\\"/g, '"')
+    .trim();
 }
 
 function nameFromEmailLocalPart(email: string): string {
@@ -21,66 +25,64 @@ function nameFromEmailLocalPart(email: string): string {
 /**
  * Parst Gmail/Outlook From-Header robust.
  *
- * Beispiele:
- * - "DocuSign <noreply@docusign.com>" → { name: "DocuSign", email: "noreply@docusign.com" }
- * - "Thomas Müller <thomas@gmail.com>" → { name: "Thomas Müller", email: "thomas@gmail.com" }
- * - "thomas@gmail.com" → { name: "thomas", email: "thomas@gmail.com" }
+ * Formate:
+ * A) "Thomas Müller <thomas@gmail.com>"
+ * B) "DocuSign <noreply@docusign.net>"
+ * C) "noreply@docusign.net"
+ * D) "\"Mediamarkt\" <info@mediamarkt.ch>"
  */
 export function parseFrom(fromHeader: string): ParsedFromHeader {
+  return parseEmailFrom(fromHeader);
+}
+
+/** Alias — identische Implementierung wie parseFrom. */
+export function parseEmailFrom(fromHeader: string): ParsedFromHeader {
   const raw = fromHeader?.trim() ?? "";
   if (!raw) {
-    return { name: "Unbekannt", email: "" };
+    return { name: "System", email: "" };
   }
 
-  const namedMatch = raw.match(/^"?([^"<]+)"?\s*<([^>]+)>$/);
-  if (namedMatch) {
-    const email = namedMatch[2].trim();
-    const name = namedMatch[1].trim().replace(/^["']|["']$/g, "").trim();
-    if (isValidEmail(email)) {
-      return {
-        name: name || nameFromEmailLocalPart(normalizeEmail(email)),
-        email: normalizeEmail(email),
-      };
+  const withName = raw.match(/"?([^"<]+?)"?\s*<([^>]+)>/);
+  if (withName) {
+    const email = normalizeEmail(withName[2]);
+    const name = cleanDisplayName(withName[1]) || nameFromEmailLocalPart(email);
+    if (email.includes("@")) {
+      return { name, email };
     }
   }
 
   const angleMatch = raw.match(/<([^>]+)>/);
   if (angleMatch?.[1]) {
-    const email = angleMatch[1].trim();
-    if (isValidEmail(email)) {
-      const normalized = normalizeEmail(email);
-      const prefixName = raw.split("<")[0]?.trim().replace(/^["']|["']$/g, "").trim();
+    const email = normalizeEmail(angleMatch[1]);
+    if (email.includes("@")) {
+      const prefix = cleanDisplayName(raw.split("<")[0] ?? "");
       return {
-        name: prefixName && !prefixName.includes("@") ? prefixName : nameFromEmailLocalPart(normalized),
-        email: normalized,
+        name: prefix && !prefix.includes("@") ? prefix : nameFromEmailLocalPart(email),
+        email,
       };
     }
   }
 
-  if (isValidEmail(raw)) {
-    const normalized = normalizeEmail(raw);
-    return {
-      name: nameFromEmailLocalPart(normalized),
-      email: normalized,
-    };
-  }
-
   const emailOnly = raw.match(EMAIL_PATTERN);
-  if (emailOnly?.[1] && isValidEmail(emailOnly[1])) {
-    const normalized = normalizeEmail(emailOnly[1]);
+  if (emailOnly?.[1]) {
+    const email = normalizeEmail(emailOnly[1]);
     return {
-      name: nameFromEmailLocalPart(normalized),
-      email: normalized,
+      name: nameFromEmailLocalPart(email),
+      email,
     };
   }
 
-  return { name: raw, email: "" };
+  return { name: cleanDisplayName(raw) || "System", email: "" };
 }
 
 export function buildFromHeader(name: string, email: string): string {
   if (!email) return name.trim();
-  const cleanName = name.trim();
-  if (cleanName && !cleanName.includes("@") && cleanName.toLowerCase() !== email.toLowerCase()) {
+  const cleanName = cleanDisplayName(name);
+  if (
+    cleanName &&
+    !cleanName.includes("@") &&
+    cleanName.toLowerCase() !== email.toLowerCase()
+  ) {
     return `${cleanName} <${email}>`;
   }
   return email;
