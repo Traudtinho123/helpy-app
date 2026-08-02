@@ -5,6 +5,8 @@ import {
 } from "@/lib/oauth";
 import type { OAuthProviderId } from "@/lib/oauth/types";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request): Promise<NextResponse> {
   const auth = await requireOAuthContext();
   if (!auth.ok) {

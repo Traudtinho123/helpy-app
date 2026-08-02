@@ -29,7 +29,17 @@ export async function fetchOAuthConnections(
 }
 
 export async function migrateLegacyOAuthTokens(): Promise<void> {
-  await fetch("/api/oauth/migrate", { method: "POST" });
+  try {
+    const response = await fetch("/api/oauth/migrate", { method: "POST" });
+    if (!response.ok) {
+      console.warn("[oauth] migrate failed:", response.status);
+    }
+  } catch (error) {
+    console.warn(
+      "[oauth] migrate failed:",
+      error instanceof Error ? error.message : error
+    );
+  }
 }
 
 export function startGoogleMailConnect(): void {
@@ -65,5 +75,17 @@ export async function syncGmailViaOAuthApi(): Promise<GmailSyncApiResponse> {
     method: "POST",
     cache: "no-store",
   });
-  return (await response.json()) as GmailSyncApiResponse;
+
+  const raw = await response.text();
+  try {
+    return JSON.parse(raw) as GmailSyncApiResponse;
+  } catch {
+    return {
+      ok: false,
+      accounts: [],
+      error: response.ok
+        ? "Ungültige Server-Antwort beim Gmail-Sync."
+        : `Gmail-Sync fehlgeschlagen (${response.status}).`,
+    };
+  }
 }

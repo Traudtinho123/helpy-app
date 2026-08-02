@@ -224,18 +224,30 @@ export async function getOAuthConnectionsWithTokens(
   return resolved;
 }
 
-function decryptRowTokens(row: OAuthConnectionRow): OAuthStoredTokens {
-  return {
-    accessToken: decryptOAuthSecret(row.access_token_encrypted),
-    refreshToken: row.refresh_token_encrypted
-      ? decryptOAuthSecret(row.refresh_token_encrypted)
-      : null,
-    accountEmail: row.account_email,
-    expiresAt: row.token_expires_at
-      ? Date.parse(row.token_expires_at)
-      : null,
-    scopes: row.scopes ?? [],
-  };
+function decryptRowTokens(row: OAuthConnectionRow): OAuthStoredTokens | null {
+  try {
+    const accessToken = decryptOAuthSecret(row.access_token_encrypted);
+    if (!accessToken) return null;
+
+    return {
+      accessToken,
+      refreshToken: row.refresh_token_encrypted
+        ? decryptOAuthSecret(row.refresh_token_encrypted)
+        : null,
+      accountEmail: row.account_email,
+      expiresAt: row.token_expires_at
+        ? Date.parse(row.token_expires_at)
+        : null,
+      scopes: row.scopes ?? [],
+    };
+  } catch (error) {
+    console.error(
+      "[oauth] token decrypt failed:",
+      row.id,
+      error instanceof Error ? error.message : error
+    );
+    return null;
+  }
 }
 
 export async function updateOAuthConnectionTokens(

@@ -11,13 +11,15 @@ import {
   upsertOAuthConnection,
 } from "@/lib/oauth";
 
+export const dynamic = "force-dynamic";
+
 export type GmailAccountSyncPayload = {
   connectionId: string;
   accountEmail: string;
   messages: GmailConnectorMessage[];
 };
 
-export async function POST(): Promise<NextResponse> {
+async function runGmailSync(): Promise<NextResponse> {
   const access = await requireSkillAccessApi();
   if (!access.ok) return access.response;
 
@@ -26,9 +28,30 @@ export async function POST(): Promise<NextResponse> {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  await migrateSessionGoogleToken(auth.context);
+  try {
+    await migrateSessionGoogleToken(auth.context);
+  } catch (error) {
+    console.warn(
+      "[oauth/gmail/sync] session migration skipped:",
+      error instanceof Error ? error.message : error
+    );
+  }
 
-  const accounts = await listValidGoogleTokensForCompany(auth.context.companyId);
+  let accounts: Awaited<ReturnType<typeof listValidGoogleTokensForCompany>> = [];
+  try {
+    accounts = await listValidGoogleTokensForCompany(auth.context.companyId);
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Gmail-Verbindungen konnten nicht geladen werden.";
+    console.error("[oauth/gmail/sync] token load:", message);
+    return NextResponse.json({
+      ok: false,
+      error: message,
+      accounts: [] as GmailAccountSyncPayload[],
+    });
+  }
 
   if (accounts.length === 0) {
     return NextResponse.json({
@@ -40,6 +63,7 @@ export async function POST(): Promise<NextResponse> {
 
   const syncedAt = new Date().toISOString();
   const results: GmailAccountSyncPayload[] = [];
+  const syncErrors: string[] = [];
 
   for (const account of accounts) {
     try {
@@ -61,6 +85,7 @@ export async function POST(): Promise<NextResponse> {
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Gmail-Sync fehlgeschlagen.";
+      syncErrors.push(`${account.tokens.accountEmail}: ${message}`);
       await updateOAuthConnectionSyncMeta(account.connectionId, auth.context.companyId, {
         lastError: message,
         status: "error",
@@ -72,7 +97,31 @@ export async function POST(): Promise<NextResponse> {
     ok: results.length > 0,
     syncedAt,
     accounts: results,
+    errors: syncErrors.length > 0 ? syncErrors : undefined,
   });
+}
+
+export async function POST(): Promise<NextResponse> {
+  try {
+    return await runGmailSync();
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Gmail-Sync fehlgeschlagen.";
+    console.error("[oauth/gmail/sync]", message);
+    return NextResponse.json(
+      {
+        ok: false,
+        error: message,
+        accounts: [] as GmailAccountSyncPayload[],
+      },
+      { status: 500 }
+    );
+  }
+}
+
+/** Legacy-Clients riefen teils GET auf — gleiches Verhalten wie POST. */
+export async function GET(): Promise<NextResponse> {
+  return POST();
 }
 
 /** Migriert legacy Supabase provider_token in oauth_connections (einmalig). */
