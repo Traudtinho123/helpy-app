@@ -6,17 +6,14 @@ import {
 } from "@/lib/social-media/social-media-repository";
 import type { SocialPlatform } from "@/features/social-media/types/social-media-types";
 import {
-  createDevCompanyContext,
-  requireCompanyContext,
-} from "@/lib/tenant/require-company-context";
-import { isSupabaseConfigured } from "@/lib/supabase/config";
+  resolveCompanyContextForReadApi,
+  resolveCompanyContextForWriteApi,
+} from "@/lib/tenant/resolve-company-context-for-api";
 
 export async function GET() {
-  const auth = await requireCompanyContext();
-  const context = auth.ok ? auth.context : createDevCompanyContext();
-
-  if (!auth.ok && isSupabaseConfigured()) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  const context = await resolveCompanyContextForReadApi();
+  if (!context) {
+    return NextResponse.json({ posts: [], warning: "Nicht angemeldet." });
   }
 
   const posts = await listRecentSocialPosts(context.companyId, 100);
@@ -24,12 +21,11 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const auth = await requireCompanyContext();
-  const context = auth.ok ? auth.context : createDevCompanyContext();
-
-  if (!auth.ok && isSupabaseConfigured()) {
+  const auth = await resolveCompanyContextForWriteApi();
+  if (!auth.ok) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
+  const context = auth.context;
 
   let body: {
     platform?: SocialPlatform;
@@ -81,12 +77,11 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const auth = await requireCompanyContext();
-  const context = auth.ok ? auth.context : createDevCompanyContext();
-
-  if (!auth.ok && isSupabaseConfigured()) {
+  const auth = await resolveCompanyContextForWriteApi();
+  if (!auth.ok) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
+  const context = auth.context;
 
   let body: {
     postId?: string;

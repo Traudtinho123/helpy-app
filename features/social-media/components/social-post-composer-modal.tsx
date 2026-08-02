@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/Textarea";
+import { readApiErrorMessage } from "@/lib/http/fetch-errors";
 import {
   SOCIAL_PLATFORM_EMOJI,
   SOCIAL_PLATFORM_LABELS,
@@ -78,8 +79,9 @@ export function SocialPostComposerModal({
       });
 
       if (!response.ok) {
-        const payload = (await response.json()) as { error?: string };
-        throw new Error(payload.error ?? "Speichern fehlgeschlagen.");
+        throw new Error(
+          await readApiErrorMessage(response, "Speichern fehlgeschlagen.")
+        );
       }
 
       setSavedMessage("✓ Entwurf gespeichert");

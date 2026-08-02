@@ -19,6 +19,7 @@ import { SocialPostListCard } from "@/features/social-media/components/social-po
 import { getRealEstateObjectById } from "@/features/real-estate/object/object-memory";
 import { subscribeRealEstateObjects } from "@/features/real-estate/object/object-memory";
 import { useStoreRevision } from "@/lib/hooks/use-store-revision";
+import { readApiErrorMessage } from "@/lib/http/fetch-errors";
 import type {
   SocialConnection,
   SocialPost,
@@ -83,19 +84,27 @@ function SocialMediaContent() {
       window.clearTimeout(timeout);
 
       if (!response.ok) {
-        const payload = (await response.json().catch(() => null)) as { error?: string } | null;
         setPosts([]);
         setConnections([]);
-        setLoadError(payload?.error ?? "Social-Media-Daten konnten nicht geladen werden.");
+        setLoadError(
+          await readApiErrorMessage(
+            response,
+            "Social-Media-Daten konnten nicht geladen werden."
+          )
+        );
         return;
       }
 
       const payload = (await response.json()) as {
         posts?: SocialPost[];
         connections?: SocialConnection[];
+        warning?: string;
       };
       setPosts(payload.posts ?? []);
       setConnections(payload.connections ?? []);
+      if (payload.warning) {
+        setLoadError(payload.warning);
+      }
     } catch (err) {
       setPosts([]);
       setConnections([]);
@@ -189,15 +198,17 @@ function SocialMediaContent() {
           onValueChange={(value) => setActiveTab(value as SocialTab)}
         />
 
+        {loadError ? (
+          <div className="mt-4 rounded-[14px] border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-[13px] text-[#B91C1C]">
+            {loadError}
+          </div>
+        ) : null}
+
         <TabsPanel>
-          {loading ? (
+          {loading && activeTab !== "examples" ? (
             <div className="flex min-h-[160px] items-center justify-center text-[13px] text-[var(--text-secondary)]">
               <Loader2 className="mr-2 size-4 animate-spin" />
               Posts werden geladen …
-            </div>
-          ) : loadError ? (
-            <div className="rounded-[14px] border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-[13px] text-[#B91C1C]">
-              {loadError}
             </div>
           ) : activeTab === "drafts" ? (
             drafts.length === 0 ? (

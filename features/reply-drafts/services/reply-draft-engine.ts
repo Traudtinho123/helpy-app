@@ -97,7 +97,11 @@ export function buildReplyDraftInputFromListe(
   const senderName =
     platformName ?? resolvedSender.name ?? extractSenderName(from || vorgang.kunde);
   const senderEmail =
-    platformEmail ?? resolvedSender.email ?? extractEmailAddress(from) ?? "";
+    platformEmail ??
+    vorgang.absenderEmail ??
+    resolvedSender.email ??
+    extractEmailAddress(from) ??
+    "";
   const resolvedOriginalFrom = platformEmail
     ? `${senderName} <${platformEmail}>`
     : originalFrom;

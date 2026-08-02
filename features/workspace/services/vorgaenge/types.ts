@@ -77,6 +77,8 @@ export type Vorgang = {
   helpyStatus?: string;
   from?: string;
   emailDate?: string;
+  /** Absender-E-Mail aus DB (absender_email) */
+  absenderEmail?: string;
   /** Mail-Provider für Dedup und Send-Flow */
   mailProvider?: "gmail" | "outlook";
   /** OAuth-Verbindung für Anhang-Proxy */

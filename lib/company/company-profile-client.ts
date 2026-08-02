@@ -1,3 +1,4 @@
+import { readApiErrorMessage } from "@/lib/http/fetch-errors";
 import type { CompanyProfile } from "@/lib/company/company-profile-types";
 
 export type CompanyProfileLoadResult =
@@ -16,17 +17,37 @@ export async function fetchCompanyProfileFromApi(): Promise<CompanyProfileLoadRe
       cache: "no-store",
     });
 
-    const payload = (await response.json()) as {
+    const raw = await response.text().catch(() => "");
+
+    if (!response.ok) {
+      if (raw) {
+        try {
+          const payload = JSON.parse(raw) as { error?: string };
+          return {
+            ok: false,
+            error: payload.error ?? "Firmendaten konnten nicht geladen werden.",
+          };
+        } catch {
+          return {
+            ok: false,
+            error: await readApiErrorMessage(
+              new Response(raw, { status: response.status }),
+              "Firmendaten konnten nicht geladen werden."
+            ),
+          };
+        }
+      }
+
+      return {
+        ok: false,
+        error: "Firmendaten konnten nicht geladen werden.",
+      };
+    }
+
+    const payload = JSON.parse(raw) as {
       profile?: CompanyProfile | null;
       error?: string;
     };
-
-    if (!response.ok) {
-      return {
-        ok: false,
-        error: payload.error ?? "Firmendaten konnten nicht geladen werden.",
-      };
-    }
 
     if (!payload.profile) {
       return {
@@ -55,17 +76,37 @@ export async function saveCompanyProfileToApi(
       body: JSON.stringify(profile),
     });
 
-    const payload = (await response.json()) as {
+    const raw = await response.text().catch(() => "");
+
+    if (!response.ok) {
+      if (raw) {
+        try {
+          const payload = JSON.parse(raw) as { error?: string };
+          return {
+            ok: false,
+            error: payload.error ?? "Firmendaten konnten nicht gespeichert werden.",
+          };
+        } catch {
+          return {
+            ok: false,
+            error: await readApiErrorMessage(
+              new Response(raw, { status: response.status }),
+              "Firmendaten konnten nicht gespeichert werden."
+            ),
+          };
+        }
+      }
+
+      return {
+        ok: false,
+        error: "Firmendaten konnten nicht gespeichert werden.",
+      };
+    }
+
+    const payload = JSON.parse(raw) as {
       profile?: CompanyProfile;
       error?: string;
     };
-
-    if (!response.ok) {
-      return {
-        ok: false,
-        error: payload.error ?? "Firmendaten konnten nicht gespeichert werden.",
-      };
-    }
 
     if (!payload.profile) {
       return {

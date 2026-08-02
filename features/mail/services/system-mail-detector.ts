@@ -32,6 +32,9 @@ export const SYSTEM_MAIL_DOMAINS = [
   "galaxus.ch",
   "digitec.ch",
   "linkedin.com",
+  "xing.com",
+  "xing.de",
+  "news.xing.com",
   "facebook.com",
   "instagram.com",
   "twitter.com",
@@ -179,6 +182,9 @@ const MARKETING_SUBJECT_KEYWORDS = [
   "krise",
   "clevere",
   "✨",
+  "xing news",
+  "wirtschaft & management",
+  "wirtschaft und management",
 ] as const;
 
 const AUTO_NOTIFICATION_SUBJECT_KEYWORDS = [

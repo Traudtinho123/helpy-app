@@ -2,6 +2,7 @@ import {
   decodeGmailAttachmentData,
   extractGmailAttachmentsFromPayload,
 } from "@/features/gmail/services/gmail/attachment-parser";
+import { extractPlainTextFromGmailPayload } from "@/features/gmail/services/gmail/body-extractor";
 import { getGmailHeader } from "@/features/gmail/services/gmail-header-extractor";
 import type {
   GmailAttachmentData,
@@ -92,6 +93,28 @@ async function gmailFetch<T>(
   }
 
   return response.json() as Promise<T>;
+}
+
+/** Lädt eine Gmail-Nachricht inkl. vollem Body (format=full). */
+export async function fetchGmailMessageById(
+  accessToken: string,
+  messageId: string
+): Promise<GmailConnectorMessage & { bodyText: string; to: string }> {
+  const params = new URLSearchParams({ format: "full" });
+  const message = await gmailFetch<GmailMessagePayload>(
+    accessToken,
+    `/users/me/messages/${messageId}?${params.toString()}`
+  );
+  const mapped = mapMessage(message);
+  const payload = message.payload;
+  const bodyText =
+    extractPlainTextFromGmailPayload(payload) || mapped.snippet || "";
+  const to =
+    getHeader(payload?.headers, "To") ||
+    getHeader(payload?.headers, "Delivered-To") ||
+    "";
+
+  return { ...mapped, bodyText, to };
 }
 
 async function fetchMessageFull(

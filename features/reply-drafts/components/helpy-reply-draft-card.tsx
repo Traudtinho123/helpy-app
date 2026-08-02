@@ -352,9 +352,7 @@ export function HelpyReplyDraftCard({
         <div className="mb-3 flex items-start justify-between gap-3">
           <div className="flex items-center gap-2">
             <Mail className="size-4 text-[var(--accent)]" strokeWidth={2} />
-            <p className="text-[12px] font-semibold text-[var(--text-primary)]">
-              Antwort von HELPY vorbereitet
-            </p>
+            <p className="text-[12px] font-semibold text-[var(--text-primary)]">Antwort</p>
           </div>
           {statusBadge && (
             <span
@@ -373,8 +371,12 @@ export function HelpyReplyDraftCard({
 
         <div className="space-y-3">
           <Field
-            label="Empfänger"
-            value={draft.recipientEmail ?? draft.recipient}
+            label="An"
+            value={
+              draft.recipientEmail
+                ? `${draft.recipientEmail}${draft.recipientValid ? " ✓" : ""}`
+                : draft.recipient
+            }
             error={sendDisabled ? RECIPIENT_UNKNOWN_MESSAGE : null}
           />
           {editing ? (
@@ -503,7 +505,7 @@ export function HelpyReplyDraftCard({
                 onClick={handleSaveEdit}
                 className="h-8 rounded-[10px] bg-[#2563EB] px-3 text-[11px] font-semibold text-white"
               >
-                Speichern
+                Speichern als Entwurf
               </Button>
               <Button
                 type="button"

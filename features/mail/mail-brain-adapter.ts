@@ -69,6 +69,8 @@ export function buildMailVorgangBundles(
   );
 
   return results.flatMap((result) => {
+    if (result.intent === "Spam / Newsletter") return [];
+
     const unified = byId.get(result.originalEmailId);
     if (!unified) return [];
 

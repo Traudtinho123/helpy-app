@@ -73,4 +73,22 @@ describe("mail intake gate", () => {
     });
     expect(decision.shouldCreateVorgang).toBe(true);
   });
+
+  it("rejects XING news mail", () => {
+    const decision = evaluateMailIntake({
+      from: "XING News Wirtschaft & Management <news@xing.com>",
+      subject: "Rekordschulden, BMW in der Krise",
+      snippet: "Die wirtschaftliche Lage verschärft sich",
+    });
+    expect(decision.shouldCreateVorgang).toBe(false);
+  });
+
+  it("rejects when HELPY newsletter hint in body", () => {
+    const decision = evaluateMailIntake({
+      from: "News <news@example.com>",
+      subject: "Weekly digest",
+      snippet: "XING News hat vermutlich eine Werbe- oder Newsletter-Nachricht gesendet.",
+    });
+    expect(decision.shouldCreateVorgang).toBe(false);
+  });
 });

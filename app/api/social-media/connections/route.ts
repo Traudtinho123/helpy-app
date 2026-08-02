@@ -5,20 +5,20 @@ import {
   revokeSocialConnection,
 } from "@/lib/social-media/social-media-repository";
 import type { SocialConnectionPlatform } from "@/features/social-media/types/social-media-types";
-import {
-  createDevCompanyContext,
-  requireCompanyContext,
-} from "@/lib/tenant/require-company-context";
-import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { resolveCompanyContextForReadApi } from "@/lib/tenant/resolve-company-context-for-api";
 import { isLinkedInPublishingConfigured } from "@/features/social-media/services/linkedin-publish-client";
 import { isMetaPublishingConfigured } from "@/features/social-media/services/meta-publish-client";
 
 export async function GET() {
-  const auth = await requireCompanyContext();
-  const context = auth.ok ? auth.context : createDevCompanyContext();
+  const context = await resolveCompanyContextForReadApi();
 
-  if (!auth.ok && isSupabaseConfigured()) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  if (!context) {
+    return NextResponse.json({
+      posts: [],
+      connections: [],
+      config: { meta: false, linkedin: false },
+      warning: "Nicht angemeldet oder kein Unternehmen zugeordnet.",
+    });
   }
 
   const connections = await listSocialConnections(context.companyId);
@@ -37,11 +37,13 @@ export async function GET() {
 }
 
 export async function DELETE(request: Request) {
-  const auth = await requireCompanyContext();
-  const context = auth.ok ? auth.context : createDevCompanyContext();
+  const context = await resolveCompanyContextForReadApi();
 
-  if (!auth.ok && isSupabaseConfigured()) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  if (!context) {
+    return NextResponse.json(
+      { error: "Nicht angemeldet oder kein Unternehmen zugeordnet." },
+      { status: 401 }
+    );
   }
 
   const url = new URL(request.url);

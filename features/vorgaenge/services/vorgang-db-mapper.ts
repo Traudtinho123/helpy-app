@@ -107,6 +107,7 @@ export function mapVorgangDbRecordToListeVorgang(
     kundenAkteId: record.kunden_id ?? undefined,
     sourceEventId: record.voice_call_id ?? record.gmail_message_id ?? undefined,
     threadId: record.gmail_thread_id ?? undefined,
+    absenderEmail: record.absender_email ?? sender.email ?? undefined,
     href: record.source === "helpy_phone" ? "/telefonie" : undefined,
   };
 }

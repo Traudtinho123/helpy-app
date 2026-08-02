@@ -46,6 +46,8 @@ export type WorkspaceObjectContext = {
 export type WorkspaceMailContext = {
   betreff: string;
   absender: string;
+  absenderEmail: string | null;
+  empfaenger: string | null;
   datum: string;
   inhalt: string;
   zusammenfassung: string;
@@ -55,6 +57,7 @@ export type WorkspaceMailContext = {
   summary: string | null;
   detectedContext: readonly string[];
   replyDraft: ReplyDraft | null;
+  gmailMessageId: string | null;
 };
 
 export type WorkspaceAppointmentContext = {
@@ -136,6 +139,8 @@ export const EMPTY_WORKSPACE_WORKFLOW: WorkspaceWorkflowContext = {
 export const EMPTY_WORKSPACE_MAIL: WorkspaceMailContext = {
   betreff: "",
   absender: "",
+  absenderEmail: null,
+  empfaenger: null,
   datum: "",
   inhalt: "",
   zusammenfassung: "",
@@ -145,6 +150,7 @@ export const EMPTY_WORKSPACE_MAIL: WorkspaceMailContext = {
   summary: null,
   detectedContext: [],
   replyDraft: null,
+  gmailMessageId: null,
 };
 
 /** Stabile SSR-/Fallback-Referenz — nie pro Aufruf neu erzeugen. */

@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
+import { Mail } from "lucide-react";
 import { HelpyReplyDraftCard } from "@/features/reply-drafts/components/helpy-reply-draft-card";
 import { isConnectedMailVorgang } from "@/features/decision/services/decision-engine";
+import { isNonReplyableVorgang } from "@/features/mail/services/non-replyable-vorgang";
 import { useWorkspaceContext } from "@/features/workspace/context";
 import type { Vorgang as ListeVorgang } from "@/features/workspace/services/vorgaenge/types";
 import type { Vorgang as WorkspaceVorgang } from "@/features/workspace/services/workspace/types";
@@ -69,6 +71,20 @@ export function HelpyReplyDraftWorkspaceCard({
   );
 
   if (!isConnectedMailVorgang(vorgang) || !liste) return null;
+
+  if (isNonReplyableVorgang(liste)) {
+    return (
+      <div className="rounded-[14px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3.5 py-3">
+        <div className="flex items-center gap-2">
+          <Mail className="size-4 text-[var(--text-muted)]" />
+          <p className="text-[12px] font-semibold text-[var(--text-primary)]">Antwort</p>
+        </div>
+        <p className="mt-2 text-[12px] text-[var(--text-secondary)]">
+          System-Mail – keine Antwort möglich
+        </p>
+      </div>
+    );
+  }
 
   return (
     <HelpyReplyDraftCard

@@ -11,6 +11,7 @@ import {
 } from "react";
 import { usePathname } from "next/navigation";
 import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
+import { readApiErrorMessage } from "@/lib/http/fetch-errors";
 import { updateLoadedCompanyProfile } from "@/lib/company/company-profile-service";
 import {
   applyDatabaseSkillAccess,
@@ -42,7 +43,7 @@ async function fetchSkillAccess(): Promise<{
     cache: "no-store",
   });
 
-  if (response.status === 401) {
+  if (response.status === 401 || response.status === 403) {
     return {
       allowedSkills: [],
       activeSkill: null,
@@ -52,7 +53,9 @@ async function fetchSkillAccess(): Promise<{
   }
 
   if (!response.ok) {
-    throw new Error("Skill-Zugang konnte nicht geladen werden.");
+    throw new Error(
+      await readApiErrorMessage(response, "Skill-Zugang konnte nicht geladen werden.")
+    );
   }
 
   const data = (await response.json()) as {

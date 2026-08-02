@@ -54,6 +54,8 @@ import {
 } from "@/features/workspace/services/gmail-workspace/gmail-workflow-steps";
 import { dedupeUnifiedMailAttachments } from "@/features/mail/services/mail-attachment-mapper";
 import { getMailListeVorgang } from "@/features/mail/unified-mail-source-service";
+import { extractEmailAddress } from "@/features/gmail/services/extract-email-address";
+import { resolveVorgangSender } from "@/features/workspace/services/vorgaenge/resolve-vorgang-sender";
 import type { Vorgang as ListeVorgang } from "@/features/workspace/services/vorgaenge/types";
 import type { Vorgang } from "@/features/workspace/services/workspace/types";
 
@@ -296,18 +298,42 @@ function buildObject(vorgangId: string, liste?: ListeVorgang): WorkspaceObjectCo
 }
 
 function buildMail(vorgang: Vorgang, liste?: ListeVorgang): WorkspaceMailContext {
+  const sender = liste
+    ? resolveVorgangSender(liste)
+    : resolveVorgangSender({
+        kunde: vorgang.kunde.firmenname,
+        titel: vorgang.aufgabe.titel,
+        from: vorgang.letzteEmail.absender,
+        summary: vorgang.letzteEmail.inhalt,
+      });
+
+  const absenderEmail =
+    liste?.absenderEmail ??
+    sender.email ??
+    extractEmailAddress(liste?.from ?? vorgang.letzteEmail.absender) ??
+    null;
+
+  const bodyText =
+    liste?.summary ??
+    liste?.snippet ??
+    vorgang.letzteEmail.inhalt ??
+    "";
+
   return {
     betreff: liste?.titel ?? vorgang.letzteEmail.betreff,
-    absender: liste?.from ?? vorgang.letzteEmail.absender,
+    absender: liste?.from ?? sender.from ?? vorgang.letzteEmail.absender,
+    absenderEmail,
+    empfaenger: null,
     datum: liste?.receivedLabel ?? vorgang.letzteEmail.datum,
-    inhalt: vorgang.letzteEmail.inhalt,
+    inhalt: bodyText,
     zusammenfassung: liste?.summary ?? vorgang.letzteEmail.zusammenfassung,
-    snippet: liste?.snippet ?? "",
+    snippet: liste?.snippet ?? bodyText,
     quelle: liste?.quelle ?? vorgang.kopfzeile?.quelle ?? "Gmail",
     intentLabel: liste?.intentLabel ?? vorgang.kopfzeile?.intentLabel ?? null,
     summary: liste?.summary ?? null,
     detectedContext: Object.freeze([...(liste?.detectedContext ?? [])]),
     replyDraft: getReplyDraft(vorgang.id),
+    gmailMessageId: liste?.sourceEventId ?? null,
   };
 }
 

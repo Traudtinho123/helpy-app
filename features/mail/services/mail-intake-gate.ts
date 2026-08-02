@@ -30,6 +30,19 @@ export type MailIntakeDecision = {
   classification: MailVorgangClassification | null;
 };
 
+const HELPY_NEWSLETTER_HINTS = [
+  "werbe- oder newsletter",
+  "newsletter-nachricht",
+  "xing news",
+  "wirtschaft & management",
+  "wirtschaft und management",
+] as const;
+
+function hasHelpyNewsletterHint(text: string): boolean {
+  const normalized = text.toLowerCase();
+  return HELPY_NEWSLETTER_HINTS.some((hint) => normalized.includes(hint));
+}
+
 function isPersonalInquirySender(fromHeader: string): boolean {
   const parsed = parseEmailFrom(fromHeader);
   if (!parsed.email) return false;
@@ -56,6 +69,20 @@ export function evaluateMailIntake(input: MailIntakeInput): MailIntakeDecision {
   }
 
   const combined = `${input.subject} ${input.from} ${input.snippet ?? ""} ${input.bodyPreview ?? ""}`;
+
+  if (hasHelpyNewsletterHint(combined)) {
+    return {
+      shouldCreateVorgang: false,
+      reason: "Newsletter/Werbung erkannt (HELPY-Hinweis)",
+      systemMail: {
+        isSystemMail: true,
+        category: "newsletter",
+        reason: "Werbe- oder Newsletter-Nachricht",
+      },
+      classification: null,
+    };
+  }
+
   const parsed = parseEmailFrom(input.from);
 
   if (

@@ -23,7 +23,10 @@ export async function GET(request: Request): Promise<NextResponse> {
 
   const auth = await requireCompanyContext();
   if (!auth.ok) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
+    const safeReturnTo = returnTo.startsWith("/") ? returnTo : "/plattformen";
+    const redirectUrl = new URL(safeReturnTo, request.url);
+    redirectUrl.searchParams.set("oauthError", auth.error);
+    return NextResponse.redirect(redirectUrl);
   }
 
   const state = randomBytes(16).toString("hex");

@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
-  Check,
   MoreHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,8 +21,6 @@ import { HelpyAppointmentSuggestionWorkspaceCard } from "@/features/appointment-
 import { GmailOriginalMessageCard } from "@/features/workspace/components/gmail-vorgang/gmail-original-message-card";
 import { WorkspaceVorgangHideButton } from "@/features/workspace/components/workspace-vorgang-hide-button";
 import { useWorkspaceContext } from "@/features/workspace/context";
-import { completeVorgang } from "@/features/workspace/services/vorgaenge/complete-vorgang-service";
-import { getMailListeVorgang } from "@/features/mail/unified-mail-source-service";
 import { resolveVorgangSender } from "@/features/workspace/services/vorgaenge/resolve-vorgang-sender";
 import {
   getStableRealEstateObjectSnapshot,
@@ -82,12 +79,6 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
     listeVorgang?.intentLabel ??
     (listeVorgang?.intent?.includes("besichtigung") ? "Besichtigungsanfrage" : "Anfrage");
 
-  const handleComplete = () => {
-    const target = listeVorgang ?? getMailListeVorgang(vorgangId);
-    if (target) void completeVorgang(target);
-    router.push("/vorgaenge");
-  };
-
   const handleMarkSpam = () => {
     hideVorgang(vorgangId);
     router.push("/vorgaenge");
@@ -95,7 +86,7 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
 
   const menuItems = [
     {
-      label: "Ausblenden",
+      label: "Archivieren",
       onClick: () => {
         hideVorgang(vorgangId);
         router.push("/vorgaenge");
@@ -267,18 +258,6 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
             <div className="mt-5 space-y-3">
               <HelpyReplyDraftWorkspaceCard />
               <HelpyAppointmentSuggestionWorkspaceCard />
-            </div>
-
-            <div className="mt-5">
-              <Button
-                type="button"
-                variant="success"
-                className="w-full justify-center"
-                onClick={handleComplete}
-              >
-                <Check className="size-4" />
-                Erledigen
-              </Button>
             </div>
           </div>
 

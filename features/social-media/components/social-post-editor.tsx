@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/Textarea";
+import { readApiErrorMessage } from "@/lib/http/fetch-errors";
 import type { RealEstateObject } from "@/features/real-estate/object/object-types";
 import {
   SOCIAL_PLATFORM_EMOJI,
@@ -89,8 +90,9 @@ export function SocialPostEditor({
       } else {
         setPosts([]);
         onPostsChange?.([]);
-        const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-        setError(payload?.error ?? "Posts konnten nicht geladen werden.");
+        setError(
+          await readApiErrorMessage(response, "Posts konnten nicht geladen werden.")
+        );
       }
     } catch (err) {
       setPosts([]);
@@ -141,7 +143,7 @@ export function SocialPostEditor({
     });
 
     if (!response.ok) {
-      throw new Error("Speichern fehlgeschlagen.");
+      throw new Error(await readApiErrorMessage(response, "Speichern fehlgeschlagen."));
     }
 
     const payload = (await response.json()) as { post: SocialPost };
@@ -165,7 +167,9 @@ export function SocialPostEditor({
         body: JSON.stringify({ object }),
       });
       if (!response.ok) {
-        throw new Error("Generierung fehlgeschlagen.");
+        throw new Error(
+          await readApiErrorMessage(response, "Generierung fehlgeschlagen.")
+        );
       }
       const payload = (await response.json()) as { posts: SocialPost[] };
       setPosts(payload.posts);
@@ -201,8 +205,9 @@ export function SocialPostEditor({
       );
 
       if (!response.ok) {
-        const payload = (await response.json()) as { error?: string };
-        throw new Error(payload.error ?? "Veröffentlichen fehlgeschlagen.");
+        throw new Error(
+          await readApiErrorMessage(response, "Veröffentlichen fehlgeschlagen.")
+        );
       }
 
       const payload = (await response.json()) as { post: SocialPost };
