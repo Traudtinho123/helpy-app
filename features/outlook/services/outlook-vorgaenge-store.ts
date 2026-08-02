@@ -168,13 +168,14 @@ async function mergeMessagesIntoCacheAsync(
   );
 
   const bundles = await buildAllMailVorgangBundles(incomingOnly);
-  const rawVorgaenge = bundles.map((bundle) => bundle.liste);
+  const customerBundles = bundles.customerBundles;
+  const rawVorgaenge = customerBundles.map((bundle) => bundle.liste);
   const combined = [...rawVorgaenge, ...(cache?.vorgaenge ?? [])];
   const { vorgaenge: uniqueVorgaenge } = deduplicateVorgaenge(combined);
 
   const withThread = applyThreadSnapshots(uniqueVorgaenge, messages, previous);
   const workspaces = Object.fromEntries(
-    bundles.map((bundle) => [bundle.liste.id, { ...bundle.workspace, id: bundle.liste.id }])
+    customerBundles.map((bundle) => [bundle.liste.id, { ...bundle.workspace, id: bundle.liste.id }])
   );
 
   cache = {
@@ -187,14 +188,14 @@ async function mergeMessagesIntoCacheAsync(
     processedMessageIds: [
       ...new Set([
         ...(cache?.processedMessageIds ?? []),
-        ...messages.map((message) => message.providerMessageId),
+        ...bundles.processedMessageIds,
       ]),
     ],
     accountEmail,
   };
 
   persistToSession();
-  seedNewBundles(bundles);
+  seedNewBundles(customerBundles);
   notify();
 }
 

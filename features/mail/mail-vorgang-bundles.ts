@@ -9,13 +9,17 @@ import {
   applyClassificationGate,
   evaluateMailIntake,
 } from "@/features/mail/services/mail-intake-gate";
+import { isHelpyReportVorgang } from "@/features/workspace/services/vorgaenge/helpy-report-detector";
 import { isHelpySystemUnifiedMail } from "@/features/workspace/services/vorgaenge/helpy-report-detector";
-import {
-  buildHelpyReportBundle,
-  buildSystemMailReportBundle,
-} from "@/features/workspace/services/vorgaenge/helpy-report-vorgang";
-import type { SystemMailCategory } from "@/features/mail/services/system-mail-detector";
+import { buildHelpyReportBundle } from "@/features/workspace/services/vorgaenge/helpy-report-vorgang";
 import type { HelpySkill } from "@/features/workspace/services/workspace/skills";
+
+export type MailVorgangBuildResult = {
+  /** Nur echte Kunden-Vorgänge — System-Mails erzeugen KEINEN Eintrag. */
+  customerBundles: GmailVorgangBundle[];
+  /** Gmail-Nachrichten-IDs die verarbeitet wurden (auch ignorierte System-Mails). */
+  processedMessageIds: string[];
+};
 
 function toIntakeInput(message: UnifiedMailMessage) {
   return {
@@ -32,60 +36,28 @@ function toIntakeInput(message: UnifiedMailMessage) {
   };
 }
 
-function resolveReportCategory(
-  category: SystemMailCategory | undefined
-): "verification" | "system_transaction" | "newsletter" | "own_sent" {
-  if (
-    category === "verification" ||
-    category === "newsletter" ||
-    category === "own_sent"
-  ) {
-    return category;
-  }
-  return "system_transaction";
-}
-
-function toSystemReportBundle(
-  message: UnifiedMailMessage,
-  reason: string,
-  category?: SystemMailCategory
-): GmailVorgangBundle {
-  return buildSystemMailReportBundle(message, {
-    isSystemMail: true,
-    category: resolveReportCategory(category),
-    reason,
-  });
-}
-
 /**
- * Striktes Mail-Intake: Standard ist KEIN Kunden-Vorgang.
- * Nur explizit bestätigte Kundenanfragen werden analysiert.
+ * Striktes Mail-Intake: System-Mails werden verworfen (kein Vorgang, kein Report-Eintrag).
+ * Nur bestätigte Kundenanfragen werden zu Vorgängen.
  */
 export async function buildAllMailVorgangBundles(
   messages: UnifiedMailMessage[],
   activeSkill?: HelpySkill
-): Promise<GmailVorgangBundle[]> {
-  const reportBundles: GmailVorgangBundle[] = [];
+): Promise<MailVorgangBuildResult> {
+  const customerBundles: GmailVorgangBundle[] = [];
+  const processedMessageIds: string[] = [];
   const gatePassed: UnifiedMailMessage[] = [];
 
   for (const message of messages) {
+    processedMessageIds.push(message.providerMessageId);
+
     if (isHelpySystemUnifiedMail(message)) {
-      reportBundles.push(buildHelpyReportBundle(message));
+      customerBundles.push(buildHelpyReportBundle(message));
       continue;
     }
 
     const intake = evaluateMailIntake(toIntakeInput(message));
     if (!intake.shouldCreateVorgang) {
-      if (intake.systemMail?.category === "own_sent") {
-        continue;
-      }
-      reportBundles.push(
-        toSystemReportBundle(
-          message,
-          intake.reason,
-          intake.systemMail?.category ?? "system_transaction"
-        )
-      );
       continue;
     }
 
@@ -93,7 +65,7 @@ export async function buildAllMailVorgangBundles(
   }
 
   if (gatePassed.length === 0) {
-    return reportBundles;
+    return { customerBundles, processedMessageIds };
   }
 
   const classificationInputs = gatePassed.map((message) => ({
@@ -114,26 +86,22 @@ export async function buildAllMailVorgangBundles(
 
     if (finalDecision.shouldCreateVorgang) {
       vorgangCandidates.push(message);
-      continue;
     }
-
-    reportBundles.push(
-      toSystemReportBundle(
-        message,
-        finalDecision.reason,
-        finalDecision.systemMail?.category ?? "system_transaction"
-      )
-    );
   }
 
   if (vorgangCandidates.length === 0) {
-    return reportBundles;
+    return { customerBundles, processedMessageIds };
   }
 
   const results = analyzeUnifiedMailMessages(vorgangCandidates, activeSkill);
-  const customerBundles = buildMailVorgangBundles(results, vorgangCandidates);
+  customerBundles.push(...buildMailVorgangBundles(results, vorgangCandidates));
 
-  return [...reportBundles, ...customerBundles];
+  return { customerBundles, processedMessageIds };
+}
+
+/** @deprecated Nutze customerBundles aus MailVorgangBuildResult */
+export function extractCustomerBundles(bundles: GmailVorgangBundle[]): GmailVorgangBundle[] {
+  return bundles.filter((bundle) => !isHelpyReportVorgang(bundle.liste));
 }
 
 export { isHelpyReportVorgang } from "@/features/workspace/services/vorgaenge/helpy-report-detector";

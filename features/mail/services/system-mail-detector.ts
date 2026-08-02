@@ -10,6 +10,10 @@ export const SYSTEM_MAIL_DOMAINS = [
   "supabase.com",
   "vercel.com",
   "github.com",
+  "github.dev",
+  "gitlab.com",
+  "circleci.com",
+  "netlify.com",
   "google.com",
   "accounts.google.com",
   "apple.com",
@@ -147,6 +151,27 @@ const MARKETING_SUBJECT_KEYWORDS = [
   "🔥",
   "sommers",
   "uhr des",
+  "fernseher",
+  "developer account",
+  "your developer",
+  "failed production",
+  "deployment failed",
+  "build failed",
+  "production deploy",
+  "stell alles auf den kopf",
+] as const;
+
+const AUTO_NOTIFICATION_SUBJECT_KEYWORDS = [
+  "notification",
+  "benachrichtigung",
+  "alert",
+  "reminder",
+  "erinnerung",
+  "account is ready",
+  "account ready",
+  "konto ist bereit",
+  "is ready",
+  "ist bereit",
 ] as const;
 
 const NEWSLETTER_X_MAILER_HINTS = [
@@ -235,7 +260,10 @@ function isVerificationMail(input: SystemMailDetectionInput): boolean {
 
 function isMarketingSubject(input: SystemMailDetectionInput): boolean {
   const haystack = `${input.subject} ${input.snippet ?? ""} ${input.bodyPreview ?? ""}`;
-  return containsAny(haystack, MARKETING_SUBJECT_KEYWORDS);
+  return (
+    containsAny(haystack, MARKETING_SUBJECT_KEYWORDS) ||
+    containsAny(haystack, AUTO_NOTIFICATION_SUBJECT_KEYWORDS)
+  );
 }
 
 function isNewsletterMail(input: SystemMailDetectionInput): boolean {

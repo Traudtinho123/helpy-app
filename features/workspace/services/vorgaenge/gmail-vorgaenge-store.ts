@@ -112,7 +112,26 @@ async function buildBundlesFromMessages(
       context.connectionId
     )
   );
-  return buildAllMailVorgangBundles(unified, skill);
+  const result = await buildAllMailVorgangBundles(unified, skill);
+  markGmailMessagesProcessed(result.processedMessageIds);
+  return result.customerBundles;
+}
+
+function markGmailMessagesProcessed(messageIds: string[]): void {
+  if (messageIds.length === 0) return;
+  hydrateFromSession();
+  if (!cache) {
+    cache = {
+      vorgaenge: [],
+      workspaces: {},
+      loadedAt: new Date().toISOString(),
+      processedMessageIds: [],
+    };
+  }
+  cache.processedMessageIds = [
+    ...new Set([...(cache.processedMessageIds ?? []), ...messageIds]),
+  ];
+  persistToSession();
 }
 
 /** Befüllt mailConnectionId + mailAttachments für bestehende Cache-Vorgänge. */
@@ -453,7 +472,10 @@ function deduplicateBundles(
 }
 
 function applyCacheFromBundles(bundles: GmailVorgangBundle[]): void {
-  const dedupedBundles = deduplicateBundles(bundles);
+  const customerBundles = bundles.filter(
+    (bundle) => !isHelpyReportVorgang(bundle.liste)
+  );
+  const dedupedBundles = deduplicateBundles(customerBundles);
   const rawVorgaenge = dedupedBundles.map((bundle) => bundle.liste);
   const { vorgaenge: uniqueVorgaenge } = deduplicateVorgaenge(rawVorgaenge);
   const workspaceSeed = Object.fromEntries(
@@ -512,17 +534,22 @@ function mergeBundlesIntoCache(newBundles: GmailVorgangBundle[]): Vorgang[] {
 
   hydrateFromSession();
 
+  const customerBundles = newBundles.filter(
+    (bundle) => !isHelpyReportVorgang(bundle.liste)
+  );
+  if (customerBundles.length === 0) return [];
+
   const existingVorgaenge = cache?.vorgaenge ?? [];
 
   const existingKeysBefore = new Set(
     (cache?.vorgaenge ?? []).map((item) => getVorgangDedupeKey(item))
   );
 
-  const incomingListe = deduplicateBundles(newBundles).map((bundle) => bundle.liste);
+  const incomingListe = deduplicateBundles(customerBundles).map((bundle) => bundle.liste);
   const combined = [...incomingListe, ...(cache?.vorgaenge ?? [])];
   const { vorgaenge: uniqueVorgaenge } = deduplicateVorgaenge(combined);
 
-  const newMessageIds = newBundles.map((bundle) => bundle.message.id);
+  const newMessageIds = customerBundles.map((bundle) => bundle.message.id);
   const mergedProcessedIds = [
     ...new Set([
       ...(cache?.processedMessageIds ?? []),
@@ -532,7 +559,7 @@ function mergeBundlesIntoCache(newBundles: GmailVorgangBundle[]): Vorgang[] {
   ];
 
   const workspaceUpdates = Object.fromEntries(
-    deduplicateBundles(newBundles).map((bundle) => [
+    deduplicateBundles(customerBundles).map((bundle) => [
       bundle.liste.id,
       { ...bundle.workspace, id: bundle.liste.id },
     ])
@@ -562,7 +589,7 @@ function mergeBundlesIntoCache(newBundles: GmailVorgangBundle[]): Vorgang[] {
   );
 
   if (addedVorgaenge.length > 0 || newMessageIds.length > 0) {
-    const deduped = deduplicateBundles(newBundles);
+    const deduped = deduplicateBundles(customerBundles);
     seedNewBundles(deduped);
     void syncDealPhasesFromGmailBundles(deduped);
   }
@@ -570,7 +597,7 @@ function mergeBundlesIntoCache(newBundles: GmailVorgangBundle[]): Vorgang[] {
   notify();
 
   void processThreadRepliesForViewingConfirmationsAsync(
-    deduplicateBundles(newBundles),
+    deduplicateBundles(customerBundles),
     cache.vorgaenge,
     cache.workspaces
   ).then(() => notify());

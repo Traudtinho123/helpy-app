@@ -134,7 +134,16 @@ export function applyClassificationGate(
   }
 
   if (!classification) {
-    return decision;
+    return {
+      shouldCreateVorgang: false,
+      reason: "KI-Klassifikation nicht verfügbar — kein Vorgang",
+      systemMail: {
+        isSystemMail: true,
+        category: "system_transaction",
+        reason: "KI-Klassifikation fehlt",
+      },
+      classification: null,
+    };
   }
 
   if (classification.ist_vorgang !== true) {
