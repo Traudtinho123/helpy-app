@@ -85,8 +85,8 @@ export async function refreshOutlookConnectionStatus(): Promise<OutlookConnectio
   }
 }
 
-export function startOutlookConnect(): void {
-  window.location.href = "/api/oauth/microsoft/start";
+export function startOutlookConnect(returnTo = "/plattformen"): void {
+  window.location.href = `/api/oauth/microsoft/start?returnTo=${encodeURIComponent(returnTo)}`;
 }
 
 export async function disconnectOutlookConnection(): Promise<void> {

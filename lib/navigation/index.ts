@@ -17,3 +17,17 @@ export type {
   NavBrandIconId,
   SettingsNavItem,
 } from "@/lib/navigation/core-navigation";
+
+export {
+  buildMobileMoreNavItems,
+  buildMobileTabItems,
+  MOBILE_SETTINGS_NAV_ITEMS,
+  resolveMobileActiveTab,
+} from "@/lib/navigation/mobile-navigation";
+
+export type {
+  MobileMoreNavItem,
+  MobileSettingsNavItem,
+  MobileTabId,
+  MobileTabItem,
+} from "@/lib/navigation/mobile-navigation";

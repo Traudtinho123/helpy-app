@@ -115,23 +115,35 @@ export function MobileBottomNav({ activeHref }: MobileBottomNavProps) {
 
       <SlideUpSheet open={moreOpen} onClose={() => setMoreOpen(false)} title="Mehr">
         <div className="grid gap-1 p-4 pb-8">
-          {moreItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setMoreOpen(false)}
-              className="flex min-h-[48px] items-center gap-3 rounded-xl px-4 text-[15px] font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-elevated)] active:bg-[var(--accent-light)]"
-            >
-              <span className="flex size-6 items-center justify-center text-xl">
-                {item.brandIcon ? (
-                  <NavBrandIcon brand={item.brandIcon} className="size-5" />
-                ) : (
-                  item.emoji
-                )}
-              </span>
-              {item.label}
-            </Link>
-          ))}
+          {moreItems.map((item, index) => {
+            if (item.type === "divider") {
+              return (
+                <div
+                  key={`divider-${index}`}
+                  className="my-1 border-t border-[var(--border)]"
+                  role="separator"
+                />
+              );
+            }
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMoreOpen(false)}
+                className="flex min-h-[48px] items-center gap-3 rounded-xl px-4 text-[15px] font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-elevated)] active:bg-[var(--accent-light)]"
+              >
+                <span className="flex size-6 items-center justify-center text-xl">
+                  {item.brandIcon ? (
+                    <NavBrandIcon brand={item.brandIcon} className="size-5" />
+                  ) : (
+                    item.emoji
+                  )}
+                </span>
+                {item.label}
+              </Link>
+            );
+          })}
         </div>
       </SlideUpSheet>
     </>

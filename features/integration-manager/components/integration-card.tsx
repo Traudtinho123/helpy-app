@@ -76,7 +76,8 @@ export function IntegrationCard({ integration }: IntegrationCardProps) {
     }
 
     if (integration.id === "gmail") {
-      window.location.href = "/api/oauth/google/start";
+      window.location.href =
+        "/api/oauth/google/start?returnTo=/plattformen";
       return;
     }
 
@@ -120,7 +121,7 @@ export function IntegrationCard({ integration }: IntegrationCardProps) {
               {busy === "connect" ? (
                 <Loader2 className="size-3.5 animate-spin" />
               ) : (
-                "Verbinden"
+                "Jetzt verbinden →"
               )}
             </PlatformCardButton>
           ) : hasError ? (

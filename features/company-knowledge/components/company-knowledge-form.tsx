@@ -234,7 +234,7 @@ export function CompanyKnowledgeForm() {
   };
 
   return (
-    <div className="space-y-6">
+    <div id="ki-einstellungen" className="space-y-6 scroll-mt-24">
       {isLoading ? (
         <div className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-3">
           <p className="text-[12px] text-[var(--text-secondary)]">Firmenwissen wird geladen …</p>

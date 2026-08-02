@@ -157,7 +157,7 @@ export function AppleCalendarConnectModal({
             placeholder="name@icloud.com"
             value={appleIdEmail}
             onChange={(event) => setAppleIdEmail(event.target.value)}
-            className="mt-1.5 h-10"
+            className="mt-1.5 min-h-[44px] text-base sm:h-10 sm:text-[var(--text-base)]"
             disabled={connecting}
           />
         </div>
@@ -176,7 +176,7 @@ export function AppleCalendarConnectModal({
             placeholder="xxxx-xxxx-xxxx-xxxx"
             value={appSpecificPassword}
             onChange={(event) => setAppSpecificPassword(event.target.value)}
-            className="mt-1.5 h-10"
+            className="mt-1.5 min-h-[44px] text-base sm:h-10 sm:text-[var(--text-base)]"
             disabled={connecting}
           />
           <p className="mt-2 rounded-[12px] border border-[var(--border-accent)]/50 bg-[var(--accent-light)] px-3.5 py-2.5 text-[11px] leading-relaxed text-[var(--accent)]">
@@ -217,7 +217,7 @@ export function AppleCalendarConnectModal({
               value={calendarId}
               onChange={(event) => setCalendarId(event.target.value)}
               disabled={connecting || calendars.length === 0}
-              className="mt-1.5 h-10 w-full rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-[13px] text-[var(--text-primary)] outline-none focus-visible:border-[#2563EB] focus-visible:ring-3 focus-visible:ring-[#2563EB]/20 disabled:opacity-50"
+              className="mt-1.5 min-h-[44px] w-full rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-base text-[var(--text-primary)] outline-none focus-visible:border-[#2563EB] focus-visible:ring-3 focus-visible:ring-[#2563EB]/20 disabled:opacity-50 sm:h-10 sm:text-[13px]"
             >
               {calendars.map((calendar) => (
                 <option key={calendar.id} value={calendar.id}>

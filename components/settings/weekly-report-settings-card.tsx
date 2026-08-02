@@ -52,6 +52,7 @@ export function WeeklyReportSettingsCard() {
   }, [enabled]);
 
   return (
+    <div id="benachrichtigungen" className="scroll-mt-24">
     <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
       <CardHeader className="border-b border-[var(--border)] pb-4">
         <div className="flex items-center gap-2">
@@ -97,5 +98,6 @@ export function WeeklyReportSettingsCard() {
         )}
       </CardContent>
     </Card>
+    </div>
   );
 }

@@ -7,6 +7,7 @@ const PAGE_TITLES: Array<{ matches: (pathname: string) => boolean; title: string
   { matches: (p) => p.startsWith("/dokumente"), title: "Dokumente" },
   { matches: (p) => p.startsWith("/telefonie") || p.startsWith("/telefonassistent"), title: "Helpy-Phone" },
   { matches: (p) => p.startsWith("/whatsapp"), title: "WhatsApp" },
+  { matches: (p) => p.startsWith("/social-media"), title: "Social Media" },
   { matches: (p) => p.startsWith("/plattformen") || p.startsWith("/posteingang"), title: "Plattformen" },
   { matches: (p) => p.startsWith("/einstellungen"), title: "Einstellungen" },
 ];

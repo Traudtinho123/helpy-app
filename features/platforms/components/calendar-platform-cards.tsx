@@ -11,7 +11,6 @@ import {
 } from "@/features/apple-calendar/services/apple-calendar-sync";
 import {
   connectAppleCalendarPlatform,
-  connectGoogleCalendarPlatform,
   disconnectCalendarPlatform,
   getConnectedCalendarPlatform,
   subscribeCalendarPlatform,
@@ -91,16 +90,15 @@ export function CalendarPlatformCards() {
           ) : (
             <PlatformCardButton
               onClick={() => {
-                setBusyPlatform("google");
-                connectGoogleCalendarPlatform();
-                setBusyPlatform(null);
+                window.location.href =
+                  "/api/oauth/google/start?returnTo=/plattformen";
               }}
               disabled={busyPlatform === "google"}
             >
               {busyPlatform === "google" ? (
                 <Loader2 className="size-3.5 animate-spin" />
               ) : (
-                "Verbinden"
+                "Jetzt verbinden →"
               )}
             </PlatformCardButton>
           )
@@ -134,7 +132,7 @@ export function CalendarPlatformCards() {
             </PlatformCardButton>
           ) : (
             <PlatformCardButton onClick={() => setAppleModalOpen(true)}>
-              Verbinden
+              Jetzt verbinden →
             </PlatformCardButton>
           )
         }

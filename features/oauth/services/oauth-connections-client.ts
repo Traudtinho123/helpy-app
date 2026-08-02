@@ -42,12 +42,12 @@ export async function migrateLegacyOAuthTokens(): Promise<void> {
   }
 }
 
-export function startGoogleMailConnect(): void {
-  window.location.href = "/api/oauth/google/start";
+export function startGoogleMailConnect(returnTo = "/plattformen"): void {
+  window.location.href = `/api/oauth/google/start?returnTo=${encodeURIComponent(returnTo)}`;
 }
 
-export function startMicrosoftMailConnect(): void {
-  window.location.href = "/api/oauth/microsoft/start";
+export function startMicrosoftMailConnect(returnTo = "/plattformen"): void {
+  window.location.href = `/api/oauth/microsoft/start?returnTo=${encodeURIComponent(returnTo)}`;
 }
 
 export async function disconnectOAuthConnection(

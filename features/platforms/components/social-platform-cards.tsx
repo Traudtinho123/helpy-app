@@ -118,7 +118,7 @@ function SocialPlatformCard({
               window.location.href = config.connectHref;
             }}
           >
-            Verbinden
+            Jetzt verbinden →
           </PlatformCardButton>
         )
       }

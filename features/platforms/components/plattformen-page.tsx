@@ -90,16 +90,16 @@ function PlattformenContent() {
   const byCategory = getIntegrationsByCategory();
 
   return (
-    <div className="mx-auto max-w-6xl px-8 py-12 lg:px-12 lg:py-14">
-      <header className="mb-10">
-        <p className="text-[11px] font-semibold tracking-[0.06em] text-[var(--accent)] uppercase">
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-12 lg:py-14">
+      <header className="mb-6 sm:mb-10">
+        <p className="text-[11px] font-semibold tracking-[0.06em] text-[var(--accent)] uppercase lg:hidden">
           Verbindungen
         </p>
-        <h1 className="mt-2 text-[2rem] font-semibold tracking-[-0.035em] text-[var(--text-primary)] lg:text-[2.25rem]">
-          Plattformen
+        <h1 className="mt-1 text-[1.375rem] font-semibold tracking-[-0.035em] text-[var(--text-primary)] sm:mt-2 sm:text-[2rem] lg:text-[2.25rem]">
+          🔗 Plattformen
         </h1>
-        <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[var(--text-secondary)]">
-          Alle Anbindungen an einem Ort — einheitlich verwalten und verbinden.
+        <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-[var(--text-secondary)] sm:mt-3 sm:text-[15px]">
+          Verbinde deine Tools mit HELPY
         </p>
       </header>
 

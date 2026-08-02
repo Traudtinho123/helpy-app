@@ -108,7 +108,7 @@ export function MailPlatformCard({
       errorMessage={summary.errorMessage}
       actions={
         summary.status === "nicht_verbunden" ? (
-          <PlatformCardButton onClick={handleConnect}>Verbinden</PlatformCardButton>
+          <PlatformCardButton onClick={handleConnect}>Jetzt verbinden →</PlatformCardButton>
         ) : (
           <PlatformCardButton
             variant="outline"

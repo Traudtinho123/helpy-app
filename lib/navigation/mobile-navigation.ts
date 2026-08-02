@@ -15,12 +15,15 @@ export type MobileTabItem = {
   showMailBadge?: boolean;
 };
 
-export type MobileMoreNavItem = {
-  label: string;
-  emoji: string;
-  href: string;
-  brandIcon?: NavBrandIconId;
-};
+export type MobileMoreNavItem =
+  | {
+      type: "link";
+      label: string;
+      emoji: string;
+      href: string;
+      brandIcon?: NavBrandIconId;
+    }
+  | { type: "divider" };
 
 export function buildMobileTabItems(skill: HelpySkill): MobileTabItem[] {
   const navItems = buildCoreNavItems(skill);
@@ -55,14 +58,30 @@ export function buildMobileTabItems(skill: HelpySkill): MobileTabItem[] {
 
 export function buildMobileMoreNavItems(skill: HelpySkill): MobileMoreNavItem[] {
   const portfolio = SKILL_PORTFOLIO_NAV[skill];
+  const kunden = buildCoreNavItems(skill).find((item) => item.id === "kunden");
 
   return [
-    { label: "Finanzen", emoji: "💰", href: "/finanzen" },
-    { label: portfolio.label, emoji: portfolio.emoji, href: "/objekte" },
-    { label: "Dokumente", emoji: "📄", href: "/dokumente" },
-    { label: "Helpy-Phone", emoji: "📞", href: "/telefonie" },
-    { label: "WhatsApp", emoji: "💬", href: "/whatsapp", brandIcon: "whatsapp" },
-    { label: "Einstellungen", emoji: "⚙️", href: "/einstellungen" },
+    { type: "link", label: portfolio.label, emoji: portfolio.emoji, href: "/objekte" },
+    {
+      type: "link",
+      label: kunden?.label ?? "Kunden",
+      emoji: "👥",
+      href: kunden?.href ?? "/kunden",
+    },
+    { type: "link", label: "Dokumente", emoji: "📄", href: "/dokumente" },
+    { type: "divider" },
+    { type: "link", label: "Helpy-Phone", emoji: "📞", href: "/telefonie" },
+    {
+      type: "link",
+      label: "WhatsApp",
+      emoji: "💬",
+      href: "/whatsapp",
+      brandIcon: "whatsapp",
+    },
+    { type: "link", label: "Social Media", emoji: "📱", href: "/social-media" },
+    { type: "divider" },
+    { type: "link", label: "Plattformen", emoji: "🔗", href: "/plattformen" },
+    { type: "link", label: "Einstellungen", emoji: "⚙️", href: "/einstellungen" },
   ];
 }
 
@@ -90,9 +109,11 @@ export function resolveMobileActiveTab(
     "/telefonie",
     "/telefonassistent",
     "/whatsapp",
+    "/social-media",
     "/einstellungen",
     "/plattformen",
     "/posteingang",
+    "/immoscout24",
   ];
   if (morePaths.some((prefix) => pathname.startsWith(prefix))) {
     return "mehr";
@@ -102,3 +123,43 @@ export function resolveMobileActiveTab(
   if (match) return match.id;
   return "heute";
 }
+
+export type MobileSettingsNavItem = {
+  label: string;
+  emoji: string;
+  href: string;
+  operatorOnly?: boolean;
+  superAdminOnly?: boolean;
+};
+
+/** Mobile Einstellungen-Hub — alle Kategorien als antippbare Zeilen. */
+export const MOBILE_SETTINGS_NAV_ITEMS: MobileSettingsNavItem[] = [
+  { label: "Unternehmen", emoji: "🏢", href: "/einstellungen/unternehmen" },
+  {
+    label: "KI-Einstellungen",
+    emoji: "🤖",
+    href: "/einstellungen/unternehmen#ki-einstellungen",
+  },
+  { label: "Plattformen", emoji: "🔗", href: "/plattformen" },
+  { label: "Helpy-Phone", emoji: "📞", href: "/telefonie" },
+  { label: "Team", emoji: "👥", href: "/einstellungen/team" },
+  {
+    label: "Benachrichtigungen",
+    emoji: "🔔",
+    href: "/einstellungen/unternehmen#benachrichtigungen",
+  },
+  { label: "Datenschutz & AGB", emoji: "🛡️", href: "/einstellungen/datenschutz" },
+  {
+    label: "Skill-Zugang",
+    emoji: "🔐",
+    href: "/einstellungen/betreiber",
+    operatorOnly: true,
+  },
+  { label: "Analytics", emoji: "📊", href: "/einstellungen/analytics" },
+  {
+    label: "Admin Panel",
+    emoji: "🛡️",
+    href: "/einstellungen/admin",
+    superAdminOnly: true,
+  },
+];

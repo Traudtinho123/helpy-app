@@ -21,7 +21,7 @@ type IntegrationGridProps = {
 };
 
 const PLATFORM_GRID_CLASS =
-  "grid auto-rows-fr gap-4 sm:grid-cols-2 xl:grid-cols-3";
+  "grid auto-rows-fr grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3";
 
 function PlatformSection({
   title,
