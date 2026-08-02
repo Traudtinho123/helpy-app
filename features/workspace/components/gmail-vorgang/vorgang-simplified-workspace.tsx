@@ -23,6 +23,7 @@ import { GmailOriginalMessageCard } from "@/features/workspace/components/gmail-
 import { WorkspaceVorgangHideButton } from "@/features/workspace/components/workspace-vorgang-hide-button";
 import { useWorkspaceContext } from "@/features/workspace/context";
 import { completeVorgang } from "@/features/workspace/services/vorgaenge/complete-vorgang-service";
+import { getMailListeVorgang } from "@/features/mail/unified-mail-source-service";
 import { resolveVorgangSender } from "@/features/workspace/services/vorgaenge/resolve-vorgang-sender";
 import {
   getStableRealEstateObjectSnapshot,
@@ -82,7 +83,8 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
     (listeVorgang?.intent?.includes("besichtigung") ? "Besichtigungsanfrage" : "Anfrage");
 
   const handleComplete = () => {
-    if (listeVorgang) completeVorgang(listeVorgang);
+    const target = listeVorgang ?? getMailListeVorgang(vorgangId);
+    if (target) void completeVorgang(target);
     router.push("/vorgaenge");
   };
 

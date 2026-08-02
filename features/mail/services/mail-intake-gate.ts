@@ -1,4 +1,4 @@
-import { parseEmailFrom } from "@/features/gmail/services/parse-from-header";
+import { parseEmailFrom, isPlaceholderSenderLabel } from "@/features/gmail/services/parse-from-header";
 import {
   detectSystemMail,
   type SystemMailDetectionResult,
@@ -59,7 +59,7 @@ export function evaluateMailIntake(input: MailIntakeInput): MailIntakeDecision {
   const parsed = parseEmailFrom(input.from);
 
   if (
-    parsed.name.toLowerCase() === "system" ||
+    isPlaceholderSenderLabel(parsed.name) ||
     parsed.name.toLowerCase() === "kein absender"
   ) {
     return {

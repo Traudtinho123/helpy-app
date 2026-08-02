@@ -167,6 +167,18 @@ const MARKETING_SUBJECT_KEYWORDS = [
   "hotel",
   "flug",
   "🌴",
+  "rekordschulden",
+  "haushaltshelfer",
+  "eingetroffen",
+  "nur noch bis morgen",
+  "bis morgen",
+  "jira",
+  "asana",
+  "pipefy",
+  "bmw",
+  "krise",
+  "clevere",
+  "✨",
 ] as const;
 
 const AUTO_NOTIFICATION_SUBJECT_KEYWORDS = [
@@ -266,11 +278,16 @@ function isVerificationMail(input: SystemMailDetectionInput): boolean {
   return containsAny(haystack, VERIFICATION_SUBJECT_KEYWORDS);
 }
 
+function hasPercentDiscountSubject(subject: string): boolean {
+  return /^\s*\d+\s*%/i.test(subject.trim()) || /\d+\s*%\s*rabatt/i.test(subject);
+}
+
 function isMarketingSubject(input: SystemMailDetectionInput): boolean {
   const haystack = `${input.subject} ${input.snippet ?? ""} ${input.bodyPreview ?? ""}`;
   return (
     containsAny(haystack, MARKETING_SUBJECT_KEYWORDS) ||
-    containsAny(haystack, AUTO_NOTIFICATION_SUBJECT_KEYWORDS)
+    containsAny(haystack, AUTO_NOTIFICATION_SUBJECT_KEYWORDS) ||
+    hasPercentDiscountSubject(input.subject)
   );
 }
 

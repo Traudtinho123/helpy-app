@@ -33,7 +33,12 @@ export type CalendarAvailabilityResult = {
   date: string;
   slots: FreeSlot[];
   errorMessage: string | null;
+  /** Slots basieren nur auf Geschäftszeiten (Kalender nicht gelesen). */
+  availabilityHint?: string | null;
 };
+
+export const CALENDAR_AVAILABILITY_FALLBACK_HINT =
+  "Bitte Verfügbarkeit prüfen — Kalender konnte nicht gelesen werden.";
 
 function mapEventsToBusy(events: CalendarEvent[]): CalendarBusyEvent[] {
   return events.map((event) => ({
@@ -69,16 +74,32 @@ export type MultiDayCalendarAvailabilityResult = CalendarAvailabilityResult & {
   slotsByDate: Record<string, FreeSlot[]>;
 };
 
-/**
- * Lädt freie Slots über mehrere Werktage.
- * Default: max. 3 Slots auf max. 2 verschiedenen Tagen (Besichtigungs-UX).
- * Mit scanDays=14 werden bis zu 14 Tage gescannt.
- */
+function computeBusinessHoursSlots(options: {
+  date: string;
+  durationMinutes: number;
+  maxSlots?: number;
+  schedulingPolicy?: AppointmentSchedulingPolicy;
+}): FreeSlot[] {
+  const policy = options.schedulingPolicy ?? buildAppointmentSchedulingPolicy();
+  const workingHours = policy.getWorkingHoursForDate(options.date);
+  if (!workingHours) return [];
+
+  return computeFreeSlots({
+    date: options.date,
+    existingEvents: [],
+    durationMinutes: options.durationMinutes,
+    bufferMinutes: policy.bufferMinutes,
+    workingHours,
+    maxSlots: options.maxSlots ?? 5,
+  });
+}
+
+/** Lädt freie Slots über mehrere Werktage. Fallback: Geschäftszeiten ohne Kalender-Check. */
 export async function loadMultiDayCalendarAvailability(options: {
   targetText?: string;
   durationMinutes: number;
   maxSlots?: number;
-  /** Max. Anzahl unterschiedlicher Tage mit Vorschlägen (Default 2). */
+  /** Max. Anzahl unterschiedlicher Tage mit Vorschlägen (Default 3). */
   maxDays?: number;
   /** Anzahl Kalendertage zum Scannen (Default 5, Besichtigung: 14). */
   scanDays?: number;
@@ -96,23 +117,15 @@ export async function loadMultiDayCalendarAvailability(options: {
     scanDays
   );
   const platform = getConnectedCalendarPlatform();
-
-  if (!platform) {
-    return {
-      platform: null,
-      platformLabel: null,
-      date: dates[0] ?? resolveDefaultTargetDate(),
-      slots: [],
-      slotsByDate: {},
-      errorMessage: null,
-    };
-  }
-
   const platformLabel =
-    platform === "apple" ? "Apple Kalender" : "Google Kalender";
-  const collected: FreeSlot[] = [];
+    platform === "apple"
+      ? "Apple Kalender"
+      : platform === "google"
+        ? "Google Kalender"
+        : null;
+
   const slotsByDate: Record<string, FreeSlot[]> = {};
-  let daysWithSlots = 0;
+  let availabilityHint: string | null = null;
 
   for (const date of dates) {
     const dayResult = await loadCalendarAvailability({
@@ -122,19 +135,30 @@ export async function loadMultiDayCalendarAvailability(options: {
       schedulingPolicy: policy,
     });
 
-    if (dayResult.errorMessage && Object.keys(slotsByDate).length === 0 && date === dates[0]) {
-      return {
-        ...dayResult,
-        slotsByDate,
-      };
+    if (dayResult.availabilityHint && !availabilityHint) {
+      availabilityHint = dayResult.availabilityHint;
     }
 
     if (dayResult.slots.length === 0) continue;
-
     slotsByDate[date] = dayResult.slots;
-    daysWithSlots += 1;
   }
 
+  if (Object.keys(slotsByDate).length === 0 && !platform) {
+    for (const date of dates) {
+      const fallbackSlots = computeBusinessHoursSlots({
+        date,
+        durationMinutes: options.durationMinutes,
+        maxSlots: slotsPerDay,
+        schedulingPolicy: policy,
+      });
+      if (fallbackSlots.length > 0) {
+        slotsByDate[date] = fallbackSlots;
+      }
+    }
+    availabilityHint = CALENDAR_AVAILABILITY_FALLBACK_HINT;
+  }
+
+  const collected: FreeSlot[] = [];
   for (const daySlots of Object.values(slotsByDate)) {
     collected.push(...daySlots);
   }
@@ -149,6 +173,7 @@ export async function loadMultiDayCalendarAvailability(options: {
       Object.keys(slotsByDate).length > 0
         ? null
         : "Keine freien Zeiten gefunden.",
+    availabilityHint,
   };
 }
 
@@ -176,12 +201,20 @@ export async function loadCalendarAvailability(options: {
   const platform = getConnectedCalendarPlatform();
 
   if (!platform) {
+    const fallbackSlots = computeBusinessHoursSlots({
+      date,
+      durationMinutes: options.durationMinutes,
+      maxSlots: options.maxSlots ?? 5,
+      schedulingPolicy: policy,
+    });
     return {
       platform: null,
       platformLabel: null,
       date,
-      slots: [],
+      slots: fallbackSlots,
       errorMessage: null,
+      availabilityHint:
+        fallbackSlots.length > 0 ? CALENDAR_AVAILABILITY_FALLBACK_HINT : null,
     };
   }
 
@@ -211,15 +244,20 @@ export async function loadCalendarAvailability(options: {
       errorMessage: null,
     };
   } catch {
+    const fallbackSlots = computeBusinessHoursSlots({
+      date,
+      durationMinutes: options.durationMinutes,
+      maxSlots: options.maxSlots ?? 5,
+      schedulingPolicy: policy,
+    });
     return {
       platform,
       platformLabel: platform === "apple" ? "Apple Kalender" : "Google Kalender",
       date,
-      slots: [],
-      errorMessage:
-        platform === "apple"
-          ? "Apple Kalender konnte nicht gelesen werden. Bitte Zugang prüfen."
-          : "Google Kalender konnte nicht gelesen werden.",
+      slots: fallbackSlots,
+      errorMessage: null,
+      availabilityHint:
+        fallbackSlots.length > 0 ? CALENDAR_AVAILABILITY_FALLBACK_HINT : null,
     };
   }
 }

@@ -14,7 +14,7 @@ import {
 import { formatGmailDateTime, formatGmailTime } from "@/features/gmail/services/gmail-date-format";
 import type { GmailConnectorMessage } from "@/features/gmail/services/gmail/types";
 import { normalizeMailTimestampToIso } from "@/features/mail/services/mail-received-at";
-import { parseFrom, buildFromHeader } from "@/features/gmail/services/parse-from-header";
+import { parseFrom, buildFromHeader, resolveSenderDisplayName } from "@/features/gmail/services/parse-from-header";
 import { extractEmailAddress } from "@/features/gmail/services/extract-email-address";
 import {
   HELPY_ARCHIVE_PANEL_INTRO,
@@ -108,10 +108,7 @@ function isSpamResult(result: BrainV3Result): boolean {
 
 export function extractSenderName(from: string): string {
   const parsed = parseFrom(from);
-  if (parsed.email) {
-    return parsed.name || parsed.email;
-  }
-  return parsed.name || from.trim();
+  return resolveSenderDisplayName(parsed.name, parsed.email) || from.trim();
 }
 
 function skillToInternal(skill: BrainV3Skill): HelpySkill | undefined {
@@ -240,7 +237,7 @@ export function mapBrainResultToVorgang(
     intentLabel: result.intent,
     titel: result.subject || "(Kein Betreff)",
     emoji: INTENT_EMOJI[result.intent],
-    kunde: sender.name || sender.email || extractSenderName(result.from),
+    kunde: resolveSenderDisplayName(sender.name, sender.email) || extractSenderName(result.from),
     quelle: "Gmail",
     prioritaet: result.priority,
     status: "neu",

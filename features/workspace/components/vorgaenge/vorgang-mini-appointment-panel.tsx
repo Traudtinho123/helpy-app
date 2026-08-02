@@ -44,7 +44,7 @@ export function VorgangMiniAppointmentPanel({
 
   useEffect(() => {
     const workspace = buildWorkspaceVorgangFromListe(vorgang);
-    void loadAppointmentSuggestionForWorkspace(workspace, vorgang);
+    void loadAppointmentSuggestionForWorkspace(workspace, vorgang, { force: true });
   }, [vorgang]);
 
   const handleConfirmSlot = useCallback(

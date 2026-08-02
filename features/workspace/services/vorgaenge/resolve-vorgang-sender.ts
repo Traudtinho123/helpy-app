@@ -4,22 +4,15 @@ import { extractPlatformInquiry } from "@/features/brain/services/platform-inqui
 import { PLATFORM_INQUIRY_MISSING } from "@/features/brain/types/platform-inquiry-types";
 import {
   buildFromHeader,
-  extractEmailAddress,
   parseFrom,
-} from "@/features/gmail/services/extract-email-address";
+  resolveSenderDisplayName,
+  isPlaceholderSenderLabel,
+} from "@/features/gmail/services/parse-from-header";
+import { extractEmailAddress } from "@/features/gmail/services/extract-email-address";
 import type { Vorgang } from "@/features/workspace/services/vorgaenge/types";
 
-const UNKNOWN_SENDER_LABELS = new Set([
-  "unbekannt",
-  "(unbekannt)",
-  "unbekannter absender",
-  "unbekannter anrufer",
-  "kein absender",
-]);
-
 export function isUnknownSenderLabel(value: string | null | undefined): boolean {
-  if (!value?.trim()) return true;
-  return UNKNOWN_SENDER_LABELS.has(value.trim().toLowerCase());
+  return isPlaceholderSenderLabel(value);
 }
 
 function extractPersonalEmailFromText(text: string): string | null {
@@ -36,12 +29,12 @@ function extractPersonalEmailFromText(text: string): string | null {
 
 function formatSenderFrom(name: string, email: string | null, fallback = ""): string {
   if (email) {
-    if (name && !isUnknownSenderLabel(name) && !name.includes("@")) {
-      return buildFromHeader(name, email);
-    }
-    return email;
+    const displayName = resolveSenderDisplayName(name, email);
+    if (displayName.includes("@")) return displayName;
+    return buildFromHeader(displayName, email);
   }
-  return fallback.trim();
+  const displayName = resolveSenderDisplayName(name, "");
+  return displayName || fallback.trim();
 }
 
 export function resolveVorgangSenderFromText(input: {
@@ -68,16 +61,13 @@ export function resolveVorgangSenderFromText(input: {
     ? headerParsed.name
     : extractSenderName(fromHeader);
   const name =
-    (inquiry.interessentName !== PLATFORM_INQUIRY_MISSING
+    ((inquiry.interessentName !== PLATFORM_INQUIRY_MISSING
       ? inquiry.interessentName
       : null) ??
     (!isUnknownSenderLabel(input.fallbackName) ? input.fallbackName?.trim() : null) ??
     (!isUnknownSenderLabel(headerName) ? headerName : null) ??
-    (email
-      ? headerParsed.name ||
-        email.split("@")[0]?.replace(/[._-]+/g, " ").trim() ||
-        email
-      : "Unbekannt");
+    resolveSenderDisplayName(headerName, email ?? "")) ||
+    (email ?? "");
 
   return {
     name,

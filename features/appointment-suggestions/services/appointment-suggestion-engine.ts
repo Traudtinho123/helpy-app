@@ -264,9 +264,10 @@ export function peekAppointmentSuggestion(
 
 export async function loadAppointmentSuggestionForWorkspace(
   vorgang: WorkspaceVorgang,
-  liste?: ListeVorgang
+  liste?: ListeVorgang,
+  options?: { force?: boolean }
 ): Promise<AppointmentSuggestion | null> {
-  if (!isAppointmentVorgang(vorgang, liste)) return null;
+  if (!options?.force && !isAppointmentVorgang(vorgang, liste)) return null;
 
   const existing = suggestions.get(vorgang.id);
   if (existing?.status === "bestaetigt") return existing;
@@ -292,32 +293,13 @@ export async function loadAppointmentSuggestionForWorkspace(
   });
   notify();
 
-  const platform = getConnectedCalendarPlatform();
-
-  if (!platform) {
-    const next: AppointmentSuggestion = {
-      ...base,
-      slots: [],
-      selectedSlotId: null,
-      status: "fehler",
-      errorMessage: HELPY_APPOINTMENT_NO_CALENDAR,
-      viewingConfirmation: null,
-      confirmationStatus: "none",
-      slotsOfferedAt: null,
-    };
-    suggestions.set(vorgang.id, next);
-    loadingKeys.delete(loadKey);
-    notify();
-    return next;
-  }
-
   const targetText = buildHaystack(vorgang, liste);
   const policy = buildAppointmentSchedulingPolicy();
   const availability = await loadMultiDayCalendarAvailability({
     targetText,
     durationMinutes: base.durationMinutes,
     maxSlots: 3,
-    maxDays: 2,
+    maxDays: 3,
     scanDays: 14,
     slotsPerDay: 10,
     schedulingPolicy: policy,
@@ -346,10 +328,10 @@ export async function loadAppointmentSuggestionForWorkspace(
     return next;
   }
 
-  const calendarLabel = availability.platformLabel ?? "Kalender";
+  const calendarLabel = availability.platformLabel ?? "Geschäftszeiten";
   const picked = pickPreferredViewingSlots(availability.slotsByDate, {
     maxSlots: 3,
-    maxDays: 2,
+    maxDays: 3,
     minLeadHours: 24,
   });
   const slots = mapPickedSlots(picked, base.durationMinutes, calendarLabel);
@@ -362,7 +344,10 @@ export async function loadAppointmentSuggestionForWorkspace(
     slots,
     selectedSlotId: null,
     status: slots.length > 0 ? "vorbereitet" : "fehler",
-    errorMessage: slots.length > 0 ? null : HELPY_VIEWING_NO_SLOTS_14_DAYS,
+    errorMessage:
+      slots.length > 0
+        ? availability.availabilityHint ?? null
+        : HELPY_VIEWING_NO_SLOTS_14_DAYS,
     viewingConfirmation: existing?.viewingConfirmation ?? null,
     confirmationStatus: existing?.confirmationStatus ?? "none",
     slotsOfferedAt: existing?.slotsOfferedAt ?? null,

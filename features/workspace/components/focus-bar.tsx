@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { UserMenu } from "@/components/user-menu/UserMenu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { toListeVorgangFromWorkspace } from "@/features/brain/services/helpy-actions/workspace-vorgang-adapter";
+import { getMailListeVorgang } from "@/features/mail/unified-mail-source-service";
 import { completeVorgang } from "@/features/workspace/services/vorgaenge/complete-vorgang-service";
-import { getGmailListeVorgang } from "@/features/workspace/services/vorgaenge/gmail-vorgaenge-store";
 import { getSkillConfig } from "@/features/workspace/services/workspace/skills";
 import type { Vorgang } from "@/features/workspace/services/workspace/types";
 import { displayName } from "@/lib/format/display";
@@ -26,20 +28,22 @@ const priorityStyles = {
 } as const;
 
 export function FocusBar({ vorgang }: FocusBarProps) {
+  const router = useRouter();
   const { kunde, kopfzeile } = vorgang;
   const skillConfig = getSkillConfig(vorgang.skill);
   const prioritaet = kopfzeile?.prioritaetLabel ?? "Mittel";
   const [completing, setCompleting] = useState(false);
 
   const handleComplete = async () => {
-    const listeVorgang = getGmailListeVorgang(vorgang.id);
-    if (!listeVorgang) return;
+    const listeVorgang =
+      getMailListeVorgang(vorgang.id) ?? toListeVorgangFromWorkspace(vorgang);
 
     setCompleting(true);
     const supabase = createClient();
     const session = supabase ? (await supabase.auth.getSession()).data.session : null;
     await completeVorgang(listeVorgang, session?.provider_token);
     setCompleting(false);
+    router.push("/vorgaenge");
   };
 
   return (

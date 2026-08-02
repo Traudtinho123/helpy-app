@@ -11,6 +11,24 @@ import { peekRealEstateObjectByVorgangId } from "@/features/real-estate/object/o
 import { createClient } from "@/lib/supabase/client";
 import type { Vorgang } from "@/features/workspace/services/vorgaenge/types";
 
+function isDbVorgangId(id: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+}
+
+async function persistVorgangErledigtToDb(vorgangId: string): Promise<void> {
+  if (!isDbVorgangId(vorgangId)) return;
+
+  try {
+    await fetch(`/api/vorgaenge/${vorgangId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "erledigt" }),
+    });
+  } catch {
+    // DB-Update optional — lokaler Erledigt-Status bleibt gültig
+  }
+}
+
 export type CompleteVorgangResult = {
   ok: true;
   message: string;
@@ -46,6 +64,7 @@ export async function completeVorgang(
     markVorgangErledigtInStore(vorgang.id);
   }
   await registerCompletedVorgangPersistent(vorgang, completedByUserId);
+  void persistVorgangErledigtToDb(vorgang.id);
   invalidateVorgaengeSummaryCaches();
 
   const emailMatch = vorgang.from?.match(/<([^>]+)>/);

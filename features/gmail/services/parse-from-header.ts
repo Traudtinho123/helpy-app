@@ -1,9 +1,37 @@
 const EMAIL_PATTERN = /([^\s@<>]+@[^\s@<>]+\.[^\s@<>]+)/;
 
+export const PLACEHOLDER_SENDER_LABELS = new Set([
+  "system",
+  "unbekannt",
+  "(unbekannt)",
+  "unbekannter absender",
+  "unbekannter anrufer",
+  "kein absender",
+  "unknown",
+]);
+
 export type ParsedFromHeader = {
   name: string;
   email: string;
 };
+
+export function isPlaceholderSenderLabel(value: string | null | undefined): boolean {
+  if (!value?.trim()) return true;
+  return PLACEHOLDER_SENDER_LABELS.has(value.trim().toLowerCase());
+}
+
+/** Anzeigename: Name wenn vorhanden, sonst E-Mail — nie System/Unbekannt. */
+export function resolveSenderDisplayName(name: string, email: string): string {
+  const cleanName = cleanDisplayName(name);
+  if (email) {
+    if (cleanName && !isPlaceholderSenderLabel(cleanName) && !cleanName.includes("@")) {
+      return cleanName;
+    }
+    return email;
+  }
+  if (cleanName && !isPlaceholderSenderLabel(cleanName)) return cleanName;
+  return "";
+}
 
 function normalizeEmail(value: string): string {
   return value.trim().toLowerCase();
@@ -39,15 +67,18 @@ export function parseFrom(fromHeader: string): ParsedFromHeader {
 export function parseEmailFrom(fromHeader: string): ParsedFromHeader {
   const raw = fromHeader?.trim() ?? "";
   if (!raw) {
-    return { name: "System", email: "" };
+    return { name: "", email: "" };
   }
 
   const withName = raw.match(/"?([^"<]+?)"?\s*<([^>]+)>/);
   if (withName) {
     const email = normalizeEmail(withName[2]);
-    const name = cleanDisplayName(withName[1]) || nameFromEmailLocalPart(email);
+    const parsedName = cleanDisplayName(withName[1]);
     if (email.includes("@")) {
-      return { name, email };
+      return {
+        name: resolveSenderDisplayName(parsedName, email),
+        email,
+      };
     }
   }
 
@@ -57,7 +88,7 @@ export function parseEmailFrom(fromHeader: string): ParsedFromHeader {
     if (email.includes("@")) {
       const prefix = cleanDisplayName(raw.split("<")[0] ?? "");
       return {
-        name: prefix && !prefix.includes("@") ? prefix : nameFromEmailLocalPart(email),
+        name: resolveSenderDisplayName(prefix, email),
         email,
       };
     }
@@ -67,12 +98,16 @@ export function parseEmailFrom(fromHeader: string): ParsedFromHeader {
   if (emailOnly?.[1]) {
     const email = normalizeEmail(emailOnly[1]);
     return {
-      name: nameFromEmailLocalPart(email),
+      name: email,
       email,
     };
   }
 
-  return { name: cleanDisplayName(raw) || "System", email: "" };
+  const fallbackName = cleanDisplayName(raw);
+  return {
+    name: isPlaceholderSenderLabel(fallbackName) ? "" : fallbackName,
+    email: "",
+  };
 }
 
 export function buildFromHeader(name: string, email: string): string {

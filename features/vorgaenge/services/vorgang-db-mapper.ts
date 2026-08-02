@@ -7,7 +7,7 @@ import {
 } from "@/features/vorgaenge/types/create-vorgang-types";
 import { HELPY_PHONE_QUELLE } from "@/features/voice/services/helpy-phone-detector";
 import type { Vorgang as ListeVorgang } from "@/features/workspace/services/vorgaenge/types";
-import { resolveVorgangSenderFromText } from "@/features/workspace/services/vorgaenge/resolve-vorgang-sender";
+import { resolveVorgangSenderFromText, isUnknownSenderLabel } from "@/features/workspace/services/vorgaenge/resolve-vorgang-sender";
 import { buildWorkspaceVorgangFromListe } from "@/features/workspace/services/workspace/workspace-engine";
 import type { Vorgang as WorkspaceVorgang } from "@/features/workspace/services/workspace/types";
 
@@ -71,11 +71,11 @@ export function mapVorgangDbRecordToListeVorgang(
 
   const kunde =
     options?.kundeName?.trim() ||
-    record.absender_name?.trim() ||
+    (!isUnknownSenderLabel(record.absender_name) ? record.absender_name?.trim() : null) ||
     sender.name ||
     record.anrufer_nummer?.trim() ||
     sender.email ||
-    "Unbekannt";
+    "";
 
   return {
     id: record.id,

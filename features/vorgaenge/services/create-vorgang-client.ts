@@ -1,4 +1,5 @@
-import { extractEmailAddress, parseFrom } from "@/features/gmail/services/extract-email-address";
+import { evaluateMailIntake } from "@/features/mail/services/mail-intake-gate";
+import { parseFrom, resolveSenderDisplayName, isPlaceholderSenderLabel } from "@/features/gmail/services/parse-from-header";
 import {
   resolveVorgangSenderFromText,
 } from "@/features/workspace/services/vorgaenge/resolve-vorgang-sender";
@@ -87,6 +88,26 @@ export async function persistMailBundleToDb(
     bundle.message.snippet?.trim() ||
     "";
 
+  const intake = evaluateMailIntake({
+    from: fromHeader,
+    subject: bundle.liste.titel,
+    snippet: bundle.liste.snippet,
+    bodyPreview: bodyText,
+    replyTo: bundle.message.replyTo,
+    listUnsubscribe: bundle.message.listUnsubscribe,
+    precedence: bundle.message.precedence,
+    xMailer: bundle.message.xMailer,
+    direction: bundle.message.direction,
+  });
+  if (!intake.shouldCreateVorgang) {
+    console.warn(
+      "[vorgang] Intake abgelehnt — Vorgang wird nicht gespeichert:",
+      bundle.liste.titel,
+      intake.reason
+    );
+    return;
+  }
+
   let sender = resolveVorgangSenderFromText({
     fromHeader,
     bodyText,
@@ -104,13 +125,12 @@ export async function persistMailBundleToDb(
 
   if (
     !sender.name ||
-    sender.name === "Unbekannt" ||
-    sender.name.toLowerCase() === "kein absender"
+    isPlaceholderSenderLabel(sender.name)
   ) {
     const reparsed = parseFrom(fromHeader);
     sender = {
       ...sender,
-      name: reparsed.name || reparsed.email || sender.email,
+      name: resolveSenderDisplayName(reparsed.name, reparsed.email || sender.email || ""),
     };
   }
 
