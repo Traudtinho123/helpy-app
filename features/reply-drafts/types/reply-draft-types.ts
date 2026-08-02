@@ -26,6 +26,7 @@ export type ReplyDraft = {
   /** Original-From-Header der geöffneten Gmail-Nachricht */
   originalFrom: string;
   recipientValid: boolean;
+  recipientBlockedReason?: string | null;
   subject: string;
   tone: string;
   draftText: string;
@@ -55,7 +56,8 @@ export type ReplyDraftInput = {
   brainResult?: BrainV3Result;
   decision?: HelpyDecision;
   memoryHints?: string[];
-  gmailMessage?: Pick<GmailConnectorMessage, "subject" | "from" | "snippet">;
+  gmailMessage?: Pick<GmailConnectorMessage, "subject" | "from" | "snippet" | "replyTo">;
+  replyTo?: string;
   /** Original-From-Header — immer aus der geöffneten Gmail-Nachricht */
   originalFrom?: string;
 };

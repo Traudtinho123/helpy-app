@@ -14,6 +14,7 @@ import {
 import { formatGmailDateTime, formatGmailTime } from "@/features/gmail/services/gmail-date-format";
 import type { GmailConnectorMessage } from "@/features/gmail/services/gmail/types";
 import { normalizeMailTimestampToIso } from "@/features/mail/services/mail-received-at";
+import { parseFrom, buildFromHeader } from "@/features/gmail/services/parse-from-header";
 import { extractEmailAddress } from "@/features/gmail/services/extract-email-address";
 import {
   HELPY_ARCHIVE_PANEL_INTRO,
@@ -106,8 +107,11 @@ function isSpamResult(result: BrainV3Result): boolean {
 }
 
 export function extractSenderName(from: string): string {
-  const withoutEmail = from.split("<")[0]?.trim() ?? from;
-  return withoutEmail.replace(/^["']|["']$/g, "").trim() || from;
+  const parsed = parseFrom(from);
+  if (parsed.email) {
+    return parsed.name || parsed.email;
+  }
+  return parsed.name || from.trim();
 }
 
 function skillToInternal(skill: BrainV3Skill): HelpySkill | undefined {
@@ -224,6 +228,11 @@ export function mapBrainResultToVorgang(
     normalizeMailTimestampToIso(result.createdAt) ??
     result.createdAt;
 
+  const sender = parseFrom(result.from);
+  const fromDisplay = sender.email
+    ? buildFromHeader(sender.name, sender.email)
+    : result.from;
+
   const base: Vorgang = {
     id: result.id,
     typ: INTENT_TO_VORGANG_TYP[result.intent],
@@ -231,7 +240,7 @@ export function mapBrainResultToVorgang(
     intentLabel: result.intent,
     titel: result.subject || "(Kein Betreff)",
     emoji: INTENT_EMOJI[result.intent],
-    kunde: extractSenderName(result.from),
+    kunde: sender.name || sender.email || extractSenderName(result.from),
     quelle: "Gmail",
     prioritaet: result.priority,
     status: "neu",
@@ -253,7 +262,7 @@ export function mapBrainResultToVorgang(
     helpyStatus: isSpamResult(result)
       ? HELPY_ARCHIVE_STATUS_PREPARED
       : HELPY_STATUS_LABEL,
-    from: result.from,
+    from: fromDisplay,
     emailDate: rawMailDate,
     href: `/workspace/${result.id}`,
   };

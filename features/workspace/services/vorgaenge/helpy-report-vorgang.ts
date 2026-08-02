@@ -1,6 +1,7 @@
 import type { BrainV3Result } from "@/features/brain/types/brain-v3-types";
 import type { GmailVorgangBundle } from "@/features/brain/services/brain-result-to-vorgang";
 import { formatGmailDateTime } from "@/features/gmail/services/gmail-date-format";
+import { parseFrom, buildFromHeader } from "@/features/gmail/services/parse-from-header";
 import type { GmailConnectorMessage } from "@/features/gmail/services/gmail/types";
 import {
   mapGmailMessageToUnifiedMail,
@@ -11,6 +12,8 @@ import {
   resolveHelpyReportLabel,
   stripHelpySubjectPrefix,
 } from "@/features/workspace/services/vorgaenge/helpy-report-detector";
+import type { SystemMailDetectionResult } from "@/features/mail/services/system-mail-detector";
+import { resolveSystemMailReportLabel } from "@/features/mail/services/system-mail-detector";
 import type { Vorgang } from "@/features/workspace/services/vorgaenge/types";
 import type {
   Vorgang as WorkspaceVorgang,
@@ -148,4 +151,77 @@ export function buildHelpyReportBundleFromGmailMessage(
     connectionId
   );
   return buildHelpyReportBundle(unified);
+}
+
+function resolveReportSenderLabel(fromHeader: string): string {
+  const parsed = parseFrom(fromHeader);
+  if (parsed.email) {
+    return parsed.name || parsed.email;
+  }
+  return fromHeader.trim() || "System";
+}
+
+export function buildSystemMailReportBundle(
+  message: UnifiedMailMessage,
+  detection: SystemMailDetectionResult
+): GmailVorgangBundle {
+  const connector = mapUnifiedMailToGmailConnector(message);
+  const vorgangId = `system-mail-${message.providerMessageId}`;
+  const intentLabel = resolveSystemMailReportLabel(detection.category);
+  const sender = resolveReportSenderLabel(message.from);
+  const parsed = parseFrom(message.from);
+  const fromDisplay = parsed.email
+    ? buildFromHeader(parsed.name, parsed.email)
+    : message.from;
+
+  const liste: Vorgang = {
+    id: vorgangId,
+    typ: "helpy_report",
+    intent: "helpy_report",
+    intentLabel,
+    titel: message.subject || "(Kein Betreff)",
+    emoji: "🔒",
+    kunde: sender,
+    quelle: "HELPY",
+    prioritaet: "niedrig",
+    status: "erledigt",
+    summary: detection.reason || message.snippet,
+    helpyEmpfehlung: "Automatisch archiviert — keine Aktion nötig.",
+    receivedAt: message.receivedAt,
+    receivedLabel: formatGmailDateTime(message.receivedAt),
+    sourceEventId: message.providerMessageId,
+    threadId: message.providerThreadId,
+    snippet: message.snippet,
+    from: fromDisplay,
+    emailDate: message.receivedAt,
+    href: `/workspace/${vorgangId}`,
+    mailProvider: message.provider,
+    mailConnectionId: message.connectionId,
+    mailAttachments: message.attachments.length ? message.attachments : undefined,
+    latestMessageDirection: message.direction,
+    latestMessageFrom: fromDisplay,
+    latestMessageAt: message.receivedAt,
+    hasUnreadExternalMessage: false,
+  };
+
+  return {
+    liste,
+    workspace: buildHelpyReportWorkspace(message, vorgangId, intentLabel),
+    message: connector as GmailConnectorMessage,
+    brain: buildHelpyReportBrainStub(message, vorgangId),
+  };
+}
+
+export function buildSystemMailReportFromGmailMessage(
+  message: GmailConnectorMessage,
+  detection: SystemMailDetectionResult,
+  sourceAccountEmail?: string | null,
+  connectionId?: string
+): GmailVorgangBundle {
+  const unified = mapGmailMessageToUnifiedMail(
+    message,
+    sourceAccountEmail ?? null,
+    connectionId
+  );
+  return buildSystemMailReportBundle(unified, detection);
 }

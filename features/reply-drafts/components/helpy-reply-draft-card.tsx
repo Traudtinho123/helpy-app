@@ -325,7 +325,9 @@ export function HelpyReplyDraftCard({
         confirmLoading={sendState === "loading"}
         confirmDisabled={sendDisabled}
         confirmDisabledReason={
-          sendDisabled ? RECIPIENT_UNKNOWN_MESSAGE : null
+          sendDisabled
+            ? draft.recipientBlockedReason ?? RECIPIENT_UNKNOWN_MESSAGE
+            : null
         }
         onConfirm={handleConfirmReview}
         onCancel={() => {

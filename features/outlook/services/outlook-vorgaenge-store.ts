@@ -152,6 +152,13 @@ function mergeMessagesIntoCache(
   messages: UnifiedMailMessage[],
   accountEmail: string | null
 ): void {
+  void mergeMessagesIntoCacheAsync(messages, accountEmail);
+}
+
+async function mergeMessagesIntoCacheAsync(
+  messages: UnifiedMailMessage[],
+  accountEmail: string | null
+): Promise<void> {
   hydrateFromSession();
   const previous = cache?.vorgaenge ?? [];
   const incomingOnly = messages.filter(
@@ -160,7 +167,7 @@ function mergeMessagesIntoCache(
       previous.some((item) => item.threadId === message.providerThreadId)
   );
 
-  const bundles = buildAllMailVorgangBundles(incomingOnly);
+  const bundles = await buildAllMailVorgangBundles(incomingOnly);
   const rawVorgaenge = bundles.map((bundle) => bundle.liste);
   const combined = [...rawVorgaenge, ...(cache?.vorgaenge ?? [])];
   const { vorgaenge: uniqueVorgaenge } = deduplicateVorgaenge(combined);

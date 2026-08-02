@@ -55,6 +55,10 @@ export type GmailConnectorMessage = {
   threadId: string;
   subject: string;
   from: string;
+  replyTo?: string;
+  listUnsubscribe?: string;
+  precedence?: string;
+  xMailer?: string;
   snippet: string;
   date: string;
   labelIds?: string[];

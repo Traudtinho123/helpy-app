@@ -1,4 +1,4 @@
-import { extractEmailAddress } from "@/features/gmail/services/extract-email-address";
+import { extractEmailAddress, parseFrom } from "@/features/gmail/services/extract-email-address";
 import {
   resolveVorgangSenderFromText,
 } from "@/features/workspace/services/vorgaenge/resolve-vorgang-sender";
@@ -78,21 +78,41 @@ export async function persistMailBundleToDb(
 ): Promise<void> {
   const source = resolveMailSourceFromQuelle(bundle.liste.quelle);
   const fromHeader =
-    bundle.liste.from?.trim() ||
     bundle.message.from?.trim() ||
-    bundle.liste.kunde;
+    bundle.liste.from?.trim() ||
+    "";
   const bodyText =
     bundle.liste.summary?.trim() ||
     bundle.liste.snippet?.trim() ||
     bundle.message.snippet?.trim() ||
     "";
 
-  const sender = resolveVorgangSenderFromText({
+  let sender = resolveVorgangSenderFromText({
     fromHeader,
     bodyText,
     subject: bundle.liste.titel,
     fallbackName: bundle.liste.kunde,
   });
+
+  if (!sender.email) {
+    console.warn(
+      "[vorgang] Kein Absender erkennbar — Vorgang wird nicht gespeichert:",
+      bundle.liste.titel
+    );
+    return;
+  }
+
+  if (
+    !sender.name ||
+    sender.name === "Unbekannt" ||
+    sender.name.toLowerCase() === "kein absender"
+  ) {
+    const reparsed = parseFrom(fromHeader);
+    sender = {
+      ...sender,
+      name: reparsed.name || reparsed.email || sender.email,
+    };
+  }
 
   let kundenId = bundle.liste.kundenAkteId ?? null;
 

@@ -75,7 +75,7 @@ export function mapVorgangDbRecordToListeVorgang(
     sender.name ||
     record.anrufer_nummer?.trim() ||
     sender.email ||
-    "Kein Absender";
+    "Unbekannt";
 
   return {
     id: record.id,

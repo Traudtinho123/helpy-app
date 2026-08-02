@@ -33,9 +33,21 @@ describe("resolve vorgang sender", () => {
     expect(sender.email).toBe("anna@example.com");
   });
 
+  it("extracts email from DocuSign header", () => {
+    const sender = resolveVorgangSenderFromText({
+      fromHeader: "DocuSign <noreply@docusign.com>",
+      subject: "Your code is 456925",
+      bodyText: "Your code is 456925",
+    });
+
+    expect(sender.name).toBe("DocuSign");
+    expect(sender.email).toBe("noreply@docusign.com");
+  });
+
   it("flags unknown sender labels", () => {
     expect(isUnknownSenderLabel("Unbekannt")).toBe(true);
     expect(isUnknownSenderLabel("(Unbekannt)")).toBe(true);
+    expect(isUnknownSenderLabel("Kein Absender")).toBe(true);
     expect(isUnknownSenderLabel("Thomas Müller")).toBe(false);
   });
 });

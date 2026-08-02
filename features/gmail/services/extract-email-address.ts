@@ -1,14 +1,18 @@
-const EMAIL_PATTERN = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+import { buildFromHeader, parseFrom } from "@/features/gmail/services/parse-from-header";
+import { isNonReplyableSystemSender } from "@/features/mail/services/system-mail-detector";
 
 export const RECIPIENT_UNKNOWN_MESSAGE =
   "Empfänger konnte nicht eindeutig erkannt werden.";
+
+export const SYSTEM_MAIL_NO_REPLY_MESSAGE =
+  "System-Mail – keine Antwort möglich";
 
 function normalizeEmail(value: string): string {
   return value.trim().toLowerCase();
 }
 
 function isValidEmail(value: string): boolean {
-  return EMAIL_PATTERN.test(value.trim());
+  return /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value.trim());
 }
 
 /**
@@ -19,56 +23,58 @@ function isValidEmail(value: string): boolean {
  * - "info@firma.ch" → info@firma.ch
  */
 export function extractEmailAddress(fromHeader: string): string | null {
-  if (!fromHeader?.trim()) return null;
+  const parsed = parseFrom(fromHeader);
+  return parsed.email || null;
+}
 
-  const angleMatch = fromHeader.match(/<([^>]+)>/);
-  if (angleMatch?.[1]) {
-    const email = angleMatch[1].trim();
-    return isValidEmail(email) ? normalizeEmail(email) : null;
+export function extractSenderNameFromHeader(fromHeader: string): string {
+  const parsed = parseFrom(fromHeader);
+  if (parsed.email) {
+    return parsed.name || parsed.email;
   }
-
-  const trimmed = fromHeader.trim();
-  if (isValidEmail(trimmed)) {
-    return normalizeEmail(trimmed);
-  }
-
-  const inlineMatch = trimmed.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
-  if (inlineMatch?.[0] && isValidEmail(inlineMatch[0])) {
-    return normalizeEmail(inlineMatch[0]);
-  }
-
-  return null;
+  return parsed.name || fromHeader.trim();
 }
 
 export function formatRecipientDisplay(fromHeader: string): string {
-  const email = extractEmailAddress(fromHeader);
-  if (!email) {
+  const parsed = parseFrom(fromHeader);
+  if (!parsed.email) {
     return fromHeader.trim() || "—";
   }
-
-  const name = fromHeader
-    .split("<")[0]
-    ?.trim()
-    .replace(/^["']|["']$/g, "")
-    .trim();
-
-  if (name && normalizeEmail(name) !== email) {
-    return `${name} <${email}>`;
-  }
-
-  return email;
+  return buildFromHeader(parsed.name, parsed.email);
 }
 
-export function resolveReplyRecipient(fromHeader: string): {
+export function resolveReplyRecipient(
+  fromHeader: string,
+  replyToHeader?: string
+): {
   display: string;
   email: string | null;
   isValid: boolean;
+  isSystemMail: boolean;
+  blockedReason: string | null;
 } {
-  const email = extractEmailAddress(fromHeader);
+  const replyTarget = replyToHeader?.trim() || fromHeader;
+  const parsed = parseFrom(replyTarget);
+  const email = parsed.email || null;
+  const isSystemMail = isNonReplyableSystemSender(fromHeader) ||
+    (email ? isNonReplyableSystemSender(buildFromHeader(parsed.name, email)) : false);
+
+  if (isSystemMail) {
+    return {
+      display: formatRecipientDisplay(fromHeader),
+      email,
+      isValid: false,
+      isSystemMail: true,
+      blockedReason: SYSTEM_MAIL_NO_REPLY_MESSAGE,
+    };
+  }
+
   return {
-    display: formatRecipientDisplay(fromHeader),
+    display: formatRecipientDisplay(replyTarget),
     email,
     isValid: Boolean(email),
+    isSystemMail: false,
+    blockedReason: email ? null : RECIPIENT_UNKNOWN_MESSAGE,
   };
 }
 
@@ -87,3 +93,5 @@ export function isBlockedOwnEmailRecipient(
   const originalEmail = extractEmailAddress(originalFromHeader);
   return originalEmail !== normalizedOwn;
 }
+
+export { parseFrom, buildFromHeader };

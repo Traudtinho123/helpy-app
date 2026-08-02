@@ -42,7 +42,7 @@ export async function resolveSenderIntelligence(input: {
   isSpam?: boolean;
 }): Promise<VorgangSenderIntelligence> {
   const email = input.fromEmail ? normalizeEmail(input.fromEmail) : null;
-  const fromName = input.fromName.trim() || email || "Kein Absender";
+  const fromName = input.fromName.trim() || email || "Unbekannt";
 
   if (input.isSpam) {
     return {

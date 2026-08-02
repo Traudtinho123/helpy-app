@@ -2,7 +2,11 @@ import { extractSenderName } from "@/features/brain/services/brain-result-to-vor
 import { readPlatformContextValue } from "@/features/brain/services/platform-inquiry-context";
 import { extractPlatformInquiry } from "@/features/brain/services/platform-inquiry-extractor";
 import { PLATFORM_INQUIRY_MISSING } from "@/features/brain/types/platform-inquiry-types";
-import { extractEmailAddress } from "@/features/gmail/services/extract-email-address";
+import {
+  buildFromHeader,
+  extractEmailAddress,
+  parseFrom,
+} from "@/features/gmail/services/extract-email-address";
 import type { Vorgang } from "@/features/workspace/services/vorgaenge/types";
 
 const UNKNOWN_SENDER_LABELS = new Set([
@@ -10,6 +14,7 @@ const UNKNOWN_SENDER_LABELS = new Set([
   "(unbekannt)",
   "unbekannter absender",
   "unbekannter anrufer",
+  "kein absender",
 ]);
 
 export function isUnknownSenderLabel(value: string | null | undefined): boolean {
@@ -29,10 +34,10 @@ function extractPersonalEmailFromText(text: string): string | null {
   return null;
 }
 
-function buildFromHeader(name: string, email: string | null, fallback = ""): string {
+function formatSenderFrom(name: string, email: string | null, fallback = ""): string {
   if (email) {
     if (name && !isUnknownSenderLabel(name) && !name.includes("@")) {
-      return `${name} <${email}>`;
+      return buildFromHeader(name, email);
     }
     return email;
   }
@@ -50,26 +55,34 @@ export function resolveVorgangSenderFromText(input: {
   const subject = input.subject?.trim() ?? "";
   const inquiry = extractPlatformInquiry(fromHeader, subject, bodyText);
 
+  const headerParsed = parseFrom(fromHeader);
   const email =
     (inquiry.interessentEmail !== PLATFORM_INQUIRY_MISSING
       ? inquiry.interessentEmail
       : null) ??
+    headerParsed.email ??
     extractEmailAddress(fromHeader) ??
     extractPersonalEmailFromText(`${bodyText}\n${fromHeader}`);
 
-  const headerName = extractSenderName(fromHeader);
+  const headerName = headerParsed.email
+    ? headerParsed.name
+    : extractSenderName(fromHeader);
   const name =
     (inquiry.interessentName !== PLATFORM_INQUIRY_MISSING
       ? inquiry.interessentName
       : null) ??
     (!isUnknownSenderLabel(input.fallbackName) ? input.fallbackName?.trim() : null) ??
     (!isUnknownSenderLabel(headerName) ? headerName : null) ??
-    (email ? email.split("@")[0]?.replace(/[._-]+/g, " ").trim() || email : "Kein Absender");
+    (email
+      ? headerParsed.name ||
+        email.split("@")[0]?.replace(/[._-]+/g, " ").trim() ||
+        email
+      : "Unbekannt");
 
   return {
     name,
     email,
-    from: buildFromHeader(name, email, fromHeader || name),
+    from: formatSenderFrom(name, email, fromHeader || name),
   };
 }
 
@@ -116,7 +129,7 @@ export function resolveVorgangSender(
     return {
       name,
       email,
-      from: buildFromHeader(name, email, candidate),
+      from: formatSenderFrom(name, email, candidate),
     };
   }
 
@@ -142,7 +155,7 @@ export function pickBestVorgangSender(
     >
   >
 ): { name: string; email: string | null; from: string } {
-  let best = resolveVorgangSender(items[0] ?? { kunde: "Kein Absender", titel: "" });
+  let best = resolveVorgangSender(items[0] ?? { kunde: "Unbekannt", titel: "" });
 
   for (const item of items.slice(1)) {
     const candidate = resolveVorgangSender(item);

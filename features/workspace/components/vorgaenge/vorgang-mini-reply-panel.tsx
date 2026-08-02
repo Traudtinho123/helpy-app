@@ -100,7 +100,9 @@ export function VorgangMiniReplyPanel({
         {draft.draftText}
       </p>
       {!draft.recipientValid ? (
-        <p className="mt-2 text-[11px] text-[#DC2626]">{RECIPIENT_UNKNOWN_MESSAGE}</p>
+        <p className="mt-2 text-[11px] text-[#DC2626]">
+          {draft.recipientBlockedReason ?? RECIPIENT_UNKNOWN_MESSAGE}
+        </p>
       ) : null}
       {error ? (
         <p className="mt-2 text-[11px] text-[#DC2626]">{error}</p>

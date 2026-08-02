@@ -121,6 +121,7 @@ export function buildReplyDraftInputFromListe(
           subject: vorgang.titel,
           from: resolvedOriginalFrom,
           snippet: vorgang.snippet ?? "",
+          replyTo: undefined,
         }
       : undefined,
     memoryHints: skill
@@ -144,6 +145,7 @@ export function buildReplyDraftInputFromBundle(
       subject: bundle.message.subject,
       from: base.originalFrom ?? bundle.message.from,
       snippet: bundle.message.snippet,
+      replyTo: bundle.message.replyTo,
     },
   };
 }
@@ -186,7 +188,8 @@ function buildReplyDraft(
   const generated = buildEnrichedTemplateGenerationResult(input, appointmentSlots);
   const template = evaluateReplyTemplateRules(input, appointmentSlots);
   const originalFrom = resolveOriginalFrom(input);
-  const recipient = resolveReplyRecipient(originalFrom);
+  const replyToHeader = input.gmailMessage?.replyTo ?? input.replyTo;
+  const recipient = resolveReplyRecipient(originalFrom, replyToHeader);
 
   return {
     id: `reply-draft-${input.vorgangId}`,
@@ -195,6 +198,7 @@ function buildReplyDraft(
     recipientEmail: recipient.email,
     originalFrom,
     recipientValid: recipient.isValid,
+    recipientBlockedReason: recipient.blockedReason,
     subject: generated.subject,
     tone: generated.tone,
     draftText: generated.draftText,

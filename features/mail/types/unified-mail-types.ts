@@ -26,6 +26,10 @@ export type UnifiedMailMessage = {
   providerMessageId: string;
   providerThreadId: string;
   from: string;
+  replyTo?: string;
+  listUnsubscribe?: string;
+  precedence?: string;
+  xMailer?: string;
   to: string[];
   subject: string;
   snippet: string;

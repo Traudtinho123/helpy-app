@@ -7,6 +7,8 @@ import { mapGmailMessageToUnifiedMail } from "@/features/mail/services/unified-m
 import { buildAllMailVorgangBundles } from "@/features/mail/mail-vorgang-bundles";
 import { isHelpySystemMail } from "@/features/workspace/services/vorgaenge/helpy-report-detector";
 import { buildHelpyReportBundleFromGmailMessage } from "@/features/workspace/services/vorgaenge/helpy-report-vorgang";
+import { buildSystemMailReportFromGmailMessage } from "@/features/workspace/services/vorgaenge/helpy-report-vorgang";
+import { detectSystemMailFromGmail } from "@/features/mail/services/system-mail-detector";
 import { persistMailBundleToDb } from "@/features/vorgaenge/services/create-vorgang-client";
 import { isHelpyReportVorgang } from "@/features/workspace/services/vorgaenge/helpy-report-detector";
 import {
@@ -104,10 +106,10 @@ export type GmailSyncContext = {
   prefetchedMessages?: GmailConnectorMessage[];
 };
 
-function buildBundlesFromMessages(
+async function buildBundlesFromMessages(
   messages: GmailConnectorMessage[],
   context: GmailSyncContext
-): GmailVorgangBundle[] {
+): Promise<GmailVorgangBundle[]> {
   const skill = resolveAnalyzeSkill();
 
   if (context.connectionId) {
@@ -139,9 +141,28 @@ function buildBundlesFromMessages(
           context.connectionId
         )
       );
-    } else {
-      forBrain.push(message);
+      continue;
     }
+
+    const systemDetection = detectSystemMailFromGmail(
+      message,
+      context.ownEmail ?? null
+    );
+    if (systemDetection.isSystemMail) {
+      if (systemDetection.category !== "own_sent") {
+        bundles.push(
+          buildSystemMailReportFromGmailMessage(
+            message,
+            systemDetection,
+            context.ownEmail ?? null,
+            context.connectionId
+          )
+        );
+      }
+      continue;
+    }
+
+    forBrain.push(message);
   }
 
   if (forBrain.length > 0) {
@@ -759,7 +780,7 @@ export async function loadGmailVorgaenge(
     }
 
     hydrateFromSession();
-    const bundles = buildBundlesFromMessages(messages, context);
+    const bundles = await buildBundlesFromMessages(messages, context);
 
     if (cache?.vorgaenge.length) {
       mergeBundlesIntoCache(bundles);
@@ -833,7 +854,7 @@ export async function syncGmailVorgaengeIncremental(
       return { ok: true, newCount: 0, newVorgaenge: [] };
     }
 
-    const bundles = buildBundlesFromMessages(newMessages, context);
+    const bundles = await buildBundlesFromMessages(newMessages, context);
     const newVorgaenge = mergeBundlesIntoCache(bundles);
 
     backfillGmailVorgaengeMailMetadata(messages, context);

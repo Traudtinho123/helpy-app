@@ -58,6 +58,11 @@ function mapMessage(message: GmailMessagePayload): GmailConnectorMessage {
     threadId: message.threadId,
     subject: getHeader(message.payload?.headers, "Subject") || "(Kein Betreff)",
     from: getHeader(message.payload?.headers, "From") || "",
+    replyTo: getHeader(message.payload?.headers, "Reply-To") || undefined,
+    listUnsubscribe:
+      getHeader(message.payload?.headers, "List-Unsubscribe") || undefined,
+    precedence: getHeader(message.payload?.headers, "Precedence") || undefined,
+    xMailer: getHeader(message.payload?.headers, "X-Mailer") || undefined,
     snippet: message.snippet ?? "",
     date: resolveDate(message),
     labelIds: message.labelIds,
