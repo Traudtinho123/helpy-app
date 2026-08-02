@@ -1,10 +1,84 @@
 import { NextResponse } from "next/server";
-import { updateSocialPost } from "@/lib/social-media/social-media-repository";
+import {
+  listRecentSocialPosts,
+  updateSocialPost,
+  upsertSocialPosts,
+} from "@/lib/social-media/social-media-repository";
+import type { SocialPlatform } from "@/features/social-media/types/social-media-types";
 import {
   createDevCompanyContext,
   requireCompanyContext,
 } from "@/lib/tenant/require-company-context";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+
+export async function GET() {
+  const auth = await requireCompanyContext();
+  const context = auth.ok ? auth.context : createDevCompanyContext();
+
+  if (!auth.ok && isSupabaseConfigured()) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
+  const posts = await listRecentSocialPosts(context.companyId, 100);
+  return NextResponse.json({ posts });
+}
+
+export async function POST(request: Request) {
+  const auth = await requireCompanyContext();
+  const context = auth.ok ? auth.context : createDevCompanyContext();
+
+  if (!auth.ok && isSupabaseConfigured()) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
+  let body: {
+    platform?: SocialPlatform;
+    textContent?: string;
+    hashtags?: string[];
+    imageUrl?: string | null;
+    objektId?: string;
+    scheduledAt?: string | null;
+  };
+
+  try {
+    body = (await request.json()) as typeof body;
+  } catch {
+    return NextResponse.json({ error: "Ungültiger Body." }, { status: 400 });
+  }
+
+  if (!body.platform || !body.textContent?.trim()) {
+    return NextResponse.json(
+      { error: "platform und textContent sind Pflicht." },
+      { status: 400 }
+    );
+  }
+
+  const saved = await upsertSocialPosts(context.companyId, [
+    {
+      objektId: body.objektId?.trim() || "manual",
+      platform: body.platform,
+      textContent: body.textContent.trim(),
+      hashtags: body.hashtags ?? [],
+      imageUrl: body.imageUrl ?? null,
+      status: body.scheduledAt ? "scheduled" : "draft",
+    },
+  ]);
+
+  const post = saved[0];
+  if (!post) {
+    return NextResponse.json({ error: "Post konnte nicht gespeichert werden." }, { status: 500 });
+  }
+
+  if (body.scheduledAt) {
+    const updated = await updateSocialPost(context.companyId, post.id, {
+      scheduledAt: body.scheduledAt,
+      status: "scheduled",
+    });
+    return NextResponse.json({ post: updated ?? post });
+  }
+
+  return NextResponse.json({ post });
+}
 
 export async function PATCH(request: Request) {
   const auth = await requireCompanyContext();

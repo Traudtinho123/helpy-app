@@ -20,6 +20,8 @@ import {
   type SocialPost,
 } from "@/features/social-media/types/social-media-types";
 
+const STABLE_EMPTY_POSTS: SocialPost[] = [];
+
 type SocialPostEditorProps = {
   object: RealEstateObject;
   initialPosts?: SocialPost[];
@@ -38,10 +40,11 @@ function formatDateTime(iso: string | null): string {
 
 export function SocialPostEditor({
   object,
-  initialPosts = [],
+  initialPosts,
   onPostsChange,
 }: SocialPostEditorProps) {
-  const [posts, setPosts] = useState<SocialPost[]>(initialPosts);
+  const resolvedInitialPosts = initialPosts ?? STABLE_EMPTY_POSTS;
+  const [posts, setPosts] = useState<SocialPost[]>(resolvedInitialPosts);
   const [activePlatform, setActivePlatform] =
     useState<SocialPlatform>("instagram");
   const [loading, setLoading] = useState(false);
@@ -69,28 +72,46 @@ export function SocialPostEditor({
     setLoading(true);
     setError(null);
     try {
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 12_000);
+
       const response = await fetch(
-        `/api/social-media/generate?objekt_id=${encodeURIComponent(object.objectId)}`
+        `/api/social-media/generate?objekt_id=${encodeURIComponent(object.objectId)}`,
+        { signal: controller.signal }
       );
+      window.clearTimeout(timeout);
+
       if (response.ok) {
-        const payload = (await response.json()) as { posts: SocialPost[] };
-        setPosts(payload.posts);
-        onPostsChange?.(payload.posts);
+        const payload = (await response.json()) as { posts?: SocialPost[] };
+        const nextPosts = payload.posts ?? [];
+        setPosts(nextPosts);
+        onPostsChange?.(nextPosts);
+      } else {
+        setPosts([]);
+        onPostsChange?.([]);
+        const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+        setError(payload?.error ?? "Posts konnten nicht geladen werden.");
       }
-    } catch {
-      setError("Posts konnten nicht geladen werden.");
+    } catch (err) {
+      setPosts([]);
+      onPostsChange?.([]);
+      setError(
+        err instanceof Error && err.name === "AbortError"
+          ? "Zeitüberschreitung beim Laden — bitte erneut versuchen."
+          : "Posts konnten nicht geladen werden."
+      );
     } finally {
       setLoading(false);
     }
   }, [object.objectId, onPostsChange]);
 
   useEffect(() => {
-    if (initialPosts.length > 0) {
-      setPosts(initialPosts);
+    if (resolvedInitialPosts.length > 0) {
+      setPosts(resolvedInitialPosts);
       return;
     }
     void loadPosts();
-  }, [initialPosts, loadPosts]);
+  }, [object.objectId, resolvedInitialPosts.length, loadPosts]);
 
   const updateLocalPost = (patch: Partial<SocialPost>) => {
     if (!activePost) return;
