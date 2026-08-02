@@ -25,19 +25,19 @@ function TerminDesktopCard({ termin }: { termin: WorkdayTerminItem }) {
   return (
     <article
       className={cn(
-        "w-[300px] shrink-0 snap-start rounded-[16px] border border-[#CBD5E1]/50 bg-white/95 p-4 shadow-sm"
+        "w-[300px] shrink-0 snap-start rounded-[16px] border border-[var(--border)] bg-[var(--bg-surface)]/95 p-4 shadow-sm"
       )}
     >
       <p className="flex items-center gap-1.5 text-[12px] font-semibold text-[#047857]">
         <Clock className="size-3.5" />
         {formatTimeRange(termin)}
       </p>
-      <h3 className="mt-2 text-[14px] font-semibold leading-snug text-[#0F172A]">
+      <h3 className="mt-2 text-[14px] font-semibold leading-snug text-[var(--text-primary)]">
         {termin.titel}
       </h3>
-      <p className="mt-1 text-[12px] text-[#64748B]">{termin.kunde}</p>
+      <p className="mt-1 text-[12px] text-[var(--text-secondary)]">{termin.kunde}</p>
       {termin.ort ? (
-        <p className="mt-1 flex items-center gap-1 text-[11px] text-[#94A3B8]">
+        <p className="mt-1 flex items-center gap-1 text-[11px] text-[var(--text-muted)]">
           <MapPin className="size-3" />
           {termin.ort}
         </p>
@@ -45,7 +45,7 @@ function TerminDesktopCard({ termin }: { termin: WorkdayTerminItem }) {
       <div className="mt-3 flex flex-wrap gap-2">
         <Link
           href={termin.href}
-          className="inline-flex min-h-[40px] items-center justify-center rounded-[10px] border border-[#CBD5E1]/60 bg-white px-3 text-[11px] font-semibold text-[#334155] hover:bg-[#F8FAFC]"
+          className="inline-flex min-h-[40px] items-center justify-center rounded-[10px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-[11px] font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"
         >
           Details
         </Link>
@@ -54,7 +54,7 @@ function TerminDesktopCard({ termin }: { termin: WorkdayTerminItem }) {
             href={mapsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-[40px] items-center justify-center gap-1 rounded-[10px] border border-[#BFDBFE]/60 bg-[#EFF6FF] px-3 text-[11px] font-semibold text-[#2563EB]"
+            className="inline-flex min-h-[40px] items-center justify-center gap-1 rounded-[10px] border border-[var(--border-accent)] bg-[var(--accent-light)] px-3 text-[11px] font-semibold text-[var(--accent)]"
           >
             Navigation
             <ExternalLink className="size-3" />
@@ -88,8 +88,8 @@ export function WorkdayTermineHeuteSection({
       </div>
 
       {appointments.length === 0 ? (
-        <div className="rounded-[16px] border border-dashed border-[#CBD5E1]/60 bg-[#F8FAFC]/80 px-4 py-6 text-center">
-          <p className="text-[13px] leading-relaxed text-[#64748B]">{emptyMessage}</p>
+        <div className="rounded-[16px] border border-dashed border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-6 text-center">
+          <p className="text-[13px] leading-relaxed text-[var(--text-secondary)]">{emptyMessage}</p>
         </div>
       ) : (
         <>
@@ -98,20 +98,20 @@ export function WorkdayTermineHeuteSection({
               <li key={termin.id}>
                 <Link
                   href={termin.href}
-                  className="flex items-center justify-between gap-3 rounded-[12px] border border-[#E2E8F0]/80 bg-white px-3 py-2.5 active:bg-[#F8FAFC]"
+                  className="flex items-center justify-between gap-3 rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2.5 active:bg-[var(--bg-elevated)]"
                 >
                   <div className="min-w-0">
                     <p className="text-[12px] font-semibold text-[#047857]">
                       {formatTimeRange(termin)}
                     </p>
-                    <p className="truncate text-[13px] font-medium text-[#0F172A]">
+                    <p className="truncate text-[13px] font-medium text-[var(--text-primary)]">
                       {termin.titel}
                     </p>
                     {termin.kunde ? (
-                      <p className="truncate text-[11px] text-[#64748B]">{termin.kunde}</p>
+                      <p className="truncate text-[11px] text-[var(--text-secondary)]">{termin.kunde}</p>
                     ) : null}
                   </div>
-                  <span className="shrink-0 text-[11px] font-semibold text-[#2563EB]">
+                  <span className="shrink-0 text-[11px] font-semibold text-[var(--accent)]">
                     →
                   </span>
                 </Link>

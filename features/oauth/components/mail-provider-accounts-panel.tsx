@@ -82,21 +82,21 @@ export function MailProviderAccountsPanel({
   return (
     <section
       className={cn(
-        "rounded-[24px] border border-[#CBD5E1]/40 bg-white/90 p-6 shadow-[0_2px_8px_rgba(15,23,42,0.04)] backdrop-blur-xl",
+        "rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] p-6 shadow-[0_2px_8px_rgba(15,23,42,0.04)] backdrop-blur-xl",
         className
       )}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
-          <span className="flex size-12 items-center justify-center rounded-[16px] bg-[#F8FAFC] text-2xl">
+          <span className="flex size-12 items-center justify-center rounded-[16px] bg-[var(--bg-elevated)] text-2xl">
             {emoji}
           </span>
           <div>
-            <p className="text-[10px] font-semibold tracking-[0.06em] text-[#2563EB] uppercase">
+            <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--accent)] uppercase">
               E-Mail
             </p>
-            <h3 className="text-[15px] font-semibold text-[#0F172A]">{title}</h3>
-            <p className="mt-1 text-[12px] leading-relaxed text-[#64748B]">
+            <h3 className="text-[15px] font-semibold text-[var(--text-primary)]">{title}</h3>
+            <p className="mt-1 text-[12px] leading-relaxed text-[var(--text-secondary)]">
               {description}
             </p>
           </div>
@@ -106,7 +106,7 @@ export function MailProviderAccountsPanel({
             "rounded-full border px-2.5 py-1 text-[10px] font-semibold",
             isConnected
               ? "border-[#A7F3D0]/60 bg-[#ECFDF5]/80 text-[#047857]"
-              : "border-[#E2E8F0] bg-[#F8FAFC] text-[#64748B]"
+              : "border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-secondary)]"
           )}
         >
           {isConnected ? `${accounts.length} Account${accounts.length === 1 ? "" : "s"}` : "Nicht verbunden"}
@@ -115,28 +115,28 @@ export function MailProviderAccountsPanel({
 
       <div className="mt-5 space-y-2">
         {loading ? (
-          <div className="flex items-center gap-2 text-[12px] text-[#64748B]">
+          <div className="flex items-center gap-2 text-[12px] text-[var(--text-secondary)]">
             <Loader2 className="size-4 animate-spin" />
             Verbindungen laden…
           </div>
         ) : accounts.length === 0 ? (
-          <p className="rounded-[14px] border border-dashed border-[#CBD5E1]/60 bg-[#F8FAFC]/80 px-4 py-3 text-[12px] text-[#64748B]">
+          <p className="rounded-[14px] border border-dashed border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-3 text-[12px] text-[var(--text-secondary)]">
             Noch kein Konto verbunden. Ein Klick — Microsoft/Google Login — fertig.
           </p>
         ) : (
           accounts.map((account) => (
             <div
               key={account.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-[14px] border border-[#E2E8F0]/70 bg-[#F8FAFC]/80 px-4 py-3"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-[14px] border border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-3"
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <Mail className="size-3.5 shrink-0 text-[#64748B]" />
-                  <p className="truncate text-[13px] font-semibold text-[#0F172A]">
+                  <Mail className="size-3.5 shrink-0 text-[var(--text-secondary)]" />
+                  <p className="truncate text-[13px] font-semibold text-[var(--text-primary)]">
                     {account.accountEmail}
                   </p>
                 </div>
-                <p className="mt-1 text-[11px] text-[#64748B]">
+                <p className="mt-1 text-[11px] text-[var(--text-secondary)]">
                   {account.status === "error"
                     ? account.lastError ?? "Verbindungsfehler"
                     : `Sync: ${formatRelativeSync(account.lastSyncAt)}`}
@@ -166,7 +166,7 @@ export function MailProviderAccountsPanel({
                   variant="outline"
                   disabled={busyId === account.id}
                   onClick={() => void handleDisconnect(account.id)}
-                  className="h-8 gap-1.5 rounded-[10px] text-[11px] text-[#64748B]"
+                  className="h-8 gap-1.5 rounded-[10px] text-[11px] text-[var(--text-secondary)]"
                 >
                   <Unplug className="size-3.5" />
                   Trennen

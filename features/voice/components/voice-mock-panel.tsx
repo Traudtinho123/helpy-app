@@ -93,9 +93,9 @@ export function VoiceMockPanel() {
   };
 
   return (
-    <section className="rounded-[20px] border border-[#E2E8F0] bg-white p-6 shadow-sm">
-      <h2 className="text-[15px] font-semibold text-[#0F172A]">Mock Gespräch simulieren</h2>
-      <p className="mt-1 text-[12px] text-[#64748B]">
+    <section className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] p-6 shadow-sm">
+      <h2 className="text-[15px] font-semibold text-[var(--text-primary)]">Mock Gespräch simulieren</h2>
+      <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
         Text eingeben → Voice Core → Brain → Memory → Workflow. Kein Telefonanbieter nötig.
       </p>
 
@@ -104,7 +104,7 @@ export function VoiceMockPanel() {
           <button
             key={sample.label}
             type="button"
-            className="rounded-full border border-[#E2E8F0] px-3 py-1 text-[11px] font-medium text-[#475569] hover:border-[#2563EB]/40"
+            className="rounded-full border border-[var(--border)] px-3 py-1 text-[11px] font-medium text-[var(--text-muted)] hover:border-[#2563EB]/40"
             onClick={() => {
               setTranscript(sample.text);
               setCallerName(sample.callerName);
@@ -125,13 +125,13 @@ export function VoiceMockPanel() {
 
       <div className="mt-2 grid gap-2 sm:grid-cols-2">
         <input
-          className="rounded-lg border border-[#E2E8F0] px-3 py-2 text-[12px]"
+          className="rounded-lg border border-[var(--border)] px-3 py-2 text-[12px]"
           value={callerName}
           onChange={(e) => setCallerName(e.target.value)}
           placeholder="Name"
         />
         <input
-          className="rounded-lg border border-[#E2E8F0] px-3 py-2 text-[12px]"
+          className="rounded-lg border border-[var(--border)] px-3 py-2 text-[12px]"
           value={callerPhone}
           onChange={(e) => setCallerPhone(e.target.value)}
           placeholder="Telefon"
@@ -144,7 +144,7 @@ export function VoiceMockPanel() {
       </Button>
 
       {lastReply && (
-        <div className="mt-4 flex gap-2 rounded-[12px] border border-[#BFDBFE] bg-[#EFF6FF] px-3 py-2 text-[12px] text-[#1D4ED8]">
+        <div className="mt-4 flex gap-2 rounded-[12px] border border-[var(--border-accent)] bg-[var(--accent-light)] px-3 py-2 text-[12px] text-[#1D4ED8]">
           <Volume2 className="mt-0.5 size-4 shrink-0" />
           <p>
             <strong>HELPY:</strong> {lastReply}
@@ -159,7 +159,7 @@ export function VoiceMockPanel() {
       )}
 
       {message && (
-        <p className="mt-4 rounded-[12px] border border-[#BFDBFE] bg-[#EFF6FF] px-3 py-2 text-[12px] text-[#1D4ED8]">
+        <p className="mt-4 rounded-[12px] border border-[var(--border-accent)] bg-[var(--accent-light)] px-3 py-2 text-[12px] text-[#1D4ED8]">
           {message}
           {lastVorgangId && (
             <>

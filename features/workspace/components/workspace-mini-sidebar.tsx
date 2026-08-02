@@ -34,7 +34,7 @@ export function WorkspaceMiniSidebar({ className }: WorkspaceMiniSidebarProps) {
             "flex size-11 items-center justify-center rounded-[14px] transition-all duration-300",
             activeHref === "/"
               ? "bg-[#2563EB]/20 text-[#93C5FD] ring-1 ring-[#3B82F6]/40"
-              : "text-slate-400 hover:bg-white/[0.08] hover:text-white"
+              : "text-slate-400 hover:bg-[var(--bg-elevated)]/[0.08] hover:text-white"
           )}
         >
           <LayoutDashboard className="size-[18px]" strokeWidth={2} />
@@ -46,7 +46,7 @@ export function WorkspaceMiniSidebar({ className }: WorkspaceMiniSidebarProps) {
             "flex size-11 items-center justify-center rounded-[14px] transition-all duration-300",
             activeHref === "/vorgaenge"
               ? "bg-[#2563EB]/20 text-[#93C5FD] ring-1 ring-[#3B82F6]/40"
-              : "text-slate-400 hover:bg-white/[0.08] hover:text-white"
+              : "text-slate-400 hover:bg-[var(--bg-elevated)]/[0.08] hover:text-white"
           )}
         >
           <Inbox className="size-[18px]" strokeWidth={2} />
@@ -63,7 +63,7 @@ export function WorkspaceMiniSidebar({ className }: WorkspaceMiniSidebarProps) {
         <Link
           href="/vorgaenge"
           title="Focus Mode beenden"
-          className="flex size-11 items-center justify-center rounded-[14px] text-slate-400 transition-all duration-300 hover:bg-white/[0.08] hover:text-white"
+          className="flex size-11 items-center justify-center rounded-[14px] text-slate-400 transition-all duration-300 hover:bg-[var(--bg-elevated)]/[0.08] hover:text-white"
         >
           <ArrowLeft className="size-[18px]" strokeWidth={2} />
         </Link>

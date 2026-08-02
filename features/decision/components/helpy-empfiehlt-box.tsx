@@ -47,49 +47,49 @@ export function HelpyEmpfiehltBox({
   return (
     <div
       className={cn(
-        "rounded-[16px] border border-[#BFDBFE]/60 bg-gradient-to-br from-[#EFF6FF]/70 to-white/90 px-4 py-3.5 backdrop-blur-sm",
+        "rounded-[16px] border border-[var(--border-accent)] bg-gradient-to-br from-[#EFF6FF]/70 to-white/90 px-4 py-3.5 backdrop-blur-sm",
         className
       )}
     >
       <div className="flex items-start gap-2.5">
-        <Lightbulb className="mt-0.5 size-4 shrink-0 text-[#2563EB]" strokeWidth={2} />
+        <Lightbulb className="mt-0.5 size-4 shrink-0 text-[var(--accent)]" strokeWidth={2} />
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-semibold tracking-[0.04em] text-[#2563EB] uppercase">
+          <p className="text-[10px] font-semibold tracking-[0.04em] text-[var(--accent)] uppercase">
             HELPY empfiehlt
           </p>
 
-          <p className="mt-2 text-[13px] font-semibold text-[#0F172A]">
+          <p className="mt-2 text-[13px] font-semibold text-[var(--text-primary)]">
             {decision.decisionTitle}
           </p>
 
           <div className="mt-3 space-y-3">
             <div>
-              <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+              <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
                 Begründung
               </p>
-              <p className="mt-1 text-[12px] leading-relaxed text-[#334155]">
+              <p className="mt-1 text-[12px] leading-relaxed text-[var(--text-secondary)]">
                 {decision.reason}
               </p>
             </div>
 
             <div>
-              <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+              <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
                 Nächster bester Schritt
               </p>
-              <p className="mt-1 text-[12px] font-medium text-[#0F172A]">
+              <p className="mt-1 text-[12px] font-medium text-[var(--text-primary)]">
                 {decision.nextBestStep}
               </p>
             </div>
 
             <div>
-              <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+              <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
                 Von HELPY vorbereitet
               </p>
               <ul className="mt-2 space-y-1">
                 {decision.preparedItems.map((item) => (
                   <li
                     key={item}
-                    className="flex gap-2 text-[11px] leading-relaxed text-[#64748B]"
+                    className="flex gap-2 text-[11px] leading-relaxed text-[var(--text-secondary)]"
                   >
                     <span className="mt-1.5 size-1 shrink-0 rounded-full bg-[#2563EB]" />
                     {item}
@@ -129,49 +129,49 @@ export function HelpyEmpfiehltBoxFromDecision({
   return (
     <div
       className={cn(
-        "rounded-[16px] border border-[#BFDBFE]/60 bg-gradient-to-br from-[#EFF6FF]/70 to-white/90 px-4 py-3.5 backdrop-blur-sm",
+        "rounded-[16px] border border-[var(--border-accent)] bg-gradient-to-br from-[#EFF6FF]/70 to-white/90 px-4 py-3.5 backdrop-blur-sm",
         className
       )}
     >
       <div className="flex items-start gap-2.5">
-        <Lightbulb className="mt-0.5 size-4 shrink-0 text-[#2563EB]" strokeWidth={2} />
+        <Lightbulb className="mt-0.5 size-4 shrink-0 text-[var(--accent)]" strokeWidth={2} />
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-semibold tracking-[0.04em] text-[#2563EB] uppercase">
+          <p className="text-[10px] font-semibold tracking-[0.04em] text-[var(--accent)] uppercase">
             HELPY empfiehlt
           </p>
 
-          <p className="mt-2 text-[13px] font-semibold text-[#0F172A]">
+          <p className="mt-2 text-[13px] font-semibold text-[var(--text-primary)]">
             {decision.decisionTitle}
           </p>
 
           <div className="mt-3 space-y-3">
             <div>
-              <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+              <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
                 Begründung
               </p>
-              <p className="mt-1 text-[12px] leading-relaxed text-[#334155]">
+              <p className="mt-1 text-[12px] leading-relaxed text-[var(--text-secondary)]">
                 {decision.reason}
               </p>
             </div>
 
             <div>
-              <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+              <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
                 Nächster bester Schritt
               </p>
-              <p className="mt-1 text-[12px] font-medium text-[#0F172A]">
+              <p className="mt-1 text-[12px] font-medium text-[var(--text-primary)]">
                 {decision.nextBestStep}
               </p>
             </div>
 
             <div>
-              <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+              <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
                 Von HELPY vorbereitet
               </p>
               <ul className="mt-2 space-y-1">
                 {decision.preparedItems.map((item) => (
                   <li
                     key={item}
-                    className="flex gap-2 text-[11px] leading-relaxed text-[#64748B]"
+                    className="flex gap-2 text-[11px] leading-relaxed text-[var(--text-secondary)]"
                   >
                     <span className="mt-1.5 size-1 shrink-0 rounded-full bg-[#2563EB]" />
                     {item}

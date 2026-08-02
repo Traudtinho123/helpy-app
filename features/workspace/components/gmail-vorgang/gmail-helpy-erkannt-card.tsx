@@ -43,24 +43,24 @@ export function GmailHelpyErkanntCard() {
           ]}
         />
 
-        <div className="rounded-[14px] border border-[#BFDBFE]/50 bg-[#EFF6FF]/40 px-3.5 py-3">
-          <p className="text-[10px] font-semibold tracking-[0.06em] text-[#2563EB] uppercase">
+        <div className="rounded-[14px] border border-[var(--border-accent)]/50 bg-[var(--accent-light)]/40 px-3.5 py-3">
+          <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--accent)] uppercase">
             Zusammenfassung
           </p>
-          <p className="mt-1.5 text-[12px] leading-relaxed text-[#334155]">
+          <p className="mt-1.5 text-[12px] leading-relaxed text-[var(--text-secondary)]">
             {zusammenfassung}
           </p>
         </div>
 
-        <div className="rounded-[14px] border border-[#E2E8F0]/70 bg-white/90 px-3.5 py-3">
-          <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+        <div className="rounded-[14px] border border-[var(--border)] bg-[var(--bg-surface)] px-3.5 py-3">
+          <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
             Empfehlung
           </p>
-          <p className="mt-1.5 text-[12px] font-medium text-[#0F172A]">
+          <p className="mt-1.5 text-[12px] font-medium text-[var(--text-primary)]">
             {empfehlung}
           </p>
           {!isArchive && recommendation?.reason && (
-            <p className="mt-2 text-[11px] leading-relaxed text-[#64748B]">
+            <p className="mt-2 text-[11px] leading-relaxed text-[var(--text-secondary)]">
               {recommendation.reason}
             </p>
           )}

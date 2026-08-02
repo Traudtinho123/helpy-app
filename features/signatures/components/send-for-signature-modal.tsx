@@ -153,15 +153,15 @@ export function SendForSignatureModal({
       }
     >
       <div className="space-y-4">
-        <div className="rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-[#94A3B8]">
+        <div className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-3">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--text-muted)]">
             Dokument
           </p>
-          <p className="mt-1 text-[14px] font-semibold text-[#0F172A]">{fileName}</p>
+          <p className="mt-1 text-[14px] font-semibold text-[var(--text-primary)]">{fileName}</p>
         </div>
 
         <div className="space-y-2">
-          <p className="text-[12px] font-semibold text-[#334155]">Unterzeichner</p>
+          <p className="text-[12px] font-semibold text-[var(--text-secondary)]">Unterzeichner</p>
           {signers.map((signer, index) => (
             <div key={index} className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
               <Input
@@ -214,16 +214,16 @@ export function SendForSignatureModal({
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[12px] font-semibold text-[#334155]">Nachricht</label>
+          <label className="text-[12px] font-semibold text-[var(--text-secondary)]">Nachricht</label>
           <textarea
             value={message}
             onChange={(event) => setMessage(event.target.value)}
             rows={4}
-            className="w-full rounded-[12px] border border-[#CBD5E1]/60 bg-white px-3 py-2 text-[13px] text-[#0F172A] outline-none focus-visible:border-[#2563EB] focus-visible:ring-3 focus-visible:ring-[#2563EB]/20"
+            className="w-full rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-[13px] text-[var(--text-primary)] outline-none focus-visible:border-[#2563EB] focus-visible:ring-3 focus-visible:ring-[#2563EB]/20"
           />
         </div>
 
-        <div className="rounded-[12px] border border-[#BFDBFE] bg-[#EFF6FF] px-4 py-3 text-[12px] leading-relaxed text-[#1E40AF]">
+        <div className="rounded-[12px] border border-[var(--border-accent)] bg-[var(--accent-light)] px-4 py-3 text-[12px] leading-relaxed text-[#1E40AF]">
           ℹ️ Qualifizierte elektronische Signatur (QES) ist für Mietverträge in der
           Schweiz nicht zwingend erforderlich. Einfache E-Signatur ist für die
           meisten Verträge rechtsgültig.

@@ -40,21 +40,21 @@ export function OffersOverview({
   statusCounts,
 }: OffersOverviewProps) {
   return (
-    <aside className="flex h-full w-[280px] shrink-0 flex-col border-r border-[#CBD5E1]/50 bg-white/60 backdrop-blur-xl">
-      <div className="border-b border-[#CBD5E1]/40 px-5 py-5">
+    <aside className="flex h-full w-[280px] shrink-0 flex-col border-r border-[var(--border)] bg-[var(--bg-surface)] backdrop-blur-xl">
+      <div className="border-b border-[var(--border)] px-5 py-5">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold tracking-[-0.01em] text-[#0F172A]">
+            <h2 className="text-sm font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
               Angebote
             </h2>
-            <p className="text-[11px] font-medium text-[#64748B]">
+            <p className="text-[11px] font-medium text-[var(--text-secondary)]">
               {offers.length} Angebote
             </p>
           </div>
           <Button
             size="icon-sm"
             variant="outline"
-            className="size-8 rounded-[10px] border-[#CBD5E1]/60"
+            className="size-8 rounded-[10px] border-[var(--border)]"
             aria-label="Neues Angebot"
           >
             <Plus className="size-4" />
@@ -62,7 +62,7 @@ export function OffersOverview({
         </div>
       </div>
 
-      <div className="flex gap-1.5 overflow-x-auto border-b border-[#CBD5E1]/30 px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex gap-1.5 overflow-x-auto border-b border-[var(--border)] px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {statusFilters.map(({ id, label }) => {
           const isActive = activeStatus === id;
           const count = statusCounts[id];
@@ -76,7 +76,7 @@ export function OffersOverview({
                 "shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium transition-all duration-300",
                 isActive
                   ? "bg-[#2563EB] text-white shadow-sm"
-                  : "bg-[#F1F5F9] text-[#64748B] hover:bg-[#EFF6FF] hover:text-[#2563EB]"
+                  : "bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-[var(--accent-light)] hover:text-[var(--accent)]"
               )}
             >
               {label}
@@ -88,7 +88,7 @@ export function OffersOverview({
 
       <div className="flex-1 overflow-y-auto p-3">
         {offers.length === 0 ? (
-          <p className="px-2 py-8 text-center text-[12px] text-[#94A3B8]">
+          <p className="px-2 py-8 text-center text-[12px] text-[var(--text-muted)]">
             Keine Angebote in diesem Status.
           </p>
         ) : (
@@ -108,13 +108,13 @@ export function OffersOverview({
                   className={cn(
                     "w-full rounded-[16px] border p-4 text-left transition-all duration-300",
                     isSelected
-                      ? "border-[#2563EB]/30 bg-white shadow-[0_2px_16px_rgba(37,99,235,0.12)] ring-1 ring-[#2563EB]/15"
-                      : "border-[#CBD5E1]/40 bg-white/80 hover:border-[#2563EB]/20 hover:shadow-sm"
+                      ? "border-[var(--border-accent)] bg-[var(--bg-surface)] shadow-[0_2px_16px_rgba(37,99,235,0.12)] ring-1 ring-[#2563EB]/15"
+                      : "border-[var(--border)] bg-[var(--bg-surface)] hover:border-[#2563EB]/20 hover:shadow-sm"
                   )}
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <div className="flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-[#EFF6FF]">
-                      <FileText className="size-4 text-[#2563EB]" />
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-[var(--accent-light)]">
+                      <FileText className="size-4 text-[var(--accent)]" />
                     </div>
                     <Badge
                       variant="outline"
@@ -126,17 +126,17 @@ export function OffersOverview({
                       {offerStatusLabels[offer.status]}
                     </Badge>
                   </div>
-                  <p className="mt-3 text-[12px] font-semibold leading-snug text-[#0F172A]">
+                  <p className="mt-3 text-[12px] font-semibold leading-snug text-[var(--text-primary)]">
                     {offer.title}
                   </p>
-                  <p className="mt-1 text-[11px] text-[#64748B]">
+                  <p className="mt-1 text-[11px] text-[var(--text-secondary)]">
                     {offer.customer.company}
                   </p>
                   <div className="mt-2.5 flex items-center justify-between">
-                    <span className="text-[10px] font-medium text-[#94A3B8]">
+                    <span className="text-[10px] font-medium text-[var(--text-muted)]">
                       {offer.number}
                     </span>
-                    <span className="text-[12px] font-bold text-[#2563EB]">
+                    <span className="text-[12px] font-bold text-[var(--accent)]">
                       {formatCurrency(total)}
                     </span>
                   </div>

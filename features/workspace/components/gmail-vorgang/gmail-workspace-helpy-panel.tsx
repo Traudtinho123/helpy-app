@@ -229,7 +229,7 @@ export function GmailWorkspaceHelpyPanel({ vorgang }: GmailWorkspaceHelpyPanelPr
       }
       footer={
         <>
-          <p className="mb-3 text-[12px] font-semibold text-[#475569]">
+          <p className="mb-3 text-[12px] font-semibold text-[var(--text-muted)]">
             Frage HELPY zu diesem Vorgang
           </p>
           <HelpyChatComposer
@@ -245,12 +245,12 @@ export function GmailWorkspaceHelpyPanel({ vorgang }: GmailWorkspaceHelpyPanelPr
       <div className="flex gap-3.5 px-1">
           <HelpyAvatar size="sm" pose="typing" />
           <div className="min-w-0 flex-1">
-            <p className="mb-2 text-[11px] font-semibold text-[#64748B]">
+            <p className="mb-2 text-[11px] font-semibold text-[var(--text-secondary)]">
               HELPY · Workspace
             </p>
 
-            <div className="rounded-[20px] rounded-tl-[8px] border border-[#CBD5E1]/50 bg-[#F8FAFC] px-5 py-4 shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
-              <p className="text-[13px] leading-[1.65] text-[#334155]">
+            <div className="rounded-[20px] rounded-tl-[8px] border border-[var(--border)] bg-[var(--bg-elevated)] px-5 py-4 shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
+              <p className="text-[13px] leading-[1.65] text-[var(--text-secondary)]">
                 {followUp && followUp.status !== "abgeschlossen"
                   ? HELPY_FOLLOWUP_MONITORING_MESSAGE
                   : panelIntro}
@@ -261,17 +261,17 @@ export function GmailWorkspaceHelpyPanel({ vorgang }: GmailWorkspaceHelpyPanelPr
             {followUp &&
               followUp.status !== "abgeschlossen" &&
               followUp.preparedAction && (
-                <div className="mt-4 rounded-[16px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/50 px-4 py-3.5">
-                  <p className="text-[11px] font-semibold text-[#2563EB]">
+                <div className="mt-4 rounded-[16px] border border-[var(--border-accent)] bg-[var(--accent-light)]/50 px-4 py-3.5">
+                  <p className="text-[11px] font-semibold text-[var(--accent)]">
                     Nächster Schritt
                   </p>
-                  <p className="mt-2 text-[12px] leading-relaxed text-[#334155]">
+                  <p className="mt-2 text-[12px] leading-relaxed text-[var(--text-secondary)]">
                     {followUp.recommendation}
                   </p>
-                  <p className="mt-2 text-[11px] font-semibold text-[#64748B]">
+                  <p className="mt-2 text-[11px] font-semibold text-[var(--text-secondary)]">
                     Empfohlene Aktion
                   </p>
-                  <p className="mt-1 text-[12px] leading-relaxed text-[#334155]">
+                  <p className="mt-1 text-[12px] leading-relaxed text-[var(--text-secondary)]">
                     {followUp.preparedAction.label}
                   </p>
                   <Button
@@ -287,11 +287,11 @@ export function GmailWorkspaceHelpyPanel({ vorgang }: GmailWorkspaceHelpyPanelPr
               )}
 
             {recommendation && !isArchive && (
-              <div className="mt-4 rounded-[16px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/50 px-4 py-3.5">
-                <p className="text-[11px] font-semibold text-[#2563EB]">
+              <div className="mt-4 rounded-[16px] border border-[var(--border-accent)] bg-[var(--accent-light)]/50 px-4 py-3.5">
+                <p className="text-[11px] font-semibold text-[var(--accent)]">
                   Kurzempfehlung
                 </p>
-                <p className="mt-2 text-[12px] leading-relaxed text-[#334155]">
+                <p className="mt-2 text-[12px] leading-relaxed text-[var(--text-secondary)]">
                   {recommendation.decisionTitle}
                 </p>
               </div>
@@ -301,7 +301,7 @@ export function GmailWorkspaceHelpyPanel({ vorgang }: GmailWorkspaceHelpyPanelPr
 
             {!isArchive && (
               <div className="mt-5">
-                <p className="mb-3 text-[12px] font-semibold text-[#475569]">
+                <p className="mb-3 text-[12px] font-semibold text-[var(--text-muted)]">
                   HELPY Aktionen
                 </p>
                 <ActionCards
@@ -343,14 +343,14 @@ export function GmailWorkspaceHelpyPanel({ vorgang }: GmailWorkspaceHelpyPanelPr
                 type="button"
                 onClick={handleConfirmVorgang}
                 variant="outline"
-                className="h-10 w-full justify-center gap-2 rounded-[12px] border-[#CBD5E1]/60 bg-white/90 text-[12px] font-medium"
+                className="h-10 w-full justify-center gap-2 rounded-[12px] border-[var(--border)] bg-[var(--bg-surface)] text-[12px] font-medium"
               >
                 <CheckCircle2 className="size-3.5" strokeWidth={2} />
                 {HELPY_BUTTON_VORGANG_BESTAETIGEN}
               </Button>
               <Link
                 href="/vorgaenge"
-                className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-[12px] border border-[#CBD5E1]/60 bg-white/90 text-[12px] font-medium text-[#334155] transition-all duration-300 hover:border-[#BFDBFE]/60 hover:bg-[#EFF6FF]/40"
+                className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] text-[12px] font-medium text-[var(--text-secondary)] transition-all duration-300 hover:border-[var(--border-accent)] hover:bg-[var(--accent-light)]/40"
               >
                 <ArrowLeft className="size-3.5" />
                 Zurück zu Vorgängen

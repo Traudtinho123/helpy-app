@@ -119,14 +119,14 @@ export function HelpyArchiveCard({
 
       <div
         className={cn(
-          "rounded-[18px] border border-[#E2E8F0]/70 bg-gradient-to-br from-[#F8FAFC]/95 to-white/90 p-4 shadow-sm backdrop-blur-sm",
+          "rounded-[18px] border border-[var(--border)] bg-gradient-to-br from-[#F8FAFC]/95 to-white/90 p-4 shadow-sm backdrop-blur-sm",
           className
         )}
       >
         <div className="mb-3 flex items-start justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Archive className="size-4 text-[#64748B]" strokeWidth={2} />
-            <p className="text-[12px] font-semibold text-[#0F172A]">
+            <Archive className="size-4 text-[var(--text-secondary)]" strokeWidth={2} />
+            <p className="text-[12px] font-semibold text-[var(--text-primary)]">
               {HELPY_ARCHIVE_STATUS_PREPARED}
             </p>
           </div>
@@ -134,7 +134,7 @@ export function HelpyArchiveCard({
             className={cn(
               "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold",
               isConfirmed
-                ? "border-[#CBD5E1]/60 bg-[#F8FAFC] text-[#64748B]"
+                ? "border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-secondary)]"
                 : "border-[#FDE68A]/60 bg-[#FFFBEB]/70 text-[#B45309]"
             )}
           >
@@ -143,14 +143,14 @@ export function HelpyArchiveCard({
           </span>
         </div>
 
-        <div className="rounded-[14px] border border-[#BFDBFE]/50 bg-[#EFF6FF]/40 px-4 py-3.5">
+        <div className="rounded-[14px] border border-[var(--border-accent)]/50 bg-[var(--accent-light)]/40 px-4 py-3.5">
           <div className="flex items-start gap-2.5">
-            <Lightbulb className="mt-0.5 size-4 shrink-0 text-[#2563EB]" strokeWidth={2} />
+            <Lightbulb className="mt-0.5 size-4 shrink-0 text-[var(--accent)]" strokeWidth={2} />
             <div>
-              <p className="text-[10px] font-semibold tracking-[0.04em] text-[#2563EB] uppercase">
+              <p className="text-[10px] font-semibold tracking-[0.04em] text-[var(--accent)] uppercase">
                 HELPY empfiehlt
               </p>
-              <p className="mt-1.5 text-[12px] leading-relaxed text-[#334155]">
+              <p className="mt-1.5 text-[12px] leading-relaxed text-[var(--text-secondary)]">
                 {preparation.recommendation}
               </p>
             </div>
@@ -158,7 +158,7 @@ export function HelpyArchiveCard({
         </div>
 
         {feedback && (
-          <p className="mt-3 rounded-[10px] border border-[#CBD5E1]/50 bg-[#F8FAFC]/80 px-3 py-2 text-[11px] leading-relaxed text-[#64748B]">
+          <p className="mt-3 rounded-[10px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3 py-2 text-[11px] leading-relaxed text-[var(--text-secondary)]">
             {feedback}
           </p>
         )}

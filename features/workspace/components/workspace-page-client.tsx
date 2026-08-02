@@ -35,8 +35,8 @@ function resolveWorkspaceVorgang(id: string): Vorgang | null {
 function WorkspaceMissingState({ id }: { id: string }) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#EEF4FC] px-4">
-      <p className="text-lg font-semibold text-[#0F172A]">Vorgang nicht gefunden</p>
-      <p className="mt-2 max-w-md text-center text-sm text-[#64748B]">
+      <p className="text-lg font-semibold text-[var(--text-primary)]">Vorgang nicht gefunden</p>
+      <p className="mt-2 max-w-md text-center text-sm text-[var(--text-secondary)]">
         {hasMailVorgaenge()
           ? `Der Vorgang „${id}“ konnte nicht geladen werden. Bitte kehre zu Vorgängen zurück und öffne ihn erneut.`
           : "Dieser Arbeitsbereich existiert nicht oder wurde abgeschlossen."}

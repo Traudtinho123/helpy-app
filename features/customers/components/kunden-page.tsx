@@ -166,10 +166,10 @@ export function KundenPage() {
       rightPanel={<HelpyKundenPanel customer={selectedCustomer} />}
     >
       <div className="flex h-full min-h-0 flex-col overflow-hidden">
-        <div className="flex items-center justify-between gap-3 border-b border-[#E2E8F0]/80 px-4 py-3">
+        <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] px-4 py-3">
           <div>
-            <h1 className="text-[1.125rem] font-semibold text-[#0F172A]">Kunden</h1>
-            <p className="text-[12px] text-[#64748B]">
+            <h1 className="text-[1.125rem] font-semibold text-[var(--text-primary)]">Kunden</h1>
+            <p className="text-[12px] text-[var(--text-secondary)]">
               Stammkunden verwalten und neue Kontakte anlegen
               {activeFilter === "bestandskunde"
                 ? " — längster Kontaktabstand zuerst"
@@ -205,8 +205,8 @@ export function KundenPage() {
               className={cn(
                 "inline-flex h-8 items-center gap-1.5 rounded-[10px] border px-2.5 text-[11px] font-medium transition-colors",
                 sortByScore
-                  ? "border-[#2563EB]/30 bg-[#EFF6FF] text-[#2563EB]"
-                  : "border-[#CBD5E1]/60 bg-white/90 text-[#64748B] hover:bg-white"
+                  ? "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--accent)]"
+                  : "border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"
               )}
             >
               <ArrowDownUp className="size-3.5" />
@@ -231,7 +231,7 @@ export function KundenPage() {
       </div>
 
       {mobileProfileOpen && selectedCustomer ? (
-        <div className="fixed inset-0 z-40 flex flex-col bg-white lg:hidden">
+        <div className="fixed inset-0 z-40 flex flex-col bg-[var(--bg-surface)] lg:hidden">
           <MobileBackHeader
             title={selectedCustomer.company}
             subtitle={selectedCustomer.contactPerson}

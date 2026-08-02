@@ -50,8 +50,8 @@ function AssignmentCard({
         <Link
           href={getObjektPathFromVorgang(assignment.objectId, vorgangId)}
           className={cn(
-            "inline-flex items-center gap-2 rounded-[12px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/70 px-3 py-2",
-            "text-[12px] font-semibold text-[#2563EB] transition-colors hover:bg-[#EFF6FF]"
+            "inline-flex items-center gap-2 rounded-[12px] border border-[var(--border-accent)] bg-[var(--accent-light)] px-3 py-2",
+            "text-[12px] font-semibold text-[var(--accent)] transition-colors hover:bg-[var(--accent-light)]"
           )}
         >
           <Building2 className="size-4" />
@@ -72,11 +72,11 @@ function AssignmentCard({
 
   if (assignment.kind === "missing") {
     return (
-      <div className="rounded-[12px] border border-dashed border-[#CBD5E1]/70 bg-[#F8FAFC]/80 px-3.5 py-3">
-        <p className="text-[12px] font-medium text-[#334155]">
+      <div className="rounded-[12px] border border-dashed border-[var(--border)]/70 bg-[var(--bg-elevated)] px-3.5 py-3">
+        <p className="text-[12px] font-medium text-[var(--text-secondary)]">
           Kein passendes Objekt erkannt
         </p>
-        <p className="mt-1 text-[11px] leading-relaxed text-[#64748B]">
+        <p className="mt-1 text-[11px] leading-relaxed text-[var(--text-secondary)]">
           HELPY konnte aus dieser Mail kein Objekt sicher ableiten.
         </p>
       </div>
@@ -99,14 +99,14 @@ function AssignmentCard({
   };
 
   return (
-    <div className="rounded-[12px] border border-[#CBD5E1]/50 bg-[#F8FAFC]/80 px-3.5 py-3">
-      <p className="text-[11px] font-semibold tracking-[0.04em] text-[#94A3B8] uppercase">
+    <div className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3.5 py-3">
+      <p className="text-[11px] font-semibold tracking-[0.04em] text-[var(--text-muted)] uppercase">
         Objekt-Zuordnung
       </p>
-      <p className="mt-1.5 text-[12px] font-medium text-[#334155]">
+      <p className="mt-1.5 text-[12px] font-medium text-[var(--text-secondary)]">
         HELPY-Vorschlag: {assignment.title}
       </p>
-      <p className="mt-0.5 text-[11px] text-[#64748B]">
+      <p className="mt-0.5 text-[11px] text-[var(--text-secondary)]">
         {assignment.adresse}
         {assignment.preis ? ` · ${assignment.preis}` : ""}
         {assignment.quelle ? ` · ${assignment.quelle}` : ""}
@@ -117,14 +117,14 @@ function AssignmentCard({
           type="button"
           variant="outline"
           onClick={() => setConfirming(true)}
-          className="mt-3 h-8 rounded-[10px] border-[#CBD5E1]/60 px-3 text-[11px] font-medium"
+          className="mt-3 h-8 rounded-[10px] border-[var(--border)] px-3 text-[11px] font-medium"
         >
           <PlusCircle className="mr-1.5 size-3.5" />
           Neues Objekt anlegen?
         </Button>
       ) : (
-        <div className="mt-3 space-y-2 rounded-[10px] border border-[#BFDBFE]/50 bg-[#EFF6FF]/40 px-3 py-2.5">
-          <p className="text-[11px] leading-relaxed text-[#334155]">
+        <div className="mt-3 space-y-2 rounded-[10px] border border-[var(--border-accent)]/50 bg-[var(--accent-light)]/40 px-3 py-2.5">
+          <p className="text-[11px] leading-relaxed text-[var(--text-secondary)]">
             Objekt mit diesen Daten anlegen? Du kannst Details danach in der
             Objektakte prüfen und anpassen.
           </p>
@@ -148,7 +148,7 @@ function AssignmentCard({
                 setError(null);
               }}
               disabled={creating}
-              className="h-8 rounded-[10px] border-[#CBD5E1]/60 px-3 text-[11px] font-medium"
+              className="h-8 rounded-[10px] border-[var(--border)] px-3 text-[11px] font-medium"
             >
               Abbrechen
             </Button>

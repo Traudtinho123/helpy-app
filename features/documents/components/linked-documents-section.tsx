@@ -121,18 +121,18 @@ export function LinkedDocumentsSection({
         {documents.map((document) => (
           <li
             key={document.id}
-            className="rounded-[12px] border border-[#CBD5E1]/50 bg-[#F8FAFC]/80 px-3.5 py-3"
+            className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3.5 py-3"
           >
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0">
-                <p className="text-[12px] font-semibold text-[#0F172A]">
+                <p className="text-[12px] font-semibold text-[var(--text-primary)]">
                   {document.title}
                 </p>
-                <p className="mt-1 text-[11px] text-[#64748B]">
+                <p className="mt-1 text-[11px] text-[var(--text-secondary)]">
                   {document.typeLabel} · {DOCUMENT_STATUS_LABELS[document.status]}
                 </p>
                 {document.links?.objectTitle && (
-                  <p className="mt-1 text-[11px] text-[#64748B]">
+                  <p className="mt-1 text-[11px] text-[var(--text-secondary)]">
                     Objekt: {document.links.objectTitle}
                   </p>
                 )}
@@ -140,7 +140,7 @@ export function LinkedDocumentsSection({
               <button
                 type="button"
                 onClick={() => handleOpenDocument(document)}
-                className="shrink-0 text-[11px] font-semibold text-[#2563EB] hover:underline"
+                className="shrink-0 text-[11px] font-semibold text-[var(--accent)] hover:underline"
               >
                 Öffnen
               </button>

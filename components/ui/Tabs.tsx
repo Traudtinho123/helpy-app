@@ -38,7 +38,7 @@ function Tabs({ items, value, onValueChange, className }: TabsProps) {
               radiusClass.sm,
               isActive
                 ? "bg-[#2563EB] text-white shadow-sm"
-                : "border border-[#CBD5E1]/60 bg-white text-[#64748B] hover:border-[#BFDBFE]/60 hover:bg-[#EFF6FF] hover:text-[#2563EB]"
+                : "border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:bg-[var(--accent-light)] hover:text-[var(--accent)]"
             )}
           >
             {item.label}

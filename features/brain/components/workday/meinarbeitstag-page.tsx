@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 import {
   ChevronRight,
   ShieldCheck,
-  Sparkles,
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { KpiCards } from "@/components/dashboard/kpi-cards";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import type {
   DailyPlan,
@@ -17,7 +17,6 @@ import type { WorkdayTerminItem } from "@/features/workday/services/workday-summ
 import { isCriticalOrHighPriorityItem } from "@/features/workday/services/workday-summary";
 import type { CalendarPlatform } from "@/features/calendar/services/calendar-platform";
 import {
-  buildHotLeadItems,
   HotLeadsSection,
   type HotLeadItem,
 } from "@/features/lead-scoring/components/hot-leads-section";
@@ -25,8 +24,18 @@ import { FollowupsWorkdaySection } from "@/features/followup/components/followup
 import { MatchesWorkdaySection } from "@/features/matching/components/matches-workday-section";
 import { NurturingWorkdaySection } from "@/features/nurturing/components/nurturing-workday-section";
 import { WorkdayBerichtSection } from "@/features/workday/components/workday-bericht-section";
+import { WorkdayDashboardHero } from "@/features/workday/components/workday-dashboard-hero";
 import { WorkdayTermineHeuteSection } from "@/features/workday/components/workday-termine-heute-section";
 import type { WorkdayAnalytics } from "@/features/analytics/services/workday-analytics";
+import {
+  buildDashboardKpiItems,
+  buildTodaySubtitle,
+} from "@/features/workday/services/dashboard-kpi-builder";
+import {
+  getStableActiveOpenMailCasesCountSnapshot,
+  subscribeVorgaengeCounts,
+} from "@/features/workspace/services/vorgaenge/vorgaenge-summary";
+import { useStoreRevision } from "@/lib/hooks/use-store-revision";
 import { cn } from "@/lib/utils";
 
 type MeinArbeitstagPageProps = {
@@ -42,58 +51,6 @@ type MeinArbeitstagPageProps = {
   hotLeads?: HotLeadItem[];
 };
 
-function TagesuebersichtCard({
-  plan,
-  isLoading = false,
-}: {
-  plan: DailyPlan;
-  isLoading?: boolean;
-}) {
-  return (
-    <Card variant="default" className="relative overflow-hidden py-0">
-      <CardContent className="relative p-7 lg:p-8">
-        <div className="mb-6 flex items-start gap-4">
-          <div className="flex size-12 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-primary-light)]">
-            <Sparkles className="size-5 text-[var(--color-primary)]" strokeWidth={2} />
-          </div>
-          <div>
-            <h2 className="helpy-h2">Tagesübersicht</h2>
-            <p className="mt-1 text-[var(--text-sm)] text-[var(--color-ink-3)]">
-              {isLoading
-                ? "HELPY lädt deine Gmail-Vorgänge…"
-                : plan.summary}
-            </p>
-          </div>
-        </div>
-
-        <ul className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-          {plan.statusMetrics.map(({ label, value }) => (
-            <li
-              key={label}
-              className="flex items-center gap-3.5 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-bg-subtle)] px-4 py-3.5"
-            >
-              <div className="min-w-0">
-                <p
-                  className={cn(
-                    "text-[48px] font-extrabold leading-none tracking-[var(--tracking-tight)] text-[var(--color-ink)]",
-                    isLoading &&
-                      "inline-block min-w-[2ch] animate-pulse rounded-md bg-[var(--color-bg-subtle)] text-transparent"
-                  )}
-                >
-                  {isLoading ? "0" : value}
-                </p>
-                <p className="mt-1 text-[var(--text-xs)] font-medium text-[var(--color-ink-3)]">
-                  {label}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </CardContent>
-    </Card>
-  );
-}
-
 const PRIORITY_VISUAL: Record<
   Extract<WorkdayPriorityLevel, "kritisch" | "hoch">,
   {
@@ -101,22 +58,19 @@ const PRIORITY_VISUAL: Record<
     glow: string;
     surface: string;
     border: string;
-    iconBg: string;
   }
 > = {
   kritisch: {
-    accent: "bg-[#DC2626]",
-    glow: "shadow-[0_8px_32px_rgba(220,38,38,0.12)]",
-    surface: "bg-gradient-to-br from-[#FEF2F2]/90 via-white to-white",
-    border: "border-[#FECACA]/60",
-    iconBg: "bg-[#FEE2E2] text-[#DC2626]",
+    accent: "bg-[var(--danger)]",
+    glow: "shadow-[0_8px_32px_rgba(239,68,68,0.12)]",
+    surface: "bg-[var(--bg-surface)]",
+    border: "border-[var(--danger-light)]",
   },
   hoch: {
-    accent: "bg-[#D97706]",
-    glow: "shadow-[0_8px_32px_rgba(217,119,6,0.1)]",
-    surface: "bg-gradient-to-br from-[#FFFBEB]/90 via-white to-white",
-    border: "border-[#FDE68A]/70",
-    iconBg: "bg-[#FEF3C7] text-[#B45309]",
+    accent: "bg-[var(--warning)]",
+    glow: "shadow-[0_8px_32px_rgba(245,158,11,0.1)]",
+    surface: "bg-[var(--bg-surface)]",
+    border: "border-[var(--warning-light)]",
   },
 };
 
@@ -135,15 +89,15 @@ function PriorityCard({ item }: { item: PrioritizedWorkdayItem }) {
   const content = (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-[20px] border p-[1px] transition-all duration-300",
+        "group relative overflow-hidden rounded-xl border p-[1px] transition-all duration-300",
         visual.border,
         visual.glow,
-        item.href && "hover:-translate-y-0.5 hover:shadow-[0_16px_48px_rgba(15,23,42,0.08)]"
+        item.href && "hover:-translate-y-0.5 hover:border-[var(--border-accent)]"
       )}
     >
       <div
         className={cn(
-          "relative flex gap-4 rounded-[19px] px-5 py-4 backdrop-blur-xl",
+          "relative flex gap-4 rounded-[11px] px-5 py-4",
           visual.surface
         )}
       >
@@ -160,22 +114,22 @@ function PriorityCard({ item }: { item: PrioritizedWorkdayItem }) {
               variant={level}
               className="h-6 px-2.5 text-[10px]"
             />
-            <span className="text-[11px] font-medium text-[#94A3B8]">
+            <span className="text-[11px] font-medium text-[var(--text-muted)]">
               {item.kategorieLabel}
             </span>
           </div>
 
-          <p className="mt-2.5 text-[15px] font-semibold tracking-[-0.02em] text-[#0F172A]">
+          <p className="mt-2.5 text-[15px] font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
             {item.titel}
           </p>
 
           {item.absender && (
-            <p className="mt-1 text-[12px] font-medium text-[#64748B]">
+            <p className="mt-1 text-[12px] font-medium text-[var(--text-secondary)]">
               {item.absender}
             </p>
           )}
 
-          <p className="mt-2.5 line-clamp-2 text-[13px] leading-relaxed text-[#64748B]">
+          <p className="mt-2.5 line-clamp-2 text-[13px] leading-relaxed text-[var(--text-muted)]">
             {item.empfohleneAktion}
           </p>
         </div>
@@ -184,8 +138,8 @@ function PriorityCard({ item }: { item: PrioritizedWorkdayItem }) {
           <div className="flex shrink-0 items-center self-center">
             <span
               className={cn(
-                "flex size-9 items-center justify-center rounded-full bg-white/80 text-[#64748B] ring-1 ring-[#E2E8F0]/80 transition-all duration-300",
-                "group-hover:bg-[#2563EB] group-hover:text-white group-hover:ring-[#2563EB]/30"
+                "flex size-9 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-muted)] transition-all duration-300",
+                "group-hover:border-[var(--border-accent)] group-hover:bg-[var(--accent)] group-hover:text-white"
               )}
             >
               <ChevronRight className="size-4" strokeWidth={2.5} />
@@ -224,10 +178,10 @@ function PriorityGroup({
         <span
           className={cn("size-2 rounded-full", PRIORITY_VISUAL[level].accent)}
         />
-        <h3 className="text-[12px] font-semibold tracking-[0.04em] text-[#64748B] uppercase">
+        <h3 className="text-[12px] font-semibold tracking-[0.04em] text-[var(--text-muted)] uppercase">
           {title}
         </h3>
-        <span className="rounded-full bg-[#F1F5F9] px-2 py-0.5 text-[11px] font-semibold tabular-nums text-[#475569]">
+        <span className="rounded-full bg-[var(--bg-elevated)] px-2 py-0.5 text-[11px] font-semibold tabular-nums text-[var(--text-secondary)]">
           {count}
         </span>
       </div>
@@ -244,14 +198,14 @@ function PriorityGroup({
 
 function PrioritiesEmptyState() {
   return (
-    <div className="rounded-[24px] border border-[#A7F3D0]/50 bg-gradient-to-br from-[#ECFDF5]/80 via-white to-white px-6 py-8 text-center shadow-[0_2px_8px_rgba(15,23,42,0.04)] ring-1 ring-white backdrop-blur-xl">
-      <div className="mx-auto flex size-12 items-center justify-center rounded-[16px] bg-[#D1FAE5]">
-        <ShieldCheck className="size-6 text-[#047857]" strokeWidth={2} />
+    <div className="rounded-xl border border-[var(--success-light)] bg-[var(--bg-surface)] px-6 py-8 text-center">
+      <div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-[var(--success-light)]">
+        <ShieldCheck className="size-6 text-[var(--success)]" strokeWidth={2} />
       </div>
-      <p className="mt-4 text-[15px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+      <p className="mt-4 text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
         Keine kritischen oder hohen Prioritäten
       </p>
-      <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-[#64748B]">
+      <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-[var(--text-secondary)]">
         Alles im Griff — HELPY zeigt hier nur Vorgänge mit kritischer oder hoher
         Priorität.
       </p>
@@ -285,12 +239,12 @@ function PrioritiesSection({ items }: { items: PrioritizedWorkdayItem[] }) {
           {visibleItems.length > 0 && (
             <>
               {criticalItems.length > 0 && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FECACA]/60 bg-[#FEF2F2] px-2.5 py-0.5 text-[10px] font-semibold text-[#DC2626]">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--danger-light)] bg-[var(--danger-light)] px-2.5 py-0.5 text-[10px] font-semibold text-[var(--danger)]">
                   {criticalItems.length} Kritisch
                 </span>
               )}
               {highItems.length > 0 && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FDE68A]/70 bg-[#FFFBEB] px-2.5 py-0.5 text-[10px] font-semibold text-[#B45309]">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--warning-light)] bg-[var(--warning-light)] px-2.5 py-0.5 text-[10px] font-semibold text-[var(--warning)]">
                   {highItems.length} Hoch
                 </span>
               )}
@@ -299,7 +253,7 @@ function PrioritiesSection({ items }: { items: PrioritizedWorkdayItem[] }) {
           {hasMore ? (
             <Link
               href="/vorgaenge"
-              className="text-[12px] font-semibold text-[#2563EB] hover:underline"
+              className="text-[12px] font-semibold text-[var(--text-accent)] hover:underline"
             >
               Alle anzeigen
             </Link>
@@ -316,22 +270,22 @@ function PrioritiesSection({ items }: { items: PrioritizedWorkdayItem[] }) {
               <li key={item.id}>
                 <Link
                   href={item.href ?? "/vorgaenge"}
-                  className="flex items-start gap-2 rounded-[12px] border border-[#E2E8F0]/80 bg-white px-3 py-2.5"
+                  className="flex items-start gap-2 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2.5"
                 >
                   <span
                     className={cn(
                       "mt-1.5 size-2 shrink-0 rounded-full",
                       resolvePriorityLevel(item) === "kritisch"
-                        ? "bg-[#DC2626]"
-                        : "bg-[#D97706]"
+                        ? "bg-[var(--danger)]"
+                        : "bg-[var(--warning)]"
                     )}
                   />
                   <div className="min-w-0">
-                    <p className="truncate text-[13px] font-medium text-[#0F172A]">
+                    <p className="truncate text-[13px] font-medium text-[var(--text-primary)]">
                       {item.titel}
                     </p>
                     {item.absender ? (
-                      <p className="truncate text-[11px] text-[#64748B]">
+                      <p className="truncate text-[11px] text-[var(--text-muted)]">
                         {item.absender}
                       </p>
                     ) : null}
@@ -372,28 +326,44 @@ export function MeinArbeitstagPage({
   extraAnalyticsKpis = [],
   hotLeads = [],
 }: MeinArbeitstagPageProps) {
-  const today = new Intl.DateTimeFormat("de-DE", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  }).format(new Date());
+  const countsRevision = useStoreRevision(subscribeVorgaengeCounts);
+  const openVorgaengeCount = useMemo(
+    () => getStableActiveOpenMailCasesCountSnapshot(),
+    [countsRevision]
+  );
+
+  const kpiItems = useMemo(
+    () =>
+      buildDashboardKpiItems({
+        analytics,
+        plan,
+        todayAppointments,
+        openVorgaengeCount,
+      }),
+    [analytics, plan, todayAppointments, openVorgaengeCount]
+  );
+
+  const subtitle = useMemo(
+    () => buildTodaySubtitle(todayAppointments, openVorgaengeCount),
+    [todayAppointments, openVorgaengeCount]
+  );
 
   return (
-    <div className="helpy-page py-5 lg:py-14">
-      <header className="mb-8 lg:mb-12">
-        <p className="helpy-label text-[var(--text-xs)] uppercase tracking-[var(--tracking-wide)] text-[var(--color-ink-4)]">
-          {today}
-        </p>
-        <h1 className="helpy-display mt-2 text-[var(--text-3xl)] font-semibold text-[var(--color-ink)] lg:mt-3 lg:text-[28px]">
-          {greeting}
-        </h1>
-        <p className="mt-3 max-w-2xl text-[var(--text-base)] leading-[var(--leading-normal)] text-[var(--color-ink-3)]">
-          Ich habe deinen Arbeitstag organisiert — fokussiert auf das, was heute
-          zählt.
-        </p>
-      </header>
+    <div className="helpy-page py-5 lg:py-10">
+      <div className="space-y-5 lg:space-y-6">
+        <WorkdayDashboardHero
+          greeting={greeting}
+          subtitle={subtitle}
+          isLoading={isMailLoading}
+        />
 
-      <div className="space-y-8 lg:space-y-12">
+        <KpiCards
+          items={kpiItems}
+          isLoading={isMailLoading || analyticsLoading}
+        />
+      </div>
+
+      <div className="mt-8 space-y-8 lg:mt-10 lg:space-y-12">
         <WorkdayTermineHeuteSection appointments={todayAppointments} />
 
         <PrioritiesSection items={isMailLoading ? [] : plan.prioritizedItems} />
@@ -404,10 +374,6 @@ export function MeinArbeitstagPage({
           error={analyticsError}
           extraKpis={extraAnalyticsKpis}
         />
-
-        {!analytics && !analyticsLoading && (
-          <TagesuebersichtCard plan={plan} isLoading={isMailLoading} />
-        )}
 
         <FollowupsWorkdaySection />
 

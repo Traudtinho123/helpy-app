@@ -47,7 +47,7 @@ export function KundenakteHelpyKnowledgePanel({
           <div className="rounded-[16px] border border-[#E9D5FF]/50 bg-gradient-to-br from-[#FAF5FF]/80 to-white/90 px-4 py-3.5 shadow-[0_2px_12px_rgba(124,58,237,0.06)]">
             <div className="mb-3 flex items-center gap-2">
               <Brain className="size-4 text-[#7C3AED]" strokeWidth={2} />
-              <p className="text-[12px] font-semibold text-[#0F172A]">
+              <p className="text-[12px] font-semibold text-[var(--text-primary)]">
                 Aktueller Status
               </p>
             </div>
@@ -74,9 +74,9 @@ export function KundenakteHelpyKnowledgePanel({
             />
           </div>
         ) : (
-          <div className="rounded-[16px] border border-dashed border-[#CBD5E1]/60 bg-white/70 px-4 py-6 text-center">
-            <Brain className="mx-auto size-5 text-[#94A3B8]" strokeWidth={2} />
-            <p className="mt-3 text-[12px] leading-relaxed text-[#64748B]">
+          <div className="rounded-[16px] border border-dashed border-[var(--border)] bg-[var(--bg-surface)] px-4 py-6 text-center">
+            <Brain className="mx-auto size-5 text-[var(--text-muted)]" strokeWidth={2} />
+            <p className="mt-3 text-[12px] leading-relaxed text-[var(--text-secondary)]">
               HELPY sammelt Budget, Präferenzen und Wünsche aus E-Mails, Terminen
               und Angeboten — sobald neue Informationen erkannt werden.
             </p>

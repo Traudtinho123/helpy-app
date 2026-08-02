@@ -34,51 +34,51 @@ export function HelpyDocumentsPanel({
     >
       <div className="px-1">
         <div className="helpy-fade-in">
-          <h3 className="text-[15px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+          <h3 className="text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
             Hallo Viktor 👋
           </h3>
-          <p className="mt-2 text-[13px] leading-relaxed text-[#64748B]">
+          <p className="mt-2 text-[13px] leading-relaxed text-[var(--text-secondary)]">
             {DOCUMENT_ENGINE_HELPY_MESSAGES.intro}
           </p>
         </div>
 
-        <div className="helpy-fade-in mt-5 rounded-[16px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/60 p-4">
+        <div className="helpy-fade-in mt-5 rounded-[16px] border border-[var(--border-accent)] bg-[var(--accent-light)] p-4">
           <div className="flex items-center gap-2">
-            <Sparkles className="size-4 text-[#2563EB]" strokeWidth={2} />
-            <p className="text-[12px] font-semibold text-[#2563EB]">
+            <Sparkles className="size-4 text-[var(--accent)]" strokeWidth={2} />
+            <p className="text-[12px] font-semibold text-[var(--accent)]">
               Vor dem Versand
             </p>
           </div>
-          <p className="mt-2.5 text-[12px] leading-[1.65] text-[#334155]">
+          <p className="mt-2.5 text-[12px] leading-[1.65] text-[var(--text-secondary)]">
             {DOCUMENT_ENGINE_HELPY_MESSAGES.disclaimer}
           </p>
-          <p className="mt-2 text-[11px] leading-relaxed text-[#64748B]">
+          <p className="mt-2 text-[11px] leading-relaxed text-[var(--text-secondary)]">
             {DOCUMENT_ENGINE_HELPY_MESSAGES.trust}
           </p>
         </div>
 
-        <Card className="helpy-fade-in mt-5 rounded-[20px] border-[#CBD5E1]/40 bg-white py-0 shadow-sm">
+        <Card className="helpy-fade-in mt-5 rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
           <CardContent className="p-5">
             <div className="flex items-center gap-2">
-              <FileText className="size-4 text-[#2563EB]" strokeWidth={2} />
-              <p className="text-[12px] font-semibold text-[#0F172A]">
+              <FileText className="size-4 text-[var(--accent)]" strokeWidth={2} />
+              <p className="text-[12px] font-semibold text-[var(--text-primary)]">
                 Übersicht · {SKILL_EMOJI[activeSkill]}
               </p>
             </div>
             <ul className="mt-3 space-y-2">
-              <li className="flex justify-between text-[12px] text-[#334155]">
+              <li className="flex justify-between text-[12px] text-[var(--text-secondary)]">
                 <span>Von HELPY vorbereitet</span>
-                <span className="font-semibold text-[#2563EB]">{helpyCount}</span>
+                <span className="font-semibold text-[var(--accent)]">{helpyCount}</span>
               </li>
-              <li className="flex justify-between text-[12px] text-[#334155]">
+              <li className="flex justify-between text-[12px] text-[var(--text-secondary)]">
                 <span>Entwürfe</span>
                 <span className="font-semibold">{counts.entwuerfe}</span>
               </li>
-              <li className="flex justify-between text-[12px] text-[#334155]">
+              <li className="flex justify-between text-[12px] text-[var(--text-secondary)]">
                 <span>Fertige Dokumente</span>
                 <span className="font-semibold">{counts.fertige}</span>
               </li>
-              <li className="flex justify-between text-[12px] text-[#334155]">
+              <li className="flex justify-between text-[12px] text-[var(--text-secondary)]">
                 <span>Vorlagen</span>
                 <span className="font-semibold">{counts.vorlagen}</span>
               </li>
@@ -87,25 +87,25 @@ export function HelpyDocumentsPanel({
         </Card>
 
         {selectedDocument && (
-          <Card className="helpy-fade-in mt-5 rounded-[20px] border-[#CBD5E1]/40 bg-white py-0 shadow-sm">
+          <Card className="helpy-fade-in mt-5 rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
             <CardContent className="p-5">
-              <p className="text-[12px] font-semibold text-[#0F172A]">
+              <p className="text-[12px] font-semibold text-[var(--text-primary)]">
                 Ausgewähltes Dokument
               </p>
-              <p className="mt-2 text-[13px] font-medium text-[#0F172A]">
+              <p className="mt-2 text-[13px] font-medium text-[var(--text-primary)]">
                 {selectedDocument.title}
               </p>
-              <p className="mt-1 text-[12px] text-[#64748B]">
+              <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
                 {selectedDocument.customer}
               </p>
-              <p className="mt-3 rounded-[12px] border border-[#BFDBFE]/40 bg-[#EFF6FF]/40 px-3 py-2.5 text-[11px] leading-relaxed text-[#334155]">
+              <p className="mt-3 rounded-[12px] border border-[var(--border-accent)] bg-[var(--accent-light)]/40 px-3 py-2.5 text-[11px] leading-relaxed text-[var(--text-secondary)]">
                 {selectedDocument.helpyHint}
               </p>
               <Button
                 type="button"
                 variant="outline"
                 onClick={onOpenPreview}
-                className="mt-3 h-9 w-full rounded-[12px] border-[#CBD5E1]/60 text-[12px] font-medium"
+                className="mt-3 h-9 w-full rounded-[12px] border-[var(--border)] text-[12px] font-medium"
               >
                 Dokumentvorschau öffnen
               </Button>

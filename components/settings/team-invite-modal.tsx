@@ -71,30 +71,30 @@ export function TeamInviteModal({
     >
       <div className="space-y-4">
         <div className="space-y-1.5">
-          <label className="text-[11px] font-medium text-[#64748B]">Name</label>
+          <label className="text-[11px] font-medium text-[var(--text-secondary)]">Name</label>
           <Input
             value={fullName}
             onChange={(event) => setFullName(event.target.value)}
-            className="h-10 rounded-[12px] border-[#CBD5E1]/60 bg-[#F8FAFC]/80 text-[13px]"
+            className="h-10 rounded-[12px] border-[var(--border)] bg-[var(--bg-elevated)] text-[13px]"
             placeholder="Vor- und Nachname"
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-[11px] font-medium text-[#64748B]">E-Mail</label>
+          <label className="text-[11px] font-medium text-[var(--text-secondary)]">E-Mail</label>
           <Input
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="h-10 rounded-[12px] border-[#CBD5E1]/60 bg-[#F8FAFC]/80 text-[13px]"
+            className="h-10 rounded-[12px] border-[var(--border)] bg-[var(--bg-elevated)] text-[13px]"
             placeholder="name@unternehmen.de"
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-[11px] font-medium text-[#64748B]">Rolle</label>
+          <label className="text-[11px] font-medium text-[var(--text-secondary)]">Rolle</label>
           <Select
             value={role}
             onChange={(event) => setRole(event.target.value as TenantUserRole)}
-            className="h-10 rounded-[12px] border-[#CBD5E1]/60 bg-[#F8FAFC]/80 text-[13px]"
+            className="h-10 rounded-[12px] border-[var(--border)] bg-[var(--bg-elevated)] text-[13px]"
           >
             <option value="EMPLOYEE">{ROLE_LABELS.EMPLOYEE}</option>
             <option value="ADMIN">{ROLE_LABELS.ADMIN}</option>

@@ -205,46 +205,46 @@ export function HelpyViewingActionSection({
         }}
       />
 
-      <div className="rounded-[16px] border border-[#BFDBFE]/50 bg-gradient-to-br from-[#EFF6FF]/60 to-white/90 px-4 py-3.5">
+      <div className="rounded-[16px] border border-[var(--border-accent)]/50 bg-gradient-to-br from-[#EFF6FF]/60 to-white/90 px-4 py-3.5">
         <div className="flex items-center gap-2">
-          <CalendarDays className="size-4 text-[#2563EB]" strokeWidth={2} />
-          <p className="text-[12px] font-semibold text-[#0F172A]">
+          <CalendarDays className="size-4 text-[var(--accent)]" strokeWidth={2} />
+          <p className="text-[12px] font-semibold text-[var(--text-primary)]">
             Besichtigungstermin — Aktionsansicht
           </p>
         </div>
-        <p className="mt-1.5 text-[11px] leading-relaxed text-[#64748B]">
+        <p className="mt-1.5 text-[11px] leading-relaxed text-[var(--text-secondary)]">
           Antwort und Terminvorschläge sind vorbereitet. Nach dem Senden wählst
           du den Termin des Kunden und trägst ihn ein.
         </p>
 
         {(wishDate || wishTime || objectHint) && (
-          <dl className="mt-3 grid gap-2 rounded-[12px] border border-[#BFDBFE]/40 bg-white/80 px-3 py-2.5 sm:grid-cols-3">
+          <dl className="mt-3 grid gap-2 rounded-[12px] border border-[var(--border-accent)] bg-[var(--bg-surface)] px-3 py-2.5 sm:grid-cols-3">
             {objectHint && (
               <div>
-                <dt className="text-[10px] font-semibold tracking-wide text-[#94A3B8] uppercase">
+                <dt className="text-[10px] font-semibold tracking-wide text-[var(--text-muted)] uppercase">
                   Objekt
                 </dt>
-                <dd className="mt-0.5 truncate text-[12px] font-medium text-[#0F172A]">
+                <dd className="mt-0.5 truncate text-[12px] font-medium text-[var(--text-primary)]">
                   {objectHint}
                 </dd>
               </div>
             )}
             {wishDate && (
               <div>
-                <dt className="text-[10px] font-semibold tracking-wide text-[#94A3B8] uppercase">
+                <dt className="text-[10px] font-semibold tracking-wide text-[var(--text-muted)] uppercase">
                   Wunschtermin
                 </dt>
-                <dd className="mt-0.5 text-[12px] font-medium text-[#0F172A]">
+                <dd className="mt-0.5 text-[12px] font-medium text-[var(--text-primary)]">
                   {wishDate}
                 </dd>
               </div>
             )}
             {wishTime && (
               <div>
-                <dt className="text-[10px] font-semibold tracking-wide text-[#94A3B8] uppercase">
+                <dt className="text-[10px] font-semibold tracking-wide text-[var(--text-muted)] uppercase">
                   Zeitfenster
                 </dt>
-                <dd className="mt-0.5 text-[12px] font-medium text-[#0F172A]">
+                <dd className="mt-0.5 text-[12px] font-medium text-[var(--text-primary)]">
                   {wishTime}
                 </dd>
               </div>
@@ -257,14 +257,14 @@ export function HelpyViewingActionSection({
             <button
               type="button"
               onClick={handleOpenObject}
-              className="inline-flex max-w-full items-center gap-2 rounded-[12px] border border-[#BFDBFE]/70 bg-[#EFF6FF]/80 px-3 py-2 text-left transition-colors hover:bg-[#DBEAFE]/80"
+              className="inline-flex max-w-full items-center gap-2 rounded-[12px] border border-[var(--border-accent)]/70 bg-[var(--accent-light)] px-3 py-2 text-left transition-colors hover:bg-[#DBEAFE]/80"
             >
-              <Building2 className="size-3.5 shrink-0 text-[#2563EB]" />
+              <Building2 className="size-3.5 shrink-0 text-[var(--accent)]" />
               <span className="min-w-0">
-                <span className="block text-[10px] font-semibold tracking-wide text-[#64748B] uppercase">
+                <span className="block text-[10px] font-semibold tracking-wide text-[var(--text-secondary)] uppercase">
                   Objekt
                 </span>
-                <span className="block truncate text-[12px] font-semibold text-[#0F172A]">
+                <span className="block truncate text-[12px] font-semibold text-[var(--text-primary)]">
                   {object.titel}
                 </span>
               </span>
@@ -274,14 +274,14 @@ export function HelpyViewingActionSection({
             <button
               type="button"
               onClick={handleOpenCustomer}
-              className="inline-flex max-w-full items-center gap-2 rounded-[12px] border border-[#E2E8F0]/80 bg-white/90 px-3 py-2 text-left transition-colors hover:bg-[#F8FAFC]"
+              className="inline-flex max-w-full items-center gap-2 rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-left transition-colors hover:bg-[var(--bg-elevated)]"
             >
-              <UserRound className="size-3.5 shrink-0 text-[#475569]" />
+              <UserRound className="size-3.5 shrink-0 text-[var(--text-muted)]" />
               <span className="min-w-0">
-                <span className="block text-[10px] font-semibold tracking-wide text-[#64748B] uppercase">
+                <span className="block text-[10px] font-semibold tracking-wide text-[var(--text-secondary)] uppercase">
                   Interessent
                 </span>
-                <span className="block truncate text-[12px] font-semibold text-[#0F172A]">
+                <span className="block truncate text-[12px] font-semibold text-[var(--text-primary)]">
                   {customer.name}
                 </span>
               </span>
@@ -290,7 +290,7 @@ export function HelpyViewingActionSection({
           {objectHref && (
             <Link
               href={objectHref}
-              className="inline-flex items-center rounded-[12px] border border-transparent px-2 text-[11px] font-medium text-[#2563EB] hover:underline"
+              className="inline-flex items-center rounded-[12px] border border-transparent px-2 text-[11px] font-medium text-[var(--accent)] hover:underline"
             >
               Objektakte öffnen
             </Link>
@@ -298,7 +298,7 @@ export function HelpyViewingActionSection({
           {customer && (
             <Link
               href={customerHref}
-              className="inline-flex items-center rounded-[12px] border border-transparent px-2 text-[11px] font-medium text-[#2563EB] hover:underline"
+              className="inline-flex items-center rounded-[12px] border border-transparent px-2 text-[11px] font-medium text-[var(--accent)] hover:underline"
             >
               Kundenakte öffnen
             </Link>
@@ -336,7 +336,7 @@ export function HelpyViewingActionSection({
         </Button>
 
         {!canCombine && !confirmLoading && (
-          <p className="text-center text-[11px] text-[#94A3B8]">
+          <p className="text-center text-[11px] text-[var(--text-muted)]">
             {!hasReadyDraft
               ? "Antwortentwurf wird vorbereitet…"
               : !hasReadySlots
@@ -350,7 +350,7 @@ export function HelpyViewingActionSection({
           variant="outline"
           disabled={completing || !listeVorgang}
           onClick={() => void handleComplete()}
-          className="h-9 w-full gap-2 rounded-[12px] border-[#CBD5E1]/60 bg-white/90 text-[12px] font-medium"
+          className="h-9 w-full gap-2 rounded-[12px] border-[var(--border)] bg-[var(--bg-surface)] text-[12px] font-medium"
         >
           <CheckCircle2 className="size-3.5" />
           {completing ? "Wird markiert…" : "Als erledigt markieren"}

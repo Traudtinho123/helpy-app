@@ -43,14 +43,14 @@ export function HelpyImmoScoutPanel({ inquiry }: HelpyImmoScoutPanelProps) {
             </Button>
             <Button
               variant="outline"
-              className="h-10 w-full gap-2 rounded-[12px] border-[#CBD5E1]/60 text-[12px] font-medium"
+              className="h-10 w-full gap-2 rounded-[12px] border-[var(--border)] text-[12px] font-medium"
             >
               <UserPlus className="size-3.5" />
               Interessent anlegen
             </Button>
             <Button
               variant="outline"
-              className="h-10 w-full gap-2 rounded-[12px] border-[#CBD5E1]/60 text-[12px] font-medium"
+              className="h-10 w-full gap-2 rounded-[12px] border-[var(--border)] text-[12px] font-medium"
             >
               <Mail className="size-3.5" />
               Antwort vorbereiten
@@ -60,25 +60,25 @@ export function HelpyImmoScoutPanel({ inquiry }: HelpyImmoScoutPanelProps) {
       }
     >
       {!inquiry ? (
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-[#CBD5E1] bg-[#F8FAFC]/80 p-8 text-center">
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-[var(--border)] bg-[var(--bg-elevated)] p-8 text-center">
           <HelpyCharacter size={88} pose="wave" animated showLabel={false} />
-          <p className="text-sm font-medium text-[#64748B]">
+          <p className="text-sm font-medium text-[var(--text-secondary)]">
             Ich überwache deine ImmoScout24.ch-Anfragen und bereite Vorgänge vor.
           </p>
         </div>
       ) : (
         <div className="space-y-5 px-1">
             <div className="helpy-fade-in">
-              <p className="text-[13px] leading-relaxed text-[#334155]">
+              <p className="text-[13px] leading-relaxed text-[var(--text-secondary)]">
                 Ich überwache deine ImmoScout24.ch-Anfragen und bereite Vorgänge vor.
               </p>
             </div>
 
-            <Card className="helpy-fade-in rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm backdrop-blur-sm">
+            <Card className="helpy-fade-in rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm backdrop-blur-sm">
               <CardContent className="p-5">
                 <div className="flex items-center gap-2">
-                  <Building2 className="size-4 text-[#2563EB]" strokeWidth={2} />
-                  <p className="text-[12px] font-semibold text-[#0F172A]">
+                  <Building2 className="size-4 text-[var(--accent)]" strokeWidth={2} />
+                  <p className="text-[12px] font-semibold text-[var(--text-primary)]">
                     Ich habe erkannt
                   </p>
                 </div>
@@ -89,7 +89,7 @@ export function HelpyImmoScoutPanel({ inquiry }: HelpyImmoScoutPanelProps) {
                     return (
                       <li
                         key={detection}
-                        className="flex items-center gap-2.5 text-[12px] text-[#334155]"
+                        className="flex items-center gap-2.5 text-[12px] text-[var(--text-secondary)]"
                       >
                         {isDetected ? (
                           <CheckCircle2
@@ -101,7 +101,7 @@ export function HelpyImmoScoutPanel({ inquiry }: HelpyImmoScoutPanelProps) {
                             <span className="size-1.5 rounded-full bg-[#CBD5E1]" />
                           </span>
                         )}
-                        <span className={isDetected ? "font-medium text-[#0F172A]" : "text-[#94A3B8]"}>
+                        <span className={isDetected ? "font-medium text-[var(--text-primary)]" : "text-[var(--text-muted)]"}>
                           {detectionLabels[detection]}
                         </span>
                       </li>
@@ -119,7 +119,7 @@ export function HelpyImmoScoutPanel({ inquiry }: HelpyImmoScoutPanelProps) {
                     Meine Empfehlung
                   </p>
                 </div>
-                <p className="mt-3 text-[12px] leading-[1.65] text-[#334155]">
+                <p className="mt-3 text-[12px] leading-[1.65] text-[var(--text-secondary)]">
                   &ldquo;{inquiry.helpy.recommendation}&rdquo;
                 </p>
               </CardContent>

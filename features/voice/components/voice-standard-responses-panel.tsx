@@ -191,7 +191,7 @@ export function VoiceStandardResponsesPanel() {
                 {item.enabled ? "Aktiv" : "Inaktiv"}
               </label>
               <select
-                className="rounded-lg border border-[var(--card-border)] bg-white px-2 py-1 text-[12px]"
+                className="rounded-lg border border-[var(--card-border)] bg-[var(--bg-surface)] px-2 py-1 text-[12px]"
                 value={item.category}
                 onChange={(event) =>
                   updateDraft(item.id, {

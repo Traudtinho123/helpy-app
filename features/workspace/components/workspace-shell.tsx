@@ -27,7 +27,7 @@ export function WorkspaceShell({ vorgang }: WorkspaceShellProps) {
   );
 
   const content = (
-    <div className="relative flex h-[100dvh] overflow-hidden bg-[#EEF4FC] text-[#0F172A]">
+    <div className="relative flex h-[100dvh] overflow-hidden bg-[#EEF4FC] text-[var(--text-primary)]">
       <WorkspaceSkillSync />
       <div className="pointer-events-none fixed inset-0 bg-gradient-to-br from-[#EEF4FC] via-[#E8F0FA] to-[#DBEAFE]/40" />
       <div className="pointer-events-none fixed -top-40 -left-20 size-[600px] rounded-full bg-[#2563EB]/15 blur-[130px]" />

@@ -65,8 +65,8 @@ function NotificationItem({
         onNavigate();
       }}
       className={cn(
-        "flex gap-3 rounded-[14px] px-3 py-3 transition-colors hover:bg-[#F8FAFC]",
-        !item.read && "bg-[#EFF6FF]/50"
+        "flex gap-3 rounded-[14px] px-3 py-3 transition-colors hover:bg-[var(--bg-elevated)]",
+        !item.read && "bg-[var(--accent-light)]/50"
       )}
     >
       <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#EDE9FE] to-[#FAF5FF] text-[#7C3AED]">
@@ -74,12 +74,12 @@ function NotificationItem({
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
-          <p className="text-[12px] font-semibold text-[#0F172A]">{item.title}</p>
+          <p className="text-[12px] font-semibold text-[var(--text-primary)]">{item.title}</p>
           {!item.read && (
             <span className="mt-1 size-2 shrink-0 rounded-full bg-[#EF4444]" />
           )}
         </div>
-        <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-[#64748B]">
+        <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-[var(--text-secondary)]">
           {item.message}
         </p>
       </div>
@@ -175,16 +175,16 @@ export function HelpyNotificationBell() {
           right: panelPosition.right,
           zIndex: 200,
         }}
-        className="w-[min(22rem,calc(100vw-1.5rem))] overflow-hidden rounded-[20px] border border-[#CBD5E1]/50 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.12)]"
+        className="w-[min(22rem,calc(100vw-1.5rem))] overflow-hidden rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] shadow-[0_20px_60px_rgba(15,23,42,0.12)]"
       >
-        <div className="border-b border-[#E2E8F0]/80 bg-gradient-to-r from-[#FAF5FF]/80 to-[#EFF6FF]/60 px-4 py-3.5">
+        <div className="border-b border-[var(--border)] bg-gradient-to-r from-[#FAF5FF]/80 to-[#EFF6FF]/60 px-4 py-3.5">
           <div className="flex items-center gap-2">
             <Bell className="size-4 text-[#7C3AED]" strokeWidth={2.2} />
-            <p className="text-[13px] font-semibold text-[#0F172A]">
+            <p className="text-[13px] font-semibold text-[var(--text-primary)]">
               HELPY Meldungen
             </p>
           </div>
-          <p className="mt-1 text-[11px] text-[#64748B]">
+          <p className="mt-1 text-[11px] text-[var(--text-secondary)]">
             Interne Hinweise — keine Browser-Benachrichtigungen
           </p>
         </div>
@@ -192,17 +192,17 @@ export function HelpyNotificationBell() {
         <div className="max-h-[min(28rem,70vh)] overflow-y-auto p-2">
           {!hasNotifications || grouped.length === 0 ? (
             <div className="px-4 py-8 text-center">
-              <p className="text-[12px] font-medium text-[#64748B]">
+              <p className="text-[12px] font-medium text-[var(--text-secondary)]">
                 Keine Meldungen
               </p>
-              <p className="mt-1 text-[11px] text-[#94A3B8]">
+              <p className="mt-1 text-[11px] text-[var(--text-muted)]">
                 HELPY informiert dich hier über neue Vorgänge.
               </p>
             </div>
           ) : (
             grouped.map((section) => (
               <div key={section.group} className="mb-2 last:mb-0">
-                <p className="px-3 py-2 text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+                <p className="px-3 py-2 text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
                   {section.label}
                 </p>
                 <div className="space-y-0.5">
@@ -231,8 +231,8 @@ export function HelpyNotificationBell() {
           aria-haspopup="menu"
           onClick={handleToggle}
           className={cn(
-            "relative flex size-10 items-center justify-center rounded-full border border-[#CBD5E1]/60 bg-white/90 text-[#475569] shadow-[0_2px_8px_rgba(15,23,42,0.06)] transition-all duration-300 hover:border-[#BFDBFE]/70 hover:bg-[#EFF6FF]/50 hover:text-[#2563EB]",
-            open && "border-[#BFDBFE]/70 bg-[#EFF6FF]/50 text-[#2563EB]"
+            "relative flex size-10 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-muted)] shadow-[0_2px_8px_rgba(15,23,42,0.06)] transition-all duration-300 hover:border-[var(--border-accent)]/70 hover:bg-[var(--accent-light)]/50 hover:text-[var(--accent)]",
+            open && "border-[var(--border-accent)]/70 bg-[var(--accent-light)]/50 text-[var(--accent)]"
           )}
         >
           <Bell className="size-[17px]" strokeWidth={2.2} />

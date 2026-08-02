@@ -35,24 +35,24 @@ function SocialMediaContent() {
         <div className="mb-6">
           <Link
             href="/objekte"
-            className="mb-4 inline-flex items-center gap-2 text-[12px] font-medium text-[#64748B] hover:text-[#2563EB]"
+            className="mb-4 inline-flex items-center gap-2 text-[12px] font-medium text-[var(--text-secondary)] hover:text-[var(--accent)]"
           >
             <ArrowLeft className="size-3.5" />
             Zurück zu Objekten
           </Link>
-          <h1 className="text-[22px] font-bold text-[#0F172A]">📱 Social Media</h1>
-          <p className="mt-1 text-[13px] text-[#64748B]">
+          <h1 className="text-[22px] font-bold text-[var(--text-primary)]">📱 Social Media</h1>
+          <p className="mt-1 text-[13px] text-[var(--text-secondary)]">
             HELPY bereitet Posts vor — du prüfst und veröffentlichst manuell.
           </p>
         </div>
 
         {!objektId ? (
           <div className="space-y-3">
-            <p className="text-[13px] text-[#64748B]">
+            <p className="text-[13px] text-[var(--text-secondary)]">
               Wähle ein aktives Objekt:
             </p>
             {activeObjects.length === 0 ? (
-              <p className="text-[13px] text-[#64748B]">
+              <p className="text-[13px] text-[var(--text-secondary)]">
                 Keine aktiven Objekte — setze zuerst ein Objekt auf «Aktiv».
               </p>
             ) : (
@@ -60,7 +60,7 @@ function SocialMediaContent() {
                 <Link
                   key={item.objectId}
                   href={`/social-media?objektId=${encodeURIComponent(item.objectId)}`}
-                  className="block rounded-[14px] border border-[#E2E8F0] bg-white px-4 py-3 text-[13px] font-medium text-[#334155] hover:border-[#2563EB]/30 hover:bg-[#EFF6FF]"
+                  className="block rounded-[14px] border border-[var(--border)] bg-[var(--bg-surface)] px-4 py-3 text-[13px] font-medium text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:bg-[var(--accent-light)]"
                 >
                   {item.titel} · {item.adresse}, {item.ort}
                 </Link>
@@ -68,7 +68,7 @@ function SocialMediaContent() {
             )}
           </div>
         ) : !object ? (
-          <p className="text-[13px] text-[#64748B]">Objekt nicht gefunden.</p>
+          <p className="text-[13px] text-[var(--text-secondary)]">Objekt nicht gefunden.</p>
         ) : (
           <SocialPostEditor object={object} />
         )}
@@ -82,7 +82,7 @@ export function SocialMediaPage() {
     <Suspense
       fallback={
         <DashboardShell activeHref="/social-media">
-          <div className="px-6 py-8 text-[13px] text-[#64748B]">Laden …</div>
+          <div className="px-6 py-8 text-[13px] text-[var(--text-secondary)]">Laden …</div>
         </DashboardShell>
       }
     >

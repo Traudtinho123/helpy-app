@@ -34,10 +34,10 @@ function StepIcon({ step }: { step: WorkflowStep }) {
       className={cn(
         "flex size-6 shrink-0 items-center justify-center rounded-full border",
         step.status === "in-pruefung"
-          ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]"
+          ? "border-[#2563EB] bg-[var(--accent-light)] text-[var(--accent)]"
           : step.status === "vorbereitet"
-            ? "border-[#BFDBFE] bg-[#F8FAFC] text-[#64748B]"
-            : "border-[#E2E8F0] bg-white text-[#CBD5E1]"
+            ? "border-[var(--border-accent)] bg-[var(--bg-elevated)] text-[var(--text-secondary)]"
+            : "border-[var(--border)] bg-[var(--bg-surface)] text-[#CBD5E1]"
       )}
     >
       <Circle className="size-2.5" fill="currentColor" strokeWidth={0} />
@@ -64,22 +64,22 @@ function StepRow({
       className={cn(
         "rounded-[16px] border px-4 py-3.5 transition-all duration-300",
         step.status === "in-pruefung"
-          ? "border-[#BFDBFE]/70 bg-[#EFF6FF]/40"
+          ? "border-[var(--border-accent)]/70 bg-[var(--accent-light)]/40"
           : isDone
             ? "border-[#A7F3D0]/50 bg-[#ECFDF5]/30"
-            : "border-[#E2E8F0]/70 bg-white/80"
+            : "border-[var(--border)] bg-[var(--bg-surface)]"
       )}
     >
       <div className="flex items-start gap-3">
         <StepIcon step={step} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-[13px] font-semibold text-[#0F172A]">{step.title}</p>
-            <span className="text-[10px] font-medium text-[#94A3B8]">
+            <p className="text-[13px] font-semibold text-[var(--text-primary)]">{step.title}</p>
+            <span className="text-[10px] font-medium text-[var(--text-muted)]">
               {WORKFLOW_STEP_STATUS_LABELS[step.status]}
             </span>
           </div>
-          <p className="mt-1 text-[11px] leading-relaxed text-[#64748B]">
+          <p className="mt-1 text-[11px] leading-relaxed text-[var(--text-secondary)]">
             {step.description}
           </p>
           {(canReview || canConfirm) && (
@@ -108,7 +108,7 @@ function StepRow({
                     type="button"
                     size="sm"
                     variant="outline"
-                    className="h-8 rounded-[10px] border-[#CBD5E1]/60 px-3 text-[11px] font-medium"
+                    className="h-8 rounded-[10px] border-[var(--border)] px-3 text-[11px] font-medium"
                   >
                     {HELPY_BUTTON_BEARBEITEN}
                   </Button>
@@ -133,13 +133,13 @@ export function WorkspaceWorkflowCard(_props: WorkspaceWorkflowCardProps) {
   return (
     <Card
       id="helpy-arbeitsablauf"
-      className="scroll-mt-6 rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-[0_2px_8px_rgba(15,23,42,0.04)] backdrop-blur-xl"
+      className="scroll-mt-6 rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-[0_2px_8px_rgba(15,23,42,0.04)] backdrop-blur-xl"
     >
-      <CardHeader className="border-b border-[#CBD5E1]/30 px-5 py-4">
-        <CardTitle className="text-[14px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+      <CardHeader className="border-b border-[var(--border)] px-5 py-4">
+        <CardTitle className="text-[14px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
           Arbeitsablauf
         </CardTitle>
-        <p className="text-[12px] text-[#64748B]">{instance.name}</p>
+        <p className="text-[12px] text-[var(--text-secondary)]">{instance.name}</p>
       </CardHeader>
       <CardContent className="px-5 py-4">
         {feedback && (

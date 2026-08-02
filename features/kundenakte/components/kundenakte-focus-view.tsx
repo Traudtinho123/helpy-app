@@ -132,13 +132,13 @@ export function KundenakteFocusView({ vorgangId }: KundenakteFocusViewProps) {
 
   if (!workspace || !kundenakte) {
     return (
-      <div className="rounded-[24px] border border-dashed border-[#CBD5E1] bg-white/70 px-8 py-16 text-center backdrop-blur-xl">
-        <p className="text-sm font-medium text-[#64748B]">
+      <div className="rounded-[24px] border border-dashed border-[var(--border)] bg-[var(--bg-surface)] px-8 py-16 text-center backdrop-blur-xl">
+        <p className="text-sm font-medium text-[var(--text-secondary)]">
           Kundenakte konnte nicht geladen werden.
         </p>
         <Link
           href={getVorgangPath(vorgangId)}
-          className="mt-4 inline-flex text-[12px] font-semibold text-[#2563EB]"
+          className="mt-4 inline-flex text-[12px] font-semibold text-[var(--accent)]"
         >
           Zurück zum Vorgang
         </Link>
@@ -168,14 +168,14 @@ export function KundenakteFocusView({ vorgangId }: KundenakteFocusViewProps) {
       <div className="mx-auto max-w-4xl px-8 py-12 lg:px-12 lg:py-14">
         <Link
           href={getVorgangPath(vorgangId)}
-          className="mb-6 inline-flex items-center gap-2 text-[12px] font-medium text-[#64748B] transition-colors hover:text-[#2563EB]"
+          className="mb-6 inline-flex items-center gap-2 text-[12px] font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--accent)]"
         >
           <ArrowLeft className="size-3.5" />
           Zurück zum Vorgang
         </Link>
 
         <header className="mb-8">
-          <p className="text-[11px] font-semibold tracking-[0.06em] text-[#2563EB] uppercase">
+          <p className="text-[11px] font-semibold tracking-[0.06em] text-[var(--accent)] uppercase">
             Kundenakte
           </p>
 
@@ -200,7 +200,7 @@ export function KundenakteFocusView({ vorgangId }: KundenakteFocusViewProps) {
                   type="button"
                   variant="outline"
                   onClick={() => setEditing(false)}
-                  className="h-8 rounded-[10px] border-[#CBD5E1]/60 px-3 text-[11px] font-medium"
+                  className="h-8 rounded-[10px] border-[var(--border)] px-3 text-[11px] font-medium"
                 >
                   Abbrechen
                 </Button>
@@ -209,7 +209,7 @@ export function KundenakteFocusView({ vorgangId }: KundenakteFocusViewProps) {
           ) : (
             <>
               <div className="mt-2 flex flex-wrap items-center gap-3">
-                <h1 className="text-[2rem] font-semibold tracking-[-0.035em] text-[#0F172A]">
+                <h1 className="text-[2rem] font-semibold tracking-[-0.035em] text-[var(--text-primary)]">
                   {kundenakte.name}
                 </h1>
                 <LeadScoreIndicator score={leadScore} />
@@ -232,7 +232,7 @@ export function KundenakteFocusView({ vorgangId }: KundenakteFocusViewProps) {
                 "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold",
                 isConfirmed
                   ? "border-[#A7F3D0]/60 bg-[#ECFDF5]/70 text-[#047857]"
-                  : "border-[#BFDBFE]/60 bg-[#EFF6FF]/80 text-[#2563EB]"
+                  : "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--accent)]"
               )}
             >
               {isConfirmed && <BadgeCheck className="size-3" strokeWidth={2.5} />}
@@ -246,7 +246,7 @@ export function KundenakteFocusView({ vorgangId }: KundenakteFocusViewProps) {
                 type="button"
                 variant="outline"
                 onClick={handleStartEdit}
-                className="h-9 rounded-[12px] border-[#CBD5E1]/60 px-4 text-[12px] font-medium"
+                className="h-9 rounded-[12px] border-[var(--border)] px-4 text-[12px] font-medium"
               >
                 {HELPY_BUTTON_BEARBEITEN}
               </Button>
@@ -261,7 +261,7 @@ export function KundenakteFocusView({ vorgangId }: KundenakteFocusViewProps) {
                 type="button"
                 variant="outline"
                 onClick={handleDirectConfirm}
-                className="h-9 rounded-[12px] border-[#CBD5E1]/60 px-4 text-[12px] font-medium"
+                className="h-9 rounded-[12px] border-[var(--border)] px-4 text-[12px] font-medium"
               >
                 {HELPY_BUTTON_KUNDENAKTE_BESTAETIGEN}
               </Button>
@@ -315,8 +315,8 @@ function ContactLine({
   value: string;
 }) {
   return (
-    <div className="flex items-center gap-2 text-[14px] text-[#334155]">
-      <Icon className="size-4 shrink-0 text-[#64748B]" strokeWidth={2} />
+    <div className="flex items-center gap-2 text-[14px] text-[var(--text-secondary)]">
+      <Icon className="size-4 shrink-0 text-[var(--text-secondary)]" strokeWidth={2} />
       <span className="font-medium">{value || "—"}</span>
     </div>
   );
@@ -333,13 +333,13 @@ function EditField({
 }) {
   return (
     <div>
-      <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+      <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
         {label}
       </p>
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1 w-full rounded-[10px] border border-[#CBD5E1]/60 bg-white px-3 py-2 text-[12px] text-[#0F172A] outline-none focus:border-[#BFDBFE]"
+        className="mt-1 w-full rounded-[10px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-[12px] text-[var(--text-primary)] outline-none focus:border-[var(--border-accent)]"
       />
     </div>
   );

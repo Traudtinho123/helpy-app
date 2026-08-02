@@ -64,10 +64,10 @@ export function WhatsappMessageCard({
       type="button"
       onClick={() => onSelect(message)}
       className={cn(
-        "w-full rounded-[20px] border bg-white/80 p-5 text-left backdrop-blur-xl transition-all duration-200",
+        "w-full rounded-[20px] border bg-[var(--bg-surface)] p-5 text-left backdrop-blur-xl transition-all duration-200",
         selected
           ? "border-[#25D366]/40 shadow-md ring-1 ring-[#25D366]/20"
-          : "border-[#E2E8F0] hover:border-[#CBD5E1] hover:shadow-sm"
+          : "border-[var(--border)] hover:border-[var(--border)] hover:shadow-sm"
       )}
     >
       <div className="flex items-start gap-3">
@@ -76,7 +76,7 @@ export function WhatsappMessageCard({
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="truncate text-[15px] font-semibold tracking-[-0.02em] text-[#0F172A]">
+            <p className="truncate text-[15px] font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
               {displayName}
             </p>
             <StatusBadge
@@ -84,15 +84,15 @@ export function WhatsappMessageCard({
               label={STATUS_LABELS[message.status]}
             />
             {message.intentLabel ? (
-              <span className="rounded-full bg-[#F1F5F9] px-2 py-0.5 text-[11px] font-medium text-[#64748B]">
+              <span className="rounded-full bg-[var(--bg-elevated)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-secondary)]">
                 {message.intentLabel}
               </span>
             ) : null}
           </div>
-          <p className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-[#64748B]">
+          <p className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-[var(--text-secondary)]">
             {preview}
           </p>
-          <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px] text-[#94A3B8]">
+          <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px] text-[var(--text-muted)]">
             <span>{receivedLabel}</span>
             {message.customerName ? (
               <span style={{ color: WHATSAPP_BRAND_COLOR }}>

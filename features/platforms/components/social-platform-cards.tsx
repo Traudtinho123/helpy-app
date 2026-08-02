@@ -163,9 +163,9 @@ export function SocialPlatformCards() {
         {SOCIAL_CARDS.map((card) => (
           <article
             key={card.brand}
-            className="flex h-full min-h-[240px] items-center justify-center rounded-[20px] border border-[#E2E8F0] bg-white p-5"
+            className="flex h-full min-h-[240px] items-center justify-center rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] p-5"
           >
-            <Loader2 className="size-5 animate-spin text-[#64748B]" />
+            <Loader2 className="size-5 animate-spin text-[var(--text-secondary)]" />
           </article>
         ))}
       </>

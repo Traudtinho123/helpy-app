@@ -11,7 +11,7 @@ export function HelpyAtDesk({ className, compact = false }: HelpyAtDeskProps) {
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-[20px] border border-[#CBD5E1]/40 bg-gradient-to-b from-[#EEF2FF] via-[#F8FAFC] to-[#E0E7FF]/80",
+        "relative overflow-hidden rounded-[20px] border border-[var(--border)] bg-gradient-to-b from-[#EEF2FF] via-[#F8FAFC] to-[#E0E7FF]/80",
         compact ? "h-[120px]" : "h-[168px]",
         className
       )}

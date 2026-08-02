@@ -259,7 +259,7 @@ export function PortalPublishModal({
     >
       <div className="space-y-5">
         <div>
-          <p className="mb-2 text-[11px] font-semibold tracking-[0.04em] text-[#64748B] uppercase">
+          <p className="mb-2 text-[11px] font-semibold tracking-[0.04em] text-[var(--text-secondary)] uppercase">
             Portale
           </p>
           <div className="space-y-2">
@@ -282,8 +282,8 @@ export function PortalPublishModal({
                   className={cn(
                     "flex items-center justify-between gap-3 rounded-[14px] border px-3.5 py-3",
                     portal.enabled
-                      ? "cursor-pointer border-[#E2E8F0]/70 bg-white"
-                      : "cursor-not-allowed border-[#E2E8F0]/50 bg-[#F8FAFC] opacity-70"
+                      ? "cursor-pointer border-[var(--border)] bg-[var(--bg-surface)]"
+                      : "cursor-not-allowed border-[var(--border)]/50 bg-[var(--bg-elevated)] opacity-70"
                   )}
                 >
                   <span className="flex items-center gap-3">
@@ -292,9 +292,9 @@ export function PortalPublishModal({
                       checked={checked}
                       disabled={!portal.enabled}
                       onChange={() => togglePortal(portal.id)}
-                      className="size-4 rounded border-[#CBD5E1]"
+                      className="size-4 rounded border-[var(--border)]"
                     />
-                    <span className="text-[13px] font-semibold text-[#0F172A]">
+                    <span className="text-[13px] font-semibold text-[var(--text-primary)]">
                       {PORTAL_LABELS[portal.id]}
                       {!portal.enabled ? " (bald)" : ""}
                     </span>
@@ -309,7 +309,7 @@ export function PortalPublishModal({
                       {configured ? "API bereit" : "API nicht konfiguriert"}
                     </span>
                   ) : (
-                    <span className="text-[10px] font-semibold text-[#94A3B8]">
+                    <span className="text-[10px] font-semibold text-[var(--text-muted)]">
                       bald
                     </span>
                   )}
@@ -320,7 +320,7 @@ export function PortalPublishModal({
         </div>
 
         <div>
-          <p className="mb-2 text-[11px] font-semibold tracking-[0.04em] text-[#64748B] uppercase">
+          <p className="mb-2 text-[11px] font-semibold tracking-[0.04em] text-[var(--text-secondary)] uppercase">
             Laufzeit
           </p>
           <div className="flex flex-wrap gap-2">
@@ -332,8 +332,8 @@ export function PortalPublishModal({
                 className={cn(
                   "rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-all",
                   duration === option.value
-                    ? "border-[#2563EB]/30 bg-[#EFF6FF] text-[#2563EB]"
-                    : "border-[#E2E8F0] bg-white text-[#64748B] hover:bg-[#F8FAFC]"
+                    ? "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--accent)]"
+                    : "border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"
                 )}
               >
                 {option.label}
@@ -342,19 +342,19 @@ export function PortalPublishModal({
           </div>
         </div>
 
-        <div className="rounded-[14px] border border-[#BFDBFE]/50 bg-[#EFF6FF]/40 px-3.5 py-3">
-          <p className="text-[11px] font-semibold tracking-[0.04em] text-[#2563EB] uppercase">
+        <div className="rounded-[14px] border border-[var(--border-accent)]/50 bg-[var(--accent-light)]/40 px-3.5 py-3">
+          <p className="text-[11px] font-semibold tracking-[0.04em] text-[var(--accent)] uppercase">
             Exposé-Vorschau
           </p>
           <ul className="mt-2 space-y-1">
             {previewLines.map((line) => (
-              <li key={line} className="text-[12px] text-[#334155]">
+              <li key={line} className="text-[12px] text-[var(--text-secondary)]">
                 {line}
               </li>
             ))}
           </ul>
           {object.beschreibung ? (
-            <p className="mt-2 line-clamp-3 text-[12px] leading-relaxed text-[#64748B]">
+            <p className="mt-2 line-clamp-3 text-[12px] leading-relaxed text-[var(--text-secondary)]">
               {object.beschreibung}
             </p>
           ) : null}
@@ -372,9 +372,9 @@ export function PortalPublishModal({
             {results.map((result) => (
               <li
                 key={result.portal}
-                className="rounded-[12px] border border-[#E2E8F0]/70 bg-[#F8FAFC] px-3 py-2 text-[12px]"
+                className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3 py-2 text-[12px]"
               >
-                <span className="font-semibold text-[#0F172A]">
+                <span className="font-semibold text-[var(--text-primary)]">
                   {PORTAL_LABELS[result.portal]}:{" "}
                 </span>
                 {result.success ? (

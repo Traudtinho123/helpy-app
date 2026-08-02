@@ -36,7 +36,7 @@ function DocumentTypeIcon({ document }: { document: PreparedDocument }) {
   const isImage = mimeType.startsWith("image/");
 
   return (
-    <div className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-[#EFF6FF] text-[#2563EB]">
+    <div className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-[var(--accent-light)] text-[var(--accent)]">
       {isImage ? (
         <FileImage className="size-5" strokeWidth={2} />
       ) : (
@@ -60,10 +60,10 @@ export function DocumentCard({
   return (
     <article
       className={cn(
-        "group flex w-full flex-col gap-5 rounded-[20px] border bg-white/90 p-5 shadow-[0_2px_8px_rgba(15,23,42,0.04)] backdrop-blur-sm transition-all duration-300 hover:border-[#BFDBFE]/60 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] lg:flex-row lg:items-start lg:gap-6 lg:p-6",
+        "group flex w-full flex-col gap-5 rounded-[20px] border bg-[var(--bg-surface)] p-5 shadow-[0_2px_8px_rgba(15,23,42,0.04)] backdrop-blur-sm transition-all duration-300 hover:border-[var(--border-accent)] hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] lg:flex-row lg:items-start lg:gap-6 lg:p-6",
         isSelected
           ? "border-[#2563EB]/50 ring-2 ring-[#BFDBFE]/70"
-          : "border-[#CBD5E1]/40"
+          : "border-[var(--border)]"
       )}
     >
       <div className="flex shrink-0 items-start gap-3 lg:w-40 lg:flex-col lg:gap-3">
@@ -71,7 +71,7 @@ export function DocumentCard({
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5 lg:flex-col lg:items-start">
           <Badge
             variant="outline"
-            className="h-6 rounded-full border-[#CBD5E1]/60 bg-[#F8FAFC] px-2.5 text-[10px] font-semibold text-[#475569]"
+            className="h-6 rounded-full border-[var(--border)] bg-[var(--bg-elevated)] px-2.5 text-[10px] font-semibold text-[var(--text-muted)]"
           >
             {category}
           </Badge>
@@ -87,7 +87,7 @@ export function DocumentCard({
           {document.preparedByHelpy && (
             <Badge
               variant="outline"
-              className="h-6 rounded-full border-[#BFDBFE] bg-[#EFF6FF] px-2.5 text-[10px] font-semibold text-[#2563EB]"
+              className="h-6 rounded-full border-[var(--border-accent)] bg-[var(--accent-light)] px-2.5 text-[10px] font-semibold text-[var(--accent)]"
             >
               HELPY
             </Badge>
@@ -96,31 +96,31 @@ export function DocumentCard({
       </div>
 
       <div className="min-w-0 flex-1">
-        <h3 className="break-words text-[15px] font-semibold leading-snug tracking-[-0.01em] text-[#0F172A]">
+        <h3 className="break-words text-[15px] font-semibold leading-snug tracking-[-0.01em] text-[var(--text-primary)]">
           {fileName}
         </h3>
 
-        <div className="mt-3 grid gap-1.5 text-[12px] leading-relaxed text-[#64748B] sm:grid-cols-2">
+        <div className="mt-3 grid gap-1.5 text-[12px] leading-relaxed text-[var(--text-secondary)] sm:grid-cols-2">
           <p className="min-w-0 break-words">
-            <span className="text-[#94A3B8]">Quelle: </span>
+            <span className="text-[var(--text-muted)]">Quelle: </span>
             {source}
           </p>
           <p className="min-w-0 break-words">
-            <span className="text-[#94A3B8]">Kunde: </span>
+            <span className="text-[var(--text-muted)]">Kunde: </span>
             {document.customer}
           </p>
           <p className="min-w-0 break-words sm:col-span-2">
-            <span className="text-[#94A3B8]">Objekt / Vorgang: </span>
+            <span className="text-[var(--text-muted)]">Objekt / Vorgang: </span>
             {objectOrVorgang}
           </p>
           <p className="min-w-0 break-words">
-            <span className="text-[#94A3B8]">Datum: </span>
+            <span className="text-[var(--text-muted)]">Datum: </span>
             {document.lastEdited}
           </p>
         </div>
 
-        <p className="mt-3 break-words text-[12px] leading-relaxed text-[#475569]">
-          <span className="font-semibold text-[#2563EB]">HELPY:</span>{" "}
+        <p className="mt-3 break-words text-[12px] leading-relaxed text-[var(--text-muted)]">
+          <span className="font-semibold text-[var(--accent)]">HELPY:</span>{" "}
           {document.helpyHint}
         </p>
       </div>
@@ -131,7 +131,7 @@ export function DocumentCard({
           type="button"
           variant="outline"
           onClick={() => onOpen(document)}
-          className="h-9 w-full justify-center gap-1.5 rounded-[10px] border-[#CBD5E1]/60 bg-white px-3 text-[11px] font-semibold text-[#334155] hover:border-[#2563EB]/30 hover:bg-[#EFF6FF] hover:text-[#2563EB]"
+          className="h-9 w-full justify-center gap-1.5 rounded-[10px] border-[var(--border)] bg-[var(--bg-surface)] px-3 text-[11px] font-semibold text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:bg-[var(--accent-light)] hover:text-[var(--accent)]"
         >
           <Eye className="size-3.5" />
           Öffnen
@@ -142,7 +142,7 @@ export function DocumentCard({
           onClick={() => {
             updatePreparedDocumentStatus(document.id, "freigegeben");
           }}
-          className="h-9 w-full justify-center gap-1.5 rounded-[10px] border-[#CBD5E1]/60 bg-white px-3 text-[11px] font-semibold text-[#334155]"
+          className="h-9 w-full justify-center gap-1.5 rounded-[10px] border-[var(--border)] bg-[var(--bg-surface)] px-3 text-[11px] font-semibold text-[var(--text-secondary)]"
         >
           <CheckCircle2 className="size-3.5" />
           Prüfen
@@ -151,7 +151,7 @@ export function DocumentCard({
           type="button"
           variant="outline"
           onClick={() => onOpen(document)}
-          className="h-9 w-full justify-center gap-1.5 rounded-[10px] border-[#CBD5E1]/60 bg-white px-3 text-[11px] font-semibold text-[#334155]"
+          className="h-9 w-full justify-center gap-1.5 rounded-[10px] border-[var(--border)] bg-[var(--bg-surface)] px-3 text-[11px] font-semibold text-[var(--text-secondary)]"
         >
           <Send className="size-3.5" />
           Senden
@@ -160,7 +160,7 @@ export function DocumentCard({
           type="button"
           variant="outline"
           onClick={() => onOpen(document)}
-          className="h-9 w-full justify-center gap-1.5 rounded-[10px] border-[#CBD5E1]/60 bg-white px-3 text-[11px] font-semibold text-[#334155]"
+          className="h-9 w-full justify-center gap-1.5 rounded-[10px] border-[var(--border)] bg-[var(--bg-surface)] px-3 text-[11px] font-semibold text-[var(--text-secondary)]"
         >
           <Download className="size-3.5" />
           PDF öffnen

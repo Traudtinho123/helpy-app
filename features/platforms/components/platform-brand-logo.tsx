@@ -216,7 +216,7 @@ export function PlatformBrandLogo({
   return (
     <span
       className={cn(
-        "flex size-12 shrink-0 items-center justify-center rounded-[14px] border border-[#E2E8F0]/80 bg-white shadow-sm",
+        "flex size-12 shrink-0 items-center justify-center rounded-[14px] border border-[var(--border)] bg-[var(--bg-surface)] shadow-sm",
         className
       )}
     >

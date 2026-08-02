@@ -355,7 +355,7 @@ export function VorgangCard({
                 setActivePanel("reply");
                 onRequestReply?.(vorgang.id);
               }}
-              className="flex size-8 items-center justify-center rounded-[10px] border border-[#BFDBFE] bg-[#EFF6FF] text-[#2563EB] transition-colors hover:bg-[#DBEAFE]"
+              className="flex size-8 items-center justify-center rounded-[10px] border border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--accent)] transition-colors hover:bg-[#DBEAFE]"
             >
               <Reply className="size-4" />
             </button>
@@ -366,7 +366,7 @@ export function VorgangCard({
                 setActivePanel("appointment");
                 onRequestAppointment?.(vorgang.id);
               }}
-              className="flex size-8 items-center justify-center rounded-[10px] border border-[#BFDBFE] bg-[#EFF6FF] text-[#2563EB] transition-colors hover:bg-[#DBEAFE]"
+              className="flex size-8 items-center justify-center rounded-[10px] border border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--accent)] transition-colors hover:bg-[#DBEAFE]"
             >
               <CalendarDays className="size-4" />
             </button>
@@ -383,7 +383,7 @@ export function VorgangCard({
           <button
             type="button"
             onClick={handleUndo}
-            className="min-h-[44px] px-2 text-[11px] font-semibold text-[#2563EB] hover:underline"
+            className="min-h-[44px] px-2 text-[11px] font-semibold text-[var(--accent)] hover:underline"
           >
             Rückgängig
           </button>
@@ -392,7 +392,7 @@ export function VorgangCard({
 
       {contextMenuOpen ? (
         <div
-          className="absolute inset-x-0 bottom-0 z-10 rounded-b-[16px] border-t border-[#E2E8F0] bg-white p-2 shadow-lg"
+          className="absolute inset-x-0 bottom-0 z-10 rounded-b-lg border-t border-[var(--border)] bg-[var(--bg-overlay)] p-2 shadow-lg"
           onClick={(event) => event.stopPropagation()}
         >
           <div className="grid grid-cols-2 gap-1">
@@ -405,7 +405,7 @@ export function VorgangCard({
             </div>
             <button
               type="button"
-              className="min-h-[44px] rounded-[10px] bg-[#FEF2F2] text-[12px] font-semibold text-[#DC2626]"
+              className="min-h-[44px] rounded-lg bg-[var(--danger-light)] text-[12px] font-semibold text-[var(--danger)]"
               onClick={() => {
                 setContextMenuOpen(false);
                 void handleComplete();
@@ -415,7 +415,7 @@ export function VorgangCard({
             </button>
             <button
               type="button"
-              className="min-h-[44px] rounded-[10px] bg-[#EFF6FF] text-[12px] font-semibold text-[#2563EB]"
+              className="min-h-[44px] rounded-lg bg-[var(--accent-light)] text-[12px] font-semibold text-[var(--text-accent)]"
               onClick={() => {
                 setContextMenuOpen(false);
                 setActivePanel("reply");
@@ -425,7 +425,7 @@ export function VorgangCard({
             </button>
             <button
               type="button"
-              className="min-h-[44px] rounded-[10px] bg-[#FFFBEB] text-[12px] font-semibold text-[#B45309]"
+              className="min-h-[44px] rounded-lg bg-[var(--warning-light)] text-[12px] font-semibold text-[var(--warning)]"
               onClick={() => {
                 setContextMenuOpen(false);
                 snoozeVorgang(vorgang.id, "1d");
@@ -436,7 +436,7 @@ export function VorgangCard({
             </button>
             <button
               type="button"
-              className="min-h-[44px] rounded-[10px] bg-[#F8FAFC] text-[12px] font-semibold text-[#64748B]"
+              className="min-h-[44px] rounded-lg bg-[var(--bg-elevated)] text-[12px] font-semibold text-[var(--text-secondary)]"
               onClick={() => setContextMenuOpen(false)}
             >
               Schliessen

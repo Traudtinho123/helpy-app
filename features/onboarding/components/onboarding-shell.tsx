@@ -26,7 +26,7 @@ export function OnboardingShell({
   const progress = (step / ONBOARDING_TOTAL_STEPS) * 100;
 
   return (
-    <div className="onboarding-page min-h-[100dvh] bg-[#F7F6F2] text-[#1E1B4B]">
+    <div className="onboarding-page min-h-[100dvh] bg-[#F7F6F2] text-[var(--text-primary)]">
       <div className="fixed inset-x-0 top-0 z-50 h-[3px] bg-[#E7E5E4]">
         <div
           className="h-full bg-[#4F46E5] transition-all duration-500 ease-out"
@@ -39,7 +39,7 @@ export function OnboardingShell({
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-[13px] font-medium text-[#64748B] transition-colors hover:bg-white/60 hover:text-[#1E1B4B]"
+            className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-[13px] font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
           >
             <ChevronLeft className="size-4" />
             Zurück
@@ -51,12 +51,12 @@ export function OnboardingShell({
           <button
             type="button"
             onClick={onSkip}
-            className="text-[13px] font-medium text-[#64748B] transition-colors hover:text-[#4F46E5]"
+            className="text-[13px] font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--accent)]"
           >
             Überspringen
           </button>
         ) : (
-          <span className="text-[12px] font-medium text-[#94A3B8]">
+          <span className="text-[12px] font-medium text-[var(--text-muted)]">
             Schritt {step} von {ONBOARDING_TOTAL_STEPS}
           </span>
         )}
@@ -110,7 +110,7 @@ export function OnboardingHeadline({
   return (
     <h1
       className={cn(
-        "onboarding-display text-center text-[2rem] font-semibold leading-[1.15] tracking-[-0.02em] text-[#1E1B4B] sm:text-[3rem]",
+        "onboarding-display text-center text-[2rem] font-semibold leading-[1.15] tracking-[-0.02em] text-[var(--text-primary)] sm:text-[3rem]",
         className
       )}
     >
@@ -121,7 +121,7 @@ export function OnboardingHeadline({
 
 export function OnboardingSubtext({ children }: { children: ReactNode }) {
   return (
-    <p className="mx-auto mt-4 max-w-lg text-center text-[15px] leading-relaxed text-[#64748B] sm:text-[16px]">
+    <p className="mx-auto mt-4 max-w-lg text-center text-[15px] leading-relaxed text-[var(--text-secondary)] sm:text-[16px]">
       {children}
     </p>
   );
@@ -136,7 +136,7 @@ export function OnboardingField({
 }) {
   return (
     <label className="block space-y-2">
-      <span className="text-[13px] font-medium text-[#475569]">{label}</span>
+      <span className="text-[13px] font-medium text-[var(--text-muted)]">{label}</span>
       {children}
     </label>
   );

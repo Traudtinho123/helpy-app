@@ -61,10 +61,10 @@ export function HotLeadsSection({ leads }: HotLeadsSectionProps) {
           <Flame className="size-5" strokeWidth={2} />
         </div>
         <div>
-          <h2 className="text-[1.05rem] font-semibold tracking-[-0.02em] text-[#0F172A]">
+          <h2 className="text-[1.05rem] font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
             Heisse Leads
           </h2>
-          <p className="text-[12px] text-[#64748B]">
+          <p className="text-[12px] text-[var(--text-secondary)]">
             Top-Kontakte nach Lead-Score — direkt in die Kundenakte.
           </p>
         </div>
@@ -75,19 +75,19 @@ export function HotLeadsSection({ leads }: HotLeadsSectionProps) {
           <li key={lead.id}>
             <Link
               href={lead.href}
-              className="group flex items-center justify-between gap-3 rounded-[14px] border border-[#CBD5E1]/40 bg-white/80 px-4 py-3 transition-all hover:border-[#6EE7B7]/60 hover:bg-white"
+              className="group flex items-center justify-between gap-3 rounded-[14px] border border-[var(--border)] bg-[var(--bg-surface)] px-4 py-3 transition-all hover:border-[#6EE7B7]/60 hover:bg-[var(--bg-elevated)]"
             >
               <div className="min-w-0">
-                <p className="truncate text-[13px] font-semibold text-[#0F172A]">
+                <p className="truncate text-[13px] font-semibold text-[var(--text-primary)]">
                   {lead.company}
                 </p>
-                <p className="truncate text-[11px] text-[#64748B]">
+                <p className="truncate text-[11px] text-[var(--text-secondary)]">
                   {lead.contactPerson}
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <LeadScoreBadge score={lead.score} />
-                <ArrowRight className="size-3.5 text-[#94A3B8] transition-transform group-hover:translate-x-0.5 group-hover:text-[#047857]" />
+                <ArrowRight className="size-3.5 text-[var(--text-muted)] transition-transform group-hover:translate-x-0.5 group-hover:text-[#047857]" />
               </div>
             </Link>
           </li>

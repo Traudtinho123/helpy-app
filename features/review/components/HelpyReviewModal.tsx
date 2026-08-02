@@ -39,15 +39,15 @@ function ReviewField({
 }) {
   return (
     <div>
-      <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+      <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
         {label}
       </p>
       {multiline ? (
-        <p className="mt-1.5 whitespace-pre-line rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC]/80 px-3.5 py-3 text-[12px] leading-relaxed text-[#334155]">
+        <p className="mt-1.5 whitespace-pre-line rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3.5 py-3 text-[12px] leading-relaxed text-[var(--text-secondary)]">
           {value}
         </p>
       ) : (
-        <p className="mt-1 text-[13px] font-medium text-[#0F172A]">{value}</p>
+        <p className="mt-1 text-[13px] font-medium text-[var(--text-primary)]">{value}</p>
       )}
     </div>
   );
@@ -78,7 +78,7 @@ function ReviewContentBody({
           />
           {content.fehlendeAngaben && content.fehlendeAngaben.length > 0 && (
             <div>
-              <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+              <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
                 Fehlende Angaben
               </p>
               <ul className="mt-2 space-y-1">
@@ -97,14 +97,14 @@ function ReviewContentBody({
         <div className="space-y-4">
           <ReviewField label="Kunde" value={content.kunde} />
           <div>
-            <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+            <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
               Positionen
             </p>
             <ul className="mt-2 space-y-1.5">
               {content.positionen.map((pos) => (
                 <li
                   key={pos}
-                  className="flex gap-2 text-[12px] text-[#334155]"
+                  className="flex gap-2 text-[12px] text-[var(--text-secondary)]"
                 >
                   <span className="mt-1.5 size-1 shrink-0 rounded-full bg-[#2563EB]" />
                   {pos}
@@ -114,7 +114,7 @@ function ReviewContentBody({
           </div>
           <ReviewField label="Summe" value={content.summe} />
           <div>
-            <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+            <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
               Fehlende Angaben
             </p>
             <ul className="mt-2 space-y-1">
@@ -185,7 +185,7 @@ function ReviewContentBody({
           {content.details.length > 0 && (
             <ul className="space-y-1.5">
               {content.details.map((detail) => (
-                <li key={detail} className="text-[12px] text-[#64748B]">
+                <li key={detail} className="text-[12px] text-[var(--text-secondary)]">
                   · {detail}
                 </li>
               ))}
@@ -249,20 +249,20 @@ export function HelpyReviewModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="helpy-review-title"
-        className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[24px] border border-[#CBD5E1]/50 bg-white shadow-[0_24px_64px_rgba(15,23,42,0.18)] sm:max-h-[94vh] sm:rounded-[24px]"
+        className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[24px] border border-[var(--border)] bg-[var(--bg-surface)] shadow-[0_24px_64px_rgba(15,23,42,0.18)] sm:max-h-[94vh] sm:rounded-[24px]"
       >
-        <div className="flex items-start justify-between border-b border-[#CBD5E1]/40 px-6 py-5">
+        <div className="flex items-start justify-between border-b border-[var(--border)] px-6 py-5">
           <div>
             <div className="flex items-center gap-2">
-              <Sparkles className="size-4 text-[#2563EB]" strokeWidth={2} />
+              <Sparkles className="size-4 text-[var(--accent)]" strokeWidth={2} />
               <p
                 id="helpy-review-title"
-                className="text-[14px] font-semibold tracking-[-0.01em] text-[#0F172A]"
+                className="text-[14px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]"
               >
                 {REVIEW_MODAL_TITLE}
               </p>
             </div>
-            <p className="mt-1 text-[13px] font-medium text-[#64748B]">
+            <p className="mt-1 text-[13px] font-medium text-[var(--text-secondary)]">
               {review.actionTitle}
             </p>
           </div>
@@ -271,7 +271,7 @@ export function HelpyReviewModal({
             variant="outline"
             size="icon-sm"
             onClick={onCancel}
-            className="size-9 rounded-[10px] border-[#CBD5E1]/60"
+            className="size-9 rounded-[10px] border-[var(--border)]"
             aria-label="Schließen"
           >
             <X className="size-4" />
@@ -279,8 +279,8 @@ export function HelpyReviewModal({
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
-          <div className="rounded-[14px] border border-[#BFDBFE]/50 bg-[#EFF6FF]/50 px-4 py-3.5">
-            <p className="text-[12px] leading-relaxed text-[#334155]">
+          <div className="rounded-[14px] border border-[var(--border-accent)]/50 bg-[var(--accent-light)]/50 px-4 py-3.5">
+            <p className="text-[12px] leading-relaxed text-[var(--text-secondary)]">
               {review.helpyHint}
             </p>
           </div>
@@ -317,13 +317,13 @@ export function HelpyReviewModal({
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2 border-t border-[#CBD5E1]/40 bg-[#F8FAFC]/80 px-6 py-4">
+        <div className="flex flex-wrap gap-2 border-t border-[var(--border)] bg-[var(--bg-elevated)] px-6 py-4">
           {showEditButton && (
             <Button
               type="button"
               variant="outline"
               onClick={onEdit}
-              className="h-9 flex-1 rounded-[10px] border-[#CBD5E1]/60 text-[12px] font-medium"
+              className="h-9 flex-1 rounded-[10px] border-[var(--border)] text-[12px] font-medium"
             >
               {HELPY_BUTTON_BEARBEITEN}
             </Button>
@@ -348,7 +348,7 @@ export function HelpyReviewModal({
             variant="outline"
             onClick={onCancel}
             disabled={confirmLoading}
-            className="h-9 flex-1 rounded-[10px] border-[#CBD5E1]/60 text-[12px] font-medium text-[#64748B]"
+            className="h-9 flex-1 rounded-[10px] border-[var(--border)] text-[12px] font-medium text-[var(--text-secondary)]"
           >
             {HELPY_BUTTON_ABBRECHEN}
           </Button>

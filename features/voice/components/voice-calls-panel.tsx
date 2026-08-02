@@ -347,7 +347,7 @@ function CallDetailModal({
             ) : null}
 
             {call.requestedDateTime || hasTermin ? (
-              <div className="mt-3 rounded-[12px] border border-[var(--card-border)] bg-white px-3 py-3">
+              <div className="mt-3 rounded-[12px] border border-[var(--card-border)] bg-[var(--bg-surface)] px-3 py-3">
                 <p className="flex items-start gap-2 text-[13px] text-[var(--text-secondary)]">
                   <CalendarDays className="mt-0.5 size-4 shrink-0 text-[var(--primary)]" />
                   <span>
@@ -384,7 +384,7 @@ function CallDetailModal({
             </button>
 
             {showTranscript ? (
-              <div className="mt-3 rounded-[14px] border border-[var(--card-border)] bg-white px-4 py-4">
+              <div className="mt-3 rounded-[14px] border border-[var(--card-border)] bg-[var(--bg-surface)] px-4 py-4">
                 {turns.length > 0 ? (
                   <ul className="space-y-4">
                     {turns.map((turn, index) => (

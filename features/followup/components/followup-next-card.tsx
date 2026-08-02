@@ -62,11 +62,11 @@ export function FollowupNextCard({ vorgangId }: FollowupNextCardProps) {
         <div className="flex flex-wrap items-center gap-2">
           <Badge
             variant="outline"
-            className="h-5 rounded-full border-[#BFDBFE]/60 bg-[#EFF6FF]/80 px-2 text-[10px] font-semibold text-[#2563EB]"
+            className="h-5 rounded-full border-[var(--border-accent)] bg-[var(--accent-light)] px-2 text-[10px] font-semibold text-[var(--accent)]"
           >
             {getFollowUpStatusLabel(followUp.status)}
           </Badge>
-          <span className="text-[12px] text-[#64748B]">{followUp.customerName}</span>
+          <span className="text-[12px] text-[var(--text-secondary)]">{followUp.customerName}</span>
         </div>
 
         <FieldGrid
@@ -86,17 +86,17 @@ export function FollowupNextCard({ vorgangId }: FollowupNextCardProps) {
           ]}
         />
 
-        <div className="rounded-[12px] border border-[#BFDBFE]/50 bg-[#EFF6FF]/40 px-3.5 py-3">
-          <p className="text-[11px] font-semibold text-[#2563EB]">Nächster Schritt</p>
-          <p className="mt-1.5 text-[12px] leading-relaxed text-[#334155]">
+        <div className="rounded-[12px] border border-[var(--border-accent)]/50 bg-[var(--accent-light)]/40 px-3.5 py-3">
+          <p className="text-[11px] font-semibold text-[var(--accent)]">Nächster Schritt</p>
+          <p className="mt-1.5 text-[12px] leading-relaxed text-[var(--text-secondary)]">
             {followUp.recommendation}
           </p>
         </div>
 
         {followUp.preparedAction && (
           <div className="space-y-2">
-            <p className="text-[11px] font-semibold text-[#64748B]">Empfohlene Aktion</p>
-            <p className="text-[12px] text-[#334155]">{followUp.preparedAction.label}</p>
+            <p className="text-[11px] font-semibold text-[var(--text-secondary)]">Empfohlene Aktion</p>
+            <p className="text-[12px] text-[var(--text-secondary)]">{followUp.preparedAction.label}</p>
             <Button
               type="button"
               onClick={() => handleAction(followUp.preparedAction!.kind)}
@@ -115,7 +115,7 @@ export function FollowupNextCard({ vorgangId }: FollowupNextCardProps) {
 
         <Link
           href={followUp.href}
-          className="inline-flex text-[11px] font-medium text-[#2563EB] hover:underline"
+          className="inline-flex text-[11px] font-medium text-[var(--accent)] hover:underline"
         >
           Vorgang öffnen
         </Link>

@@ -37,15 +37,15 @@ export function InboxSidebar({
   counts,
 }: InboxSidebarProps) {
   return (
-    <aside className="flex h-full w-[220px] shrink-0 flex-col border-r border-[#CBD5E1]/50 bg-white/60 backdrop-blur-xl">
-      <div className="border-b border-[#CBD5E1]/40 px-5 py-5">
+    <aside className="flex h-full w-[220px] shrink-0 flex-col border-r border-[var(--border)] bg-[var(--bg-surface)] backdrop-blur-xl">
+      <div className="border-b border-[var(--border)] px-5 py-5">
         <div className="flex items-center gap-2.5">
           <HelpyAvatar size="sm" pose="typing" />
           <div>
-            <h2 className="text-sm font-semibold tracking-[-0.01em] text-[#0F172A]">
+            <h2 className="text-sm font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
               Posteingang
             </h2>
-            <p className="text-[11px] font-medium text-[#64748B]">
+            <p className="text-[11px] font-medium text-[var(--text-secondary)]">
               HELPY Filter
             </p>
           </div>
@@ -65,14 +65,14 @@ export function InboxSidebar({
               className={cn(
                 "flex w-full items-center gap-3 rounded-[14px] px-3 py-2.5 text-[13px] font-medium transition-all duration-300",
                 isActive
-                  ? "bg-white text-[#2563EB] shadow-[0_2px_12px_rgba(37,99,235,0.12)] ring-1 ring-[#2563EB]/15"
-                  : "text-[#475569] hover:bg-white/70 hover:text-[#0F172A]"
+                  ? "bg-[var(--bg-surface)] text-[var(--accent)] shadow-[0_2px_12px_rgba(37,99,235,0.12)] ring-1 ring-[#2563EB]/15"
+                  : "text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
               )}
             >
               <Icon
                 className={cn(
                   "size-[16px] shrink-0",
-                  isActive ? "text-[#2563EB]" : "text-[#64748B]"
+                  isActive ? "text-[var(--accent)]" : "text-[var(--text-secondary)]"
                 )}
                 strokeWidth={2}
               />
@@ -82,8 +82,8 @@ export function InboxSidebar({
                   className={cn(
                     "flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold tabular-nums",
                     isActive
-                      ? "bg-[#2563EB]/10 text-[#2563EB]"
-                      : "bg-[#F1F5F9] text-[#64748B]"
+                      ? "bg-[#2563EB]/10 text-[var(--accent)]"
+                      : "bg-[var(--bg-elevated)] text-[var(--text-secondary)]"
                   )}
                 >
                   {count}

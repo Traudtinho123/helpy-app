@@ -32,11 +32,11 @@ export function HelpyWorkPanelContent({
       <div className="flex gap-3.5">
         <HelpyAvatar size="sm" pose="wave" />
         <div className="min-w-0 flex-1">
-          <p className="mb-2 text-[11px] font-semibold text-[#64748B]">
+          <p className="mb-2 text-[11px] font-semibold text-[var(--text-secondary)]">
             HELPY · Bereit
           </p>
-          <div className="rounded-[20px] rounded-tl-[8px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/80 px-5 py-4 shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
-            <p className="text-[13px] leading-[1.65] text-[#334155]">
+          <div className="rounded-[20px] rounded-tl-[8px] border border-[var(--border-accent)] bg-[var(--accent-light)] px-5 py-4 shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
+            <p className="text-[13px] leading-[1.65] text-[var(--text-secondary)]">
               {idleMessage ??
                 "Es warten neue E-Mails und Vorgänge auf dich. Starte mit „HELPY, let's work“, dann übernehme ich."}
             </p>
@@ -51,16 +51,16 @@ export function HelpyWorkPanelContent({
       <div className="flex gap-3.5">
         <HelpyAvatar size="sm" pose={isRunning ? "typing" : "idle"} />
         <div className="min-w-0 flex-1 space-y-3">
-          <p className="text-[11px] font-semibold text-[#64748B]">
+          <p className="text-[11px] font-semibold text-[var(--text-secondary)]">
             HELPY · {isRunning ? "Live" : "Übersicht"}
           </p>
 
           {(isRunning || isCompleted) && completedWorkSteps.length > 0 && (
-            <div className="rounded-[16px] border border-[#CBD5E1]/40 bg-white/90 p-4 shadow-sm">
+            <div className="rounded-[16px] border border-[var(--border)] bg-[var(--bg-surface)] p-4 shadow-sm">
               {isRunning && (
                 <div className="mb-3 flex items-center gap-2">
-                  <Loader2 className="size-3.5 animate-spin text-[#2563EB]" />
-                  <span className="text-[12px] font-medium text-[#334155]">
+                  <Loader2 className="size-3.5 animate-spin text-[var(--accent)]" />
+                  <span className="text-[12px] font-medium text-[var(--text-secondary)]">
                     {activeStep?.panelMessage ?? "HELPY aktualisiert…"}
                   </span>
                 </div>
@@ -71,10 +71,10 @@ export function HelpyWorkPanelContent({
                   return (
                     <li
                       key={step.id}
-                      className="helpy-fade-in flex items-center gap-2.5 text-[12px] text-[#334155]"
+                      className="helpy-fade-in flex items-center gap-2.5 text-[12px] text-[var(--text-secondary)]"
                     >
                       {step.status === "active" ? (
-                        <Loader2 className="size-4 shrink-0 animate-spin text-[#2563EB]" />
+                        <Loader2 className="size-4 shrink-0 animate-spin text-[var(--accent)]" />
                       ) : (
                         <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[#ECFDF5]">
                           <Check
@@ -92,8 +92,8 @@ export function HelpyWorkPanelContent({
           )}
 
           {showAutopilot && isRunning && autopilot.panelMessage && (
-            <div className="helpy-fade-in rounded-[20px] rounded-tl-[8px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/80 px-5 py-4 shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
-              <p className="text-[13px] leading-[1.65] text-[#334155]">
+            <div className="helpy-fade-in rounded-[20px] rounded-tl-[8px] border border-[var(--border-accent)] bg-[var(--accent-light)] px-5 py-4 shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
+              <p className="text-[13px] leading-[1.65] text-[var(--text-secondary)]">
                 {autopilot.panelMessage}
               </p>
             </div>
@@ -101,18 +101,18 @@ export function HelpyWorkPanelContent({
 
           {showAutopilot && isCompleted && (
             <div className="helpy-fade-in space-y-3">
-              <div className="rounded-[20px] rounded-tl-[8px] border border-[#BFDBFE]/60 bg-gradient-to-br from-[#EFF6FF] to-white px-5 py-5 shadow-[0_4px_20px_rgba(37,99,235,0.1)]">
-                <p className="text-[13px] leading-[1.65] text-[#334155]">
+              <div className="rounded-[20px] rounded-tl-[8px] border border-[var(--border-accent)] bg-gradient-to-br from-[#EFF6FF] to-white px-5 py-5 shadow-[0_4px_20px_rgba(37,99,235,0.1)]">
+                <p className="text-[13px] leading-[1.65] text-[var(--text-secondary)]">
                   {autopilot.panelMessage}
                 </p>
               </div>
-              <div className="rounded-[16px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/50 px-4 py-3.5">
+              <div className="rounded-[16px] border border-[var(--border-accent)] bg-[var(--accent-light)]/50 px-4 py-3.5">
                 <div className="flex items-start gap-2">
                   <Sparkles
-                    className="mt-0.5 size-4 shrink-0 text-[#2563EB]"
+                    className="mt-0.5 size-4 shrink-0 text-[var(--accent)]"
                     strokeWidth={2}
                   />
-                  <p className="text-[12px] font-semibold leading-relaxed text-[#2563EB]">
+                  <p className="text-[12px] font-semibold leading-relaxed text-[var(--accent)]">
                     {autopilot.panelRecommendation}
                   </p>
                 </div>
@@ -137,10 +137,10 @@ export function HelpyWorkPanelContent({
                 "helpy-fade-in rounded-[16px] border px-4 py-3.5",
                 feedback.type === "erledigt"
                   ? "border-[#A7F3D0]/60 bg-[#ECFDF5]/80"
-                  : "border-[#BFDBFE]/60 bg-[#EFF6FF]/80"
+                  : "border-[var(--border-accent)] bg-[var(--accent-light)]"
               )}
             >
-              <p className="text-[12px] leading-relaxed text-[#334155]">
+              <p className="text-[12px] leading-relaxed text-[var(--text-secondary)]">
                 {feedback.message}
               </p>
             </div>

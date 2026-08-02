@@ -58,8 +58,8 @@ export function Timeline({
 
   if (allEntries.length === 0) {
     return (
-      <div className="rounded-[20px] border border-dashed border-[#CBD5E1]/60 bg-white/60 px-6 py-10 text-center">
-        <p className="text-[13px] font-medium text-[#64748B]">
+      <div className="rounded-[20px] border border-dashed border-[var(--border)] bg-[var(--bg-surface)] px-6 py-10 text-center">
+        <p className="text-[13px] font-medium text-[var(--text-secondary)]">
           Noch keine Timeline-Einträge für diesen Kunden.
         </p>
       </div>
@@ -75,8 +75,8 @@ export function Timeline({
       />
 
       {groups.length === 0 ? (
-        <div className="rounded-[18px] border border-[#CBD5E1]/40 bg-[#F8FAFC]/80 px-5 py-8 text-center">
-          <p className="text-[13px] text-[#64748B]">
+        <div className="rounded-[18px] border border-[var(--border)] bg-[var(--bg-elevated)] px-5 py-8 text-center">
+          <p className="text-[13px] text-[var(--text-secondary)]">
             Keine Einträge für diesen Filter.
           </p>
         </div>
@@ -84,7 +84,7 @@ export function Timeline({
         <div className="space-y-6">
           {groups.map((group) => (
             <section key={group.label}>
-              <p className="mb-3 text-[11px] font-semibold tracking-[0.08em] text-[#94A3B8] uppercase">
+              <p className="mb-3 text-[11px] font-semibold tracking-[0.08em] text-[var(--text-muted)] uppercase">
                 {group.label}
               </p>
               <div>

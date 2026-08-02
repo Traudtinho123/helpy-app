@@ -19,7 +19,7 @@ export function MobileHeader() {
         <HelpyLogo size="sm" variant="dark" showSubtitle={false} />
       </div>
 
-      <h1 className="min-w-0 flex-1 truncate text-center text-[15px] font-semibold tracking-[-0.02em] text-[#0F172A]">
+      <h1 className="min-w-0 flex-1 truncate text-center text-[15px] font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
         {pageTitle}
       </h1>
 

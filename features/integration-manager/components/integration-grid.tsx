@@ -32,7 +32,7 @@ function PlatformSection({
 }) {
   return (
     <section>
-      <h2 className="mb-4 text-[11px] font-semibold tracking-[0.08em] text-[#64748B] uppercase">
+      <h2 className="mb-4 text-[11px] font-semibold tracking-[0.08em] text-[var(--text-secondary)] uppercase">
         {title}
       </h2>
       <div className={PLATFORM_GRID_CLASS}>{children}</div>

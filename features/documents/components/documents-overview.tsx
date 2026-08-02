@@ -49,22 +49,22 @@ export function DocumentsOverview({
 
   return (
     <div className="flex h-full min-w-0 flex-1 flex-col overflow-hidden">
-      <div className="border-b border-[#CBD5E1]/50 bg-white/70 px-6 py-5 lg:px-8">
+      <div className="border-b border-[var(--border)] bg-[var(--bg-surface)] px-6 py-5 lg:px-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-[11px] font-semibold tracking-[0.08em] text-[#64748B] uppercase">
+            <p className="text-[11px] font-semibold tracking-[0.08em] text-[var(--text-secondary)] uppercase">
               Dokumentenübersicht
             </p>
-            <h1 className="mt-1 text-xl font-semibold tracking-[-0.02em] text-[#0F172A]">
+            <h1 className="mt-1 text-xl font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
               Dokumente
             </h1>
-            <p className="mt-1 text-[13px] text-[#64748B]">
+            <p className="mt-1 text-[13px] text-[var(--text-secondary)]">
               Erkannte Anhänge, PDFs, Bilder und von HELPY vorbereitete Dokumente
             </p>
           </div>
           <Button
             variant="outline"
-            className="h-10 gap-2 rounded-[12px] border-[#CBD5E1]/60 bg-white px-4 text-[12px] font-medium shadow-sm"
+            className="h-10 gap-2 rounded-[12px] border-[var(--border)] bg-[var(--bg-surface)] px-4 text-[12px] font-medium shadow-sm"
           >
             <Plus className="size-4" />
             Neues Dokument
@@ -72,12 +72,12 @@ export function DocumentsOverview({
         </div>
 
         <div className="relative mt-5 max-w-md">
-          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#94A3B8]" />
+          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[var(--text-muted)]" />
           <Input
             value={searchQuery}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder="Dokumente durchsuchen…"
-            className="h-10 rounded-[12px] border-[#CBD5E1]/60 bg-white/90 pl-10 text-[13px]"
+            className="h-10 rounded-[12px] border-[var(--border)] bg-[var(--bg-surface)] pl-10 text-[13px]"
           />
         </div>
 
@@ -95,7 +95,7 @@ export function DocumentsOverview({
                   "shrink-0 rounded-full px-3 py-1.5 text-[11px] font-medium transition-all duration-300",
                   isActive
                     ? "bg-[#2563EB] text-white shadow-sm"
-                    : "bg-[#F1F5F9] text-[#64748B] hover:bg-[#EFF6FF] hover:text-[#2563EB]"
+                    : "bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-[var(--accent-light)] hover:text-[var(--accent)]"
                 )}
               >
                 {DOCUMENT_OVERVIEW_FILTER_LABELS[filter]}
@@ -108,16 +108,16 @@ export function DocumentsOverview({
 
       <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6 lg:px-8">
         {showEmptyState ? (
-          <div className="flex flex-col items-center justify-center gap-3 rounded-[24px] border border-dashed border-[#CBD5E1] bg-white/60 py-16 text-center">
-            <FileText className="size-10 text-[#94A3B8]" strokeWidth={1.5} />
-            <p className="text-sm font-medium text-[#64748B]">
+          <div className="flex flex-col items-center justify-center gap-3 rounded-[24px] border border-dashed border-[var(--border)] bg-[var(--bg-surface)] py-16 text-center">
+            <FileText className="size-10 text-[var(--text-muted)]" strokeWidth={1.5} />
+            <p className="text-sm font-medium text-[var(--text-secondary)]">
               Noch keine Dokumente erkannt.
             </p>
           </div>
         ) : documents.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-3 rounded-[24px] border border-dashed border-[#CBD5E1] bg-white/60 py-16 text-center">
-            <FileText className="size-10 text-[#94A3B8]" strokeWidth={1.5} />
-            <p className="text-sm font-medium text-[#64748B]">
+          <div className="flex flex-col items-center justify-center gap-3 rounded-[24px] border border-dashed border-[var(--border)] bg-[var(--bg-surface)] py-16 text-center">
+            <FileText className="size-10 text-[var(--text-muted)]" strokeWidth={1.5} />
+            <p className="text-sm font-medium text-[var(--text-secondary)]">
               Keine Dokumente in diesem Filter.
             </p>
           </div>

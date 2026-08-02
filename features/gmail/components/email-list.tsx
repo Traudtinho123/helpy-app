@@ -51,7 +51,7 @@ const smartBadgeStyles: Record<
   },
   "antwort-empfohlen": {
     label: "Antwort empfohlen",
-    className: "border-[#BFDBFE] bg-[#EFF6FF] text-[#2563EB]",
+    className: "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--accent)]",
   },
   "antwort-fertig": {
     label: "Antwort fertig",
@@ -99,11 +99,11 @@ function EmailListItem({
       type="button"
       onClick={onSelect}
       className={cn(
-        "group flex w-full gap-4 border-b border-[#CBD5E1]/40 px-6 py-4 text-left transition-all duration-300",
+        "group flex w-full gap-4 border-b border-[var(--border)] px-6 py-4 text-left transition-all duration-300",
         isSelected
-          ? "bg-white shadow-[inset_3px_0_0_#2563EB]"
-          : "hover:bg-white/80",
-        email.unread && !isSelected && "bg-[#EFF6FF]/50"
+          ? "bg-[var(--bg-surface)] shadow-[inset_3px_0_0_#2563EB]"
+          : "hover:bg-[var(--bg-surface)]",
+        email.unread && !isSelected && "bg-[var(--accent-light)]/50"
       )}
     >
       <div className="flex shrink-0 flex-col items-center gap-2 pt-1">
@@ -123,16 +123,16 @@ function EmailListItem({
               className={cn(
                 "truncate text-[13px] tracking-[-0.01em]",
                 email.unread
-                  ? "font-semibold text-[#0F172A]"
-                  : "font-medium text-[#334155]"
+                  ? "font-semibold text-[var(--text-primary)]"
+                  : "font-medium text-[var(--text-secondary)]"
               )}
             >
               {email.sender}
             </p>
-            <p className="truncate text-[11px] text-[#64748B]">{email.company}</p>
+            <p className="truncate text-[11px] text-[var(--text-secondary)]">{email.company}</p>
           </div>
           <div className="flex shrink-0 flex-col items-end gap-1.5">
-            <span className="text-[11px] font-medium text-[#64748B]">
+            <span className="text-[11px] font-medium text-[var(--text-secondary)]">
               {email.time}
             </span>
             {email.unread && (
@@ -146,12 +146,12 @@ function EmailListItem({
         <p
           className={cn(
             "mt-1.5 truncate text-[13px] tracking-[-0.01em]",
-            email.unread ? "font-medium text-[#0F172A]" : "text-[#475569]"
+            email.unread ? "font-medium text-[var(--text-primary)]" : "text-[var(--text-muted)]"
           )}
         >
           {email.subject}
         </p>
-        <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-[#64748B]">
+        <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-[var(--text-secondary)]">
           {email.preview}
         </p>
 
@@ -170,7 +170,7 @@ export function EmailList({
   chipCounts,
 }: EmailListProps) {
   return (
-    <div className="flex h-full min-w-0 flex-1 flex-col bg-white/40 backdrop-blur-sm">
+    <div className="flex h-full min-w-0 flex-1 flex-col bg-[var(--bg-surface)] backdrop-blur-sm">
       <InboxActionBar />
       <InboxFilterChips
         activeChip={activeChip}
@@ -178,12 +178,12 @@ export function EmailList({
         counts={chipCounts}
       />
 
-      <div className="flex items-center justify-between border-b border-[#CBD5E1]/50 bg-white/70 px-6 py-3">
+      <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--bg-surface)] px-6 py-3">
         <div>
-          <h2 className="text-sm font-semibold tracking-[-0.01em] text-[#0F172A]">
+          <h2 className="text-sm font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
             E-Mails
           </h2>
-          <p className="text-[11px] font-medium text-[#64748B]">
+          <p className="text-[11px] font-medium text-[var(--text-secondary)]">
             {emails.length} {emails.length === 1 ? "Nachricht" : "Nachrichten"}
           </p>
         </div>
@@ -192,7 +192,7 @@ export function EmailList({
       <div className="flex-1 overflow-y-auto">
         {emails.length === 0 ? (
           <div className="flex h-full items-center justify-center p-8">
-            <p className="text-sm text-[#64748B]">
+            <p className="text-sm text-[var(--text-secondary)]">
               Keine E-Mails in diesem Filter.
             </p>
           </div>

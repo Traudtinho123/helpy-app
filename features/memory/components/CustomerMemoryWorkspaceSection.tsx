@@ -24,31 +24,31 @@ function HistoryList({
 }) {
   return (
     <div>
-      <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+      <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
         {title}
       </p>
       {items.length === 0 ? (
-        <p className="mt-2 text-[12px] text-[#94A3B8]">{emptyLabel}</p>
+        <p className="mt-2 text-[12px] text-[var(--text-muted)]">{emptyLabel}</p>
       ) : (
         <ul className="mt-2 space-y-2">
           {items.map((item) => (
             <li
               key={item.id}
-              className="rounded-[12px] border border-[#E2E8F0]/70 bg-[#F8FAFC]/80 px-3.5 py-3"
+              className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3.5 py-3"
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-[12px] font-semibold text-[#0F172A]">{item.title}</p>
-                <span className="text-[10px] font-medium text-[#94A3B8]">
+                <p className="text-[12px] font-semibold text-[var(--text-primary)]">{item.title}</p>
+                <span className="text-[10px] font-medium text-[var(--text-muted)]">
                   {item.dateLabel}
                 </span>
               </div>
               {item.summary && (
-                <p className="mt-1.5 text-[11px] leading-relaxed text-[#64748B]">
+                <p className="mt-1.5 text-[11px] leading-relaxed text-[var(--text-secondary)]">
                   {item.summary}
                 </p>
               )}
               {item.status && (
-                <p className="mt-1 text-[10px] font-medium text-[#2563EB]">
+                <p className="mt-1 text-[10px] font-medium text-[var(--accent)]">
                   {item.status}
                 </p>
               )}
@@ -96,7 +96,7 @@ export function CustomerMemoryWorkspaceSection({
         )}
 
         <div>
-          <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+          <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
             Kunde
           </p>
           <div className="mt-2">
@@ -153,12 +153,12 @@ export function CustomerMemoryWorkspaceSection({
 
         {contact.notes.length > 0 && (
           <div>
-            <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+            <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
               Notizen
             </p>
             <ul className="mt-2 space-y-1">
               {contact.notes.map((note) => (
-                <li key={note} className="text-[12px] text-[#64748B]">
+                <li key={note} className="text-[12px] text-[var(--text-secondary)]">
                   · {note}
                 </li>
               ))}

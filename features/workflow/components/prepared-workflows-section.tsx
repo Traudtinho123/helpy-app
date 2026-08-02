@@ -34,7 +34,7 @@ function PreparedWorkflowCard({
         "helpy-fade-in rounded-[20px] border px-5 py-5 shadow-[0_2px_8px_rgba(15,23,42,0.04)] backdrop-blur-xl transition-all duration-500",
         isDone
           ? "border-[#A7F3D0]/70 bg-[#ECFDF5]/40"
-          : "border-[#CBD5E1]/50 bg-white/90 hover:border-[#BFDBFE]/60 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)]"
+          : "border-[var(--border)] bg-[var(--bg-surface)] hover:border-[var(--border-accent)] hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)]"
       )}
     >
       <div className="flex items-start gap-4">
@@ -47,13 +47,13 @@ function PreparedWorkflowCard({
         </div>
 
         <div className="min-w-0 flex-1">
-          <h3 className="text-[14px] font-semibold tracking-[-0.02em] text-[#0F172A]">
+          <h3 className="text-[14px] font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
             {result.titel}
           </h3>
-          <p className="mt-1.5 text-[12px] leading-relaxed text-[#64748B]">
+          <p className="mt-1.5 text-[12px] leading-relaxed text-[var(--text-secondary)]">
             {result.zusammenfassung}
           </p>
-          <p className="mt-2 text-[11px] font-medium text-[#2563EB]">
+          <p className="mt-2 text-[11px] font-medium text-[var(--accent)]">
             {result.naechsterSchritt}
           </p>
 
@@ -68,7 +68,7 @@ function PreparedWorkflowCard({
                     variant="outline"
                     disabled={isDone || isProcessing}
                     onClick={() => onAction?.(result.workflowId, action.type)}
-                    className="h-8 rounded-[10px] border-[#CBD5E1]/60 bg-white/80 text-[12px] font-semibold text-[#334155] hover:border-[#2563EB]/30 hover:bg-[#EFF6FF] hover:text-[#2563EB]"
+                    className="h-8 rounded-[10px] border-[var(--border)] bg-[var(--bg-surface)] text-[12px] font-semibold text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:bg-[var(--accent-light)] hover:text-[var(--accent)]"
                   >
                     {isProcessing ? (
                       <Loader2 className="size-3.5 animate-spin" />
@@ -122,28 +122,28 @@ export function PreparedWorkflowsSection({
   return (
     <section>
       <div className="mb-6">
-        <h2 className="text-[1.375rem] font-semibold tracking-[-0.02em] text-[#0F172A]">
+        <h2 className="text-[1.375rem] font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
           Von HELPY vorbereitet
         </h2>
-        <p className="mt-1.5 text-sm text-[#64748B]">
+        <p className="mt-1.5 text-sm text-[var(--text-secondary)]">
           {isActive
             ? "HELPY bereitet Vorarbeit aus neuen Eingängen vor — bitte prüfen und bestätigen."
             : "Von HELPY vorbereitet – bitte prüfen und bestätigen."}
         </p>
       </div>
 
-      <Card className="relative overflow-hidden rounded-[24px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-[0_2px_8px_rgba(15,23,42,0.04),0_12px_40px_rgba(15,23,42,0.06)] ring-1 ring-white backdrop-blur-xl">
+      <Card className="relative overflow-hidden rounded-[24px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-[0_2px_8px_rgba(15,23,42,0.04),0_12px_40px_rgba(15,23,42,0.06)] ring-1 ring-white backdrop-blur-xl">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#2563EB]/8 to-transparent" />
         <CardContent className="relative space-y-4 p-7 lg:p-8">
           {isActive && (
-            <div className="helpy-fade-in flex items-center gap-3 rounded-[16px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/70 px-4 py-3.5">
-              <Loader2 className="size-4 shrink-0 animate-spin text-[#2563EB]" />
+            <div className="helpy-fade-in flex items-center gap-3 rounded-[16px] border border-[var(--border-accent)] bg-[var(--accent-light)] px-4 py-3.5">
+              <Loader2 className="size-4 shrink-0 animate-spin text-[var(--accent)]" />
               <div className="min-w-0">
-                <p className="text-[13px] font-medium text-[#0F172A]">
+                <p className="text-[13px] font-medium text-[var(--text-primary)]">
                   {workflow.panelMessage}
                 </p>
                 {workflow.currentStepLabel && (
-                  <p className="mt-1 text-[11px] text-[#64748B]">
+                  <p className="mt-1 text-[11px] text-[var(--text-secondary)]">
                     {workflow.currentStepLabel}
                   </p>
                 )}
@@ -152,9 +152,9 @@ export function PreparedWorkflowsSection({
           )}
 
           {workflow.phase === "ready" && workflow.panelRecommendation && (
-            <div className="helpy-fade-in flex items-start gap-3 rounded-[16px] border border-[#BFDBFE]/50 bg-[#EFF6FF]/50 px-4 py-3.5">
-              <Sparkles className="mt-0.5 size-4 shrink-0 text-[#2563EB]" />
-              <p className="text-[12px] leading-relaxed text-[#334155]">
+            <div className="helpy-fade-in flex items-start gap-3 rounded-[16px] border border-[var(--border-accent)]/50 bg-[var(--accent-light)]/50 px-4 py-3.5">
+              <Sparkles className="mt-0.5 size-4 shrink-0 text-[var(--accent)]" />
+              <p className="text-[12px] leading-relaxed text-[var(--text-secondary)]">
                 {workflow.panelRecommendation}
               </p>
             </div>
@@ -168,7 +168,7 @@ export function PreparedWorkflowsSection({
 
           {actionFeedback && (
             <div className="helpy-fade-in rounded-[14px] border border-[#A7F3D0]/60 bg-[#ECFDF5]/80 px-4 py-3">
-              <p className="text-[12px] leading-relaxed text-[#334155]">
+              <p className="text-[12px] leading-relaxed text-[var(--text-secondary)]">
                 {actionFeedback}
               </p>
             </div>

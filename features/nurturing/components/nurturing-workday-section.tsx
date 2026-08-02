@@ -150,7 +150,7 @@ export function NurturingWorkdaySection() {
 
   if (loading) {
     return (
-      <section className="flex items-center gap-2 text-[13px] text-[#64748B]">
+      <section className="flex items-center gap-2 text-[13px] text-[var(--text-secondary)]">
         <Loader2 className="size-4 animate-spin" />
         Nurturing wird geprüft…
       </section>
@@ -169,10 +169,10 @@ export function NurturingWorkdaySection() {
             <Mail className="size-5 text-[#B45309]" strokeWidth={2} />
           </div>
           <div>
-            <h2 className="text-[1.2rem] font-semibold tracking-[-0.02em] text-[#0F172A]">
+            <h2 className="text-[1.2rem] font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
               📬 {mails.length} Nurturing-Mails bereit zur Genehmigung
             </h2>
-            <p className="mt-0.5 text-[12px] text-[#64748B]">
+            <p className="mt-0.5 text-[12px] text-[var(--text-secondary)]">
               HELPY hat vorbereitet — Senden nur nach deiner Freigabe
             </p>
           </div>
@@ -205,12 +205,12 @@ export function NurturingWorkdaySection() {
         {mails.map((mail) => (
           <li
             key={mail.id}
-            className="rounded-[20px] border border-[#CBD5E1]/50 bg-white/90 px-5 py-4 shadow-[0_2px_8px_rgba(15,23,42,0.04)]"
+            className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] px-5 py-4 shadow-[0_2px_8px_rgba(15,23,42,0.04)]"
           >
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0 flex-1 space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-[14px] font-semibold text-[#0F172A]">
+                  <p className="text-[14px] font-semibold text-[var(--text-primary)]">
                     {mail.kunde_name ?? mail.to_email}
                   </p>
                   <Badge
@@ -220,11 +220,11 @@ export function NurturingWorkdaySection() {
                     {NURTURING_CAMPAIGN_LABELS[mail.campaign_type]}
                   </Badge>
                 </div>
-                <p className="truncate text-[12px] text-[#64748B]">
+                <p className="truncate text-[12px] text-[var(--text-secondary)]">
                   {mail.subject}
                 </p>
                 {mail.objekt_label ? (
-                  <p className="text-[11px] text-[#94A3B8]">
+                  <p className="text-[11px] text-[var(--text-muted)]">
                     Objekt: {mail.objekt_label}
                   </p>
                 ) : null}
@@ -280,19 +280,19 @@ export function NurturingWorkdaySection() {
 
       {preview ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[20px] bg-white p-6 shadow-xl">
+          <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[20px] bg-[var(--bg-surface)] p-6 shadow-xl">
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
-                <p className="text-[11px] font-medium uppercase tracking-wide text-[#94A3B8]">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--text-muted)]">
                   {preview.mode === "edit" ? "Bearbeiten" : "Vorschau"}
                 </p>
-                <h3 className="text-[16px] font-semibold text-[#0F172A]">
+                <h3 className="text-[16px] font-semibold text-[var(--text-primary)]">
                   {preview.mail.kunde_name}
                 </h3>
               </div>
               <button
                 type="button"
-                className="text-[13px] text-[#64748B]"
+                className="text-[13px] text-[var(--text-secondary)]"
                 onClick={() => setPreview(null)}
               >
                 Schliessen
@@ -333,12 +333,12 @@ export function NurturingWorkdaySection() {
               <div className="space-y-3">
                 <p
                   className={cn(
-                    "rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 text-[13px] font-medium text-[#0F172A]"
+                    "rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3 py-2 text-[13px] font-medium text-[var(--text-primary)]"
                   )}
                 >
                   {preview.mail.subject}
                 </p>
-                <pre className="whitespace-pre-wrap rounded-[12px] border border-[#E2E8F0] bg-white px-3 py-3 text-[13px] leading-relaxed text-[#334155]">
+                <pre className="whitespace-pre-wrap rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-3 text-[13px] leading-relaxed text-[var(--text-secondary)]">
                   {preview.mail.body_text}
                 </pre>
               </div>

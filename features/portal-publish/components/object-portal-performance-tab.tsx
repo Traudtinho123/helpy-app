@@ -25,11 +25,11 @@ function StatCard({
   value: string;
 }) {
   return (
-    <div className="rounded-[14px] border border-[#E2E8F0]/70 bg-[#F8FAFC]/80 px-3.5 py-3">
-      <p className="text-[10px] font-semibold tracking-[0.06em] text-[#64748B] uppercase">
+    <div className="rounded-[14px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3.5 py-3">
+      <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-secondary)] uppercase">
         {label}
       </p>
-      <p className="mt-1.5 text-[18px] font-semibold tracking-[-0.02em] text-[#0F172A]">
+      <p className="mt-1.5 text-[18px] font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
         {value}
       </p>
     </div>
@@ -47,12 +47,12 @@ function PortalStatsBlock({
   const status = listing?.portal_status?.[portal];
 
   return (
-    <section className="rounded-[20px] border border-[#CBD5E1]/40 bg-white/90 p-5">
+    <section className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] p-5">
       <div className="mb-4 flex items-center justify-between gap-2">
-        <h3 className="text-[14px] font-semibold text-[#0F172A]">
+        <h3 className="text-[14px] font-semibold text-[var(--text-primary)]">
           {PORTAL_LABELS[portal]}
         </h3>
-        <span className="text-[11px] text-[#64748B]">
+        <span className="text-[11px] text-[var(--text-secondary)]">
           {status?.status === "live"
             ? "Live"
             : status?.status === "nicht_konfiguriert"
@@ -81,7 +81,7 @@ function PortalStatsBlock({
           />
         </div>
       ) : (
-        <p className="text-[12px] leading-relaxed text-[#64748B]">
+        <p className="text-[12px] leading-relaxed text-[var(--text-secondary)]">
           {stats?.message ??
             "Statistiken sind für dieses Portal noch nicht verfügbar. Sobald die Partner-API Kennzahlen liefert, erscheinen sie hier."}
         </p>
@@ -114,12 +114,12 @@ export function ObjectPortalPerformanceTab({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <BarChart3 className="size-4 text-[#2563EB]" />
-            <h2 className="text-[16px] font-semibold text-[#0F172A]">
+            <BarChart3 className="size-4 text-[var(--accent)]" />
+            <h2 className="text-[16px] font-semibold text-[var(--text-primary)]">
               Portal-Performance
             </h2>
           </div>
-          <p className="mt-1 text-[12px] text-[#64748B]">
+          <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
             Aufrufe, Anfragen und Conversion — sofern die Portal-API Kennzahlen
             bereitstellt.
           </p>

@@ -40,13 +40,13 @@ function HelpyImproveOverlayActive({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0F172A]/20 backdrop-blur-[2px]">
-      <div className="mx-6 w-full max-w-sm rounded-[20px] border border-[#CBD5E1]/40 bg-white p-6 shadow-[0_16px_48px_rgba(15,23,42,0.18)]">
+      <div className="mx-6 w-full max-w-sm rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] p-6 shadow-[0_16px_48px_rgba(15,23,42,0.18)]">
         <div className="flex flex-col items-center gap-4 text-center">
           <HelpyIconBadge size={28} pose="typing" />
-          <p className="text-[14px] font-semibold text-[#0F172A]">
+          <p className="text-[14px] font-semibold text-[var(--text-primary)]">
             HELPY verbessert dein Angebot…
           </p>
-          <Loader2 className="size-6 animate-spin text-[#2563EB]" />
+          <Loader2 className="size-6 animate-spin text-[var(--accent)]" />
           <ul className="w-full space-y-2 text-left">
             {IMPROVE_STEPS.map((step, index) => {
               const isVisible = index <= activeStep;
@@ -55,7 +55,7 @@ function HelpyImproveOverlayActive({
               return (
                 <li
                   key={step}
-                  className="helpy-fade-in flex items-center gap-2.5 text-[12px] text-[#334155]"
+                  className="helpy-fade-in flex items-center gap-2.5 text-[12px] text-[var(--text-secondary)]"
                 >
                   <Check className="size-3.5 text-[#059669]" strokeWidth={2.5} />
                   {step}

@@ -19,33 +19,33 @@ export function HelpyIntegrationPanel({ summary }: HelpyIntegrationPanelProps) {
       subtitle="Plattformen-Assistent"
     >
       <div className="space-y-5 px-1">
-          <p className="text-[13px] leading-relaxed text-[#334155]">
+          <p className="text-[13px] leading-relaxed text-[var(--text-secondary)]">
             Ich überwache deine verbundenen Plattformen und prüfe, ob neue
             Vorgänge vorbereitet werden können.
           </p>
 
-          <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white py-0 shadow-sm">
+          <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
             <CardContent className="space-y-3 p-5">
               <div className="flex items-center justify-between text-[12px]">
-                <span className="flex items-center gap-2 text-[#64748B]">
-                  <Link2 className="size-4 text-[#2563EB]" strokeWidth={2} />
+                <span className="flex items-center gap-2 text-[var(--text-secondary)]">
+                  <Link2 className="size-4 text-[var(--accent)]" strokeWidth={2} />
                   Verbundene Plattformen
                 </span>
-                <span className="font-semibold text-[#0F172A]">
+                <span className="font-semibold text-[var(--text-primary)]">
                   {summary.connectedCount}
                 </span>
               </div>
               <div className="flex items-center justify-between text-[12px]">
-                <span className="flex items-center gap-2 text-[#64748B]">
-                  <Sparkles className="size-4 text-[#2563EB]" strokeWidth={2} />
+                <span className="flex items-center gap-2 text-[var(--text-secondary)]">
+                  <Sparkles className="size-4 text-[var(--accent)]" strokeWidth={2} />
                   Neue Ereignisse heute
                 </span>
-                <span className="font-semibold text-[#2563EB]">
+                <span className="font-semibold text-[var(--accent)]">
                   {summary.eventsTodayTotal}
                 </span>
               </div>
               <div className="flex items-center justify-between text-[12px]">
-                <span className="flex items-center gap-2 text-[#64748B]">
+                <span className="flex items-center gap-2 text-[var(--text-secondary)]">
                   <AlertTriangle
                     className="size-4 text-[#D97706]"
                     strokeWidth={2}
@@ -68,10 +68,10 @@ export function HelpyIntegrationPanel({ summary }: HelpyIntegrationPanelProps) {
                     Nächste empfohlene Verbindung
                   </p>
                 </div>
-                <p className="mt-3 text-[13px] font-medium text-[#0F172A]">
+                <p className="mt-3 text-[13px] font-medium text-[var(--text-primary)]">
                   {next.emoji} {next.name}
                 </p>
-                <p className="mt-1.5 text-[12px] leading-relaxed text-[#64748B]">
+                <p className="mt-1.5 text-[12px] leading-relaxed text-[var(--text-secondary)]">
                   {next.description}
                 </p>
               </CardContent>

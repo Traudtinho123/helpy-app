@@ -59,20 +59,20 @@ export function PwaInstallBanner() {
 
   return (
     <div
-        className="helpy-layout-pwa-banner fixed inset-x-3 z-[80] rounded-[16px] border border-[#C7D2FE]/60 bg-white p-4 shadow-lg bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] lg:hidden"
+        className="helpy-layout-pwa-banner fixed inset-x-3 z-[80] rounded-[16px] border border-[#C7D2FE]/60 bg-[var(--bg-surface)] p-4 shadow-lg bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] lg:hidden"
     >
       <button
         type="button"
         onClick={dismiss}
-        className="absolute right-2 top-2 flex size-11 items-center justify-center text-[#94A3B8]"
+        className="absolute right-2 top-2 flex size-11 items-center justify-center text-[var(--text-muted)]"
         aria-label="Schliessen"
       >
         <X className="size-4" />
       </button>
-      <p className="pr-8 text-[14px] font-semibold text-[#0F172A]">
+      <p className="pr-8 text-[14px] font-semibold text-[var(--text-primary)]">
         📱 HELPY als App installieren
       </p>
-      <p className="mt-1 text-[12px] text-[#64748B]">
+      <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
         Schneller Zugriff vom Homescreen — wie eine native App.
       </p>
       <div className="mt-3 flex gap-2">
@@ -88,7 +88,7 @@ export function PwaInstallBanner() {
         <button
           type="button"
           onClick={dismiss}
-          className="min-h-[44px] flex-1 rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC] px-4 text-[13px] font-medium text-[#64748B]"
+          className="min-h-[44px] flex-1 rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-4 text-[13px] font-medium text-[var(--text-secondary)]"
         >
           Später
         </button>

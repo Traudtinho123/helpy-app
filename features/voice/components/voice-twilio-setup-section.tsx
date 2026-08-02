@@ -73,7 +73,7 @@ export function VoiceTwilioSetupSection({
 
   if (loading) {
     return (
-      <div className={cn("flex items-center gap-2 text-[12px] text-[#64748B]", className)}>
+      <div className={cn("flex items-center gap-2 text-[12px] text-[var(--text-secondary)]", className)}>
         <Loader2 className="size-4 animate-spin" />
         Twilio-Setup laden…
       </div>

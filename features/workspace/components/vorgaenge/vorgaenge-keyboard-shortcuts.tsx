@@ -125,7 +125,7 @@ export function ShortcutsHelpModal({ open, onClose }: ShortcutsHelpModalProps) {
     <>
       <SlideUpSheet open={open} onClose={onClose} title="Tastaturkürzel" className="lg:hidden">
         <div className="p-4 pb-8">
-          <p className="mb-4 text-[12px] text-[#64748B]">
+          <p className="mb-4 text-[12px] text-[var(--text-secondary)]">
             Schnellaktionen auf der Vorgänge-Seite (Desktop)
           </p>
           <ul className="space-y-2">
@@ -134,8 +134,8 @@ export function ShortcutsHelpModal({ open, onClose }: ShortcutsHelpModalProps) {
                 key={shortcut.key}
                 className="flex items-center justify-between gap-4 text-[13px]"
               >
-                <span className="text-[#475569]">{shortcut.label}</span>
-                <kbd className="rounded-[8px] border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-0.5 font-mono text-[11px] font-semibold text-[#0F172A]">
+                <span className="text-[var(--text-muted)]">{shortcut.label}</span>
+                <kbd className="rounded-[8px] border border-[var(--border)] bg-[var(--bg-elevated)] px-2 py-0.5 font-mono text-[11px] font-semibold text-[var(--text-primary)]">
                   {shortcut.key}
                 </kbd>
               </li>
@@ -150,13 +150,13 @@ export function ShortcutsHelpModal({ open, onClose }: ShortcutsHelpModalProps) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-[20px] border border-[#E2E8F0] bg-white p-6 shadow-xl"
+        className="w-full max-w-md rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] p-6 shadow-xl"
         onClick={(event) => event.stopPropagation()}
       >
-        <h2 className="text-[16px] font-semibold text-[#0F172A]">
+        <h2 className="text-[16px] font-semibold text-[var(--text-primary)]">
           Tastaturkürzel
         </h2>
-        <p className="mt-1 text-[12px] text-[#64748B]">
+        <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
           Schnellaktionen auf der Vorgänge-Seite (Desktop)
         </p>
         <ul className="mt-4 space-y-2">
@@ -165,8 +165,8 @@ export function ShortcutsHelpModal({ open, onClose }: ShortcutsHelpModalProps) {
               key={shortcut.key}
               className="flex items-center justify-between gap-4 text-[13px]"
             >
-              <span className="text-[#475569]">{shortcut.label}</span>
-              <kbd className="rounded-[8px] border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-0.5 font-mono text-[11px] font-semibold text-[#0F172A]">
+              <span className="text-[var(--text-muted)]">{shortcut.label}</span>
+              <kbd className="rounded-[8px] border border-[var(--border)] bg-[var(--bg-elevated)] px-2 py-0.5 font-mono text-[11px] font-semibold text-[var(--text-primary)]">
                 {shortcut.key}
               </kbd>
             </li>

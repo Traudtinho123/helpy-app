@@ -22,7 +22,7 @@ type HelpyBrainAnalysisViewProps = {
 const prioritaetStyles = {
   hoch: "border-[#FECACA] bg-[#FEF2F2] text-[#DC2626]",
   mittel: "border-[#FDE68A] bg-[#FFFBEB] text-[#B45309]",
-  niedrig: "border-[#CBD5E1] bg-[#F8FAFC] text-[#64748B]",
+  niedrig: "border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-secondary)]",
 } as const;
 
 export function HelpyBrainAnalysisView({ result }: HelpyBrainAnalysisViewProps) {
@@ -32,24 +32,24 @@ export function HelpyBrainAnalysisView({ result }: HelpyBrainAnalysisViewProps) 
         <div className="mb-2 flex items-center gap-2">
           <Badge
             variant="outline"
-            className="h-5 rounded-full border-[#BFDBFE] bg-[#EFF6FF] px-2 text-[10px] font-semibold text-[#2563EB]"
+            className="h-5 rounded-full border-[var(--border-accent)] bg-[var(--accent-light)] px-2 text-[10px] font-semibold text-[var(--accent)]"
           >
             HELPY Analyse
           </Badge>
         </div>
-        <h3 className="text-[15px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+        <h3 className="text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
           Hallo 👋
         </h3>
-        <p className="mt-2 text-[13px] leading-[1.65] text-[#334155]">
+        <p className="mt-2 text-[13px] leading-[1.65] text-[var(--text-secondary)]">
           {result.helpyNachricht}
         </p>
       </div>
 
-      <div className="helpy-fade-in rounded-[16px] border border-[#CBD5E1]/40 bg-white/90 p-4 shadow-sm">
+      <div className="helpy-fade-in rounded-[16px] border border-[var(--border)] bg-[var(--bg-surface)] p-4 shadow-sm">
         <div className="mb-2 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <HelpyIconBadge size={16} pose="typing" />
-            <p className="text-[12px] font-semibold text-[#0F172A]">
+            <p className="text-[12px] font-semibold text-[var(--text-primary)]">
               Zusammenfassung
             </p>
           </div>
@@ -63,7 +63,7 @@ export function HelpyBrainAnalysisView({ result }: HelpyBrainAnalysisViewProps) 
             Priorität: {result.prioritaet}
           </Badge>
         </div>
-        <p className="text-[12px] leading-[1.65] text-[#334155]">
+        <p className="text-[12px] leading-[1.65] text-[var(--text-secondary)]">
           {result.zusammenfassung}
         </p>
       </div>
@@ -75,7 +75,7 @@ export function HelpyBrainAnalysisView({ result }: HelpyBrainAnalysisViewProps) 
             Empfohlene Aktion
           </p>
         </div>
-        <p className="mt-2.5 text-[12px] leading-[1.65] text-[#334155]">
+        <p className="mt-2.5 text-[12px] leading-[1.65] text-[var(--text-secondary)]">
           {result.empfohleneAktion}
         </p>
       </div>
@@ -83,8 +83,8 @@ export function HelpyBrainAnalysisView({ result }: HelpyBrainAnalysisViewProps) 
       {result.erkannteAufgaben.length > 0 && (
         <div className="helpy-fade-in space-y-3">
           <div className="flex items-center gap-2">
-            <ListChecks className="size-4 text-[#2563EB]" strokeWidth={2} />
-            <p className="text-[12px] font-semibold text-[#0F172A]">
+            <ListChecks className="size-4 text-[var(--accent)]" strokeWidth={2} />
+            <p className="text-[12px] font-semibold text-[var(--text-primary)]">
               Erkannte Aufgaben
             </p>
           </div>
@@ -92,13 +92,13 @@ export function HelpyBrainAnalysisView({ result }: HelpyBrainAnalysisViewProps) 
             {result.erkannteAufgaben.map((aufgabe) => (
               <li
                 key={aufgabe.beschreibung}
-                className="flex items-center gap-3 rounded-[12px] border border-[#CBD5E1]/40 bg-white px-3.5 py-2.5 shadow-sm"
+                className="flex items-center gap-3 rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] px-3.5 py-2.5 shadow-sm"
               >
                 <Square
-                  className="size-4 shrink-0 text-[#94A3B8]"
+                  className="size-4 shrink-0 text-[var(--text-muted)]"
                   strokeWidth={2}
                 />
-                <span className="flex-1 text-[12px] font-medium text-[#334155]">
+                <span className="flex-1 text-[12px] font-medium text-[var(--text-secondary)]">
                   {aufgabe.beschreibung}
                 </span>
                 <Badge
@@ -120,7 +120,7 @@ export function HelpyBrainAnalysisView({ result }: HelpyBrainAnalysisViewProps) 
         <div className="helpy-fade-in space-y-3">
           <div className="flex items-center gap-2">
             <Calendar className="size-4 text-[#10B981]" strokeWidth={2} />
-            <p className="text-[12px] font-semibold text-[#0F172A]">
+            <p className="text-[12px] font-semibold text-[var(--text-primary)]">
               Erkannte Termine & Fristen
             </p>
           </div>
@@ -134,7 +134,7 @@ export function HelpyBrainAnalysisView({ result }: HelpyBrainAnalysisViewProps) 
                   {termin.titel}
                 </p>
                 {(termin.frist || termin.datum) && (
-                  <p className="mt-0.5 text-[11px] text-[#64748B]">
+                  <p className="mt-0.5 text-[11px] text-[var(--text-secondary)]">
                     {termin.frist ?? `${termin.datum}${termin.uhrzeit ? ` · ${termin.uhrzeit}` : ""}`}
                   </p>
                 )}
@@ -147,19 +147,19 @@ export function HelpyBrainAnalysisView({ result }: HelpyBrainAnalysisViewProps) 
       {result.erkannteAngebote.length > 0 && (
         <div className="helpy-fade-in space-y-3">
           <div className="flex items-center gap-2">
-            <FileText className="size-4 text-[#2563EB]" strokeWidth={2} />
-            <p className="text-[12px] font-semibold text-[#0F172A]">
+            <FileText className="size-4 text-[var(--accent)]" strokeWidth={2} />
+            <p className="text-[12px] font-semibold text-[var(--text-primary)]">
               Erkannte Angebote
             </p>
           </div>
           {result.erkannteAngebote.map((angebot) => (
             <Card
               key={angebot.titel}
-              className="rounded-[16px] border-[#CBD5E1]/40 bg-white py-0 shadow-sm"
+              className="rounded-[16px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm"
             >
               <CardContent className="space-y-3 p-4">
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-[12px] font-semibold text-[#0F172A]">
+                  <p className="text-[12px] font-semibold text-[var(--text-primary)]">
                     {angebot.titel}
                   </p>
                   <Badge
@@ -171,15 +171,15 @@ export function HelpyBrainAnalysisView({ result }: HelpyBrainAnalysisViewProps) 
                 </div>
                 {angebot.menge !== undefined && (
                   <div className="flex justify-between gap-2 text-[12px]">
-                    <span className="text-[#64748B]">Menge</span>
-                    <span className="font-semibold text-[#0F172A]">
+                    <span className="text-[var(--text-secondary)]">Menge</span>
+                    <span className="font-semibold text-[var(--text-primary)]">
                       {angebot.menge} Arbeitsplätze
                     </span>
                   </div>
                 )}
                 {angebot.deadline && (
                   <div className="flex justify-between gap-2 text-[12px]">
-                    <span className="text-[#64748B]">Deadline</span>
+                    <span className="text-[var(--text-secondary)]">Deadline</span>
                     <Badge
                       variant="outline"
                       className="h-5 border-[#FECACA] bg-[#FEF2F2] text-[10px] font-semibold text-[#DC2626]"
@@ -194,7 +194,7 @@ export function HelpyBrainAnalysisView({ result }: HelpyBrainAnalysisViewProps) 
                       <Badge
                         key={pos}
                         variant="outline"
-                        className="h-5 rounded-full border-[#BFDBFE] bg-[#EFF6FF] px-2 text-[10px] font-medium text-[#2563EB]"
+                        className="h-5 rounded-full border-[var(--border-accent)] bg-[var(--accent-light)] px-2 text-[10px] font-medium text-[var(--accent)]"
                       >
                         {pos}
                       </Badge>
@@ -208,18 +208,18 @@ export function HelpyBrainAnalysisView({ result }: HelpyBrainAnalysisViewProps) 
       )}
 
       <div className="helpy-fade-in space-y-3">
-        <p className="text-[12px] font-semibold text-[#0F172A]">
+        <p className="text-[12px] font-semibold text-[var(--text-primary)]">
           Antwortentwurf
         </p>
-        <div className="rounded-[16px] border border-[#CBD5E1]/50 bg-gradient-to-br from-[#F8FAFC] to-white p-4 shadow-[0_2px_12px_rgba(15,23,42,0.04)]">
-          <div className="mb-3 flex items-center gap-2 border-b border-[#CBD5E1]/30 pb-3">
+        <div className="rounded-[16px] border border-[var(--border)] bg-gradient-to-br from-[#F8FAFC] to-white p-4 shadow-[0_2px_12px_rgba(15,23,42,0.04)]">
+          <div className="mb-3 flex items-center gap-2 border-b border-[var(--border)] pb-3">
             <HelpyAvatar size="sm" />
             <div>
-              <p className="text-[11px] font-semibold text-[#0F172A]">HELPY</p>
-              <p className="text-[10px] text-[#94A3B8]">Entwurf</p>
+              <p className="text-[11px] font-semibold text-[var(--text-primary)]">HELPY</p>
+              <p className="text-[10px] text-[var(--text-muted)]">Entwurf</p>
             </div>
           </div>
-          <p className="whitespace-pre-line text-[12px] leading-[1.7] text-[#334155]">
+          <p className="whitespace-pre-line text-[12px] leading-[1.7] text-[var(--text-secondary)]">
             {result.antwortEntwurf}
           </p>
         </div>
@@ -230,16 +230,16 @@ export function HelpyBrainAnalysisView({ result }: HelpyBrainAnalysisViewProps) 
 
 export function HelpyBrainLoadingView() {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4 rounded-[20px] border border-[#CBD5E1]/40 bg-[#F8FAFC]/80 p-8 text-center">
+    <div className="flex flex-1 flex-col items-center justify-center gap-4 rounded-[20px] border border-[var(--border)] bg-[var(--bg-elevated)] p-8 text-center">
       <div className="relative">
         <HelpyAvatar size="md" />
-        <Sparkles className="absolute -top-1 -right-1 size-4 animate-pulse text-[#2563EB]" />
+        <Sparkles className="absolute -top-1 -right-1 size-4 animate-pulse text-[var(--accent)]" />
       </div>
       <div>
-        <p className="text-sm font-semibold text-[#0F172A]">
+        <p className="text-sm font-semibold text-[var(--text-primary)]">
           Ich analysiere die E-Mail…
         </p>
-        <p className="mt-1.5 text-[12px] text-[#64748B]">
+        <p className="mt-1.5 text-[12px] text-[var(--text-secondary)]">
           Ich bereite Aufgaben, Termine und Angebote für dich vor
         </p>
       </div>

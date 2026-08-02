@@ -75,31 +75,31 @@ export function VoicePhoneAppointmentCard({
   return (
     <Panel className={cn("space-y-4", className)}>
       <div className="flex items-start gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#2563EB]">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--accent-light)] text-[var(--accent)]">
           <CalendarDays className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <h2 className="text-[15px] font-semibold text-[#0F172A]">
+          <h2 className="text-[15px] font-semibold text-[var(--text-primary)]">
             Terminvorschlag aus Telefonat
           </h2>
-          <p className="mt-0.5 text-[13px] text-[#64748B]">
+          <p className="mt-0.5 text-[13px] text-[var(--text-secondary)]">
             HELPY hat einen {kindLabel.toLowerCase()}-Termin aus dem Gespräch
             erkannt.
           </p>
         </div>
       </div>
 
-      <dl className="grid gap-2 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3 text-[13px]">
+      <dl className="grid gap-2 rounded-lg border border-[var(--border)] bg-[var(--bg-elevated)] p-3 text-[13px]">
         {proposal.objekt && (
           <div className="flex gap-2">
-            <dt className="shrink-0 text-[#64748B]">Objekt</dt>
-            <dd className="font-medium text-[#0F172A]">{proposal.objekt}</dd>
+            <dt className="shrink-0 text-[var(--text-secondary)]">Objekt</dt>
+            <dd className="font-medium text-[var(--text-primary)]">{proposal.objekt}</dd>
           </div>
         )}
         {hasDateTime && (
           <div className="flex gap-2">
-            <dt className="shrink-0 text-[#64748B]">Termin</dt>
-            <dd className="font-medium text-[#0F172A]">
+            <dt className="shrink-0 text-[var(--text-secondary)]">Termin</dt>
+            <dd className="font-medium text-[var(--text-primary)]">
               {formatGermanDate(proposal.terminDatum!)} · {proposal.terminUhrzeit}{" "}
               Uhr ({proposal.terminDauerMinuten} Min.)
             </dd>
@@ -107,22 +107,22 @@ export function VoicePhoneAppointmentCard({
         )}
         {proposal.anruferName && (
           <div className="flex gap-2">
-            <dt className="shrink-0 text-[#64748B]">Anrufer</dt>
-            <dd className="font-medium text-[#0F172A]">{proposal.anruferName}</dd>
+            <dt className="shrink-0 text-[var(--text-secondary)]">Anrufer</dt>
+            <dd className="font-medium text-[var(--text-primary)]">{proposal.anruferName}</dd>
           </div>
         )}
         {proposal.anruferNummerMasked && (
           <div className="flex gap-2">
-            <dt className="shrink-0 text-[#64748B]">Telefon</dt>
-            <dd className="font-medium text-[#0F172A]">
+            <dt className="shrink-0 text-[var(--text-secondary)]">Telefon</dt>
+            <dd className="font-medium text-[var(--text-primary)]">
               {proposal.anruferNummerMasked}
             </dd>
           </div>
         )}
         {proposal.notizen && (
           <div className="flex gap-2">
-            <dt className="shrink-0 text-[#64748B]">Notizen</dt>
-            <dd className="text-[#0F172A]">{proposal.notizen}</dd>
+            <dt className="shrink-0 text-[var(--text-secondary)]">Notizen</dt>
+            <dd className="text-[var(--text-primary)]">{proposal.notizen}</dd>
           </div>
         )}
       </dl>
@@ -149,7 +149,7 @@ export function VoicePhoneAppointmentCard({
               <>✓ Termin im Kalender eintragen</>
             )}
           </Button>
-          <p className="text-[12px] text-[#64748B]">
+          <p className="text-[12px] text-[var(--text-secondary)]">
             Termin wird im verbundenen Apple Kalender vorbereitet.
           </p>
         </div>

@@ -83,16 +83,16 @@ export function SuchprofilConfirmationBanner({
   }
 
   return (
-    <div className="rounded-[16px] border border-[#BFDBFE]/60 bg-gradient-to-r from-[#EFF6FF]/90 to-white p-4 shadow-[0_2px_12px_rgba(37,99,235,0.08)]">
+    <div className="rounded-[16px] border border-[var(--border-accent)] bg-gradient-to-r from-[#EFF6FF]/90 to-white p-4 shadow-[0_2px_12px_rgba(37,99,235,0.08)]">
       <div className="flex items-start gap-3">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-[12px] bg-[#2563EB]/10 text-[#2563EB]">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-[12px] bg-[#2563EB]/10 text-[var(--accent)]">
           <Sparkles className="size-4" strokeWidth={2} />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[13px] font-semibold text-[#0F172A]">
+          <p className="text-[13px] font-semibold text-[var(--text-primary)]">
             HELPY hat ein Suchprofil erkannt
           </p>
-          <p className="mt-1 text-[12px] leading-relaxed text-[#64748B]">
+          <p className="mt-1 text-[12px] leading-relaxed text-[var(--text-secondary)]">
             {summaryParts.length
               ? summaryParts.join(" · ")
               : extracted.sourceText.slice(0, 120)}
@@ -113,7 +113,7 @@ export function SuchprofilConfirmationBanner({
                 handleDismiss();
                 onEdit?.();
               }}
-              className="h-8 rounded-[10px] border-[#CBD5E1]/60 px-3 text-[11px]"
+              className="h-8 rounded-[10px] border-[var(--border)] px-3 text-[11px]"
             >
               Bearbeiten
             </Button>
@@ -121,7 +121,7 @@ export function SuchprofilConfirmationBanner({
               type="button"
               variant="ghost"
               onClick={handleDismiss}
-              className="h-8 px-3 text-[11px] text-[#64748B]"
+              className="h-8 px-3 text-[11px] text-[var(--text-secondary)]"
             >
               Verwerfen
             </Button>

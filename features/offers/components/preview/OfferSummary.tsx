@@ -20,7 +20,7 @@ export function OfferSummary({ offer, document, profile }: OfferSummaryProps) {
 
   return (
     <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
-      <div className="max-w-md space-y-4 text-[12px] leading-relaxed text-[#475569]">
+      <div className="max-w-md space-y-4 text-[12px] leading-relaxed text-[var(--text-muted)]">
         <div>
           <p
             className="text-[10px] font-semibold tracking-[0.08em] uppercase"
@@ -50,14 +50,14 @@ export function OfferSummary({ offer, document, profile }: OfferSummaryProps) {
       >
         <div className="space-y-2.5">
           <div className="flex justify-between text-[12px]">
-            <span className="text-[#64748B]">Zwischensumme</span>
-            <span className="font-medium text-[#0F172A]">
+            <span className="text-[var(--text-secondary)]">Zwischensumme</span>
+            <span className="font-medium text-[var(--text-primary)]">
               {formatCurrency(subtotal)}
             </span>
           </div>
           <div className="flex justify-between text-[12px]">
-            <span className="text-[#64748B]">MwSt. ({offer.vatRate} %)</span>
-            <span className="font-medium text-[#0F172A]">
+            <span className="text-[var(--text-secondary)]">MwSt. ({offer.vatRate} %)</span>
+            <span className="font-medium text-[var(--text-primary)]">
               {formatCurrency(vat)}
             </span>
           </div>
@@ -65,7 +65,7 @@ export function OfferSummary({ offer, document, profile }: OfferSummaryProps) {
             className="flex justify-between border-t pt-3"
             style={{ borderColor: `${profile.primaryColor}20` }}
           >
-            <span className="text-[14px] font-semibold text-[#0F172A]">
+            <span className="text-[14px] font-semibold text-[var(--text-primary)]">
               Gesamtsumme
             </span>
             <span
@@ -76,7 +76,7 @@ export function OfferSummary({ offer, document, profile }: OfferSummaryProps) {
             </span>
           </div>
         </div>
-        <p className="mt-3 text-[10px] text-[#94A3B8]">
+        <p className="mt-3 text-[10px] text-[var(--text-muted)]">
           Alle Preise in EUR, zzgl. gesetzlicher MwSt.
         </p>
       </div>

@@ -52,7 +52,7 @@ const typConfig: Record<
   formularanfrage: {
     label: "Formularanfrage",
     icon: UserPlus,
-    badge: "border-[#BFDBFE] bg-[#EFF6FF] text-[#2563EB]",
+    badge: "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--accent)]",
   },
 };
 
@@ -64,7 +64,7 @@ const statusLabels: Record<IntakeVorgang["status"], string> = {
 };
 
 const statusStyles: Record<IntakeVorgang["status"], string> = {
-  vorbereitet: "border-[#BFDBFE] bg-[#EFF6FF] text-[#2563EB]",
+  vorbereitet: "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--accent)]",
   in_bearbeitung: "border-[#FDE68A] bg-[#FFFBEB] text-[#B45309]",
   erledigt: "border-[#A7F3D0] bg-[#ECFDF5] text-[#047857]",
   geoeffnet: "border-[#C4B5FD] bg-[#F5F3FF] text-[#7C3AED]",
@@ -88,7 +88,7 @@ function VorgangActions({
             variant="outline"
             disabled={disabled}
             onClick={() => onAction(vorgang.id, "als_erledigt")}
-            className={cn(btnClass, "border-[#CBD5E1]/60 hover:bg-[#ECFDF5]")}
+            className={cn(btnClass, "border-[var(--border)] hover:bg-[#ECFDF5]")}
           >
             Als erledigt markieren
           </Button>
@@ -132,7 +132,7 @@ function VorgangActions({
             variant="outline"
             disabled={disabled}
             onClick={() => onAction(vorgang.id, "angebot_vorbereiten")}
-            className={cn(btnClass, "border-[#CBD5E1]/60 hover:bg-[#FFFBEB]")}
+            className={cn(btnClass, "border-[var(--border)] hover:bg-[#FFFBEB]")}
           >
             Angebot vorbereiten
           </Button>
@@ -154,7 +154,7 @@ function VorgangActions({
             variant="outline"
             disabled={disabled || isOpening}
             onClick={() => onAction(vorgang.id, "kalender_oeffnen")}
-            className={cn(btnClass, "border-[#CBD5E1]/60 hover:bg-[#ECFDF5]")}
+            className={cn(btnClass, "border-[var(--border)] hover:bg-[#ECFDF5]")}
           >
             {isOpening ? (
               <Loader2 className="size-3.5 animate-spin" />
@@ -187,7 +187,7 @@ function VorgangActions({
             variant="outline"
             disabled={disabled}
             onClick={() => onAction(vorgang.id, "als_erledigt")}
-            className={cn(btnClass, "border-[#CBD5E1]/60 hover:bg-[#ECFDF5]")}
+            className={cn(btnClass, "border-[var(--border)] hover:bg-[#ECFDF5]")}
           >
             Als erledigt markieren
           </Button>
@@ -216,7 +216,7 @@ function VorgangActions({
             variant="outline"
             disabled={disabled}
             onClick={() => onAction(vorgang.id, "kunde_anlegen")}
-            className={cn(btnClass, "border-[#CBD5E1]/60 hover:bg-[#EFF6FF]")}
+            className={cn(btnClass, "border-[var(--border)] hover:bg-[var(--accent-light)]")}
           >
             <UserPlus className="size-3.5" />
             Kunde anlegen
@@ -240,8 +240,8 @@ export function IntakeVorgangCard({
       className={cn(
         "helpy-fade-in rounded-[20px] border py-0 shadow-[0_2px_8px_rgba(15,23,42,0.04)] backdrop-blur-xl transition-all duration-500",
         isDone
-          ? "border-[#CBD5E1]/30 bg-[#F8FAFC]/60 opacity-75"
-          : "border-[#CBD5E1]/50 bg-white/90 ring-1 ring-white hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)]"
+          ? "border-[var(--border)] bg-[var(--bg-elevated)] opacity-75"
+          : "border-[var(--border)] bg-[var(--bg-surface)] ring-1 ring-white hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)]"
       )}
     >
       <CardContent className="p-5">
@@ -267,12 +267,12 @@ export function IntakeVorgangCard({
           </Badge>
         </div>
 
-        <p className="text-[14px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+        <p className="text-[14px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
           {vorgang.kunde}
         </p>
-        <p className="mt-0.5 text-[12px] text-[#64748B]">{vorgang.absender}</p>
+        <p className="mt-0.5 text-[12px] text-[var(--text-secondary)]">{vorgang.absender}</p>
 
-        <p className="mt-3 text-[13px] leading-relaxed text-[#475569]">
+        <p className="mt-3 text-[13px] leading-relaxed text-[var(--text-muted)]">
           {vorgang.zusammenfassung}
         </p>
 
@@ -280,14 +280,14 @@ export function IntakeVorgangCard({
           className={cn(
             "mt-4 rounded-[12px] border px-3.5 py-3",
             isDone
-              ? "border-[#CBD5E1]/30 bg-[#F8FAFC]/50"
-              : "border-[#BFDBFE]/50 bg-[#EFF6FF]/40"
+              ? "border-[var(--border)] bg-[var(--bg-elevated)]/50"
+              : "border-[var(--border-accent)]/50 bg-[var(--accent-light)]/40"
           )}
         >
-          <p className="text-[11px] font-semibold text-[#2563EB]">
+          <p className="text-[11px] font-semibold text-[var(--accent)]">
             HELPY Empfehlung
           </p>
-          <p className="mt-1 text-[12px] leading-relaxed text-[#334155]">
+          <p className="mt-1 text-[12px] leading-relaxed text-[var(--text-secondary)]">
             {vorgang.helpyEmpfehlung}
           </p>
         </div>

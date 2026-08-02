@@ -86,13 +86,13 @@ export function HelpyViewingConfirmedCard({
     return (
       <div
         className={cn(
-          "rounded-[18px] border border-[#CBD5E1]/45 bg-gradient-to-br from-white/95 to-[#F8FAFC]/90 p-4 shadow-sm backdrop-blur-sm",
+          "rounded-[18px] border border-[var(--border)]/45 bg-gradient-to-br from-white/95 to-[#F8FAFC]/90 p-4 shadow-sm backdrop-blur-sm",
           className
         )}
       >
         <div className="mb-3 flex items-center gap-2">
           <CalendarCheck className="size-4 text-[#047857]" strokeWidth={2} />
-          <p className="text-[12px] font-semibold text-[#0F172A]">
+          <p className="text-[12px] font-semibold text-[var(--text-primary)]">
             {HELPY_VIEWING_CONFIRMED_TITLE}
           </p>
         </div>
@@ -127,14 +127,14 @@ export function HelpyViewingConfirmedCard({
 
       <div
         className={cn(
-          "rounded-[18px] border border-[#CBD5E1]/45 bg-gradient-to-br from-white/95 to-[#F8FAFC]/90 p-4 shadow-sm backdrop-blur-sm",
+          "rounded-[18px] border border-[var(--border)]/45 bg-gradient-to-br from-white/95 to-[#F8FAFC]/90 p-4 shadow-sm backdrop-blur-sm",
           className
         )}
       >
         <div className="mb-3 flex items-start justify-between gap-3">
           <div className="flex items-center gap-2">
-            <CalendarCheck className="size-4 text-[#2563EB]" strokeWidth={2} />
-            <p className="text-[12px] font-semibold text-[#0F172A]">
+            <CalendarCheck className="size-4 text-[var(--accent)]" strokeWidth={2} />
+            <p className="text-[12px] font-semibold text-[var(--text-primary)]">
               {HELPY_VIEWING_CONFIRMED_TITLE}
             </p>
           </div>
@@ -146,44 +146,44 @@ export function HelpyViewingConfirmedCard({
 
         <dl className="space-y-2 text-[12px]">
           <div className="flex justify-between gap-3">
-            <dt className="text-[#64748B]">Interessent</dt>
-            <dd className="font-medium text-[#0F172A]">{confirmation.interessent}</dd>
+            <dt className="text-[var(--text-secondary)]">Interessent</dt>
+            <dd className="font-medium text-[var(--text-primary)]">{confirmation.interessent}</dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt className="text-[#64748B]">Objekt</dt>
-            <dd className="font-medium text-[#0F172A]">{confirmation.objekt}</dd>
+            <dt className="text-[var(--text-secondary)]">Objekt</dt>
+            <dd className="font-medium text-[var(--text-primary)]">{confirmation.objekt}</dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt className="text-[#64748B]">Datum</dt>
-            <dd className="font-medium text-[#0F172A]">{confirmation.dateLabel}</dd>
+            <dt className="text-[var(--text-secondary)]">Datum</dt>
+            <dd className="font-medium text-[var(--text-primary)]">{confirmation.dateLabel}</dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt className="text-[#64748B]">Uhrzeit</dt>
-            <dd className="font-medium text-[#0F172A]">
+            <dt className="text-[var(--text-secondary)]">Uhrzeit</dt>
+            <dd className="font-medium text-[var(--text-primary)]">
               {confirmation.timeRecognized
                 ? `${confirmation.start}–${confirmation.end}`
                 : HELPY_VIEWING_TIME_UNRECOGNIZED}
             </dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt className="text-[#64748B]">Kalender</dt>
-            <dd className="font-medium text-[#0F172A]">
+            <dt className="text-[var(--text-secondary)]">Kalender</dt>
+            <dd className="font-medium text-[var(--text-primary)]">
               {suggestion.calendarLabel ?? "—"}
             </dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt className="text-[#64748B]">Dauer</dt>
-            <dd className="font-medium text-[#0F172A]">{confirmation.durationLabel}</dd>
+            <dt className="text-[var(--text-secondary)]">Dauer</dt>
+            <dd className="font-medium text-[var(--text-primary)]">{confirmation.durationLabel}</dd>
           </div>
           {confirmation.location && (
             <div className="flex justify-between gap-3">
-              <dt className="text-[#64748B]">Ort</dt>
-              <dd className="font-medium text-[#0F172A]">{confirmation.location}</dd>
+              <dt className="text-[var(--text-secondary)]">Ort</dt>
+              <dd className="font-medium text-[var(--text-primary)]">{confirmation.location}</dd>
             </div>
           )}
           <div className="flex justify-between gap-3">
-            <dt className="text-[#64748B]">Quelle</dt>
-            <dd className="font-medium text-[#0F172A]">{confirmation.quelle}</dd>
+            <dt className="text-[var(--text-secondary)]">Quelle</dt>
+            <dd className="font-medium text-[var(--text-primary)]">{confirmation.quelle}</dd>
           </div>
         </dl>
 

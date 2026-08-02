@@ -36,12 +36,12 @@ export function ObjectMatchesTab({ objectId }: ObjectMatchesTabProps) {
 
   if (!matches.length) {
     return (
-      <div className="rounded-[20px] border border-dashed border-[#CBD5E1]/60 bg-white/70 px-6 py-12 text-center">
-        <Users className="mx-auto size-8 text-[#94A3B8]" strokeWidth={1.5} />
-        <p className="mt-3 text-[14px] font-medium text-[#64748B]">
+      <div className="rounded-[20px] border border-dashed border-[var(--border)] bg-[var(--bg-surface)] px-6 py-12 text-center">
+        <Users className="mx-auto size-8 text-[var(--text-muted)]" strokeWidth={1.5} />
+        <p className="mt-3 text-[14px] font-medium text-[var(--text-secondary)]">
           Noch keine passenden Interessenten
         </p>
-        <p className="mt-1 text-[12px] text-[#94A3B8]">
+        <p className="mt-1 text-[12px] text-[var(--text-muted)]">
           HELPY prüft aktive Suchprofile automatisch bei neuen Objekten.
         </p>
       </div>
@@ -52,16 +52,16 @@ export function ObjectMatchesTab({ objectId }: ObjectMatchesTabProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h3 className="text-[14px] font-semibold text-[#0F172A]">
+          <h3 className="text-[14px] font-semibold text-[var(--text-primary)]">
             Passende Interessenten
           </h3>
-          <p className="text-[12px] text-[#64748B]">
+          <p className="text-[12px] text-[var(--text-secondary)]">
             {matches.length} Match{matches.length === 1 ? "" : "es"} ≥ 70%
           </p>
         </div>
         <Link
           href={`mailto:${matches.map((m) => m.kunde_email).filter(Boolean).join(",")}?subject=${encodeURIComponent(`Passende Objekte: ${object?.titel ?? ""}`)}`}
-          className="inline-flex h-9 items-center rounded-[12px] border border-[#CBD5E1]/60 bg-white px-4 text-[12px] font-medium text-[#334155] hover:bg-[#EFF6FF]/40"
+          className="inline-flex h-9 items-center rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] px-4 text-[12px] font-medium text-[var(--text-secondary)] hover:bg-[var(--accent-light)]/40"
         >
           Alle kontaktieren
         </Link>
@@ -80,12 +80,12 @@ export function ObjectMatchesTab({ objectId }: ObjectMatchesTabProps) {
           return (
             <li
               key={match.id}
-              className="rounded-[16px] border border-[#CBD5E1]/50 bg-white/90 p-4 shadow-[0_2px_8px_rgba(15,23,42,0.04)]"
+              className="rounded-[16px] border border-[var(--border)] bg-[var(--bg-surface)] p-4 shadow-[0_2px_8px_rgba(15,23,42,0.04)]"
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-[14px] font-semibold text-[#0F172A]">
+                    <p className="text-[14px] font-semibold text-[var(--text-primary)]">
                       {match.kunde_name ?? "Interessent"}
                     </p>
                     <ScoreBadge score={match.score} />
@@ -96,7 +96,7 @@ export function ObjectMatchesTab({ objectId }: ObjectMatchesTabProps) {
                     )}
                   </div>
                   {match.kunde_email && (
-                    <p className="mt-1 text-[12px] text-[#64748B]">
+                    <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
                       {match.kunde_email}
                     </p>
                   )}
@@ -123,7 +123,7 @@ export function ObjectMatchesTab({ objectId }: ObjectMatchesTabProps) {
                     <a
                       href={`tel:${match.kunde_telefon}`}
                       onClick={() => markMatchKontaktiert(match.id)}
-                      className="inline-flex h-8 items-center rounded-[10px] border border-[#CBD5E1]/60 px-3 text-[11px] font-medium text-[#334155] hover:bg-[#F8FAFC]"
+                      className="inline-flex h-8 items-center rounded-[10px] border border-[var(--border)] px-3 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"
                     >
                       <Phone className="mr-1 size-3" />
                       Anrufen
@@ -133,17 +133,17 @@ export function ObjectMatchesTab({ objectId }: ObjectMatchesTabProps) {
               </div>
 
               {expandedMail === match.id && mailDraft && (
-                <div className="mt-3 rounded-[12px] border border-[#BFDBFE]/40 bg-[#F8FAFC] p-3">
-                  <p className="text-[10px] font-semibold uppercase text-[#94A3B8]">
+                <div className="mt-3 rounded-[12px] border border-[var(--border-accent)] bg-[var(--bg-elevated)] p-3">
+                  <p className="text-[10px] font-semibold uppercase text-[var(--text-muted)]">
                     Betreff
                   </p>
-                  <p className="text-[12px] font-medium text-[#0F172A]">
+                  <p className="text-[12px] font-medium text-[var(--text-primary)]">
                     {mailDraft.subject}
                   </p>
-                  <p className="mt-2 text-[10px] font-semibold uppercase text-[#94A3B8]">
+                  <p className="mt-2 text-[10px] font-semibold uppercase text-[var(--text-muted)]">
                     Entwurf
                   </p>
-                  <pre className="mt-1 whitespace-pre-wrap font-sans text-[11px] leading-relaxed text-[#334155]">
+                  <pre className="mt-1 whitespace-pre-wrap font-sans text-[11px] leading-relaxed text-[var(--text-secondary)]">
                     {mailDraft.body}
                   </pre>
                   <a
@@ -171,8 +171,8 @@ function ScoreBadge({ score }: { score: number }) {
         score >= 85
           ? "bg-[#ECFDF5] text-[#047857]"
           : score >= 70
-            ? "bg-[#EFF6FF] text-[#2563EB]"
-            : "bg-[#F1F5F9] text-[#64748B]"
+            ? "bg-[var(--accent-light)] text-[var(--accent)]"
+            : "bg-[var(--bg-elevated)] text-[var(--text-secondary)]"
       )}
     >
       {score}%
@@ -202,6 +202,6 @@ function ScoreBreakdown({
   if (!parts.length) return null;
 
   return (
-    <p className="mt-1.5 text-[11px] text-[#94A3B8]">{parts.join(" · ")}</p>
+    <p className="mt-1.5 text-[11px] text-[var(--text-muted)]">{parts.join(" · ")}</p>
   );
 }

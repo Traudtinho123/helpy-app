@@ -102,10 +102,10 @@ export function RegisterOnboardingPage() {
       <div className="mx-auto grid min-h-[100dvh] max-w-6xl lg:grid-cols-2">
         <aside className="hidden flex-col justify-center px-10 py-12 lg:flex xl:px-16">
           <HelpyCharacter size={200} pose="wave" animated />
-          <blockquote className="onboarding-display mt-10 max-w-md text-[1.75rem] leading-snug text-[#1E1B4B]">
+          <blockquote className="onboarding-display mt-10 max-w-md text-[1.75rem] leading-snug text-[var(--text-primary)]">
             «HELPY hat mir täglich 2 Stunden gespart. Endlich Zeit für meine Kunden.»
           </blockquote>
-          <p className="mt-4 text-[14px] text-[#64748B]">
+          <p className="mt-4 text-[14px] text-[var(--text-secondary)]">
             — Viktor T., Immobilienmakler, Visp
           </p>
         </aside>
@@ -116,10 +116,10 @@ export function RegisterOnboardingPage() {
               <HelpyCharacter size={100} pose="wave" animated />
             </div>
 
-            <h1 className="onboarding-display text-[2rem] font-semibold text-[#1E1B4B] sm:text-[2.4rem]">
+            <h1 className="onboarding-display text-[2rem] font-semibold text-[var(--text-primary)] sm:text-[2.4rem]">
               Starte kostenlos.
             </h1>
-            <p className="mt-2 text-[15px] text-[#64748B]">
+            <p className="mt-2 text-[15px] text-[var(--text-secondary)]">
               14 Tage testen · Keine Kreditkarte
             </p>
 
@@ -130,14 +130,14 @@ export function RegisterOnboardingPage() {
                   placeholder="Vorname *"
                   value={vorname}
                   onChange={(e) => setVorname(e.target.value)}
-                  className="h-12 rounded-[14px] border-[#E7E5E4] bg-white"
+                  className="h-12 rounded-[14px] border-[#E7E5E4] bg-[var(--bg-surface)]"
                 />
                 <Input
                   required
                   placeholder="Nachname *"
                   value={nachname}
                   onChange={(e) => setNachname(e.target.value)}
-                  className="h-12 rounded-[14px] border-[#E7E5E4] bg-white"
+                  className="h-12 rounded-[14px] border-[#E7E5E4] bg-[var(--bg-surface)]"
                 />
               </div>
               <Input
@@ -146,7 +146,7 @@ export function RegisterOnboardingPage() {
                 placeholder="E-Mail *"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-12 rounded-[14px] border-[#E7E5E4] bg-white"
+                className="h-12 rounded-[14px] border-[#E7E5E4] bg-[var(--bg-surface)]"
               />
               <Input
                 type="password"
@@ -155,20 +155,20 @@ export function RegisterOnboardingPage() {
                 placeholder="Passwort (min. 8 Zeichen) *"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-12 rounded-[14px] border-[#E7E5E4] bg-white"
+                className="h-12 rounded-[14px] border-[#E7E5E4] bg-[var(--bg-surface)]"
               />
               <Input
                 required
                 placeholder="Firmenname *"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                className="h-12 rounded-[14px] border-[#E7E5E4] bg-white"
+                className="h-12 rounded-[14px] border-[#E7E5E4] bg-[var(--bg-surface)]"
               />
               <select
                 required
                 value={industry}
                 onChange={(e) => setIndustry(e.target.value)}
-                className="h-12 w-full rounded-[14px] border border-[#E7E5E4] bg-white px-3 text-[14px] text-[#1E1B4B] outline-none focus:border-[#4F46E5]"
+                className="h-12 w-full rounded-[14px] border border-[#E7E5E4] bg-[var(--bg-surface)] px-3 text-[14px] text-[var(--text-primary)] outline-none focus:border-[#4F46E5]"
               >
                 {ONBOARDING_INDUSTRIES.map((item) => (
                   <option key={item.value} value={item.value}>
@@ -177,7 +177,7 @@ export function RegisterOnboardingPage() {
                 ))}
               </select>
 
-              <label className="flex items-start gap-2 text-[13px] text-[#64748B]">
+              <label className="flex items-start gap-2 text-[13px] text-[var(--text-secondary)]">
                 <input
                   type="checkbox"
                   checked={acceptedTerms}
@@ -185,11 +185,11 @@ export function RegisterOnboardingPage() {
                   className="mt-0.5 accent-[#4F46E5]"
                 />
                 Ich akzeptiere die{" "}
-                <Link href={LEGAL_ROUTES.terms} className="text-[#4F46E5] hover:underline">
+                <Link href={LEGAL_ROUTES.terms} className="text-[var(--accent)] hover:underline">
                   AGB
                 </Link>{" "}
                 und{" "}
-                <Link href={LEGAL_ROUTES.privacy} className="text-[#4F46E5] hover:underline">
+                <Link href={LEGAL_ROUTES.privacy} className="text-[var(--accent)] hover:underline">
                   Datenschutzerklärung
                 </Link>
               </label>
@@ -216,9 +216,9 @@ export function RegisterOnboardingPage() {
               </Button>
             </form>
 
-            <p className="mt-6 text-center text-[14px] text-[#64748B]">
+            <p className="mt-6 text-center text-[14px] text-[var(--text-secondary)]">
               Bereits registriert?{" "}
-              <Link href={AUTH_ROUTES.login} className="font-semibold text-[#4F46E5] hover:underline">
+              <Link href={AUTH_ROUTES.login} className="font-semibold text-[var(--accent)] hover:underline">
                 Einloggen
               </Link>
             </p>
@@ -228,7 +228,7 @@ export function RegisterOnboardingPage() {
                 <div className="w-full border-t border-[#E7E5E4]" />
               </div>
               <div className="relative flex justify-center">
-                <span className="bg-[#F7F6F2] px-3 text-[12px] text-[#94A3B8]">oder</span>
+                <span className="bg-[#F7F6F2] px-3 text-[12px] text-[var(--text-muted)]">oder</span>
               </div>
             </div>
 

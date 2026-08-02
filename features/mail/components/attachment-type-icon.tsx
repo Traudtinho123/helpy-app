@@ -28,7 +28,7 @@ export function AttachmentTypeIcon({
   const resolved = resolveMimeType(mimeType, fileName);
 
   if (isPreviewableImageMimeType(resolved)) {
-    return <FileImage className={cn("size-4 text-[#2563EB]", className)} />;
+    return <FileImage className={cn("size-4 text-[var(--accent)]", className)} />;
   }
   if (isPdfMimeType(resolved)) {
     return <FileText className={cn("size-4 text-[#DC2626]", className)} />;
@@ -37,10 +37,10 @@ export function AttachmentTypeIcon({
     return <FileSpreadsheet className={cn("size-4 text-[#16A34A]", className)} />;
   }
   if (isWordMimeType(resolved)) {
-    return <FileType2 className={cn("size-4 text-[#2563EB]", className)} />;
+    return <FileType2 className={cn("size-4 text-[var(--accent)]", className)} />;
   }
 
-  return <Paperclip className={cn("size-4 text-[#64748B]", className)} />;
+  return <Paperclip className={cn("size-4 text-[var(--text-secondary)]", className)} />;
 }
 
 export function attachmentTypeLabel(mimeType?: string | null, fileName?: string | null): string {

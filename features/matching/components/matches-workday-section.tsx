@@ -52,10 +52,10 @@ export function MatchesWorkdaySection() {
           <Link2 className="size-5 text-[#16A34A]" strokeWidth={2} />
         </div>
         <div>
-          <h2 className="text-[1.2rem] font-semibold tracking-[-0.02em] text-[#0F172A]">
+          <h2 className="text-[1.2rem] font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
             🔗 Neue Matches heute
           </h2>
-          <p className="mt-0.5 text-[12px] text-[#64748B]">
+          <p className="mt-0.5 text-[12px] text-[var(--text-secondary)]">
             {matches.length} Interessenten-Matches für {grouped.length} Objekt
             {grouped.length === 1 ? "" : "e"}
           </p>
@@ -66,15 +66,15 @@ export function MatchesWorkdaySection() {
         {grouped.map((group) => (
           <li
             key={group.objectId}
-            className="rounded-[20px] border border-[#BBF7D0]/50 bg-white/90 px-5 py-4 shadow-[0_2px_8px_rgba(15,23,42,0.04)]"
+            className="rounded-[20px] border border-[#BBF7D0]/50 bg-[var(--bg-surface)] px-5 py-4 shadow-[0_2px_8px_rgba(15,23,42,0.04)]"
           >
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-[14px] font-semibold text-[#0F172A]">
+                <p className="text-[14px] font-semibold text-[var(--text-primary)]">
                   🏠 Match für {group.count} Interessent
                   {group.count === 1 ? "en" : "en"}
                 </p>
-                <p className="mt-1 text-[12px] text-[#64748B]">
+                <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
                   Top-Score {group.topScore}%
                   {group.kunden.length
                     ? ` · ${group.kunden.slice(0, 3).join(", ")}${group.kunden.length > 3 ? "…" : ""}`
@@ -83,7 +83,7 @@ export function MatchesWorkdaySection() {
               </div>
               <Link
                 href={`/objekte/${encodeURIComponent(group.objectId)}?tab=matches`}
-                className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-[12px] border border-[#CBD5E1]/60 bg-white/90 px-4 text-[12px] font-medium text-[#334155] transition-all hover:border-[#BBF7D0]/60 hover:bg-[#F0FDF4]/40"
+                className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] px-4 text-[12px] font-medium text-[var(--text-secondary)] transition-all hover:border-[#BBF7D0]/60 hover:bg-[#F0FDF4]/40"
               >
                 Einzeln prüfen
                 <ArrowRight className="size-3.5" />

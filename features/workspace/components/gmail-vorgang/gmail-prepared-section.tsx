@@ -100,7 +100,7 @@ export function GmailPreparedSection() {
               <p className="text-[10px] font-semibold tracking-[0.06em] text-[#B45309] uppercase">
                 Nächster Schritt
               </p>
-              <p className="mt-1.5 text-[12px] leading-relaxed text-[#334155]">
+              <p className="mt-1.5 text-[12px] leading-relaxed text-[var(--text-secondary)]">
                 {currentWorkflow.nextBestStep}
               </p>
             </div>
@@ -108,14 +108,14 @@ export function GmailPreparedSection() {
 
           {!isViewingAction && currentWorkflow.preparedItems.length > 0 && (
             <div>
-              <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+              <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
                 Vorbereitete Aktionen
               </p>
               <ul className="mt-2 space-y-1">
                 {currentWorkflow.preparedItems.map((item) => (
                   <li
                     key={item}
-                    className="flex gap-2 text-[11px] leading-relaxed text-[#64748B]"
+                    className="flex gap-2 text-[11px] leading-relaxed text-[var(--text-secondary)]"
                   >
                     <span className="mt-1.5 size-1 shrink-0 rounded-full bg-[#2563EB]" />
                     {item}

@@ -10,7 +10,7 @@ export function DataPrivacyTrustBadge({ className }: DataPrivacyTrustBadgeProps)
   return (
     <p
       className={cn(
-        "flex items-start justify-center gap-2 text-[11px] leading-relaxed text-[#94A3B8]",
+        "flex items-start justify-center gap-2 text-[11px] leading-relaxed text-[var(--text-muted)]",
         className
       )}
     >

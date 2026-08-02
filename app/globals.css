@@ -67,16 +67,23 @@
 
 :root {
   /* ── HELPY Dark Theme 2026 (virtualworkforce-inspired) ── */
-  --bg-base: #0a0a0f;
-  --bg-surface: #111118;
-  --bg-elevated: #1a1a24;
-  --bg-overlay: #222230;
+  --bg-base: #0e0e16;
+  --bg-surface: #151520;
+  --bg-elevated: #1c1c28;
+  --bg-overlay: #252534;
 
-  --sidebar-bg: #08080e;
+  /* Sidebar etwas heller als Hauptfläche — klare Navigation */
+  --sidebar-bg: #181824;
   --sidebar-width: 240px;
-  --sidebar-hover: rgba(255, 255, 255, 0.04);
-  --sidebar-active: rgba(124, 111, 255, 0.12);
-  --sidebar-divider: rgba(255, 255, 255, 0.06);
+  --sidebar-hover: rgba(255, 255, 255, 0.06);
+  --sidebar-active: rgba(124, 111, 255, 0.14);
+  --sidebar-divider: rgba(255, 255, 255, 0.08);
+
+  /* Öffentliche Seiten (Login, Legal) — etwas heller & einladender */
+  --landing-bg: #12121e;
+  --landing-bg-end: #181828;
+  --landing-surface: #1e1e2a;
+  --landing-glow: rgba(124, 111, 255, 0.18);
 
   --accent: #7c6fff;
   --accent-hover: #9585ff;
@@ -94,11 +101,11 @@
   --text-secondary: #9898b8;
   --text-muted: #5a5a7a;
   --text-accent: #a89fff;
-  --text-sidebar: rgba(255, 255, 255, 0.88);
-  --text-sidebar-muted: rgba(255, 255, 255, 0.42);
+  --text-sidebar: rgba(255, 255, 255, 0.92);
+  --text-sidebar-muted: rgba(255, 255, 255, 0.52);
 
-  --border: rgba(255, 255, 255, 0.06);
-  --border-strong: rgba(255, 255, 255, 0.12);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
   --border-accent: rgba(124, 111, 255, 0.3);
 
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);

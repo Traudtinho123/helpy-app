@@ -172,15 +172,15 @@ export function ObjectImagesSection({ object, className }: ObjectImagesSectionPr
   return (
     <section
       className={cn(
-        "rounded-[20px] border border-[#CBD5E1]/40 bg-white/90 py-0 shadow-[0_2px_8px_rgba(15,23,42,0.04)] backdrop-blur-xl",
+        "rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-[0_2px_8px_rgba(15,23,42,0.04)] backdrop-blur-xl",
         className
       )}
     >
-      <div className="flex items-center gap-3 border-b border-[#CBD5E1]/30 px-5 py-4">
-        <span className="flex size-9 items-center justify-center rounded-[12px] bg-[#EFF6FF] text-[#2563EB]">
+      <div className="flex items-center gap-3 border-b border-[var(--border)] px-5 py-4">
+        <span className="flex size-9 items-center justify-center rounded-[12px] bg-[var(--accent-light)] text-[var(--accent)]">
           <ImagePlus className="size-4" strokeWidth={2} />
         </span>
-        <h2 className="text-[14px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+        <h2 className="text-[14px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
           📸 Bilder
         </h2>
       </div>
@@ -216,16 +216,16 @@ export function ObjectImagesSection({ object, className }: ObjectImagesSectionPr
             ))}
           </div>
         ) : (
-          <p className="text-[12px] text-[#64748B]">
+          <p className="text-[12px] text-[var(--text-secondary)]">
             Noch keine bestätigten Bilder. Füge Fotos hinzu oder bestätige HELPY-Vorschläge.
           </p>
         )}
 
         {suggestedImages.length > 0 && (
-          <div className="rounded-[14px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/45 px-3.5 py-3">
+          <div className="rounded-[14px] border border-[var(--border-accent)] bg-[var(--accent-light)] px-3.5 py-3">
             <div className="flex items-center gap-2">
-              <Sparkles className="size-3.5 text-[#2563EB]" strokeWidth={2} />
-              <p className="text-[11px] font-semibold text-[#2563EB]">
+              <Sparkles className="size-3.5 text-[var(--accent)]" strokeWidth={2} />
+              <p className="text-[11px] font-semibold text-[var(--accent)]">
                 Von HELPY erkannt
               </p>
             </div>
@@ -233,14 +233,14 @@ export function ObjectImagesSection({ object, className }: ObjectImagesSectionPr
               {suggestedImages.map((image) => (
                 <li
                   key={image.id}
-                  className="flex flex-wrap items-center gap-3 rounded-[12px] border border-[#E2E8F0]/70 bg-white/80 p-2.5"
+                  className="flex flex-wrap items-center gap-3 rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] p-2.5"
                 >
                   <SuggestedImagePreview image={image} />
                   <div className="min-w-0 flex-1">
-                    <p className="text-[12px] font-medium text-[#0F172A]">
+                    <p className="text-[12px] font-medium text-[var(--text-primary)]">
                       {image.fileName}
                     </p>
-                    <p className="mt-0.5 text-[11px] text-[#64748B]">
+                    <p className="mt-0.5 text-[11px] text-[var(--text-secondary)]">
                       {OBJECT_IMAGE_SOURCE_LABELS[image.source]} ·{" "}
                       {OBJECT_IMAGE_STATUS_LABELS[image.status]}
                     </p>
@@ -274,21 +274,21 @@ export function ObjectImagesSection({ object, className }: ObjectImagesSectionPr
           className={cn(
             "rounded-[14px] border border-dashed px-4 py-6 text-center transition-colors",
             dragOver
-              ? "border-[#2563EB] bg-[#EFF6FF]"
-              : "border-[#CBD5E1]/70 bg-[#F8FAFC]/60"
+              ? "border-[#2563EB] bg-[var(--accent-light)]"
+              : "border-[var(--border)]/70 bg-[var(--bg-elevated)]"
           )}
         >
-          <p className="text-[12px] font-medium text-[#334155]">
+          <p className="text-[12px] font-medium text-[var(--text-secondary)]">
             Bilder hierher ziehen oder auswählen
           </p>
-          <p className="mt-1 text-[11px] text-[#94A3B8]">
+          <p className="mt-1 text-[11px] text-[var(--text-muted)]">
             JPEG, PNG, WebP — werden vor dem Speichern komprimiert
           </p>
           <Button
             type="button"
             variant="outline"
             onClick={() => fileInputRef.current?.click()}
-            className="mt-3 h-9 rounded-[12px] border-[#CBD5E1]/60 bg-white text-[12px] font-semibold text-[#2563EB] hover:border-[#BFDBFE]/60 hover:bg-[#EFF6FF]"
+            className="mt-3 h-9 rounded-[12px] border-[var(--border)] bg-[var(--bg-surface)] text-[12px] font-semibold text-[var(--accent)] hover:border-[var(--border-accent)] hover:bg-[var(--accent-light)]"
           >
             <Upload className="mr-2 size-3.5" />
             Bilder hinzufügen
@@ -304,15 +304,15 @@ export function ObjectImagesSection({ object, className }: ObjectImagesSectionPr
         </div>
 
         {uploadOpen && pendingUploads.length > 0 && (
-          <div className="rounded-[14px] border border-[#E2E8F0]/70 bg-[#F8FAFC]/80 px-3.5 py-3">
-            <p className="text-[11px] font-semibold tracking-[0.04em] text-[#64748B] uppercase">
+          <div className="rounded-[14px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3.5 py-3">
+            <p className="text-[11px] font-semibold tracking-[0.04em] text-[var(--text-secondary)] uppercase">
               Vorschau
             </p>
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
               {pendingUploads.map((item) => (
                 <div
                   key={item.id}
-                  className="overflow-hidden rounded-[12px] border border-[#E2E8F0]/70 bg-white"
+                  className="overflow-hidden rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)]"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -320,7 +320,7 @@ export function ObjectImagesSection({ object, className }: ObjectImagesSectionPr
                     alt={item.file.name}
                     className="aspect-[4/3] w-full object-cover"
                   />
-                  <p className="truncate px-2 py-1.5 text-[10px] text-[#64748B]">
+                  <p className="truncate px-2 py-1.5 text-[10px] text-[var(--text-secondary)]">
                     {item.file.name}
                   </p>
                 </div>
@@ -345,7 +345,7 @@ export function ObjectImagesSection({ object, className }: ObjectImagesSectionPr
                   setPendingUploads([]);
                   setUploadOpen(false);
                 }}
-                className="h-8 rounded-[10px] text-[11px] text-[#64748B]"
+                className="h-8 rounded-[10px] text-[11px] text-[var(--text-secondary)]"
               >
                 Abbrechen
               </Button>
@@ -381,7 +381,7 @@ function ObjectImageTile({
   onRemove: () => void;
 }) {
   return (
-    <div className="overflow-hidden rounded-[12px] border border-[#E2E8F0]/70 bg-white">
+    <div className="overflow-hidden rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)]">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={image.url}
@@ -389,10 +389,10 @@ function ObjectImageTile({
         className="aspect-[4/3] w-full object-cover"
       />
       <div className="space-y-1.5 px-2.5 py-2">
-        <p className="truncate text-[11px] font-medium text-[#0F172A]">
+        <p className="truncate text-[11px] font-medium text-[var(--text-primary)]">
           {image.fileName}
         </p>
-        <p className="text-[10px] text-[#64748B]">
+        <p className="text-[10px] text-[var(--text-secondary)]">
           {OBJECT_IMAGE_SOURCE_LABELS[image.source]}
           {isCover ? " · Titelbild" : ""}
         </p>
@@ -401,7 +401,7 @@ function ObjectImageTile({
             <button
               type="button"
               onClick={onSetCover}
-              className="inline-flex h-7 items-center gap-1 rounded-[8px] border border-[#E2E8F0] px-2 text-[10px] font-semibold text-[#2563EB]"
+              className="inline-flex h-7 items-center gap-1 rounded-[8px] border border-[var(--border)] px-2 text-[10px] font-semibold text-[var(--accent)]"
             >
               <Star className="size-3" />
               Cover
@@ -411,7 +411,7 @@ function ObjectImageTile({
             type="button"
             onClick={onMoveUp}
             disabled={!canMoveUp}
-            className="inline-flex size-7 items-center justify-center rounded-[8px] border border-[#E2E8F0] text-[#64748B] disabled:opacity-40"
+            className="inline-flex size-7 items-center justify-center rounded-[8px] border border-[var(--border)] text-[var(--text-secondary)] disabled:opacity-40"
             aria-label="Nach vorne"
           >
             <ArrowUp className="size-3" />
@@ -420,7 +420,7 @@ function ObjectImageTile({
             type="button"
             onClick={onMoveDown}
             disabled={!canMoveDown}
-            className="inline-flex size-7 items-center justify-center rounded-[8px] border border-[#E2E8F0] text-[#64748B] disabled:opacity-40"
+            className="inline-flex size-7 items-center justify-center rounded-[8px] border border-[var(--border)] text-[var(--text-secondary)] disabled:opacity-40"
             aria-label="Nach hinten"
           >
             <ArrowDown className="size-3" />
@@ -441,7 +441,7 @@ function ObjectImageTile({
 
 function SuggestedImagePreview({ image }: { image: ObjectImage }) {
   return (
-    <div className="size-14 shrink-0 overflow-hidden rounded-[10px] border border-[#BFDBFE]/60 bg-[#EFF6FF]">
+    <div className="size-14 shrink-0 overflow-hidden rounded-[10px] border border-[var(--border-accent)] bg-[var(--accent-light)]">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={image.url}

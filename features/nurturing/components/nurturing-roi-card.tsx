@@ -41,16 +41,16 @@ export function NurturingRoiCard() {
   ];
 
   return (
-    <section className="rounded-[20px] border border-[#CBD5E1]/50 bg-white/90 p-5 shadow-[0_2px_8px_rgba(15,23,42,0.04)]">
+    <section className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] p-5 shadow-[0_2px_8px_rgba(15,23,42,0.04)]">
       <div className="mb-4 flex items-center gap-3">
         <div className="flex size-10 items-center justify-center rounded-[14px] bg-[#ECFDF5]">
           <TrendingUp className="size-5 text-[#047857]" strokeWidth={2} />
         </div>
         <div>
-          <h2 className="text-[1.05rem] font-semibold text-[#0F172A]">
+          <h2 className="text-[1.05rem] font-semibold text-[var(--text-primary)]">
             Nurturing ROI
           </h2>
-          <p className="text-[12px] text-[#64748B]">
+          <p className="text-[12px] text-[var(--text-secondary)]">
             Bestandskunden-Kampagnen — Öffnungen, Antworten, Folge-Deals
           </p>
         </div>
@@ -59,12 +59,12 @@ export function NurturingRoiCard() {
         {items.map((item) => (
           <li
             key={item.label}
-            className="rounded-[14px] border border-[#E2E8F0]/80 bg-[#F8FAFC]/80 px-3 py-3"
+            className="rounded-[14px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3 py-3"
           >
-            <p className="text-[11px] font-medium text-[#64748B]">
+            <p className="text-[11px] font-medium text-[var(--text-secondary)]">
               {item.label}
             </p>
-            <p className="mt-1 text-[18px] font-semibold tracking-tight text-[#0F172A]">
+            <p className="mt-1 text-[18px] font-semibold tracking-tight text-[var(--text-primary)]">
               {item.value}
             </p>
           </li>

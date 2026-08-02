@@ -34,32 +34,32 @@ export function WorkspaceArbeitsablaufPanel({
   const { progress } = summary;
 
   return (
-    <Card className="mt-4 rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm backdrop-blur-sm">
+    <Card className="mt-4 rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm backdrop-blur-sm">
       <CardContent className="p-5">
         <div className="flex items-center gap-2">
-          <Sparkles className="size-4 text-[#2563EB]" strokeWidth={2} />
-          <p className="text-[12px] font-semibold text-[#0F172A]">
+          <Sparkles className="size-4 text-[var(--accent)]" strokeWidth={2} />
+          <p className="text-[12px] font-semibold text-[var(--text-primary)]">
             Aktueller Arbeitsablauf
           </p>
         </div>
-        <p className="mt-3 text-[12px] leading-[1.65] text-[#334155]">
+        <p className="mt-3 text-[12px] leading-[1.65] text-[var(--text-secondary)]">
           {summary.intro}
         </p>
 
         <div className="mt-4 space-y-3">
-          <div className="rounded-[14px] border border-[#BFDBFE]/50 bg-[#EFF6FF]/40 px-4 py-3">
-            <p className="text-[10px] font-semibold tracking-[0.06em] text-[#2563EB] uppercase">
+          <div className="rounded-[14px] border border-[var(--border-accent)]/50 bg-[var(--accent-light)]/40 px-4 py-3">
+            <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--accent)] uppercase">
               Nächster Schritt
             </p>
-            <p className="mt-1.5 text-[12px] font-medium text-[#0F172A]">
+            <p className="mt-1.5 text-[12px] font-medium text-[var(--text-primary)]">
               {summary.nextStep}
             </p>
           </div>
 
           <div>
             <div className="mb-2 flex items-center justify-between text-[11px]">
-              <span className="font-medium text-[#64748B]">Fortschritt</span>
-              <span className="font-semibold text-[#2563EB]">
+              <span className="font-medium text-[var(--text-secondary)]">Fortschritt</span>
+              <span className="font-semibold text-[var(--accent)]">
                 {progress.progressLabel}
               </span>
             </div>

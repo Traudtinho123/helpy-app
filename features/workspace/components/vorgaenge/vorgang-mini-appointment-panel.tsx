@@ -80,9 +80,9 @@ export function VorgangMiniAppointmentPanel({
 
   if (!suggestion || suggestion.status === "loading") {
     return (
-      <div className={cn("rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC] p-3", className)}>
-        <div className="flex items-center gap-2 text-[12px] text-[#64748B]">
-          <Loader2 className="size-4 animate-spin text-[#2563EB]" />
+      <div className={cn("rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] p-3", className)}>
+        <div className="flex items-center gap-2 text-[12px] text-[var(--text-secondary)]">
+          <Loader2 className="size-4 animate-spin text-[var(--accent)]" />
           HELPY prüft freie Termine…
         </div>
       </div>
@@ -93,12 +93,12 @@ export function VorgangMiniAppointmentPanel({
 
   if (slots.length === 0) {
     return (
-      <div className={cn("rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC] p-3", className)}>
-        <p className="text-[12px] text-[#64748B]">Keine Terminvorschläge verfügbar.</p>
+      <div className={cn("rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] p-3", className)}>
+        <p className="text-[12px] text-[var(--text-secondary)]">Keine Terminvorschläge verfügbar.</p>
         <button
           type="button"
           onClick={onClose}
-          className="mt-2 text-[11px] font-medium text-[#2563EB]"
+          className="mt-2 text-[11px] font-medium text-[var(--accent)]"
         >
           Schliessen
         </button>
@@ -109,12 +109,12 @@ export function VorgangMiniAppointmentPanel({
   return (
     <div
       className={cn(
-        "rounded-[12px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/50 p-3",
+        "rounded-[12px] border border-[var(--border-accent)] bg-[var(--accent-light)]/50 p-3",
         className
       )}
       onClick={(event) => event.stopPropagation()}
     >
-      <p className="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.05em] text-[#2563EB] uppercase">
+      <p className="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.05em] text-[var(--accent)] uppercase">
         <CalendarDays className="size-3.5" />
         Terminvorschläge
       </p>
@@ -131,15 +131,15 @@ export function VorgangMiniAppointmentPanel({
               }}
               className={cn(
                 "flex w-full items-center justify-between rounded-[10px] border px-3 py-2 text-left text-[12px] transition-colors",
-                "border-[#CBD5E1]/60 bg-white hover:border-[#2563EB]/40 hover:bg-[#EFF6FF]",
+                "border-[var(--border)] bg-[var(--bg-surface)] hover:border-[#2563EB]/40 hover:bg-[var(--accent-light)]",
                 loading && confirmingSlotId !== slot.id && "opacity-50"
               )}
             >
-              <span className="font-medium text-[#0F172A]">{slot.label}</span>
+              <span className="font-medium text-[var(--text-primary)]">{slot.label}</span>
               {isConfirming ? (
-                <Loader2 className="size-3.5 animate-spin text-[#2563EB]" />
+                <Loader2 className="size-3.5 animate-spin text-[var(--accent)]" />
               ) : (
-                <span className="text-[10px] font-semibold text-[#2563EB]">
+                <span className="text-[10px] font-semibold text-[var(--accent)]">
                   Bestätigen
                 </span>
               )}

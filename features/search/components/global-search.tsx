@@ -137,7 +137,7 @@ export function GlobalSearch() {
   return (
     <div ref={containerRef} className="relative max-w-xl flex-1">
       <Search
-        className="pointer-events-none absolute top-1/2 left-4 size-[17px] -translate-y-1/2 text-[#64748B]"
+        className="pointer-events-none absolute top-1/2 left-4 size-[17px] -translate-y-1/2 text-[var(--text-secondary)]"
         strokeWidth={2}
       />
       <Input
@@ -151,19 +151,19 @@ export function GlobalSearch() {
         }}
         onFocus={() => setOpen(true)}
         onKeyDown={handleInputKeyDown}
-        className="h-11 rounded-[14px] border-[#CBD5E1]/60 bg-white/90 pr-[4.5rem] pl-11 text-[13px] text-[#0F172A] shadow-[0_2px_8px_rgba(15,23,42,0.04)] transition-all duration-300 placeholder:text-[#64748B] hover:border-[#94A3B8]/50 hover:shadow-[0_4px_16px_rgba(15,23,42,0.06)] focus-visible:border-[#2563EB]/40 focus-visible:bg-white focus-visible:ring-[#2563EB]/20"
+        className="h-11 rounded-[14px] border-[var(--border)] bg-[var(--bg-surface)] pr-[4.5rem] pl-11 text-[13px] text-[var(--text-primary)] shadow-[0_2px_8px_rgba(15,23,42,0.04)] transition-all duration-300 placeholder:text-[var(--text-secondary)] hover:border-[#94A3B8]/50 hover:shadow-[0_4px_16px_rgba(15,23,42,0.06)] focus-visible:border-[#2563EB]/40 focus-visible:bg-[var(--bg-surface)] focus-visible:ring-[#2563EB]/20"
       />
-      <kbd className="pointer-events-none absolute top-1/2 right-3.5 hidden -translate-y-1/2 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] px-2 py-0.5 text-[10px] font-medium text-[#64748B] shadow-sm sm:inline-block">
+      <kbd className="pointer-events-none absolute top-1/2 right-3.5 hidden -translate-y-1/2 rounded-lg border border-[var(--border)] bg-[var(--bg-elevated)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-secondary)] shadow-sm sm:inline-block">
         ⌘K
       </kbd>
 
       {open && trimmedQuery.length > 0 && (
-        <div className="absolute top-[calc(100%+8px)] z-50 w-full overflow-hidden rounded-[16px] border border-[#CBD5E1]/60 bg-white/95 shadow-[0_12px_40px_rgba(15,23,42,0.12)] backdrop-blur-xl">
+        <div className="absolute top-[calc(100%+8px)] z-50 w-full overflow-hidden rounded-[16px] border border-[var(--border)] bg-[var(--bg-surface)]/95 shadow-[0_12px_40px_rgba(15,23,42,0.12)] backdrop-blur-xl">
           {hasResults ? (
             <div className="max-h-[min(420px,70vh)] overflow-y-auto py-2">
               {results.groups.map((group) => (
                 <div key={group.category} className="px-2 py-1">
-                  <p className="px-2 py-1.5 text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+                  <p className="px-2 py-1.5 text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
                     {group.label}
                   </p>
                   <ul>
@@ -181,18 +181,18 @@ export function GlobalSearch() {
                             className={cn(
                               "flex w-full items-start gap-3 rounded-[12px] px-3 py-2.5 text-left transition-colors",
                               isActive
-                                ? "bg-[#EFF6FF]/90"
-                                : "hover:bg-[#F8FAFC]"
+                                ? "bg-[var(--accent-light)]/90"
+                                : "hover:bg-[var(--bg-elevated)]"
                             )}
                           >
-                            <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-[#EFF6FF] text-[#2563EB]">
+                            <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-[var(--accent-light)] text-[var(--accent)]">
                               <Icon className="size-4" strokeWidth={2} />
                             </span>
                             <span className="min-w-0">
-                              <span className="block truncate text-[13px] font-semibold text-[#0F172A]">
+                              <span className="block truncate text-[13px] font-semibold text-[var(--text-primary)]">
                                 {item.title}
                               </span>
-                              <span className="mt-0.5 block truncate text-[11px] text-[#64748B]">
+                              <span className="mt-0.5 block truncate text-[11px] text-[var(--text-secondary)]">
                                 {item.subtitle}
                               </span>
                             </span>
@@ -206,18 +206,18 @@ export function GlobalSearch() {
             </div>
           ) : (
             <div className="px-4 py-8 text-center">
-              <p className="text-[13px] font-medium text-[#0F172A]">
+              <p className="text-[13px] font-medium text-[var(--text-primary)]">
                 Keine Treffer für „{trimmedQuery}“
               </p>
-              <p className="mt-1 text-[11px] text-[#64748B]">
+              <p className="mt-1 text-[11px] text-[var(--text-secondary)]">
                 Versuche Name, Adresse, Budget oder Betreff.
               </p>
             </div>
           )}
 
           {hasResults && (
-            <div className="border-t border-[#CBD5E1]/40 px-4 py-2.5">
-              <p className="text-[10px] text-[#64748B]">
+            <div className="border-t border-[var(--border)] px-4 py-2.5">
+              <p className="text-[10px] text-[var(--text-secondary)]">
                 {results.totalCount} Treffer · Pfeiltasten · Enter öffnet
               </p>
             </div>
@@ -241,18 +241,18 @@ export function GlobalSearchResultLink({
     <Link
       href={item.href}
       className={cn(
-        "flex items-start gap-3 rounded-[12px] px-3 py-2.5 transition-colors hover:bg-[#F8FAFC]",
+        "flex items-start gap-3 rounded-[12px] px-3 py-2.5 transition-colors hover:bg-[var(--bg-elevated)]",
         className
       )}
     >
-      <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-[#EFF6FF] text-[#2563EB]">
+      <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-[var(--accent-light)] text-[var(--accent)]">
         <Icon className="size-4" strokeWidth={2} />
       </span>
       <span className="min-w-0">
-        <span className="block truncate text-[13px] font-semibold text-[#0F172A]">
+        <span className="block truncate text-[13px] font-semibold text-[var(--text-primary)]">
           {item.title}
         </span>
-        <span className="mt-0.5 block truncate text-[11px] text-[#64748B]">
+        <span className="mt-0.5 block truncate text-[11px] text-[var(--text-secondary)]">
           {item.subtitle}
         </span>
       </span>

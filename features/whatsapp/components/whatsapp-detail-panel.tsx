@@ -33,9 +33,9 @@ export function WhatsappDetailPanel({
 }: WhatsappDetailPanelProps) {
   if (!message) {
     return (
-      <div className="rounded-[20px] border border-dashed border-[#CBD5E1] bg-white/70 px-8 py-16 text-center backdrop-blur-xl">
+      <div className="rounded-[20px] border border-dashed border-[var(--border)] bg-[var(--bg-surface)] px-8 py-16 text-center backdrop-blur-xl">
         <WhatsappIcon size={28} className="mx-auto opacity-60" />
-        <p className="mt-4 text-sm font-medium text-[#64748B]">
+        <p className="mt-4 text-sm font-medium text-[var(--text-secondary)]">
           Wähle eine Nachricht aus der Liste.
         </p>
       </div>
@@ -50,48 +50,48 @@ export function WhatsappDetailPanel({
       <PanelHeader>
         <div className="flex items-center gap-2">
           <WhatsappIcon size={18} />
-          <h2 className="text-sm font-semibold text-[#0F172A]">{displayName}</h2>
+          <h2 className="text-sm font-semibold text-[var(--text-primary)]">{displayName}</h2>
         </div>
       </PanelHeader>
       <PanelBody className="space-y-4">
-        <div className="grid gap-2 text-[13px] text-[#64748B]">
+        <div className="grid gap-2 text-[13px] text-[var(--text-secondary)]">
           <p>
-            <span className="font-medium text-[#0F172A]">Nummer:</span>{" "}
+            <span className="font-medium text-[var(--text-primary)]">Nummer:</span>{" "}
             {formatPhone(message.fromNumber)}
           </p>
           <p>
-            <span className="font-medium text-[#0F172A]">Empfangen:</span> {receivedAt}
+            <span className="font-medium text-[var(--text-primary)]">Empfangen:</span> {receivedAt}
           </p>
           {message.customerName ? (
             <p>
-              <span className="font-medium text-[#0F172A]">Kunde:</span>{" "}
+              <span className="font-medium text-[var(--text-primary)]">Kunde:</span>{" "}
               {message.customerName}
             </p>
           ) : null}
           {message.intentLabel ? (
             <p>
-              <span className="font-medium text-[#0F172A]">Intent:</span>{" "}
+              <span className="font-medium text-[var(--text-primary)]">Intent:</span>{" "}
               {message.intentLabel}
               {message.priority ? ` · ${message.priority}` : ""}
             </p>
           ) : null}
         </div>
 
-        <div className="rounded-[14px] border border-[#E2E8F0] bg-[#F8FAFC] p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[#64748B]">
+        <div className="rounded-[14px] border border-[var(--border)] bg-[var(--bg-elevated)] p-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--text-secondary)]">
             Nachricht
           </p>
-          <p className="mt-2 whitespace-pre-wrap text-[14px] leading-relaxed text-[#0F172A]">
+          <p className="mt-2 whitespace-pre-wrap text-[14px] leading-relaxed text-[var(--text-primary)]">
             {message.body.trim() || "—"}
           </p>
         </div>
 
         {message.summary ? (
-          <div className="rounded-[14px] border border-[#E2E8F0] bg-white p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[#64748B]">
+          <div className="rounded-[14px] border border-[var(--border)] bg-[var(--bg-surface)] p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--text-secondary)]">
               HELPY-Zusammenfassung
             </p>
-            <p className="mt-2 text-[13px] leading-relaxed text-[#334155]">
+            <p className="mt-2 text-[13px] leading-relaxed text-[var(--text-secondary)]">
               {message.summary}
             </p>
           </div>

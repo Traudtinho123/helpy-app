@@ -75,7 +75,7 @@ export function KalenderPage() {
           )}
 
         <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-          <aside className="w-full shrink-0 overflow-y-auto border-b border-[#CBD5E1]/50 bg-white/50 p-5 backdrop-blur-sm lg:w-[300px] lg:border-r lg:border-b-0 xl:w-[320px]">
+          <aside className="w-full shrink-0 overflow-y-auto border-b border-[var(--border)] bg-[var(--bg-surface)] p-5 backdrop-blur-sm lg:w-[300px] lg:border-r lg:border-b-0 xl:w-[320px]">
             <MonthCalendar
               selectedDay={selectedDay}
               onSelectDay={setSelectedDay}

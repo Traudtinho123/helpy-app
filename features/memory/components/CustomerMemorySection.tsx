@@ -17,10 +17,10 @@ export function CustomerMemorySection({ customerId }: CustomerMemorySectionProps
   return (
     <div className="mt-8">
       <div className="mb-5">
-        <h3 className="text-[14px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+        <h3 className="text-[14px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
           Was HELPY über diesen Kunden weiß
         </h3>
-        <p className="mt-1 text-[12px] leading-relaxed text-[#64748B]">{intro}</p>
+        <p className="mt-1 text-[12px] leading-relaxed text-[var(--text-secondary)]">{intro}</p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">

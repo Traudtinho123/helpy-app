@@ -9,15 +9,12 @@ import {
   Building2,
   Calendar,
   Check,
-  FileText,
   Mail,
+  MapPin,
   Pencil,
-  Radio,
-  Sparkles,
   Users,
   X,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { ObjectDossierPanel } from "@/features/portfolio/components/object-dossier-panel";
 import { ObjectPipelineTab } from "@/features/deals/components/object-pipeline-tab";
 import { ObjectMatchesTab } from "@/features/matching/components/object-matches-tab";
@@ -32,9 +29,6 @@ import { fetchPortalListing } from "@/features/portal-publish/services/portal-cl
 import { SocialPostEditor } from "@/features/social-media/components/social-post-editor";
 import { SocialPostHistory } from "@/features/social-media/components/social-post-history";
 import type { SocialPost } from "@/features/social-media/types/social-media-types";
-import { getDocumentDisplayStatus } from "@/features/documents/services/types";
-import { REAL_ESTATE_OBJECT_STATUS_LABELS } from "@/features/real-estate/object";
-import { formatObjectListingPriceLabel } from "@/features/portfolio/services/object-pricing-utils";
 import { updatePortfolioObjectTitle } from "@/features/portfolio/services/portfolio-add-service";
 import {
   resolveObjectBackNavigation,
@@ -42,11 +36,12 @@ import {
 } from "@/features/portfolio/services/object-navigation";
 import {
   getObjektakteDetail,
-  resolvePortfolioObjectImages,
   subscribePortfolioStores,
 } from "@/features/portfolio/services/portfolio-service";
-import { getCoverImageUrl } from "@/features/real-estate/object/object-image-utils";
-import { ObjectImageCover } from "@/features/portfolio/components/object-image-cover";
+import { REAL_ESTATE_OBJECT_STATUS_LABELS } from "@/features/real-estate/object";
+import { formatObjectListingPriceLabel } from "@/features/portfolio/services/object-pricing-utils";
+import { ObjektDetailGallery } from "@/features/portfolio/components/objekt-detail-gallery";
+import { ObjektDetailSidebar } from "@/features/portfolio/components/objekt-detail-sidebar";
 import { ObjectImagesSection } from "@/features/portfolio/components/object-images-section";
 import { FieldGrid, SectionCard } from "@/features/workspace/components/workspace-sections";
 import { useStoreRevision } from "@/lib/hooks/use-store-revision";
@@ -136,12 +131,12 @@ function ObjectTitleEditor({
             }}
             autoFocus
             aria-label="Objekttitel bearbeiten"
-            className="min-w-0 flex-1 rounded-[12px] border border-[#BFDBFE] bg-white px-3 py-2 text-[1.5rem] font-semibold tracking-[-0.035em] text-[#0F172A] outline-none ring-3 ring-[#2563EB]/15 sm:text-[2rem]"
+            className="min-w-0 flex-1 rounded-lg border border-[var(--border-strong)] bg-[var(--bg-elevated)] px-3 py-2 text-[1.75rem] font-semibold tracking-[-0.035em] text-[var(--text-primary)] outline-none focus:border-[var(--accent)] focus:ring-3 focus:ring-[var(--accent-light)] sm:text-[2rem]"
           />
           <button
             type="button"
             onClick={saveTitle}
-            className="inline-flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-[#2563EB] text-white transition-colors hover:bg-[#1D4ED8]"
+            className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg bg-[var(--accent)] text-white transition-colors hover:bg-[var(--accent-hover)]"
             aria-label="Titel speichern"
           >
             <Check className="size-4" strokeWidth={2.5} />
@@ -149,26 +144,26 @@ function ObjectTitleEditor({
           <button
             type="button"
             onClick={cancelEditing}
-            className="inline-flex size-9 shrink-0 items-center justify-center rounded-[10px] border border-[#CBD5E1]/60 bg-white text-[#64748B] transition-colors hover:bg-[#F8FAFC] hover:text-[#0F172A]"
+            className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-[var(--border-strong)] bg-[var(--bg-elevated)] text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
             aria-label="Bearbeiten abbrechen"
           >
             <X className="size-4" strokeWidth={2} />
           </button>
         </div>
-        {error ? <p className="text-[12px] text-[#DC2626]">{error}</p> : null}
+        {error ? <p className="text-[12px] text-[var(--danger)]">{error}</p> : null}
       </div>
     );
   }
 
   return (
     <div className="group flex items-start gap-2">
-      <h1 className="min-w-0 text-[2rem] font-semibold tracking-[-0.035em] text-[#0F172A]">
+      <h1 className="helpy-display min-w-0 text-[1.75rem] font-semibold tracking-[-0.035em] text-[var(--text-primary)] sm:text-[2rem]">
         {title}
       </h1>
       <button
         type="button"
         onClick={startEditing}
-        className="mt-2 inline-flex size-8 shrink-0 items-center justify-center rounded-[10px] text-[#94A3B8] opacity-70 transition-all hover:bg-[#EFF6FF] hover:text-[#2563EB] hover:opacity-100 group-hover:opacity-100"
+        className="mt-2 inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-[var(--text-muted)] opacity-70 transition-all hover:bg-[var(--bg-elevated)] hover:text-[var(--accent)] hover:opacity-100 group-hover:opacity-100"
         aria-label="Titel bearbeiten"
       >
         <Pencil className="size-3.5" strokeWidth={2} />
@@ -222,29 +217,23 @@ export function ObjektakteView({
     [objectId, revision]
   );
 
-  const images = useMemo(
-    () => (detail ? resolvePortfolioObjectImages(detail.object) : []),
-    [detail, revision]
-  );
-  const coverImageUrl = useMemo(() => getCoverImageUrl(images), [images]);
-
   if (!detail) {
     return (
       <div
         className={
           embedded
-            ? "flex h-full items-center justify-center bg-white/40 px-6"
-            : "rounded-[24px] border border-dashed border-[#CBD5E1] bg-white/70 px-8 py-16 text-center backdrop-blur-xl"
+            ? "flex h-full items-center justify-center px-6"
+            : "rounded-xl border border-dashed border-[var(--border)] bg-[var(--bg-surface)] px-8 py-16 text-center"
         }
       >
         <div className="text-center">
-          <p className="text-sm font-medium text-[#64748B]">
+          <p className="text-sm font-medium text-[var(--text-secondary)]">
             Objekt konnte nicht geladen werden.
           </p>
           {!embedded && (
             <Link
               href={backNav.href}
-              className="mt-4 inline-flex text-[12px] font-semibold text-[#2563EB]"
+              className="mt-4 inline-flex text-[12px] font-semibold text-[var(--text-accent)]"
             >
               {backNav.label}
             </Link>
@@ -261,21 +250,21 @@ export function ObjektakteView({
     <div
       className={
         embedded
-          ? "flex h-full min-w-0 flex-1 flex-col overflow-y-auto bg-white/40 backdrop-blur-sm"
-          : "mx-auto max-w-3xl px-8 py-12 lg:px-12 lg:py-14"
+          ? "flex h-full min-w-0 flex-1 flex-col overflow-y-auto"
+          : "mx-auto w-full max-w-6xl px-5 py-8 lg:px-8 lg:py-10"
       }
     >
       {!embedded && (
         <Link
           href={backNav.href}
-          className="mb-6 inline-flex items-center gap-2 text-[12px] font-medium text-[#64748B] transition-colors hover:text-[#2563EB]"
+          className="mb-6 inline-flex items-center gap-2 text-[12px] font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text-accent)]"
         >
           <ArrowLeft className="size-3.5" />
           {backNav.label}
         </Link>
       )}
 
-      <div className={embedded ? "px-6 py-6 lg:px-8" : undefined}>
+      <div className={embedded ? "px-5 py-5 lg:px-6" : undefined}>
       <MatchNotificationBanner
         objectId={object.objectId}
         objectTitle={object.titel}
@@ -298,8 +287,8 @@ export function ObjektakteView({
             className={cn(
               "rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-all",
               activeTab === tab.id
-                ? "border-[#2563EB]/30 bg-[#EFF6FF] text-[#2563EB]"
-                : "border-transparent bg-white/80 text-[#64748B] hover:bg-white"
+                ? "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--text-accent)]"
+                : "border-transparent bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             )}
           >
             {tab.label}
@@ -326,261 +315,169 @@ export function ObjektakteView({
         />
       ) : (
       <>
-      <section className="overflow-hidden rounded-[24px] border border-[#CBD5E1]/40 bg-white/90 shadow-[0_2px_8px_rgba(15,23,42,0.04)]">
-        <ObjectImageCover
-          coverImageUrl={coverImageUrl}
-          alt={object.titel}
-          variant="hero"
-        />
+      <div className="grid gap-6 lg:grid-cols-[3fr_2fr] lg:gap-8">
+        <div className="min-w-0 space-y-5">
+          <ObjektDetailGallery images={detail.images} title={object.titel} />
 
-        <div className="space-y-3 p-6">
-          <p className="text-[11px] font-semibold tracking-[0.06em] text-[#2563EB] uppercase">
-            Überblick
-          </p>
-          <ObjectTitleEditor objectId={object.objectId} title={object.titel} />
-          <p className="text-[14px] text-[#64748B]">
-            {object.adresse}, {object.plz} {object.ort}
-          </p>
-          <div className="flex flex-wrap items-center gap-2">
-            {object.transaktion && (
-              <Badge
-                variant="outline"
-                className={cn(
-                  "h-6 rounded-full px-2.5 text-[10px] font-semibold",
-                  object.transaktion === "Miete"
-                    ? "border-[#BFDBFE] bg-[#EFF6FF] text-[#2563EB]"
-                    : "border-[#FDE68A] bg-[#FFFBEB] text-[#B45309]"
-                )}
-              >
-                {object.transaktion}
-              </Badge>
-            )}
-            <p className="text-[20px] font-semibold tracking-[-0.02em] text-[#0F172A]">
-              {listingPrice}
+          <div className="space-y-3">
+            <ObjectTitleEditor objectId={object.objectId} title={object.titel} />
+            <p className="flex items-center gap-1.5 text-[14px] text-[var(--text-secondary)]">
+              <MapPin className="size-3.5 shrink-0 text-[var(--text-muted)]" />
+              {object.adresse}, {object.plz} {object.ort}
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              {object.transaktion ? (
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "h-6 rounded-full px-2.5 text-[10px] font-semibold",
+                    object.transaktion === "Miete"
+                      ? "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--text-accent)]"
+                      : "border-[var(--warning-light)] bg-[var(--warning-light)] text-[var(--warning)]"
+                  )}
+                >
+                  {object.transaktion}
+                </Badge>
+              ) : null}
+              <p className="text-[32px] font-extrabold tracking-[-0.03em] text-[var(--text-primary)]">
+                {listingPrice}
+              </p>
+            </div>
+            <p className="text-[13px] text-[var(--text-muted)]">
+              {REAL_ESTATE_OBJECT_STATUS_LABELS[object.status]} · {object.quelle}
             </p>
           </div>
-          <p className="text-[13px] text-[#64748B]">
-            Status: {REAL_ESTATE_OBJECT_STATUS_LABELS[object.status]} · {object.quelle}
-          </p>
+
+          <SectionCard title="Details" icon={Building2}>
+            <FieldGrid
+              fields={[
+                { label: "Zimmer", value: object.zimmer ?? "—" },
+                { label: "Fläche", value: object.wohnflaeche ?? "—" },
+                { label: "Etage", value: object.stockwerk ?? "—" },
+                { label: "Baujahr", value: detail.baujahr },
+                { label: "Verfügbar ab", value: detail.verfuegbarkeit },
+                { label: "Typ", value: object.transaktion ?? "—" },
+              ]}
+            />
+          </SectionCard>
+
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-5">
+            <p className="text-[9px] font-bold tracking-[0.15em] text-[var(--text-muted)] uppercase">
+              Beschreibung
+            </p>
+            <p className="mt-3 text-[14px] leading-relaxed text-[var(--text-secondary)]">
+              {detail.summary}
+            </p>
+          </div>
+
           <PortalPublishStatus objectId={object.objectId} />
           <SocialPostHistory posts={socialPosts} />
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              onClick={() =>
-                openDocumentCreationForObject({ object, kind: "expose" })
-              }
-              variant="outline"
-              className="h-9 rounded-[12px] px-3.5 text-[12px] font-semibold"
-            >
-              <FileText className="mr-1.5 size-3.5" />
-              Exposé erstellen
-            </Button>
-            <Button
-              type="button"
-              onClick={() =>
-                openDocumentCreationForObject({ object, kind: "angebot" })
-              }
-              variant="outline"
-              className="h-9 rounded-[12px] px-3.5 text-[12px] font-semibold"
-            >
-              <FileText className="mr-1.5 size-3.5" />
-              Angebot erstellen
-            </Button>
-            {immoscoutConfigured === false ? (
-              <Button
-                type="button"
-                onClick={() => router.push("/plattformen")}
-                className="h-9 rounded-[12px] bg-[#F59E0B] px-3.5 text-[12px] font-semibold text-white hover:bg-[#D97706]"
-              >
-                <Radio className="mr-1.5 size-3.5" />
-                ImmoScout24 verbinden
-              </Button>
+          <ObjectImagesSection object={object} />
+
+          <SectionCard title="Interessenten" icon={Users}>
+            {detail.interessenten.length > 0 ? (
+              <ul className="space-y-2.5">
+                {detail.interessenten.map((interessent) => (
+                  <li
+                    key={`${interessent.vorgangId}-${interessent.email}`}
+                    className="rounded-lg border border-[var(--border)] bg-[var(--bg-elevated)] px-3.5 py-3"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-[13px] font-semibold text-[var(--text-primary)]">
+                          {interessent.name}
+                        </p>
+                        <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
+                          {interessent.email}
+                        </p>
+                        <p className="mt-2 text-[11px] text-[var(--text-muted)]">
+                          {interessent.status} · {interessent.letzteAktivitaet}
+                        </p>
+                      </div>
+                      <Link
+                        href={`/kunden/akte/${encodeURIComponent(interessent.vorgangId)}`}
+                        className="helpy-btn-primary inline-flex h-8 shrink-0 items-center px-3 text-[11px]"
+                      >
+                        Kundenakte
+                      </Link>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             ) : (
-              <Button
-                type="button"
-                onClick={() => setPublishOpen(true)}
-                className="h-9 rounded-[12px] bg-[#2563EB] px-3.5 text-[12px] font-semibold text-white hover:bg-[#1D4ED8]"
-              >
-                <Radio className="mr-1.5 size-3.5" />
-                Auf ImmoScout24 publizieren
-              </Button>
+              <p className="text-[12px] text-[var(--text-muted)]">
+                Noch keine Interessenten für dieses Objekt.
+              </p>
             )}
-          </div>
-          <div className="rounded-[14px] border border-[#BFDBFE]/50 bg-[#EFF6FF]/45 px-3.5 py-3">
-            <p className="text-[12px] leading-relaxed text-[#334155]">{detail.summary}</p>
-          </div>
+          </SectionCard>
+
+          <SectionCard title="Besichtigungen" icon={Calendar}>
+            {detail.besichtigungen.length > 0 ? (
+              <ul className="space-y-2.5">
+                {detail.besichtigungen.map((besichtigung) => (
+                  <li
+                    key={besichtigung.id}
+                    className="rounded-lg border border-[var(--border)] bg-[var(--bg-elevated)] px-3.5 py-3"
+                  >
+                    <p className="text-[13px] font-semibold text-[var(--text-primary)]">
+                      {besichtigung.datum} · {besichtigung.uhrzeit}
+                    </p>
+                    <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
+                      {besichtigung.interessent}
+                    </p>
+                    <p className="mt-2 text-[11px] text-[var(--text-muted)]">
+                      {besichtigung.status} · {besichtigung.kalenderquelle}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-[12px] text-[var(--text-muted)]">
+                Noch keine Besichtigungen geplant.
+              </p>
+            )}
+          </SectionCard>
+
+          <SectionCard title="Kommunikation" icon={Mail}>
+            {detail.kommunikation.length > 0 ? (
+              <ul className="space-y-2.5">
+                {detail.kommunikation.map((entry) => (
+                  <li
+                    key={entry.id}
+                    className="rounded-lg border border-[var(--border)] bg-[var(--bg-elevated)] px-3.5 py-3"
+                  >
+                    <p className="text-[13px] font-semibold text-[var(--text-primary)]">
+                      {entry.betreff}
+                    </p>
+                    <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
+                      {entry.kunde} · {entry.quelle}
+                    </p>
+                    <p className="mt-2 text-[11px] text-[var(--text-muted)]">
+                      {entry.datum} · {entry.status}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-[12px] text-[var(--text-muted)]">
+                Noch keine Kommunikation zu diesem Objekt.
+              </p>
+            )}
+          </SectionCard>
         </div>
-      </section>
 
-      <div className="mt-5 space-y-5">
-        <SectionCard title="Eckdaten" icon={Building2}>
-          <FieldGrid
-            fields={[
-              {
-                label: "Inseratstyp",
-                value: object.transaktion ?? "—",
-              },
-              {
-                label: "Preis",
-                value: listingPrice,
-                highlight: true,
-              },
-              { label: "Zimmer", value: object.zimmer ?? "—" },
-              { label: "Wohnfläche", value: object.wohnflaeche ?? "—" },
-              { label: "Stockwerk", value: object.stockwerk ?? "—" },
-              { label: "Baujahr", value: detail.baujahr },
-              { label: "Verfügbarkeit", value: detail.verfuegbarkeit },
-              { label: "Quelle", value: object.quelle },
-            ]}
-          />
-        </SectionCard>
-
-        <ObjectImagesSection object={object} />
-
-        <SectionCard title="Interessenten" icon={Users}>
-          {detail.interessenten.length > 0 ? (
-            <ul className="space-y-2.5">
-              {detail.interessenten.map((interessent) => (
-                <li
-                  key={`${interessent.vorgangId}-${interessent.email}`}
-                  className="rounded-[14px] border border-[#E2E8F0]/70 bg-[#F8FAFC]/80 px-3.5 py-3"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-[13px] font-semibold text-[#0F172A]">
-                        {interessent.name}
-                      </p>
-                      <p className="mt-1 text-[12px] text-[#64748B]">{interessent.email}</p>
-                      <p className="mt-2 text-[11px] text-[#64748B]">
-                        Status: {interessent.status} · Letzte Aktivität:{" "}
-                        {interessent.letzteAktivitaet}
-                      </p>
-                    </div>
-                    <Link
-                      href={`/kunden/akte/${encodeURIComponent(interessent.vorgangId)}`}
-                      className="inline-flex h-8 shrink-0 items-center rounded-[10px] bg-[#2563EB] px-3 text-[11px] font-semibold text-white transition-colors hover:bg-[#1D4ED8]"
-                    >
-                      Kundenakte öffnen
-                    </Link>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-[12px] text-[#64748B]">
-              Noch keine Interessenten für dieses Objekt.
-            </p>
-          )}
-        </SectionCard>
-
-        <SectionCard title="Besichtigungen" icon={Calendar}>
-          {detail.besichtigungen.length > 0 ? (
-            <ul className="space-y-2.5">
-              {detail.besichtigungen.map((besichtigung) => (
-                <li
-                  key={besichtigung.id}
-                  className="rounded-[14px] border border-[#E2E8F0]/70 bg-[#F8FAFC]/80 px-3.5 py-3"
-                >
-                  <p className="text-[13px] font-semibold text-[#0F172A]">
-                    {besichtigung.datum} · {besichtigung.uhrzeit}
-                  </p>
-                  <p className="mt-1 text-[12px] text-[#64748B]">
-                    {besichtigung.interessent}
-                  </p>
-                  <p className="mt-2 text-[11px] text-[#64748B]">
-                    Status: {besichtigung.status} · {besichtigung.kalenderquelle}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-[12px] text-[#64748B]">
-              Noch keine Besichtigungen geplant.
-            </p>
-          )}
-        </SectionCard>
-
-        <SectionCard title="Dokumente" icon={FileText}>
-          {detail.dokumente.length > 0 ? (
-            <ul className="space-y-2.5">
-              {detail.dokumente.map((document) => (
-                <li
-                  key={document.id}
-                  className="rounded-[14px] border border-[#E2E8F0]/70 bg-[#F8FAFC]/80 px-3.5 py-3"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-[13px] font-semibold text-[#0F172A]">
-                        {document.title}
-                      </p>
-                      <p className="mt-1 text-[12px] text-[#64748B]">
-                        {document.typeLabel} · {getDocumentDisplayStatus(document)}
-                      </p>
-                    </div>
-                    <Link
-                      href={`/dokumente?selected=${encodeURIComponent(document.id)}`}
-                      className="inline-flex h-8 shrink-0 items-center rounded-[10px] border border-[#CBD5E1]/60 bg-white px-3 text-[11px] font-semibold text-[#2563EB] transition-colors hover:border-[#BFDBFE]/60 hover:bg-[#EFF6FF]"
-                    >
-                      Dokument öffnen
-                    </Link>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-[12px] text-[#64748B]">
-              Noch keine Dokumente zu diesem Objekt.
-            </p>
-          )}
-        </SectionCard>
-
-        <SectionCard title="Kommunikation" icon={Mail}>
-          {detail.kommunikation.length > 0 ? (
-            <ul className="space-y-2.5">
-              {detail.kommunikation.map((entry) => (
-                <li
-                  key={entry.id}
-                  className="rounded-[14px] border border-[#E2E8F0]/70 bg-[#F8FAFC]/80 px-3.5 py-3"
-                >
-                  <p className="text-[13px] font-semibold text-[#0F172A]">
-                    {entry.betreff}
-                  </p>
-                  <p className="mt-1 text-[12px] text-[#64748B]">
-                    {entry.kunde} · {entry.quelle}
-                  </p>
-                  <p className="mt-2 text-[11px] text-[#64748B]">
-                    {entry.datum} · Status: {entry.status}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-[12px] text-[#64748B]">
-              Noch keine Kommunikation zu diesem Objekt.
-            </p>
-          )}
-        </SectionCard>
-
-        <div className="rounded-[20px] border border-[#BFDBFE]/60 bg-gradient-to-br from-[#EFF6FF]/70 to-white/90 px-5 py-4 shadow-[0_2px_12px_rgba(37,99,235,0.06)]">
-          <div className="flex items-center gap-2">
-            <Sparkles className="size-4 text-[#2563EB]" strokeWidth={2} />
-            <p className="text-[12px] font-semibold text-[#0F172A]">
-              HELPY weiß über dieses Objekt
-            </p>
-          </div>
-          <ul className="mt-3 space-y-2">
-            {detail.helpyWissen.map((hint) => (
-              <li
-                key={hint}
-                className="flex gap-2 text-[12px] leading-relaxed text-[#334155]"
-              >
-                <span className="mt-1.5 size-1 shrink-0 rounded-full bg-[#2563EB]" />
-                {hint}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ObjektDetailSidebar
+          detail={detail}
+          object={object}
+          immoscoutConfigured={immoscoutConfigured}
+          onPublish={() => setPublishOpen(true)}
+          onConnectImmoscout={() => router.push("/plattformen")}
+          onCreateExpose={() =>
+            openDocumentCreationForObject({ object, kind: "expose" })
+          }
+          onSocialPost={() => setActiveTab("social")}
+          onOpenPipeline={() => setActiveTab("pipeline")}
+        />
       </div>
       </>
       )}

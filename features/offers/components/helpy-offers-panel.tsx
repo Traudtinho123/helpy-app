@@ -58,7 +58,7 @@ function HelpyWorkStatus({
           return (
             <li
               key={step}
-              className="helpy-fade-in flex items-center gap-2 text-[11px] text-[#475569]"
+              className="helpy-fade-in flex items-center gap-2 text-[11px] text-[var(--text-muted)]"
             >
               <span className="size-1.5 shrink-0 rounded-full bg-[#2563EB]" />
               {step}
@@ -87,7 +87,7 @@ function InsightSection({
     <div className="space-y-2.5">
       <div className="flex items-center gap-2">
         <Icon className={iconColor} size={16} strokeWidth={2} />
-        <h3 className="text-[11px] font-semibold tracking-[0.04em] text-[#475569] uppercase">
+        <h3 className="text-[11px] font-semibold tracking-[0.04em] text-[var(--text-muted)] uppercase">
           {title}
         </h3>
       </div>
@@ -96,7 +96,7 @@ function InsightSection({
           {items.map((item) => (
             <li
               key={item}
-              className="flex items-start gap-2 text-[12px] leading-relaxed text-[#334155]"
+              className="flex items-start gap-2 text-[12px] leading-relaxed text-[var(--text-secondary)]"
             >
               <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-[#2563EB]" />
               {item}
@@ -104,7 +104,7 @@ function InsightSection({
           ))}
         </ul>
       ) : (
-        <p className="text-[12px] text-[#94A3B8]">{emptyText}</p>
+        <p className="text-[12px] text-[var(--text-muted)]">{emptyText}</p>
       )}
     </div>
   );
@@ -211,19 +211,19 @@ function HelpyOffersPanelShell({
       ) : null}
 
       {!offer ? (
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-[#CBD5E1] bg-[#F8FAFC]/80 p-8 text-center">
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-[var(--border)] bg-[var(--bg-elevated)] p-8 text-center">
           <HelpyCharacter size={88} pose="wave" animated showLabel={false} />
-          <p className="text-sm font-medium text-[#64748B]">
+          <p className="text-sm font-medium text-[var(--text-secondary)]">
             Wähle ein Angebot — ich helfe dir bei der Erstellung.
           </p>
         </div>
       ) : (
         <div className="space-y-5 px-1">
             <div className="helpy-fade-in">
-              <h3 className="text-[15px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+              <h3 className="text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
                 Hallo Viktor 👋
               </h3>
-              <p className="mt-1.5 text-[13px] leading-relaxed text-[#64748B]">
+              <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--text-secondary)]">
                 {HELPY_PANEL_REVIEW_INTRO}
               </p>
             </div>
@@ -240,21 +240,21 @@ function HelpyOffersPanelShell({
                       Meine Empfehlung
                     </p>
                   </div>
-                  <p className="mt-2.5 text-[12px] leading-[1.65] text-[#334155]">
+                  <p className="mt-2.5 text-[12px] leading-[1.65] text-[var(--text-secondary)]">
                     {getHelpyRecommendation(offer)}
                   </p>
                 </div>
 
-                <Card className="helpy-fade-in rounded-[20px] border-[#CBD5E1]/40 bg-white py-0 shadow-sm">
+                <Card className="helpy-fade-in rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
                   <CardContent className="p-5">
-                    <p className="text-[12px] font-semibold text-[#0F172A]">
+                    <p className="text-[12px] font-semibold text-[var(--text-primary)]">
                       Ich habe Folgendes geprüft
                     </p>
                     <ul className="mt-3 space-y-2">
                       {qualityChecks.map(({ label, ok }) => (
                         <li
                           key={label}
-                          className="flex items-center gap-2.5 text-[12px] text-[#334155]"
+                          className="flex items-center gap-2.5 text-[12px] text-[var(--text-secondary)]"
                         >
                           {ok ? (
                             <CheckCircle2
@@ -274,14 +274,14 @@ function HelpyOffersPanelShell({
                   </CardContent>
                 </Card>
 
-                <Card className="helpy-fade-in rounded-[20px] border-[#CBD5E1]/40 bg-white py-0 shadow-sm">
+                <Card className="helpy-fade-in rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
                   <CardContent className="space-y-5 p-5">
                     <InsightSection
                       title="Erkannte Positionen"
                       icon={ListChecks}
                       items={offer.helpy.detectedItems}
                       emptyText="Keine Positionen erkannt."
-                      iconColor="text-[#2563EB]"
+                      iconColor="text-[var(--accent)]"
                     />
 
                     {offer.helpy.missingInfo.length > 0 && (
@@ -296,45 +296,45 @@ function HelpyOffersPanelShell({
                   </CardContent>
                 </Card>
 
-                <Card className="helpy-fade-in rounded-[20px] border-[#CBD5E1]/40 bg-white py-0 shadow-sm">
+                <Card className="helpy-fade-in rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
                   <CardContent className="p-5">
                     <div className="flex items-center gap-2">
                       <FileText
-                        className="size-4 text-[#2563EB]"
+                        className="size-4 text-[var(--accent)]"
                         strokeWidth={2}
                       />
-                      <p className="text-[12px] font-semibold text-[#0F172A]">
+                      <p className="text-[12px] font-semibold text-[var(--text-primary)]">
                         PDF
                       </p>
                     </div>
-                    <p className="mt-3 text-[11px] font-medium text-[#64748B]">
+                    <p className="mt-3 text-[11px] font-medium text-[var(--text-secondary)]">
                       Status
                     </p>
                     <p className="mt-0.5 text-[12px] font-semibold text-[#047857]">
                       {previewOpen ? "Vorschau geöffnet" : "Bereit zum Export"}
                     </p>
-                    <p className="mt-3 rounded-[12px] border border-[#BFDBFE]/50 bg-[#EFF6FF]/60 px-3.5 py-3 text-[12px] leading-relaxed text-[#334155]">
+                    <p className="mt-3 rounded-[12px] border border-[var(--border-accent)]/50 bg-[var(--accent-light)] px-3.5 py-3 text-[12px] leading-relaxed text-[var(--text-secondary)]">
                       {OFFER_PREVIEW_HELPY_MESSAGE}
                     </p>
                     <Button
                       variant="outline"
                       onClick={onOpenPreview}
-                      className="mt-3 h-9 w-full rounded-[12px] border-[#CBD5E1]/60 text-[12px] font-medium"
+                      className="mt-3 h-9 w-full rounded-[12px] border-[var(--border)] text-[12px] font-medium"
                     >
                       PDF Vorschau öffnen
                     </Button>
                   </CardContent>
                 </Card>
 
-                <Card className="helpy-fade-in rounded-[20px] border-[#CBD5E1]/40 bg-white py-0 shadow-sm">
+                <Card className="helpy-fade-in rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
                   <CardContent className="p-5">
                     <div className="flex items-center gap-2">
-                      <Mail className="size-4 text-[#2563EB]" strokeWidth={2} />
-                      <p className="text-[12px] font-semibold text-[#0F172A]">
+                      <Mail className="size-4 text-[var(--accent)]" strokeWidth={2} />
+                      <p className="text-[12px] font-semibold text-[var(--text-primary)]">
                         Versand
                       </p>
                     </div>
-                    <p className="mt-3 text-[11px] font-medium text-[#64748B]">
+                    <p className="mt-3 text-[11px] font-medium text-[var(--text-secondary)]">
                       Status
                     </p>
                     <p className="mt-0.5 text-[12px] font-semibold text-[#047857]">

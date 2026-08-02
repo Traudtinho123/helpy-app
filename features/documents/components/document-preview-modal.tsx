@@ -88,12 +88,12 @@ function DocumentPreviewContent({
 
   return (
     <div className="fixed inset-0 z-[120] flex flex-col bg-[#0F172A]/40 backdrop-blur-sm">
-      <div className="flex shrink-0 items-center justify-between border-b border-[#CBD5E1]/40 bg-white/95 px-5 py-4 backdrop-blur-xl sm:px-8">
+      <div className="flex shrink-0 items-center justify-between border-b border-[var(--border)] bg-[var(--bg-surface)]/95 px-5 py-4 backdrop-blur-xl sm:px-8">
         <div>
-          <p className="text-[14px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+          <p className="text-[14px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
             {fileName}
           </p>
-          <p className="mt-0.5 text-[12px] text-[#64748B]">
+          <p className="mt-0.5 text-[12px] text-[var(--text-secondary)]">
             {category} · {source}
           </p>
         </div>
@@ -103,7 +103,7 @@ function DocumentPreviewContent({
           <Button
             type="button"
             variant="outline"
-            className="hidden h-9 gap-2 rounded-[10px] border-[#CBD5E1]/60 text-[12px] font-medium sm:inline-flex"
+            className="hidden h-9 gap-2 rounded-[10px] border-[var(--border)] text-[12px] font-medium sm:inline-flex"
           >
             <Download className="size-4" />
             Export vorbereiten
@@ -111,7 +111,7 @@ function DocumentPreviewContent({
           <Button
             type="button"
             variant="outline"
-            className="hidden h-9 gap-2 rounded-[10px] border-[#CBD5E1]/60 text-[12px] font-medium sm:inline-flex"
+            className="hidden h-9 gap-2 rounded-[10px] border-[var(--border)] text-[12px] font-medium sm:inline-flex"
           >
             <CheckCircle2 className="size-4" />
             Prüfen
@@ -128,7 +128,7 @@ function DocumentPreviewContent({
             variant="outline"
             size="icon-sm"
             onClick={() => onOpenChange(false)}
-            className="size-9 rounded-[10px] border-[#CBD5E1]/60"
+            className="size-9 rounded-[10px] border-[var(--border)]"
             aria-label="Schließen"
           >
             <X className="size-4" />
@@ -137,7 +137,7 @@ function DocumentPreviewContent({
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-8 sm:px-8">
-        <article className="mx-auto w-full max-w-[820px] bg-white px-10 py-12 shadow-[0_8px_40px_rgba(15,23,42,0.08)] sm:px-14 sm:py-14">
+        <article className="mx-auto w-full max-w-[820px] bg-[var(--bg-surface)] px-10 py-12 shadow-[0_8px_40px_rgba(15,23,42,0.08)] sm:px-14 sm:py-14">
           <CompanyDocumentHeader
             profile={profile}
             documentTitle={category}
@@ -166,7 +166,7 @@ function DocumentPreviewContent({
             </Badge>
             <Badge
               variant="outline"
-              className="h-6 rounded-full border-[#CBD5E1]/60 bg-[#F8FAFC] px-2.5 text-[10px] font-semibold text-[#475569]"
+              className="h-6 rounded-full border-[var(--border)] bg-[var(--bg-elevated)] px-2.5 text-[10px] font-semibold text-[var(--text-muted)]"
             >
               {SKILL_EMOJI[doc.skill]}{" "}
               {getSkillConfig(doc.skill).label.replace(/^HELPY /, "")}
@@ -184,7 +184,7 @@ function DocumentPreviewContent({
                     {section.heading}
                   </h4>
                 )}
-                <p className="mt-2 whitespace-pre-line text-[13px] leading-[1.85] text-[#334155]">
+                <p className="mt-2 whitespace-pre-line text-[13px] leading-[1.85] text-[var(--text-secondary)]">
                   {section.content}
                 </p>
               </section>
@@ -211,10 +211,10 @@ function DocumentPreviewContent({
                   >
                     Empfehlung von HELPY
                   </p>
-                  <p className="mt-1 text-[12px] leading-relaxed text-[#334155]">
+                  <p className="mt-1 text-[12px] leading-relaxed text-[var(--text-secondary)]">
                     {doc.helpyHint}
                   </p>
-                  <p className="mt-2 text-[11px] text-[#64748B]">
+                  <p className="mt-2 text-[11px] text-[var(--text-secondary)]">
                     {DOCUMENT_ENGINE_HELPY_MESSAGES.trust}
                   </p>
                 </div>
@@ -226,11 +226,11 @@ function DocumentPreviewContent({
         </article>
       </div>
 
-      <div className="flex shrink-0 flex-wrap gap-2 border-t border-[#CBD5E1]/40 bg-white/95 px-5 py-4 backdrop-blur-xl sm:hidden">
+      <div className="flex shrink-0 flex-wrap gap-2 border-t border-[var(--border)] bg-[var(--bg-surface)]/95 px-5 py-4 backdrop-blur-xl sm:hidden">
         <Button
           type="button"
           variant="outline"
-          className="h-9 flex-1 gap-2 rounded-[10px] border-[#CBD5E1]/60 text-[12px] font-medium"
+          className="h-9 flex-1 gap-2 rounded-[10px] border-[var(--border)] text-[12px] font-medium"
         >
           <CheckCircle2 className="size-4" />
           Prüfen

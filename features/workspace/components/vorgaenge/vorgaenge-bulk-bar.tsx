@@ -91,11 +91,11 @@ export function VorgaengeBulkBar({
   return (
     <div
       className={cn(
-        "sticky top-0 z-20 flex flex-wrap items-center gap-3 rounded-[16px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/95 px-4 py-3 shadow-sm backdrop-blur-md",
+        "sticky top-0 z-20 flex flex-wrap items-center gap-3 rounded-[16px] border border-[var(--border-accent)] bg-[var(--accent-light)]/95 px-4 py-3 shadow-sm backdrop-blur-md",
         className
       )}
     >
-      <span className="text-[13px] font-semibold text-[#0F172A]">
+      <span className="text-[13px] font-semibold text-[var(--text-primary)]">
         {selectedIds.length} ausgewählt
       </span>
       <Button
@@ -115,7 +115,7 @@ export function VorgaengeBulkBar({
         size="sm"
         variant="outline"
         onClick={handleBulkArchive}
-        className="h-8 gap-1.5 rounded-[10px] border-[#CBD5E1]/60 text-[11px]"
+        className="h-8 gap-1.5 rounded-[10px] border-[var(--border)] text-[11px]"
       >
         <Archive className="size-3.5" />
         Alle archivieren
@@ -126,20 +126,20 @@ export function VorgaengeBulkBar({
           size="sm"
           variant="outline"
           onClick={() => setShowPriorityMenu((open) => !open)}
-          className="h-8 gap-1.5 rounded-[10px] border-[#CBD5E1]/60 text-[11px]"
+          className="h-8 gap-1.5 rounded-[10px] border-[var(--border)] text-[11px]"
         >
           <Flag className="size-3.5" />
           Priorität setzen
         </Button>
         {showPriorityMenu ? (
-          <div className="absolute left-0 top-full z-30 mt-1 min-w-[140px] rounded-[12px] border border-[#E2E8F0] bg-white py-1 shadow-lg">
+          <div className="absolute left-0 top-full z-30 mt-1 min-w-[140px] rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] py-1 shadow-lg">
             {(["kritisch", "hoch", "mittel", "niedrig"] as VorgangPriority[]).map(
               (priority) => (
                 <button
                   key={priority}
                   type="button"
                   onClick={() => handleSetPriority(priority)}
-                  className="block w-full px-3 py-2 text-left text-[12px] text-[#334155] hover:bg-[#F8FAFC]"
+                  className="block w-full px-3 py-2 text-left text-[12px] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"
                 >
                   {VORGANG_PRIORITY_LABELS[priority]}
                 </button>
@@ -151,7 +151,7 @@ export function VorgaengeBulkBar({
       <button
         type="button"
         onClick={clearVorgangSelection}
-        className="ml-auto text-[11px] font-medium text-[#64748B] hover:text-[#0F172A]"
+        className="ml-auto text-[11px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       >
         Auswahl aufheben
       </button>

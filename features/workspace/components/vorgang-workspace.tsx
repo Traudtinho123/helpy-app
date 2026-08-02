@@ -26,10 +26,10 @@ export function VorgangWorkspace({ vorgang }: VorgangWorkspaceProps) {
   return (
     <div className="mx-auto max-w-4xl space-y-5 p-6 lg:p-8">
       <header className="mb-2">
-        <h1 className="text-[1.5rem] font-semibold tracking-[-0.02em] text-[#0F172A]">
+        <h1 className="text-[1.5rem] font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
           {vorgang.aufgabe.titel}
         </h1>
-        <p className="mt-1 text-[13px] text-[#64748B]">
+        <p className="mt-1 text-[13px] text-[var(--text-secondary)]">
           {skillConfig.label} · Vorgangsorientierte Ansicht
         </p>
       </header>

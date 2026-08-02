@@ -11,21 +11,28 @@ import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-type KpiAccent = "accent" | "success" | "warning" | "danger";
+export type KpiAccent = "accent" | "success" | "warning" | "danger";
 
-type KpiCardProps = {
+export type KpiIconId = "vorgaenge" | "besichtigungen" | "neue-kunden" | "anrufe";
+
+export type KpiCardItem = {
+  id: string;
   label: string;
   value: number;
   trend: string;
   trendDirection?: "up" | "down" | "neutral";
-  icon: LucideIcon;
+  icon: KpiIconId;
   accent: KpiAccent;
 };
 
-const accentStyles: Record<
-  KpiAccent,
-  { iconColor: string; iconBg: string }
-> = {
+const KPI_ICONS: Record<KpiIconId, LucideIcon> = {
+  vorgaenge: ClipboardList,
+  besichtigungen: Calendar,
+  "neue-kunden": Users,
+  anrufe: Phone,
+};
+
+const accentStyles: Record<KpiAccent, { iconColor: string; iconBg: string }> = {
   accent: {
     iconColor: "text-[var(--accent)]",
     iconBg: "bg-[var(--accent-light)]",
@@ -44,15 +51,21 @@ const accentStyles: Record<
   },
 };
 
+type KpiCardProps = KpiCardItem & {
+  isLoading?: boolean;
+};
+
 function KpiCard({
   label,
   value,
   trend,
   trendDirection = "up",
-  icon: Icon,
+  icon,
   accent,
+  isLoading = false,
 }: KpiCardProps) {
   const styles = accentStyles[accent];
+  const Icon = KPI_ICONS[icon];
 
   return (
     <Card className="rounded-xl border-[var(--border)] bg-[var(--bg-surface)] py-0 transition-all duration-200 hover:border-[var(--border-accent)] hover:shadow-[var(--shadow-sm)]">
@@ -67,10 +80,14 @@ function KpiCard({
         </div>
 
         <div className="mt-4">
-          <AnimatedNumber
-            value={value}
-            className="text-[36px] font-extrabold leading-none tracking-[-0.03em] text-[var(--text-primary)]"
-          />
+          {isLoading ? (
+            <div className="h-9 w-16 animate-pulse rounded-md bg-[var(--bg-elevated)]" />
+          ) : (
+            <AnimatedNumber
+              value={value}
+              className="text-[36px] font-extrabold leading-none tracking-[-0.03em] text-[var(--text-primary)]"
+            />
+          )}
           <p className="mt-1.5 text-[13px] font-medium text-[var(--text-secondary)]">
             {label}
           </p>
@@ -91,46 +108,17 @@ function KpiCard({
   );
 }
 
-const kpis: KpiCardProps[] = [
-  {
-    label: "Vorgänge",
-    value: 49,
-    trend: "+23%",
-    trendDirection: "up",
-    icon: ClipboardList,
-    accent: "accent",
-  },
-  {
-    label: "Besichtigungen",
-    value: 7,
-    trend: "+40%",
-    trendDirection: "up",
-    icon: Calendar,
-    accent: "success",
-  },
-  {
-    label: "Neue Kd.",
-    value: 3,
-    trend: "+100%",
-    trendDirection: "up",
-    icon: Users,
-    accent: "warning",
-  },
-  {
-    label: "Anrufe",
-    value: 12,
-    trend: "+20%",
-    trendDirection: "up",
-    icon: Phone,
-    accent: "danger",
-  },
-];
+type KpiCardsProps = {
+  items: KpiCardItem[];
+  isLoading?: boolean;
+  className?: string;
+};
 
-export function KpiCards() {
+export function KpiCards({ items, isLoading = false, className }: KpiCardsProps) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {kpis.map((kpi) => (
-        <KpiCard key={kpi.label} {...kpi} />
+    <div className={cn("grid gap-4 sm:grid-cols-2 xl:grid-cols-4", className)}>
+      {items.map((kpi) => (
+        <KpiCard key={kpi.id} {...kpi} isLoading={isLoading} />
       ))}
     </div>
   );

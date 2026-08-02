@@ -258,7 +258,7 @@ export function OnboardingFlow({
               Ich bin dein KI-Büroassistent. In den nächsten 5 Minuten richte ich mich
               auf dein Unternehmen ein.
             </OnboardingSubtext>
-            <ul className="mt-8 space-y-3 text-[14px] text-[#475569]">
+            <ul className="mt-8 space-y-3 text-[14px] text-[var(--text-muted)]">
               <li>⏱ Dauert nur 5 Minuten</li>
               <li>🔒 Deine Daten bleiben privat</li>
               <li>✓ Jederzeit anpassbar</li>
@@ -270,7 +270,7 @@ export function OnboardingFlow({
           <div className="py-6">
             <div className="mb-6 flex items-start gap-3">
               <HelpyCharacter size={80} pose="wave" animated variant="head" />
-              <div className="rounded-[16px] rounded-tl-sm border border-[#E7E5E4] bg-white px-4 py-3 text-[14px] text-[#475569] shadow-sm">
+              <div className="rounded-[16px] rounded-tl-sm border border-[#E7E5E4] bg-[var(--bg-surface)] px-4 py-3 text-[14px] text-[var(--text-muted)] shadow-sm">
                 Erzähl mir von dir!
               </div>
             </div>
@@ -282,21 +282,21 @@ export function OnboardingFlow({
                 <Input
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
-                  className="h-14 rounded-[14px] border-[#E7E5E4] bg-white text-center text-[18px] font-medium"
+                  className="h-14 rounded-[14px] border-[#E7E5E4] bg-[var(--bg-surface)] text-center text-[18px] font-medium"
                 />
               </OnboardingField>
               <OnboardingField label="Telefon">
                 <Input
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="h-12 rounded-[14px] border-[#E7E5E4] bg-white"
+                  className="h-12 rounded-[14px] border-[#E7E5E4] bg-[var(--bg-surface)]"
                 />
               </OnboardingField>
               <OnboardingField label="Website (optional)">
                 <Input
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}
-                  className="h-12 rounded-[14px] border-[#E7E5E4] bg-white"
+                  className="h-12 rounded-[14px] border-[#E7E5E4] bg-[var(--bg-surface)]"
                 />
               </OnboardingField>
               <OnboardingField label="Adresse">
@@ -304,11 +304,11 @@ export function OnboardingFlow({
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   placeholder="Strasse, PLZ, Ort"
-                  className="h-12 rounded-[14px] border-[#E7E5E4] bg-white"
+                  className="h-12 rounded-[14px] border-[#E7E5E4] bg-[var(--bg-surface)]"
                 />
               </OnboardingField>
             </div>
-            <p className="mt-6 text-center text-[12px] text-[#94A3B8]">
+            <p className="mt-6 text-center text-[12px] text-[var(--text-muted)]">
               Diese Infos erscheinen in deinen automatischen Antworten und Dokumenten.
             </p>
           </div>
@@ -317,7 +317,7 @@ export function OnboardingFlow({
         {step === 3 && (
           <div className="py-6 text-center">
             <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-full bg-[#EEF2FF]">
-              <Mail className="size-9 text-[#4F46E5]" />
+              <Mail className="size-9 text-[var(--accent)]" />
             </div>
             <OnboardingHeadline>E-Mails verbinden.</OnboardingHeadline>
             <OnboardingSubtext>
@@ -336,14 +336,14 @@ export function OnboardingFlow({
                 onClick={() => {
                   window.location.href = `/api/oauth/google/start?returnTo=${encodeURIComponent("/onboarding/schritt-3")}`;
                 }}
-                className="mt-8 flex h-14 w-full items-center justify-center gap-3 rounded-[14px] border border-[#E7E5E4] bg-white text-[15px] font-semibold shadow-sm transition-colors hover:bg-[#FAFAF9]"
+                className="mt-8 flex h-14 w-full items-center justify-center gap-3 rounded-[14px] border border-[#E7E5E4] bg-[var(--bg-surface)] text-[15px] font-semibold shadow-sm transition-colors hover:bg-[#FAFAF9]"
               >
                 <span className="text-lg">G</span>
                 Gmail verbinden
               </button>
             )}
 
-            <div className="mt-6 space-y-2 text-[13px] text-[#64748B]">
+            <div className="mt-6 space-y-2 text-[13px] text-[var(--text-secondary)]">
               <p className="flex items-center justify-center gap-2">
                 <Shield className="size-4" />
                 Wir lesen nur – du bestätigst jede Aktion selbst
@@ -356,7 +356,7 @@ export function OnboardingFlow({
               onClick={() => {
                 window.location.href = `/api/oauth/microsoft/start?returnTo=${encodeURIComponent("/onboarding/schritt-3")}`;
               }}
-              className="mt-4 text-[13px] font-medium text-[#4F46E5] hover:underline"
+              className="mt-4 text-[13px] font-medium text-[var(--accent)] hover:underline"
             >
               Outlook / Microsoft 365 verbinden →
             </button>
@@ -387,22 +387,22 @@ export function OnboardingFlow({
                 <button
                   type="button"
                   onClick={() => setAppleModalOpen(true)}
-                  className="rounded-[16px] border border-[#E7E5E4] bg-white p-5 text-left shadow-sm transition-colors hover:border-[#C7D2FE]"
+                  className="rounded-[16px] border border-[#E7E5E4] bg-[var(--bg-surface)] p-5 text-left shadow-sm transition-colors hover:border-[#C7D2FE]"
                 >
                   <div className="text-2xl">🍎</div>
                   <p className="mt-3 text-[15px] font-semibold">Apple Kalender</p>
-                  <p className="mt-1 text-[13px] text-[#64748B]">CalDAV verbinden</p>
+                  <p className="mt-1 text-[13px] text-[var(--text-secondary)]">CalDAV verbinden</p>
                 </button>
                 <button
                   type="button"
                   onClick={() => {
                     window.location.href = `/api/oauth/google/start?returnTo=${encodeURIComponent("/onboarding/schritt-4")}`;
                   }}
-                  className="rounded-[16px] border border-[#E7E5E4] bg-white p-5 text-left shadow-sm transition-colors hover:border-[#C7D2FE]"
+                  className="rounded-[16px] border border-[#E7E5E4] bg-[var(--bg-surface)] p-5 text-left shadow-sm transition-colors hover:border-[#C7D2FE]"
                 >
                   <div className="text-2xl">📅</div>
                   <p className="mt-3 text-[15px] font-semibold">Google Calendar</p>
-                  <p className="mt-1 text-[13px] text-[#64748B]">Mit Google verbinden</p>
+                  <p className="mt-1 text-[13px] text-[var(--text-secondary)]">Mit Google verbinden</p>
                 </button>
               </div>
             )}
@@ -419,7 +419,7 @@ export function OnboardingFlow({
               value={greeting}
               onChange={(e) => setGreeting(e.target.value)}
               rows={5}
-              className="mt-8 w-full rounded-[16px] border border-[#E7E5E4] bg-white p-4 text-[15px] leading-relaxed text-[#334155] shadow-sm outline-none focus:border-[#4F46E5]"
+              className="mt-8 w-full rounded-[16px] border border-[#E7E5E4] bg-[var(--bg-surface)] p-4 text-[15px] leading-relaxed text-[var(--text-secondary)] shadow-sm outline-none focus:border-[#4F46E5]"
             />
             <div className="mt-6 space-y-3">
               {REPLY_STYLE_OPTIONS.map((option) => (
@@ -429,7 +429,7 @@ export function OnboardingFlow({
                     "flex cursor-pointer items-start gap-3 rounded-[14px] border px-4 py-3 transition-colors",
                     replyStyle === option.id
                       ? "border-[#4F46E5]/40 bg-[#EEF2FF]"
-                      : "border-[#E7E5E4] bg-white"
+                      : "border-[#E7E5E4] bg-[var(--bg-surface)]"
                   )}
                 >
                   <input
@@ -440,10 +440,10 @@ export function OnboardingFlow({
                     className="mt-1 accent-[#4F46E5]"
                   />
                   <span>
-                    <span className="block text-[14px] font-semibold text-[#1E1B4B]">
+                    <span className="block text-[14px] font-semibold text-[var(--text-primary)]">
                       {option.label}
                     </span>
-                    <span className="block text-[12px] text-[#64748B]">
+                    <span className="block text-[12px] text-[var(--text-secondary)]">
                       {option.description}
                     </span>
                   </span>
@@ -462,7 +462,7 @@ export function OnboardingFlow({
         )}
 
         {loading && step !== 6 ? (
-          <div className="mt-4 flex items-center justify-center gap-2 text-[13px] text-[#64748B]">
+          <div className="mt-4 flex items-center justify-center gap-2 text-[13px] text-[var(--text-secondary)]">
             <Loader2 className="size-4 animate-spin" />
             Wird gespeichert…
           </div>
@@ -508,16 +508,16 @@ function StepSixFinish({
         ].map((item) => (
           <div
             key={item.label}
-            className="rounded-[14px] border border-[#E7E5E4] bg-white px-4 py-3 text-[13px] font-medium text-[#334155]"
+            className="rounded-[14px] border border-[#E7E5E4] bg-[var(--bg-surface)] px-4 py-3 text-[13px] font-medium text-[var(--text-secondary)]"
           >
             {item.ok ? "✅" : "○"} {item.label}
           </div>
         ))}
       </div>
       {loading ? (
-        <p className="mt-6 text-[13px] text-[#64748B]">Dashboard wird geöffnet…</p>
+        <p className="mt-6 text-[13px] text-[var(--text-secondary)]">Dashboard wird geöffnet…</p>
       ) : (
-        <p className="mt-6 text-[12px] text-[#94A3B8]">
+        <p className="mt-6 text-[12px] text-[var(--text-muted)]">
           Du kannst alle Einstellungen jederzeit unter Einstellungen anpassen.
         </p>
       )}

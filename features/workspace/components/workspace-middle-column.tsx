@@ -222,17 +222,17 @@ export function WorkspaceMiddleColumn({ vorgang }: WorkspaceMiddleColumnProps) {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#2563EB]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--accent)]">
             {skillConfig.label}
           </p>
-          <p className="mt-0.5 text-[13px] text-[#64748B]">
+          <p className="mt-0.5 text-[13px] text-[var(--text-secondary)]">
             Inhalt passt sich dem Vorgang an
           </p>
         </div>
       </div>
 
       <nav
-        className="flex flex-wrap gap-2 rounded-[16px] border border-[#CBD5E1]/40 bg-white/80 p-2 backdrop-blur-sm"
+        className="flex flex-wrap gap-2 rounded-[16px] border border-[var(--border)] bg-[var(--bg-surface)] p-2 backdrop-blur-sm"
         aria-label="Vorgangs-Bereiche"
       >
         {skillConfig.tabs.map((tab) => (
@@ -244,7 +244,7 @@ export function WorkspaceMiddleColumn({ vorgang }: WorkspaceMiddleColumnProps) {
               "rounded-[10px] px-3.5 py-2 text-[12px] font-semibold transition-all duration-300",
               activeTab === tab.id
                 ? "bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white shadow-[0_2px_12px_rgba(37,99,235,0.3)]"
-                : "text-[#64748B] hover:bg-[#EFF6FF] hover:text-[#2563EB]"
+                : "text-[var(--text-secondary)] hover:bg-[var(--accent-light)] hover:text-[var(--accent)]"
             )}
           >
             {tab.label}

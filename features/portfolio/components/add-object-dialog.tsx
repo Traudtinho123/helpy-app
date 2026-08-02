@@ -52,7 +52,7 @@ const EMPTY_FORM: AddPortfolioObjectInput = {
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className="mb-1.5 block text-[12px] font-semibold text-[#334155]">
+    <label className="mb-1.5 block text-[12px] font-semibold text-[var(--text-secondary)]">
       {children}
     </label>
   );
@@ -159,19 +159,19 @@ export function AddObjectDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-object-title"
-        className="relative z-10 flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-[24px] border border-[#CBD5E1]/60 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.18)]"
+        className="relative z-10 flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] shadow-[0_24px_80px_rgba(15,23,42,0.18)]"
       >
-        <div className="flex items-center justify-between border-b border-[#E2E8F0] px-6 py-4">
+        <div className="flex items-center justify-between border-b border-[var(--border)] px-6 py-4">
           <h2
             id="add-object-title"
-            className="text-[18px] font-semibold tracking-[-0.02em] text-[#0F172A]"
+            className="text-[18px] font-semibold tracking-[-0.02em] text-[var(--text-primary)]"
           >
             {getDialogTitle(skill)}
           </h2>
           <button
             type="button"
             onClick={() => onOpenChange(false)}
-            className="flex size-8 items-center justify-center rounded-[10px] text-[#64748B] transition-colors hover:bg-[#F8FAFC] hover:text-[#0F172A]"
+            className="flex size-8 items-center justify-center rounded-[10px] text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]"
             aria-label="Schliessen"
           >
             <X className="size-4" />
@@ -181,10 +181,10 @@ export function AddObjectDialog({
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-5">
           {step === "dossier-prompt" && createdObject ? (
             <div className="space-y-5 py-4 text-center">
-              <p className="text-[15px] font-semibold text-[#0F172A]">
+              <p className="text-[15px] font-semibold text-[var(--text-primary)]">
                 Objekt angelegt
               </p>
-              <p className="text-[13px] leading-relaxed text-[#64748B]">
+              <p className="text-[13px] leading-relaxed text-[var(--text-secondary)]">
                 Möchtest du ein Dossier vorbereiten? HELPY erstellt daraus
                 Beschreibung, Highlights und Kontaktblock als Basis für Exposé
                 und Kundenpräsentationen.
@@ -201,7 +201,7 @@ export function AddObjectDialog({
                   type="button"
                   variant="outline"
                   onClick={() => finishDialog(false)}
-                  className="h-10 rounded-[12px] border-[#CBD5E1]/60 px-4 text-[13px]"
+                  className="h-10 rounded-[12px] border-[var(--border)] px-4 text-[13px]"
                 >
                   Später
                 </Button>
@@ -214,7 +214,7 @@ export function AddObjectDialog({
               <FieldLabel>Foto / Titelbild</FieldLabel>
               <label
                 className={cn(
-                  "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[16px] border border-dashed border-[#CBD5E1] bg-[#F8FAFC]/80 px-4 py-6 transition-colors hover:border-[#2563EB]/40 hover:bg-[#EFF6FF]/40",
+                  "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[16px] border border-dashed border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-6 transition-colors hover:border-[#2563EB]/40 hover:bg-[var(--accent-light)]/40",
                   form.coverPreviewUrl && "border-solid p-0"
                 )}
               >
@@ -227,8 +227,8 @@ export function AddObjectDialog({
                   />
                 ) : (
                   <>
-                    <ImagePlus className="size-6 text-[#64748B]" />
-                    <span className="text-[12px] font-medium text-[#64748B]">
+                    <ImagePlus className="size-6 text-[var(--text-secondary)]" />
+                    <span className="text-[12px] font-medium text-[var(--text-secondary)]">
                       Foto auswählen (optional)
                     </span>
                   </>
@@ -300,7 +300,7 @@ export function AddObjectDialog({
                       event.target.value as RealEstateObjectTransaction
                     )
                   }
-                  className="h-9 w-full rounded-[12px] border border-[#CBD5E1]/60 bg-white px-3 text-[13px] text-[#0F172A] outline-none focus-visible:border-[#2563EB] focus-visible:ring-3 focus-visible:ring-[#2563EB]/20"
+                  className="h-9 w-full rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-[13px] text-[var(--text-primary)] outline-none focus-visible:border-[#2563EB] focus-visible:ring-3 focus-visible:ring-[#2563EB]/20"
                 >
                   <option value="Miete">Miete</option>
                   <option value="Kauf">Kauf</option>
@@ -372,7 +372,7 @@ export function AddObjectDialog({
                   onChange={(event) =>
                     updateField("status", event.target.value as RealEstateObjectStatus)
                   }
-                  className="h-9 w-full rounded-[12px] border border-[#CBD5E1]/60 bg-white px-3 text-[13px] text-[#0F172A] outline-none focus-visible:border-[#2563EB] focus-visible:ring-3 focus-visible:ring-[#2563EB]/20"
+                  className="h-9 w-full rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-[13px] text-[var(--text-primary)] outline-none focus-visible:border-[#2563EB] focus-visible:ring-3 focus-visible:ring-[#2563EB]/20"
                 >
                   {ADD_OBJECT_STATUS_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -391,13 +391,13 @@ export function AddObjectDialog({
                     updateField("beschreibung", event.target.value)
                   }
                   placeholder="Kurze Beschreibung des Objekts…"
-                  className="w-full rounded-[12px] border border-[#CBD5E1]/60 bg-white px-3 py-2 text-[13px] text-[#0F172A] outline-none placeholder:text-[#94A3B8] focus-visible:border-[#2563EB] focus-visible:ring-3 focus-visible:ring-[#2563EB]/20"
+                  className="w-full rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-[13px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus-visible:border-[#2563EB] focus-visible:ring-3 focus-visible:ring-[#2563EB]/20"
                 />
               </div>
             </div>
           </div>
 
-          <div className="mt-6 flex justify-end gap-2 border-t border-[#E2E8F0] pt-4">
+          <div className="mt-6 flex justify-end gap-2 border-t border-[var(--border)] pt-4">
             <Button
               type="button"
               variant="secondary"

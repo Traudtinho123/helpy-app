@@ -12,9 +12,9 @@ const bandStyles: Record<
   { badge: string; dot: string; text: string }
 > = {
   cold: {
-    badge: "border-[#CBD5E1]/70 bg-[#F8FAFC] text-[#64748B]",
+    badge: "border-[var(--border)]/70 bg-[var(--bg-elevated)] text-[var(--text-secondary)]",
     dot: "bg-[#94A3B8]",
-    text: "text-[#64748B]",
+    text: "text-[var(--text-secondary)]",
   },
   warm: {
     badge: "border-[#FDE68A]/70 bg-[#FFFBEB] text-[#B45309]",

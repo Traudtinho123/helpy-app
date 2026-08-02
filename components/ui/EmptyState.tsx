@@ -20,14 +20,14 @@ function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-1 flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-[#CBD5E1] bg-[#F8FAFC]/80 p-8 text-center",
+        "flex flex-1 flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-[var(--border)] bg-[var(--bg-elevated)] p-8 text-center",
         className
       )}
     >
       {icon ?? <Avatar size="md" />}
-      <p className="text-sm font-medium text-[#64748B]">{title}</p>
+      <p className="text-sm font-medium text-[var(--text-secondary)]">{title}</p>
       {description && (
-        <p className="max-w-xs text-[12px] leading-relaxed text-[#94A3B8]">
+        <p className="max-w-xs text-[12px] leading-relaxed text-[var(--text-muted)]">
           {description}
         </p>
       )}

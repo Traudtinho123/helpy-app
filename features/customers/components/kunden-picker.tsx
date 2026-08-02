@@ -39,8 +39,8 @@ function CustomerCard({
         "flex w-full shrink-0 gap-3 rounded-[16px] border p-3 text-left transition-all duration-300",
         bestandskundenMode ? "sm:w-[280px]" : "sm:w-[220px]",
         isSelected
-          ? "border-[#2563EB]/30 bg-white shadow-[0_2px_16px_rgba(37,99,235,0.12)] ring-1 ring-[#2563EB]/15"
-          : "border-[#CBD5E1]/40 bg-white/70 hover:border-[#CBD5E1]/60 hover:bg-white hover:shadow-sm"
+          ? "border-[var(--border-accent)] bg-[var(--bg-surface)] shadow-[0_2px_16px_rgba(37,99,235,0.12)] ring-1 ring-[#2563EB]/15"
+          : "border-[var(--border)] bg-[var(--bg-surface)] hover:border-[var(--border)] hover:bg-[var(--bg-elevated)] hover:shadow-sm"
       )}
     >
       <CompanyLogo
@@ -50,7 +50,7 @@ function CustomerCard({
       />
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
-          <p className="truncate text-[13px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+          <p className="truncate text-[13px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
             {customer.contactPerson}
           </p>
           <div className="flex shrink-0 items-center gap-1.5">
@@ -62,10 +62,10 @@ function CustomerCard({
         </div>
         {bestandskundenMode ? (
           <>
-            <p className="mt-0.5 truncate text-[12px] text-[#64748B]">
+            <p className="mt-0.5 truncate text-[12px] text-[var(--text-secondary)]">
               {customer.lastObjectLabel ?? customer.company}
             </p>
-            <p className="mt-1 text-[11px] font-medium text-[#94A3B8]">
+            <p className="mt-1 text-[11px] font-medium text-[var(--text-muted)]">
               Letzter Kontakt: {customer.lastActivityLabel}
               {customer.helpy.lastContactDays > 0
                 ? ` · ${customer.helpy.lastContactDays} Tage`
@@ -79,17 +79,17 @@ function CustomerCard({
             <Link
               href={`/kunden?select=${encodeURIComponent(customer.id)}`}
               onClick={(event) => event.stopPropagation()}
-              className="mt-2 inline-flex text-[11px] font-semibold text-[#2563EB]"
+              className="mt-2 inline-flex text-[11px] font-semibold text-[var(--accent)]"
             >
               Kontaktieren →
             </Link>
           </>
         ) : (
           <>
-            <p className="mt-0.5 truncate text-[12px] text-[#64748B]">
+            <p className="mt-0.5 truncate text-[12px] text-[var(--text-secondary)]">
               {customer.company}
             </p>
-            <p className="mt-1 text-[11px] font-medium text-[#94A3B8]">
+            <p className="mt-1 text-[11px] font-medium text-[var(--text-muted)]">
               {customer.lastActivityLabel}
             </p>
           </>

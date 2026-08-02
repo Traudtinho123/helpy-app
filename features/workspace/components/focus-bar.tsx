@@ -22,7 +22,7 @@ const priorityStyles = {
   Kritisch: "border-[#FCA5A5] bg-[#FEF2F2] text-[#B91C1C]",
   Hoch: "border-[#FECACA] bg-[#FEF2F2] text-[#DC2626]",
   Mittel: "border-[#FDE68A] bg-[#FFFBEB] text-[#B45309]",
-  Niedrig: "border-[#CBD5E1] bg-[#F8FAFC] text-[#64748B]",
+  Niedrig: "border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-secondary)]",
 } as const;
 
 export function FocusBar({ vorgang }: FocusBarProps) {
@@ -43,7 +43,7 @@ export function FocusBar({ vorgang }: FocusBarProps) {
   };
 
   return (
-    <div className="relative z-30 shrink-0 border-b border-[#CBD5E1]/50 bg-white/85 px-6 py-4 shadow-[0_1px_0_rgba(255,255,255,0.8)_inset] backdrop-blur-2xl">
+    <div className="relative z-30 shrink-0 border-b border-[var(--border)] bg-[var(--bg-surface)]/85 px-6 py-4 shadow-[0_1px_0_rgba(255,255,255,0.8)_inset] backdrop-blur-2xl">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -54,31 +54,31 @@ export function FocusBar({ vorgang }: FocusBarProps) {
 
           <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold tracking-wide text-[#94A3B8] uppercase">
+              <p className="text-[10px] font-semibold tracking-wide text-[var(--text-muted)] uppercase">
                 Kunde
               </p>
-              <p className="truncate text-[13px] font-semibold text-[#0F172A]">
+              <p className="truncate text-[13px] font-semibold text-[var(--text-primary)]">
                 {displayName(kunde.firmenname)}
               </p>
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold tracking-wide text-[#94A3B8] uppercase">
+              <p className="text-[10px] font-semibold tracking-wide text-[var(--text-muted)] uppercase">
                 Skill
               </p>
-              <p className="truncate text-[13px] font-semibold text-[#2563EB]">
+              <p className="truncate text-[13px] font-semibold text-[var(--accent)]">
                 {skillConfig.label}
               </p>
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold tracking-wide text-[#94A3B8] uppercase">
+              <p className="text-[10px] font-semibold tracking-wide text-[var(--text-muted)] uppercase">
                 Status
               </p>
-              <p className="truncate text-[13px] font-semibold text-[#0F172A]">
+              <p className="truncate text-[13px] font-semibold text-[var(--text-primary)]">
                 {kopfzeile?.statusLabel ?? "Von HELPY vorbereitet"}
               </p>
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold tracking-wide text-[#94A3B8] uppercase">
+              <p className="text-[10px] font-semibold tracking-wide text-[var(--text-muted)] uppercase">
                 Priorität
               </p>
               <Badge
@@ -93,10 +93,10 @@ export function FocusBar({ vorgang }: FocusBarProps) {
               </Badge>
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold tracking-wide text-[#94A3B8] uppercase">
+              <p className="text-[10px] font-semibold tracking-wide text-[var(--text-muted)] uppercase">
                 Quelle
               </p>
-              <p className="truncate text-[13px] font-semibold text-[#0F172A]">
+              <p className="truncate text-[13px] font-semibold text-[var(--text-primary)]">
                 {kopfzeile?.quelle ?? "—"}
               </p>
             </div>
@@ -109,14 +109,14 @@ export function FocusBar({ vorgang }: FocusBarProps) {
             variant="outline"
             disabled={completing}
             onClick={() => void handleComplete()}
-            className="h-9 gap-2 rounded-[12px] border-[#CBD5E1]/60 bg-white/90 text-[12px] font-medium"
+            className="h-9 gap-2 rounded-[12px] border-[var(--border)] bg-[var(--bg-surface)] text-[12px] font-medium"
           >
             <CheckCircle2 className="size-3.5" />
             {completing ? "Wird markiert…" : "Als erledigt markieren"}
           </Button>
           <Link
             href="/vorgaenge"
-            className="inline-flex h-9 items-center gap-2 rounded-[12px] border border-[#CBD5E1]/60 bg-white/90 px-4 text-[12px] font-medium text-[#334155] transition-all duration-300 hover:border-[#BFDBFE]/60 hover:bg-[#EFF6FF]/40"
+            className="inline-flex h-9 items-center gap-2 rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] px-4 text-[12px] font-medium text-[var(--text-secondary)] transition-all duration-300 hover:border-[var(--border-accent)] hover:bg-[var(--accent-light)]/40"
           >
             <ArrowLeft className="size-3.5" />
             Zurück zu Vorgängen

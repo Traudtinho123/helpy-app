@@ -87,19 +87,19 @@ export function CreateKundeMiniModal({
     <Modal open={open} onClose={onClose} title="Neuen Kunden anlegen">
       <div className="space-y-4 p-1">
         <div>
-          <label className="mb-1 block text-[12px] font-medium text-[#64748B]">Name</label>
+          <label className="mb-1 block text-[12px] font-medium text-[var(--text-secondary)]">Name</label>
           <Input value={name} onChange={(e) => setName(e.target.value)} />
         </div>
         <div>
-          <label className="mb-1 block text-[12px] font-medium text-[#64748B]">E-Mail</label>
+          <label className="mb-1 block text-[12px] font-medium text-[var(--text-secondary)]">E-Mail</label>
           <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div>
-          <label className="mb-1 block text-[12px] font-medium text-[#64748B]">Telefon</label>
+          <label className="mb-1 block text-[12px] font-medium text-[var(--text-secondary)]">Telefon</label>
           <Input value={telefon} onChange={(e) => setTelefon(e.target.value)} />
         </div>
         <div>
-          <label className="mb-1 block text-[12px] font-medium text-[#64748B]">Notiz</label>
+          <label className="mb-1 block text-[12px] font-medium text-[var(--text-secondary)]">Notiz</label>
           <Textarea value={notiz} onChange={(e) => setNotiz(e.target.value)} rows={3} />
         </div>
         {error ? (

@@ -79,18 +79,18 @@ export function CompanyLogoPlaceholder({
       <div className="min-w-0">
         <p
           className={cn(
-            "font-semibold tracking-[-0.02em] text-[#0F172A]",
+            "font-semibold tracking-[-0.02em] text-[var(--text-primary)]",
             styles.name
           )}
         >
           {profile.companyName}
         </p>
         {showUploadHint ? (
-          <p className={cn("mt-0.5 text-[#64748B]", styles.hint)}>
+          <p className={cn("mt-0.5 text-[var(--text-secondary)]", styles.hint)}>
             Firmenlogo · Upload verfügbar
           </p>
         ) : (
-          <p className={cn("mt-0.5 text-[#64748B]", styles.hint)}>
+          <p className={cn("mt-0.5 text-[var(--text-secondary)]", styles.hint)}>
             Unternehmens-Branding
           </p>
         )}
@@ -142,7 +142,7 @@ export function CompanyLogoUploadPlaceholder({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-3 rounded-[18px] border-2 border-dashed border-[#CBD5E1]/70 bg-[#F8FAFC]/80 px-6 py-8 text-center",
+        "flex flex-col items-center justify-center gap-3 rounded-[18px] border-2 border-dashed border-[var(--border)]/70 bg-[var(--bg-elevated)] px-6 py-8 text-center",
         className
       )}
     >
@@ -166,14 +166,14 @@ export function CompanyLogoUploadPlaceholder({
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="inline-flex items-center justify-center gap-2 text-[#64748B] transition-colors hover:text-[#2563EB]"
+          className="inline-flex items-center justify-center gap-2 text-[var(--text-secondary)] transition-colors hover:text-[var(--accent)]"
         >
           <Upload className="size-4" strokeWidth={2} />
           <p className="text-[12px] font-semibold">
             {profile.logoUrl ? "Logo ersetzen" : "Logo hochladen"}
           </p>
         </button>
-        <p className="mt-1 text-[11px] text-[#94A3B8]">
+        <p className="mt-1 text-[11px] text-[var(--text-muted)]">
           PNG, JPG oder SVG · max. 2 MB
         </p>
       </div>
@@ -190,13 +190,13 @@ export function CompanyLogoUploadPlaceholder({
         <button
           type="button"
           onClick={() => onLogoChange(null)}
-          className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[10px] font-medium text-[#64748B] shadow-sm transition-colors hover:text-[#DC2626]"
+          className="inline-flex items-center gap-1.5 rounded-full bg-[var(--bg-surface)] px-3 py-1.5 text-[10px] font-medium text-[var(--text-secondary)] shadow-sm transition-colors hover:text-[#DC2626]"
         >
           <Trash2 className="size-3.5" />
           Logo entfernen
         </button>
       ) : (
-        <div className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-[10px] font-medium text-[#64748B] shadow-sm">
+        <div className="flex items-center gap-2 rounded-full bg-[var(--bg-surface)] px-3 py-1.5 text-[10px] font-medium text-[var(--text-secondary)] shadow-sm">
           <Building2 className="size-3.5" />
           {profile.logoUrl ? "Logo aktiv" : "Kürzel als Platzhalter"}
         </div>

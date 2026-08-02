@@ -49,8 +49,8 @@ function NavItem({
       className={cn(
         "group relative mx-2 flex items-center gap-2.5 rounded-[8px] px-3 py-2 text-[13px] font-medium transition-all duration-150",
         isActive
-          ? "border-l-2 border-l-[var(--accent)] bg-[var(--accent-light)] pl-[calc(0.75rem-2px)] font-semibold text-[var(--text-accent)]"
-          : "text-[var(--text-sidebar-muted)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]"
+          ? "border-l-2 border-l-[var(--accent)] bg-[var(--sidebar-active)] pl-[calc(0.75rem-2px)] font-semibold text-[var(--text-accent)]"
+          : "text-[var(--text-sidebar-muted)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-sidebar)]"
       )}
     >
       <span className="flex size-6 shrink-0 items-center justify-center text-[15px]">
@@ -125,7 +125,7 @@ export function Sidebar({ activeHref }: SidebarProps) {
 
   return (
     <aside
-      className="helpy-layout-sidebar relative z-10 hidden h-screen shrink-0 flex-col border-r border-[var(--border)] bg-[var(--sidebar-bg)] lg:flex"
+      className="helpy-layout-sidebar relative z-10 hidden h-screen shrink-0 flex-col border-r border-[var(--border-strong)] bg-[var(--sidebar-bg)] lg:flex"
       style={{ width: "var(--sidebar-width)" }}
     >
       <div className="flex shrink-0 items-center gap-3 px-5 pt-6 pb-5">

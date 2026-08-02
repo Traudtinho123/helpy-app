@@ -23,18 +23,18 @@ export function HelpyWorkspaceSummary({ className }: HelpyWorkspaceSummaryProps)
   return (
     <div
       className={cn(
-        "rounded-[12px] border border-[#BFDBFE]/50 bg-[#EFF6FF]/45 px-3.5 py-3",
+        "rounded-[12px] border border-[var(--border-accent)]/50 bg-[var(--accent-light)] px-3.5 py-3",
         className
       )}
     >
       <div className="flex items-start gap-2.5">
-        <Sparkles className="mt-0.5 size-3.5 shrink-0 text-[#2563EB]" strokeWidth={2} />
+        <Sparkles className="mt-0.5 size-3.5 shrink-0 text-[var(--accent)]" strokeWidth={2} />
         <div className="min-w-0 space-y-1">
-          <p className="text-[10px] font-semibold tracking-[0.04em] text-[#2563EB] uppercase">
+          <p className="text-[10px] font-semibold tracking-[0.04em] text-[var(--accent)] uppercase">
             HELPY Übersicht
           </p>
           {lines.map((line, index) => (
-            <p key={`${index}-${line}`} className="text-[12px] leading-snug text-[#334155]">
+            <p key={`${index}-${line}`} className="text-[12px] leading-snug text-[var(--text-secondary)]">
               {line}
             </p>
           ))}

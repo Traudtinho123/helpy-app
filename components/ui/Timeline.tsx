@@ -26,13 +26,13 @@ function Timeline({ entries, maxVisible, className }: TimelineProps) {
           {index < visible.length - 1 && (
             <span className="absolute left-[3.35rem] top-6 h-[calc(100%-0.5rem)] w-px bg-gradient-to-b from-[#BFDBFE] to-transparent" />
           )}
-          <time className="w-12 shrink-0 pt-0.5 text-[11px] font-medium tabular-nums text-[#94A3B8]">
+          <time className="w-12 shrink-0 pt-0.5 text-[11px] font-medium tabular-nums text-[var(--text-muted)]">
             {entry.time}
           </time>
           <div className="min-w-0 flex-1">
-            <p className="text-[12px] font-medium text-[#0F172A]">{entry.label}</p>
+            <p className="text-[12px] font-medium text-[var(--text-primary)]">{entry.label}</p>
             {entry.description && (
-              <p className="mt-0.5 text-[11px] leading-relaxed text-[#64748B]">
+              <p className="mt-0.5 text-[11px] leading-relaxed text-[var(--text-secondary)]">
                 {entry.description}
               </p>
             )}

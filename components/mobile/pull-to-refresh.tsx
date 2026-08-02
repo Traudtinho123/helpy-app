@@ -92,7 +92,7 @@ export function PullToRefresh({
         {refreshing ? (
           <Loader2 className="size-5 animate-spin text-[var(--primary)]" />
         ) : (
-          <span className="text-[12px] font-medium text-[#64748B]">
+          <span className="text-[12px] font-medium text-[var(--text-secondary)]">
             {pullDistance >= PULL_THRESHOLD ? "Loslassen zum Aktualisieren" : "Ziehen zum Aktualisieren"}
           </span>
         )}

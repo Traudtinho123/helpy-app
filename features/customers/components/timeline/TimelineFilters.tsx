@@ -30,7 +30,7 @@ export function TimelineFilters({
               "h-8 rounded-full px-3.5 text-[12px] font-semibold transition-all duration-200",
               isActive
                 ? "bg-[#0F172A] text-white shadow-[0_4px_12px_rgba(15,23,42,0.2)]"
-                : "border border-[#CBD5E1]/60 bg-white/80 text-[#64748B] hover:border-[#94A3B8]/60 hover:text-[#334155]"
+                : "border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:border-[#94A3B8]/60 hover:text-[var(--text-secondary)]"
             )}
           >
             {TIMELINE_FILTER_LABELS[filter]}
@@ -38,7 +38,7 @@ export function TimelineFilters({
               <span
                 className={cn(
                   "ml-1.5 tabular-nums",
-                  isActive ? "text-white/70" : "text-[#94A3B8]"
+                  isActive ? "text-white/70" : "text-[var(--text-muted)]"
                 )}
               >
                 {count}

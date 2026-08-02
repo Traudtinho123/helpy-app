@@ -38,9 +38,9 @@ export function EntityBrowserPicker<TItem>({
 }: EntityBrowserPickerProps<TItem>) {
   if (items.length === 0) {
     return (
-      <div className="border-b border-[#CBD5E1]/40 bg-white/50 px-5 py-3 lg:px-6">
-        <p className="text-[13px] font-medium text-[#64748B]">{emptyTitle}</p>
-        <p className="mt-0.5 text-[12px] text-[#94A3B8]">{emptyDescription}</p>
+      <div className="border-b border-[var(--border)] bg-[var(--bg-surface)] px-5 py-3 lg:px-6">
+        <p className="text-[13px] font-medium text-[var(--text-secondary)]">{emptyTitle}</p>
+        <p className="mt-0.5 text-[12px] text-[var(--text-muted)]">{emptyDescription}</p>
       </div>
     );
   }
@@ -54,8 +54,8 @@ export function EntityBrowserPicker<TItem>({
         }}
         aria-label={selectAriaLabel}
         className={cn(
-          "w-full appearance-none border border-[#CBD5E1]/60 bg-white/90 pl-3",
-          "font-medium text-[#0F172A] outline-none transition-colors",
+          "w-full appearance-none border border-[var(--border)] bg-[var(--bg-surface)] pl-3",
+          "font-medium text-[var(--text-primary)] outline-none transition-colors",
           "focus-visible:border-[#2563EB] focus-visible:ring-3 focus-visible:ring-[#2563EB]/20",
           compact
             ? "h-8 rounded-[10px] py-1.5 pr-9 text-[12px]"
@@ -78,7 +78,7 @@ export function EntityBrowserPicker<TItem>({
       </select>
       <ChevronDown
         className={cn(
-          "pointer-events-none absolute top-1/2 -translate-y-1/2 text-[#94A3B8]",
+          "pointer-events-none absolute top-1/2 -translate-y-1/2 text-[var(--text-muted)]",
           compact ? "right-2.5 size-3.5" : "right-3 size-4"
         )}
       />
@@ -87,7 +87,7 @@ export function EntityBrowserPicker<TItem>({
 
   if (compact) {
     return (
-      <div className="border-b border-[#CBD5E1]/40 bg-white/50 px-5 py-2 lg:px-6">
+      <div className="border-b border-[var(--border)] bg-[var(--bg-surface)] px-5 py-2 lg:px-6">
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1 sm:max-w-md">{selectControl}</div>
           {trailing ? <div className="shrink-0">{trailing}</div> : null}
@@ -97,13 +97,13 @@ export function EntityBrowserPicker<TItem>({
   }
 
   return (
-    <div className="border-b border-[#CBD5E1]/40 bg-white/50 px-5 py-3 lg:px-6">
+    <div className="border-b border-[var(--border)] bg-[var(--bg-surface)] px-5 py-3 lg:px-6">
       <div className="mb-2.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-[12px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+          <p className="text-[12px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
             {title}
           </p>
-          <p className="mt-0.5 text-[11px] text-[#64748B]">
+          <p className="mt-0.5 text-[11px] text-[var(--text-secondary)]">
             {items.length} Treffer
           </p>
         </div>

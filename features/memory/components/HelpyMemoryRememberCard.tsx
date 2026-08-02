@@ -20,12 +20,12 @@ export function HelpyMemoryRememberCard({
     <div className="mt-4 rounded-[16px] border border-[#E9D5FF]/50 bg-gradient-to-br from-[#FAF5FF]/80 to-white/90 px-4 py-3.5 shadow-[0_2px_12px_rgba(124,58,237,0.06)]">
       <div className="flex items-center gap-2">
         <Brain className="size-4 text-[#7C3AED]" strokeWidth={2} />
-        <p className="text-[12px] font-semibold text-[#0F172A]">{title}</p>
+        <p className="text-[12px] font-semibold text-[var(--text-primary)]">{title}</p>
       </div>
 
-      <p className="mt-2 text-[11px] leading-relaxed text-[#64748B]">{intro}</p>
+      <p className="mt-2 text-[11px] leading-relaxed text-[var(--text-secondary)]">{intro}</p>
 
-      <div className="mt-3 rounded-[12px] border border-[#EDE9FE]/80 bg-white/70 px-3.5 py-3">
+      <div className="mt-3 rounded-[12px] border border-[#EDE9FE]/80 bg-[var(--bg-surface)] px-3.5 py-3">
         <p className="mb-2 text-[11px] font-semibold text-[#6D28D9]">
           Ich merke mir:
         </p>
@@ -33,7 +33,7 @@ export function HelpyMemoryRememberCard({
           {bullets.map((bullet) => (
             <li
               key={bullet}
-              className="flex gap-2 text-[12px] leading-relaxed text-[#334155]"
+              className="flex gap-2 text-[12px] leading-relaxed text-[var(--text-secondary)]"
             >
               <span className="mt-1.5 size-1 shrink-0 rounded-full bg-[#7C3AED]" />
               {bullet}

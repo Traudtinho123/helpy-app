@@ -31,15 +31,15 @@ function Field({
 }) {
   return (
     <div className={className ?? "space-y-1.5"}>
-      <label className="text-[11px] font-medium text-[#64748B]">{label}</label>
+      <label className="text-[11px] font-medium text-[var(--text-secondary)]">{label}</label>
       {children}
-      {hint && <p className="text-[10px] text-[#94A3B8]">{hint}</p>}
+      {hint && <p className="text-[10px] text-[var(--text-muted)]">{hint}</p>}
     </div>
   );
 }
 
 const inputClass =
-  "h-10 rounded-[12px] border-[#CBD5E1]/60 bg-[#F8FAFC]/80 text-[13px]";
+  "h-10 rounded-[12px] border-[var(--border)] bg-[var(--bg-elevated)] text-[13px]";
 
 export function CompanySettingsForm() {
   const { profile, updateProfile, saveProfile, isHydrating, hydrationError } =
@@ -73,8 +73,8 @@ export function CompanySettingsForm() {
     >
       <div className="mx-auto max-w-3xl space-y-6">
         {isHydrating ? (
-          <div className="rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
-            <p className="text-[12px] text-[#64748B]">Firmendaten werden geladen …</p>
+          <div className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-3">
+            <p className="text-[12px] text-[var(--text-secondary)]">Firmendaten werden geladen …</p>
           </div>
         ) : null}
 
@@ -97,9 +97,9 @@ export function CompanySettingsForm() {
         ) : null}
 
         <fieldset disabled={!canEdit || isSaving} className="space-y-6">
-        <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
-          <CardHeader className="border-b border-[#CBD5E1]/30 pb-4">
-            <CardTitle className="text-[13px] font-semibold text-[#0F172A]">
+        <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
+          <CardHeader className="border-b border-[var(--border)] pb-4">
+            <CardTitle className="text-[13px] font-semibold text-[var(--text-primary)]">
               Firmenlogo
             </CardTitle>
           </CardHeader>
@@ -111,9 +111,9 @@ export function CompanySettingsForm() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
-          <CardHeader className="border-b border-[#CBD5E1]/30 pb-4">
-            <CardTitle className="text-[13px] font-semibold text-[#0F172A]">
+        <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
+          <CardHeader className="border-b border-[var(--border)] pb-4">
+            <CardTitle className="text-[13px] font-semibold text-[var(--text-primary)]">
               Firmendaten
             </CardTitle>
           </CardHeader>
@@ -175,9 +175,9 @@ export function CompanySettingsForm() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
-          <CardHeader className="border-b border-[#CBD5E1]/30 pb-4">
-            <CardTitle className="text-[13px] font-semibold text-[#0F172A]">
+        <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
+          <CardHeader className="border-b border-[var(--border)] pb-4">
+            <CardTitle className="text-[13px] font-semibold text-[var(--text-primary)]">
               Finanzen & Dokumente
             </CardTitle>
           </CardHeader>
@@ -204,7 +204,7 @@ export function CompanySettingsForm() {
               />
             </Field>
             <div className="space-y-1.5 sm:col-span-2">
-              <label className="text-[11px] font-medium text-[#64748B]">
+              <label className="text-[11px] font-medium text-[var(--text-secondary)]">
                 Zahlungsbedingungen
               </label>
               <textarea
@@ -213,29 +213,29 @@ export function CompanySettingsForm() {
                   updateProfile({ paymentTerms: e.target.value })
                 }
                 rows={3}
-                className="w-full resize-none rounded-[12px] border border-[#CBD5E1]/60 bg-[#F8FAFC]/80 px-3 py-2.5 text-[13px] text-[#0F172A] outline-none"
+                className="w-full resize-none rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3 py-2.5 text-[13px] text-[var(--text-primary)] outline-none"
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <label className="text-[11px] font-medium text-[#64748B]">
+              <label className="text-[11px] font-medium text-[var(--text-secondary)]">
                 Fußzeile
               </label>
               <textarea
                 value={profile.footer}
                 onChange={(e) => updateProfile({ footer: e.target.value })}
                 rows={3}
-                className="w-full resize-none rounded-[12px] border border-[#CBD5E1]/60 bg-[#F8FAFC]/80 px-3 py-2.5 text-[13px] text-[#0F172A] outline-none"
+                className="w-full resize-none rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3 py-2.5 text-[13px] text-[var(--text-primary)] outline-none"
               />
-              <p className="text-[10px] text-[#94A3B8]">
+              <p className="text-[10px] text-[var(--text-muted)]">
                 Erscheint am Ende von Angeboten, Offerten und Dokumenten
               </p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
-          <CardHeader className="border-b border-[#CBD5E1]/30 pb-4">
-            <CardTitle className="text-[13px] font-semibold text-[#0F172A]">
+        <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
+          <CardHeader className="border-b border-[var(--border)] pb-4">
+            <CardTitle className="text-[13px] font-semibold text-[var(--text-primary)]">
               Erscheinungsbild
             </CardTitle>
           </CardHeader>
@@ -248,7 +248,7 @@ export function CompanySettingsForm() {
                   onChange={(e) =>
                     updateProfile({ primaryColor: e.target.value })
                   }
-                  className="size-10 cursor-pointer rounded-[10px] border border-[#CBD5E1]/60 bg-white p-1"
+                  className="size-10 cursor-pointer rounded-[10px] border border-[var(--border)] bg-[var(--bg-surface)] p-1"
                 />
                 <Input
                   value={profile.primaryColor}
@@ -267,7 +267,7 @@ export function CompanySettingsForm() {
                     documentLanguage: e.target.value as DocumentLanguage,
                   })
                 }
-                className="h-10 w-full rounded-[12px] border border-[#CBD5E1]/60 bg-[#F8FAFC]/80 px-3 text-[13px] text-[#0F172A] outline-none"
+                className="h-10 w-full rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3 text-[13px] text-[var(--text-primary)] outline-none"
               >
                 {(
                   Object.entries(DOCUMENT_LANGUAGE_LABELS) as [

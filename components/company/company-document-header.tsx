@@ -25,7 +25,7 @@ export function CompanyDocumentHeader({
       <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <CompanyLogoPlaceholder profile={profile} size="md" />
-          <div className="mt-4 space-y-0.5 text-[11px] text-[#64748B]">
+          <div className="mt-4 space-y-0.5 text-[11px] text-[var(--text-secondary)]">
             <p>{profile.address}</p>
             <p>{profile.phone}</p>
             <p>{profile.email}</p>
@@ -44,8 +44,8 @@ export function CompanyDocumentHeader({
             <div className="mt-3 space-y-1.5 text-[12px]">
               {meta.map(({ label, value }) => (
                 <p key={label}>
-                  <span className="font-medium text-[#64748B]">{label}: </span>
-                  <span className="font-semibold text-[#0F172A]">{value}</span>
+                  <span className="font-medium text-[var(--text-secondary)]">{label}: </span>
+                  <span className="font-semibold text-[var(--text-primary)]">{value}</span>
                 </p>
               ))}
             </div>
@@ -68,8 +68,8 @@ export function CompanyDocumentHeader({
             {customerBlock.title}
           </p>
           {customerBlock.rows.map(({ label, value }) => (
-            <p key={label} className="mt-1.5 text-[12px] text-[#475569]">
-              <span className="text-[#94A3B8]">{label}: </span>
+            <p key={label} className="mt-1.5 text-[12px] text-[var(--text-muted)]">
+              <span className="text-[var(--text-muted)]">{label}: </span>
               {value}
             </p>
           ))}

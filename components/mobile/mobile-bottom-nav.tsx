@@ -58,7 +58,7 @@ export function MobileBottomNav({ activeHref }: MobileBottomNavProps) {
   return (
     <>
       <nav
-        className="helpy-layout-mobile-nav fixed inset-x-0 bottom-0 z-[100] border-t border-[#E2E8F0]/80 bg-[rgba(255,255,255,0.96)] shadow-[0_-4px_24px_rgba(15,23,42,0.08)] backdrop-blur-[16px] lg:hidden"
+        className="helpy-layout-mobile-nav fixed inset-x-0 bottom-0 z-[100] border-t border-[var(--border-strong)] bg-[var(--sidebar-bg)]/95 shadow-[0_-4px_24px_rgba(0,0,0,0.35)] backdrop-blur-[16px] lg:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
         aria-label="Hauptnavigation"
       >
@@ -77,8 +77,8 @@ export function MobileBottomNav({ activeHref }: MobileBottomNavProps) {
                   className={cn(
                     "relative flex min-h-[44px] min-w-[44px] flex-1 flex-col items-center justify-center gap-0.5 rounded-[12px] px-1 text-[10px] font-semibold transition-colors",
                     isActive || moreOpen
-                      ? "text-[var(--primary)]"
-                      : "text-[#64748B]"
+                      ? "text-[var(--accent)]"
+                      : "text-[var(--text-muted)]"
                   )}
                   aria-label="Mehr"
                   aria-expanded={moreOpen}
@@ -95,13 +95,13 @@ export function MobileBottomNav({ activeHref }: MobileBottomNavProps) {
                 href={tab.href ?? "/"}
                 className={cn(
                   "relative flex min-h-[44px] min-w-[44px] flex-1 flex-col items-center justify-center gap-0.5 rounded-[12px] px-1 text-[10px] font-semibold transition-colors",
-                  isActive ? "text-[var(--primary)]" : "text-[#64748B]"
+                  isActive ? "text-[var(--accent)]" : "text-[var(--text-muted)]"
                 )}
               >
                 <span className="relative text-[18px] leading-none">
                   {tab.emoji}
                   {showBadge ? (
-                    <span className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--primary)] px-1 text-[9px] font-bold text-white">
+                    <span className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--accent)] px-1 text-[9px] font-bold text-white">
                       {openMailCount > 9 ? "9+" : openMailCount}
                     </span>
                   ) : null}
@@ -120,7 +120,7 @@ export function MobileBottomNav({ activeHref }: MobileBottomNavProps) {
               key={item.href}
               href={item.href}
               onClick={() => setMoreOpen(false)}
-              className="flex min-h-[48px] items-center gap-3 rounded-[14px] px-4 text-[15px] font-medium text-[#0F172A] transition-colors hover:bg-[#F8FAFC] active:bg-[#EFF6FF]"
+              className="flex min-h-[48px] items-center gap-3 rounded-xl px-4 text-[15px] font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-elevated)] active:bg-[var(--accent-light)]"
             >
               <span className="flex size-6 items-center justify-center text-xl">
                 {item.brandIcon ? (

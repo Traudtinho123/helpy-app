@@ -67,7 +67,7 @@ export function LinkObjektModal({
     <Modal open={open} onClose={onClose} title="Objekt verknüpfen">
       <div className="space-y-3 p-1">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#94A3B8]" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--text-muted)]" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -77,17 +77,17 @@ export function LinkObjektModal({
         </div>
         <div className="max-h-72 space-y-1 overflow-y-auto">
           {filtered.length === 0 ? (
-            <p className="px-2 py-4 text-[13px] text-[#64748B]">Keine Objekte gefunden.</p>
+            <p className="px-2 py-4 text-[13px] text-[var(--text-secondary)]">Keine Objekte gefunden.</p>
           ) : (
             filtered.map((object) => (
               <button
                 key={object.objectId}
                 type="button"
                 onClick={() => void handleSelect(object.objectId)}
-                className="flex w-full flex-col rounded-[12px] px-3 py-2.5 text-left transition-colors hover:bg-[#F8FAFC]"
+                className="flex w-full flex-col rounded-[12px] px-3 py-2.5 text-left transition-colors hover:bg-[var(--bg-elevated)]"
               >
-                <span className="text-[14px] font-medium text-[#0F172A]">{object.titel}</span>
-                <span className="text-[12px] text-[#64748B]">
+                <span className="text-[14px] font-medium text-[var(--text-primary)]">{object.titel}</span>
+                <span className="text-[12px] text-[var(--text-secondary)]">
                   {object.adresse}, {object.ort}
                 </span>
               </button>

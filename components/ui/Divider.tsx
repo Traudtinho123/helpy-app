@@ -13,7 +13,7 @@ function Divider({ className, label, ...props }: DividerProps) {
         {...props}
       >
         <span className="h-px flex-1 bg-[#CBD5E1]/50" />
-        <span className="text-[11px] font-medium text-[#94A3B8]">{label}</span>
+        <span className="text-[11px] font-medium text-[var(--text-muted)]">{label}</span>
         <span className="h-px flex-1 bg-[#CBD5E1]/50" />
       </div>
     );

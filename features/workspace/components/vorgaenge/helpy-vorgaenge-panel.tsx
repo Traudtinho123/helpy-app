@@ -92,37 +92,37 @@ export function HelpyVorgaengePanel({
   return (
     <HelpyPanelShell variant="helpy">
       <div className="space-y-5 px-1">
-          <Card className="helpy-fade-in rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm backdrop-blur-sm">
+          <Card className="helpy-fade-in rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm backdrop-blur-sm">
             <CardContent className="p-5">
-              <p className="text-[12px] font-semibold text-[#0F172A]">Heute</p>
+              <p className="text-[12px] font-semibold text-[var(--text-primary)]">Heute</p>
               <ul className="mt-3 space-y-2.5">
-                <li className="flex items-center justify-between text-[12px] text-[#334155]">
+                <li className="flex items-center justify-between text-[12px] text-[var(--text-secondary)]">
                   <span>Vorgänge vorbereitet</span>
-                  <span className="font-semibold text-[#2563EB]">
+                  <span className="font-semibold text-[var(--accent)]">
                     {statusSummary.vorbereitet}
                   </span>
                 </li>
-                <li className="flex items-center justify-between text-[12px] text-[#334155]">
+                <li className="flex items-center justify-between text-[12px] text-[var(--text-secondary)]">
                   <span>Warten auf Prüfung</span>
                   <span className="font-semibold text-[#B45309]">
                     {statusSummary.wartenAufPruefung}
                   </span>
                 </li>
-                <li className="flex items-center justify-between text-[12px] text-[#334155]">
+                <li className="flex items-center justify-between text-[12px] text-[var(--text-secondary)]">
                   <span>Bestätigt</span>
                   <span className="font-semibold text-[#047857]">
                     {statusSummary.bestaetigt}
                   </span>
                 </li>
-                <li className="flex items-center justify-between text-[12px] text-[#334155]">
+                <li className="flex items-center justify-between text-[12px] text-[var(--text-secondary)]">
                   <span>Erledigt</span>
-                  <span className="font-semibold text-[#64748B]">
+                  <span className="font-semibold text-[var(--text-secondary)]">
                     {statusSummary.erledigt}
                   </span>
                 </li>
-                <li className="flex items-center justify-between text-[12px] text-[#334155]">
+                <li className="flex items-center justify-between text-[12px] text-[var(--text-secondary)]">
                   <span>{t("customerNew", { form: "plural" })}</span>
-                  <span className="font-semibold text-[#2563EB]">
+                  <span className="font-semibold text-[var(--accent)]">
                     {neueKundenCount}
                   </span>
                 </li>
@@ -130,15 +130,15 @@ export function HelpyVorgaengePanel({
             </CardContent>
           </Card>
 
-          <Card className="helpy-fade-in rounded-[20px] border-[#BFDBFE]/40 bg-gradient-to-br from-[#EFF6FF]/60 to-white/90 py-0 shadow-sm backdrop-blur-sm">
+          <Card className="helpy-fade-in rounded-[20px] border-[var(--border-accent)] bg-gradient-to-br from-[#EFF6FF]/60 to-white/90 py-0 shadow-sm backdrop-blur-sm">
             <CardContent className="p-5">
               <div className="flex items-center gap-2">
-                <Sparkles className="size-4 text-[#2563EB]" strokeWidth={2} />
-                <p className="text-[12px] font-semibold text-[#0F172A]">
+                <Sparkles className="size-4 text-[var(--accent)]" strokeWidth={2} />
+                <p className="text-[12px] font-semibold text-[var(--text-primary)]">
                   HELPY sagt
                 </p>
               </div>
-              <p className="mt-3 text-[12px] leading-[1.65] text-[#334155]">
+              <p className="mt-3 text-[12px] leading-[1.65] text-[var(--text-secondary)]">
                 {helpySays}
               </p>
             </CardContent>
@@ -148,12 +148,12 @@ export function HelpyVorgaengePanel({
             <CardContent className="p-5">
               <div className="flex items-center gap-2">
                 <Lightbulb className="size-4 text-[#D97706]" strokeWidth={2} />
-                <p className="text-[12px] font-semibold text-[#0F172A]">
+                <p className="text-[12px] font-semibold text-[var(--text-primary)]">
                   Empfehlungen
                 </p>
               </div>
               {recommendations.length === 0 ? (
-                <p className="mt-3 text-[12px] leading-[1.65] text-[#64748B]">
+                <p className="mt-3 text-[12px] leading-[1.65] text-[var(--text-secondary)]">
                   Sobald Vorgänge vorbereitet sind, zeige ich dir hier die
                   wichtigsten nächsten Schritte.
                 </p>
@@ -162,12 +162,12 @@ export function HelpyVorgaengePanel({
                   {recommendations.map((item) => (
                     <li
                       key={item.id}
-                      className="rounded-[14px] border border-[#FDE68A]/40 bg-white/70 px-3.5 py-3"
+                      className="rounded-[14px] border border-[#FDE68A]/40 bg-[var(--bg-surface)] px-3.5 py-3"
                     >
                       <p className="text-[11px] font-semibold text-[#92400E]">
                         {item.titel}
                       </p>
-                      <p className="mt-1.5 text-[12px] leading-[1.65] text-[#334155]">
+                      <p className="mt-1.5 text-[12px] leading-[1.65] text-[var(--text-secondary)]">
                         {item.text}
                       </p>
                     </li>

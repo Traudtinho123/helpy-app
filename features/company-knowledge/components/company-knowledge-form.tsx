@@ -34,7 +34,7 @@ import { useUserProfileContext } from "@/lib/user/components/user-profile-contex
 import { cn } from "@/lib/utils";
 
 const inputClass =
-  "h-10 rounded-[12px] border-[#CBD5E1]/60 bg-[#F8FAFC]/80 text-[13px]";
+  "h-10 rounded-[12px] border-[var(--border)] bg-[var(--bg-elevated)] text-[13px]";
 
 function createId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -53,9 +53,9 @@ function Field({
 }) {
   return (
     <div className={className ?? "space-y-1.5"}>
-      <label className="text-[11px] font-medium text-[#64748B]">{label}</label>
+      <label className="text-[11px] font-medium text-[var(--text-secondary)]">{label}</label>
       {children}
-      {hint ? <p className="text-[10px] text-[#94A3B8]">{hint}</p> : null}
+      {hint ? <p className="text-[10px] text-[var(--text-muted)]">{hint}</p> : null}
     </div>
   );
 }
@@ -236,8 +236,8 @@ export function CompanyKnowledgeForm() {
   return (
     <div className="space-y-6">
       {isLoading ? (
-        <div className="rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
-          <p className="text-[12px] text-[#64748B]">Firmenwissen wird geladen …</p>
+        <div className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-3">
+          <p className="text-[12px] text-[var(--text-secondary)]">Firmenwissen wird geladen …</p>
         </div>
       ) : null}
 
@@ -261,50 +261,50 @@ export function CompanyKnowledgeForm() {
       ) : null}
 
       <fieldset disabled={!canEditAISettings} className="space-y-6">
-      <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
-        <CardHeader className="border-b border-[#CBD5E1]/30 pb-4">
-          <CardTitle className="text-[13px] font-semibold text-[#0F172A]">
+      <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
+        <CardHeader className="border-b border-[var(--border)] pb-4">
+          <CardTitle className="text-[13px] font-semibold text-[var(--text-primary)]">
             Unternehmenswissen für HELPY
           </CardTitle>
-          <p className="mt-1 text-[11px] leading-relaxed text-[#64748B]">
+          <p className="mt-1 text-[11px] leading-relaxed text-[var(--text-secondary)]">
             HELPY nutzt dieses Wissen für Antworten, Termine, Dokumente und
             Empfehlungen. Stammdaten wie Firmenname oder Telefon kommen aus den{" "}
-            <span className="font-medium text-[#475569]">Firmendaten</span>{" "}
+            <span className="font-medium text-[var(--text-muted)]">Firmendaten</span>{" "}
             oben — hier pflegst du nur ergänzendes Wissen.
           </p>
         </CardHeader>
         <CardContent className="grid gap-3 p-5 sm:grid-cols-2">
-          <div className="rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC]/80 px-3 py-2.5 sm:col-span-2">
-            <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+          <div className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3 py-2.5 sm:col-span-2">
+            <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
               Aus Firmendaten (nur Anzeige)
             </p>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
-              <p className="text-[12px] text-[#334155]">
-                <span className="text-[#64748B]">Firmenname:</span>{" "}
+              <p className="text-[12px] text-[var(--text-secondary)]">
+                <span className="text-[var(--text-secondary)]">Firmenname:</span>{" "}
                 {profile.companyName || "—"}
               </p>
-              <p className="text-[12px] text-[#334155]">
-                <span className="text-[#64748B]">Branche:</span>{" "}
+              <p className="text-[12px] text-[var(--text-secondary)]">
+                <span className="text-[var(--text-secondary)]">Branche:</span>{" "}
                 {profile.industry || "—"}
               </p>
-              <p className="text-[12px] text-[#334155]">
-                <span className="text-[#64748B]">Telefon:</span>{" "}
+              <p className="text-[12px] text-[var(--text-secondary)]">
+                <span className="text-[var(--text-secondary)]">Telefon:</span>{" "}
                 {profile.phone || "—"}
               </p>
-              <p className="text-[12px] text-[#334155]">
-                <span className="text-[#64748B]">E-Mail:</span>{" "}
+              <p className="text-[12px] text-[var(--text-secondary)]">
+                <span className="text-[var(--text-secondary)]">E-Mail:</span>{" "}
                 {profile.email || "—"}
               </p>
-              <p className="text-[12px] text-[#334155]">
-                <span className="text-[#64748B]">Website:</span>{" "}
+              <p className="text-[12px] text-[var(--text-secondary)]">
+                <span className="text-[var(--text-secondary)]">Website:</span>{" "}
                 {profile.website || "—"}
               </p>
-              <p className="text-[12px] text-[#334155]">
-                <span className="text-[#64748B]">Sprache:</span>{" "}
+              <p className="text-[12px] text-[var(--text-secondary)]">
+                <span className="text-[var(--text-secondary)]">Sprache:</span>{" "}
                 {DOCUMENT_LANGUAGE_LABELS[profile.documentLanguage]}
               </p>
             </div>
-            <p className="mt-2 text-[10px] text-[#94A3B8]">
+            <p className="mt-2 text-[10px] text-[var(--text-muted)]">
               Änderungen an Stammdaten in den Firmendaten-Karten oben auf dieser
               Seite.
             </p>
@@ -312,9 +312,9 @@ export function CompanyKnowledgeForm() {
         </CardContent>
       </Card>
 
-      <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
-        <CardHeader className="border-b border-[#CBD5E1]/30 pb-4">
-          <CardTitle className="text-[13px] font-semibold text-[#0F172A]">
+      <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
+        <CardHeader className="border-b border-[var(--border)] pb-4">
+          <CardTitle className="text-[13px] font-semibold text-[var(--text-primary)]">
             Allgemein
           </CardTitle>
         </CardHeader>
@@ -334,7 +334,7 @@ export function CompanyKnowledgeForm() {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-2">
-              <p className="text-[11px] font-medium text-[#64748B]">Standorte</p>
+              <p className="text-[11px] font-medium text-[var(--text-secondary)]">Standorte</p>
               <Button
                 type="button"
                 variant="outline"
@@ -346,7 +346,7 @@ export function CompanyKnowledgeForm() {
               </Button>
             </div>
             {draft.locations.length === 0 ? (
-              <p className="text-[11px] text-[#94A3B8]">
+              <p className="text-[11px] text-[var(--text-muted)]">
                 Noch keine Standorte. Hauptadresse: {profile.address || "—"}
               </p>
             ) : (
@@ -378,9 +378,9 @@ export function CompanyKnowledgeForm() {
         </CardContent>
       </Card>
 
-      <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-[#CBD5E1]/30 pb-4">
-          <CardTitle className="text-[13px] font-semibold text-[#0F172A]">
+      <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-[var(--border)] pb-4">
+          <CardTitle className="text-[13px] font-semibold text-[var(--text-primary)]">
             Dienstleistungen
           </CardTitle>
           <Button
@@ -395,17 +395,17 @@ export function CompanyKnowledgeForm() {
         </CardHeader>
         <CardContent className="space-y-3 p-5">
           {draft.services.length === 0 ? (
-            <p className="text-[11px] text-[#94A3B8]">
+            <p className="text-[11px] text-[var(--text-muted)]">
               Noch keine Dienstleistungen hinterlegt.
             </p>
           ) : (
             draft.services.map((service) => (
               <div
                 key={service.id}
-                className="rounded-[14px] border border-[#E2E8F0] bg-[#F8FAFC]/70 p-4"
+                className="rounded-[14px] border border-[var(--border)] bg-[var(--bg-elevated)]/70 p-4"
               >
                 <div className="mb-3 flex items-center justify-between gap-2">
-                  <p className="text-[12px] font-semibold text-[#0F172A]">
+                  <p className="text-[12px] font-semibold text-[var(--text-primary)]">
                     Dienstleistung
                   </p>
                   <Button
@@ -457,9 +457,9 @@ export function CompanyKnowledgeForm() {
         </CardContent>
       </Card>
 
-      <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
-        <CardHeader className="border-b border-[#CBD5E1]/30 pb-4">
-          <CardTitle className="text-[13px] font-semibold text-[#0F172A]">
+      <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
+        <CardHeader className="border-b border-[var(--border)] pb-4">
+          <CardTitle className="text-[13px] font-semibold text-[var(--text-primary)]">
             Arbeitszeiten
           </CardTitle>
         </CardHeader>
@@ -469,9 +469,9 @@ export function CompanyKnowledgeForm() {
             return (
               <div
                 key={day}
-                className="grid items-center gap-2 rounded-[12px] border border-[#E2E8F0]/80 bg-[#F8FAFC]/60 px-3 py-2 sm:grid-cols-[120px_1fr_1fr_auto]"
+                className="grid items-center gap-2 rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3 py-2 sm:grid-cols-[120px_1fr_1fr_auto]"
               >
-                <p className="text-[12px] font-medium text-[#334155]">
+                <p className="text-[12px] font-medium text-[var(--text-secondary)]">
                   {WEEKDAY_LABELS[day]}
                 </p>
                 <Input
@@ -502,7 +502,7 @@ export function CompanyKnowledgeForm() {
                   }
                   className={cn(inputClass, "h-9")}
                 />
-                <label className="flex items-center gap-2 text-[11px] text-[#64748B]">
+                <label className="flex items-center gap-2 text-[11px] text-[var(--text-secondary)]">
                   <input
                     type="checkbox"
                     checked={hours.closed}
@@ -514,7 +514,7 @@ export function CompanyKnowledgeForm() {
                         },
                       })
                     }
-                    className="size-4 rounded border-[#CBD5E1]"
+                    className="size-4 rounded border-[var(--border)]"
                   />
                   Geschlossen
                 </label>
@@ -524,9 +524,9 @@ export function CompanyKnowledgeForm() {
         </CardContent>
       </Card>
 
-      <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
-        <CardHeader className="border-b border-[#CBD5E1]/30 pb-4">
-          <CardTitle className="text-[13px] font-semibold text-[#0F172A]">
+      <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
+        <CardHeader className="border-b border-[var(--border)] pb-4">
+          <CardTitle className="text-[13px] font-semibold text-[var(--text-primary)]">
             Kommunikation
           </CardTitle>
         </CardHeader>
@@ -539,7 +539,7 @@ export function CompanyKnowledgeForm() {
                   replyStyle: event.target.value as ReplyStyleId,
                 })
               }
-              className="h-10 w-full rounded-[12px] border border-[#CBD5E1]/60 bg-[#F8FAFC]/80 px-3 text-[13px] text-[#0F172A] outline-none"
+              className="h-10 w-full rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3 text-[13px] text-[var(--text-primary)] outline-none"
             >
               {(
                 Object.entries(REPLY_STYLE_LABELS) as [ReplyStyleId, string][]
@@ -582,9 +582,9 @@ export function CompanyKnowledgeForm() {
         </CardContent>
       </Card>
 
-      <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
-        <CardHeader className="border-b border-[#CBD5E1]/30 pb-4">
-          <CardTitle className="text-[13px] font-semibold text-[#0F172A]">
+      <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
+        <CardHeader className="border-b border-[var(--border)] pb-4">
+          <CardTitle className="text-[13px] font-semibold text-[var(--text-primary)]">
             Termine
           </CardTitle>
         </CardHeader>
@@ -647,9 +647,9 @@ export function CompanyKnowledgeForm() {
         </CardContent>
       </Card>
 
-      <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-[#CBD5E1]/30 pb-4">
-          <CardTitle className="text-[13px] font-semibold text-[#0F172A]">
+      <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-[var(--border)] pb-4">
+          <CardTitle className="text-[13px] font-semibold text-[var(--text-primary)]">
             Interne Regeln
           </CardTitle>
           <Button
@@ -664,7 +664,7 @@ export function CompanyKnowledgeForm() {
         </CardHeader>
         <CardContent className="space-y-2 p-5">
           {draft.internalRules.length === 0 ? (
-            <p className="text-[11px] text-[#94A3B8]">Noch keine Regeln.</p>
+            <p className="text-[11px] text-[var(--text-muted)]">Noch keine Regeln.</p>
           ) : (
             draft.internalRules.map((rule, index) => (
               <div key={`rule-${index}`} className="flex gap-2">
@@ -689,9 +689,9 @@ export function CompanyKnowledgeForm() {
         </CardContent>
       </Card>
 
-      <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-[#CBD5E1]/30 pb-4">
-          <CardTitle className="text-[13px] font-semibold text-[#0F172A]">
+      <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-[var(--border)] pb-4">
+          <CardTitle className="text-[13px] font-semibold text-[var(--text-primary)]">
             FAQ
           </CardTitle>
           <Button
@@ -706,12 +706,12 @@ export function CompanyKnowledgeForm() {
         </CardHeader>
         <CardContent className="space-y-3 p-5">
           {draft.faq.length === 0 ? (
-            <p className="text-[11px] text-[#94A3B8]">Noch keine FAQ-Einträge.</p>
+            <p className="text-[11px] text-[var(--text-muted)]">Noch keine FAQ-Einträge.</p>
           ) : (
             draft.faq.map((entry) => (
               <div
                 key={entry.id}
-                className="rounded-[14px] border border-[#E2E8F0] bg-[#F8FAFC]/70 p-4"
+                className="rounded-[14px] border border-[var(--border)] bg-[var(--bg-elevated)]/70 p-4"
               >
                 <div className="mb-3 flex justify-end">
                   <Button
@@ -749,9 +749,9 @@ export function CompanyKnowledgeForm() {
         </CardContent>
       </Card>
 
-      <Card className="overflow-hidden border-[#E2E8F0]/80 shadow-none">
-        <CardHeader className="border-b border-[#E2E8F0]/80 bg-[#F8FAFC]/50 px-5 py-4">
-          <CardTitle className="text-[14px] font-semibold text-[#0F172A]">
+      <Card className="overflow-hidden border-[var(--border)] shadow-none">
+        <CardHeader className="border-b border-[var(--border)] bg-[var(--bg-elevated)]/50 px-5 py-4">
+          <CardTitle className="text-[14px] font-semibold text-[var(--text-primary)]">
             Bestandskunden-Nurturing
           </CardTitle>
         </CardHeader>
@@ -787,7 +787,7 @@ export function CompanyKnowledgeForm() {
       ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-3 pb-2">
-        <p className="text-[10px] text-[#94A3B8]">
+        <p className="text-[10px] text-[var(--text-muted)]">
           {baseline.updatedAt
             ? `Zuletzt gespeichert: ${new Date(baseline.updatedAt).toLocaleString("de-CH")}${baseline.updatedBy ? ` · ${baseline.updatedBy}` : ""}`
             : "Noch nicht gespeichert"}

@@ -110,12 +110,12 @@ export function HelpyAppointmentSuggestionCard({
     return (
       <div
         className={cn(
-          "rounded-[18px] border border-[#CBD5E1]/45 bg-gradient-to-br from-white/95 to-[#F8FAFC]/90 p-4 shadow-sm backdrop-blur-sm",
+          "rounded-[18px] border border-[var(--border)]/45 bg-gradient-to-br from-white/95 to-[#F8FAFC]/90 p-4 shadow-sm backdrop-blur-sm",
           className
         )}
       >
-        <div className="flex items-center gap-2 text-[12px] text-[#64748B]">
-          <Loader2 className="size-4 animate-spin text-[#2563EB]" />
+        <div className="flex items-center gap-2 text-[12px] text-[var(--text-secondary)]">
+          <Loader2 className="size-4 animate-spin text-[var(--accent)]" />
           HELPY prüft freie Zeiten in deinem Kalender…
         </div>
       </div>
@@ -126,14 +126,14 @@ export function HelpyAppointmentSuggestionCard({
     return (
       <div
         className={cn(
-          "rounded-[18px] border border-[#CBD5E1]/45 bg-gradient-to-br from-white/95 to-[#F8FAFC]/90 p-4 shadow-sm backdrop-blur-sm",
+          "rounded-[18px] border border-[var(--border)]/45 bg-gradient-to-br from-white/95 to-[#F8FAFC]/90 p-4 shadow-sm backdrop-blur-sm",
           className
         )}
       >
         <div className="mb-3 flex items-start justify-between gap-3">
           <div className="flex items-center gap-2">
-            <CalendarDays className="size-4 text-[#2563EB]" strokeWidth={2} />
-            <p className="text-[12px] font-semibold text-[#0F172A]">
+            <CalendarDays className="size-4 text-[var(--accent)]" strokeWidth={2} />
+            <p className="text-[12px] font-semibold text-[var(--text-primary)]">
               {HELPY_APPOINTMENT_CARD_TITLE}
             </p>
           </div>
@@ -142,7 +142,7 @@ export function HelpyAppointmentSuggestionCard({
             Termin bestätigt
           </span>
         </div>
-        <p className="text-[12px] leading-relaxed text-[#334155]">
+        <p className="text-[12px] leading-relaxed text-[var(--text-secondary)]">
           {HELPY_APPOINTMENT_SAVED_PANEL}
         </p>
       </div>
@@ -153,13 +153,13 @@ export function HelpyAppointmentSuggestionCard({
     return (
       <div
         className={cn(
-          "rounded-[18px] border border-[#CBD5E1]/45 bg-gradient-to-br from-white/95 to-[#F8FAFC]/90 p-4 shadow-sm backdrop-blur-sm",
+          "rounded-[18px] border border-[var(--border)]/45 bg-gradient-to-br from-white/95 to-[#F8FAFC]/90 p-4 shadow-sm backdrop-blur-sm",
           className
         )}
       >
         <div className="mb-3 flex items-center gap-2">
-          <CalendarDays className="size-4 text-[#2563EB]" strokeWidth={2} />
-          <p className="text-[12px] font-semibold text-[#0F172A]">
+          <CalendarDays className="size-4 text-[var(--accent)]" strokeWidth={2} />
+          <p className="text-[12px] font-semibold text-[var(--text-primary)]">
             {HELPY_APPOINTMENT_CARD_TITLE}
           </p>
         </div>
@@ -193,18 +193,18 @@ export function HelpyAppointmentSuggestionCard({
 
       <div
         className={cn(
-          "rounded-[18px] border border-[#CBD5E1]/45 bg-gradient-to-br from-white/95 to-[#F8FAFC]/90 p-4 shadow-sm backdrop-blur-sm",
+          "rounded-[18px] border border-[var(--border)]/45 bg-gradient-to-br from-white/95 to-[#F8FAFC]/90 p-4 shadow-sm backdrop-blur-sm",
           className
         )}
       >
         <div className="mb-3 flex items-center gap-2">
-          <CalendarDays className="size-4 text-[#2563EB]" strokeWidth={2} />
-          <p className="text-[12px] font-semibold text-[#0F172A]">
+          <CalendarDays className="size-4 text-[var(--accent)]" strokeWidth={2} />
+          <p className="text-[12px] font-semibold text-[var(--text-primary)]">
             {HELPY_APPOINTMENT_CARD_TITLE}
           </p>
         </div>
 
-        <p className="text-[12px] leading-relaxed text-[#334155]">
+        <p className="text-[12px] leading-relaxed text-[var(--text-secondary)]">
           {HELPY_APPOINTMENT_CARD_INTRO}
         </p>
 
@@ -217,15 +217,15 @@ export function HelpyAppointmentSuggestionCard({
                 className={cn(
                   "flex items-center justify-between gap-3 rounded-[12px] border px-3 py-2.5 transition-colors",
                   isSelected
-                    ? "border-[#BFDBFE]/70 bg-[#EFF6FF]/70"
-                    : "border-[#E2E8F0]/70 bg-white/80"
+                    ? "border-[var(--border-accent)]/70 bg-[var(--accent-light)]"
+                    : "border-[var(--border)] bg-[var(--bg-surface)]"
                 )}
               >
                 <div>
-                  <p className="text-[12px] font-semibold text-[#0F172A]">
+                  <p className="text-[12px] font-semibold text-[var(--text-primary)]">
                     {slot.dateLabel}
                   </p>
-                  <p className="text-[11px] text-[#64748B]">
+                  <p className="text-[11px] text-[var(--text-secondary)]">
                     {slot.start}–{slot.end} · {suggestion.durationLabel} ·{" "}
                     {slot.calendarLabel}
                   </p>
@@ -237,7 +237,7 @@ export function HelpyAppointmentSuggestionCard({
                   className={cn(
                     "h-8 rounded-[10px] px-3 text-[11px] font-medium",
                     isSelected &&
-                      "border-[#2563EB]/30 bg-[#EFF6FF] text-[#2563EB]"
+                      "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--accent)]"
                   )}
                 >
                   {HELPY_APPOINTMENT_SELECT_LABEL}

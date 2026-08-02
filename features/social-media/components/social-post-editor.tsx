@@ -226,7 +226,7 @@ export function SocialPostEditor({
 
   if (loading && posts.length === 0) {
     return (
-      <div className="flex min-h-[200px] items-center justify-center text-[13px] text-[#64748B]">
+      <div className="flex min-h-[200px] items-center justify-center text-[13px] text-[var(--text-secondary)]">
         <Loader2 className="mr-2 size-4 animate-spin" />
         Social Media Posts werden geladen …
       </div>
@@ -237,10 +237,10 @@ export function SocialPostEditor({
     <div className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-[15px] font-semibold text-[#0F172A]">
+          <p className="text-[15px] font-semibold text-[var(--text-primary)]">
             Posts für: {object.adresse}, {object.ort}
           </p>
-          <p className="text-[12px] text-[#64748B]">
+          <p className="text-[12px] text-[var(--text-secondary)]">
             Status: Entwurf · Erstellt {formatDateTime(activePost?.createdAt ?? null)}
           </p>
         </div>
@@ -269,8 +269,8 @@ export function SocialPostEditor({
             onClick={() => setActivePlatform(platform)}
             className={`rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-all ${
               activePlatform === platform
-                ? "border-[#2563EB]/30 bg-[#EFF6FF] text-[#2563EB]"
-                : "border-[#E2E8F0] bg-white text-[#64748B] hover:bg-[#F8FAFC]"
+                ? "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--accent)]"
+                : "border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"
             }`}
           >
             {SOCIAL_PLATFORM_EMOJI[platform]} {SOCIAL_PLATFORM_LABELS[platform]}
@@ -285,8 +285,8 @@ export function SocialPostEditor({
       ) : null}
 
       {activePost ? (
-        <div className="rounded-[16px] border border-[#E2E8F0] bg-white p-5 shadow-sm">
-          <p className="mb-3 text-[11px] font-bold uppercase tracking-wide text-[#64748B]">
+        <div className="rounded-[16px] border border-[var(--border)] bg-[var(--bg-surface)] p-5 shadow-sm">
+          <p className="mb-3 text-[11px] font-bold uppercase tracking-wide text-[var(--text-secondary)]">
             {SOCIAL_PLATFORM_LABELS[activePlatform]}
           </p>
 
@@ -298,20 +298,20 @@ export function SocialPostEditor({
             rows={8}
             className="mb-2 min-h-[180px] rounded-[12px] text-[13px]"
           />
-          <p className="mb-4 text-[11px] text-[#64748B]">
+          <p className="mb-4 text-[11px] text-[var(--text-secondary)]">
             {(activePost.textContent ?? "").length.toLocaleString("de-CH")} /{" "}
             {SOCIAL_POST_CHAR_LIMITS[activePlatform].toLocaleString("de-CH")}{" "}
             Zeichen
           </p>
 
-          <p className="mb-2 text-[12px] font-semibold text-[#334155]">Hashtags</p>
+          <p className="mb-2 text-[12px] font-semibold text-[var(--text-secondary)]">Hashtags</p>
           <div className="mb-4 flex flex-wrap gap-2">
             {activePost.hashtags.map((tag) => (
               <button
                 key={tag}
                 type="button"
                 onClick={() => removeHashtag(tag)}
-                className="rounded-full bg-[#F1F5F9] px-2.5 py-1 text-[11px] font-medium text-[#475569] hover:bg-[#FEE2E2] hover:text-[#B91C1C]"
+                className="rounded-full bg-[var(--bg-elevated)] px-2.5 py-1 text-[11px] font-medium text-[var(--text-muted)] hover:bg-[#FEE2E2] hover:text-[#B91C1C]"
               >
                 #{tag} ✕
               </button>
@@ -322,16 +322,16 @@ export function SocialPostEditor({
                 const value = window.prompt("Hashtag hinzufügen (ohne #):");
                 if (value) addHashtag(value);
               }}
-              className="rounded-full border border-dashed border-[#CBD5E1] px-2.5 py-1 text-[11px] text-[#64748B]"
+              className="rounded-full border border-dashed border-[var(--border)] px-2.5 py-1 text-[11px] text-[var(--text-secondary)]"
             >
               +
             </button>
           </div>
 
-          <p className="mb-2 text-[12px] font-semibold text-[#334155]">Bild</p>
+          <p className="mb-2 text-[12px] font-semibold text-[var(--text-secondary)]">Bild</p>
           <div className="mb-4 flex flex-wrap items-center gap-3">
             {coverImage ? (
-              <div className="relative size-24 overflow-hidden rounded-[12px] border border-[#E2E8F0]">
+              <div className="relative size-24 overflow-hidden rounded-[12px] border border-[var(--border)]">
                 {coverImage.startsWith("http") ? (
                   <Image
                     src={coverImage}
@@ -350,12 +350,12 @@ export function SocialPostEditor({
                 )}
               </div>
             ) : (
-              <div className="flex size-24 items-center justify-center rounded-[12px] border border-dashed border-[#CBD5E1] text-[11px] text-[#94A3B8]">
+              <div className="flex size-24 items-center justify-center rounded-[12px] border border-dashed border-[var(--border)] text-[11px] text-[var(--text-muted)]">
                 Kein Bild
               </div>
             )}
             <select
-              className="rounded-[10px] border border-[#CBD5E1] px-3 py-2 text-[12px]"
+              className="rounded-[10px] border border-[var(--border)] px-3 py-2 text-[12px]"
               value={activePost.imageUrl ?? ""}
               onChange={(event) =>
                 updateLocalPost({ imageUrl: event.target.value || null })
@@ -370,10 +370,10 @@ export function SocialPostEditor({
             </select>
           </div>
 
-          <p className="mb-2 text-[12px] font-semibold text-[#334155]">
+          <p className="mb-2 text-[12px] font-semibold text-[var(--text-secondary)]">
             Veröffentlichen
           </p>
-          <div className="mb-4 flex flex-wrap items-center gap-4 text-[12px] text-[#334155]">
+          <div className="mb-4 flex flex-wrap items-center gap-4 text-[12px] text-[var(--text-secondary)]">
             <label className="flex items-center gap-2">
               <input
                 type="radio"
@@ -396,13 +396,13 @@ export function SocialPostEditor({
                   type="date"
                   value={scheduledDate}
                   onChange={(event) => setScheduledDate(event.target.value)}
-                  className="rounded-[10px] border border-[#CBD5E1] px-2 py-1"
+                  className="rounded-[10px] border border-[var(--border)] px-2 py-1"
                 />
                 <input
                   type="time"
                   value={scheduledTime}
                   onChange={(event) => setScheduledTime(event.target.value)}
-                  className="rounded-[10px] border border-[#CBD5E1] px-2 py-1"
+                  className="rounded-[10px] border border-[var(--border)] px-2 py-1"
                 />
               </>
             ) : null}
@@ -440,12 +440,12 @@ export function SocialPostEditor({
           </div>
         </div>
       ) : (
-        <div className="rounded-[12px] border border-dashed border-[#CBD5E1] px-4 py-8 text-center text-[13px] text-[#64748B]">
+        <div className="rounded-[12px] border border-dashed border-[var(--border)] px-4 py-8 text-center text-[13px] text-[var(--text-secondary)]">
           Noch keine Posts — bitte generieren.
         </div>
       )}
 
-      <div className="flex flex-wrap gap-2 border-t border-[#E2E8F0] pt-4">
+      <div className="flex flex-wrap gap-2 border-t border-[var(--border)] pt-4">
         <Button
           type="button"
           onClick={() => void publishAll()}

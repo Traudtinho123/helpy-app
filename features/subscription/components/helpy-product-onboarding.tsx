@@ -44,16 +44,16 @@ export function HelpyProductOnboarding({ onConfirmed }: HelpyProductOnboardingPr
         role="dialog"
         aria-modal="true"
         aria-labelledby="helpy-product-onboarding-title"
-        className="w-full max-w-lg overflow-hidden rounded-[24px] border border-[#CBD5E1]/50 bg-white shadow-[0_24px_64px_rgba(15,23,42,0.18)]"
+        className="w-full max-w-lg overflow-hidden rounded-[24px] border border-[var(--border)] bg-[var(--bg-surface)] shadow-[0_24px_64px_rgba(15,23,42,0.18)]"
       >
-        <div className="border-b border-[#CBD5E1]/40 px-6 py-5">
+        <div className="border-b border-[var(--border)] px-6 py-5">
           <h2
             id="helpy-product-onboarding-title"
-            className="text-[16px] font-semibold tracking-[-0.01em] text-[#0F172A]"
+            className="text-[16px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]"
           >
             Wähle dein HELPY Produkt
           </h2>
-          <p className="mt-1.5 text-[13px] leading-relaxed text-[#64748B]">
+          <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--text-secondary)]">
             Dein Paket ist mit genau einem HELPY-Produkt verbunden.
           </p>
         </div>
@@ -69,19 +69,19 @@ export function HelpyProductOnboarding({ onConfirmed }: HelpyProductOnboardingPr
                 className={cn(
                   "rounded-[16px] border px-4 py-3.5 transition-colors",
                   allowed
-                    ? "border-[#BFDBFE]/70 bg-[#EFF6FF]/50"
-                    : "border-[#E2E8F0]/70 bg-[#F8FAFC]/60 opacity-75"
+                    ? "border-[var(--border-accent)]/70 bg-[var(--accent-light)]/50"
+                    : "border-[var(--border)] bg-[var(--bg-elevated)] opacity-75"
                 )}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-[13px] font-semibold text-[#0F172A]">
+                    <p className="text-[13px] font-semibold text-[var(--text-primary)]">
                       {SKILL_EMOJI[skill]} {HELPY_SKILLS[skill].label}
                     </p>
                     <p
                       className={cn(
                         "mt-1 text-[11px] font-medium",
-                        allowed ? "text-[#047857]" : "text-[#64748B]"
+                        allowed ? "text-[#047857]" : "text-[var(--text-secondary)]"
                       )}
                     >
                       Status: {getSkillStatusLabel(skill)}
@@ -98,8 +98,8 @@ export function HelpyProductOnboarding({ onConfirmed }: HelpyProductOnboardingPr
           })}
         </div>
 
-        <div className="border-t border-[#CBD5E1]/40 bg-[#F8FAFC]/80 px-6 py-4">
-          <p className="mb-3 text-[11px] text-[#64748B]">
+        <div className="border-t border-[var(--border)] bg-[var(--bg-elevated)] px-6 py-4">
+          <p className="mb-3 text-[11px] text-[var(--text-secondary)]">
             Tarif: {subscription.planName}
           </p>
           <Button

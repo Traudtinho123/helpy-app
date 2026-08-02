@@ -46,7 +46,7 @@ export function GmailSyncStatus() {
       className={cn(
         "h-8 gap-1.5 rounded-full px-3 text-[11px] font-medium",
         isSyncing
-          ? "border-[#BFDBFE]/70 bg-[#EFF6FF]/80 text-[#2563EB]"
+          ? "border-[var(--border-accent)]/70 bg-[var(--accent-light)] text-[var(--accent)]"
           : "border-[#A7F3D0]/70 bg-[#ECFDF5]/80 text-[#047857]"
       )}
     >

@@ -117,7 +117,7 @@ export function VoiceOverviewPanel() {
                       {number.phoneNumberDisplay}
                     </p>
                     <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] text-[var(--text-secondary)]">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-[#F1F5F9] px-2 py-0.5 font-semibold text-[#334155]">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-[var(--bg-elevated)] px-2 py-0.5 font-semibold text-[var(--text-secondary)]">
                         <PhoneCall className="size-3" />
                         {number.providerLabel}
                       </span>

@@ -57,7 +57,7 @@ export function DocumentSignatureStatus({
 
   if (loading) {
     return (
-      <div className={cn("flex items-center gap-2 text-[12px] text-[#94A3B8]", className)}>
+      <div className={cn("flex items-center gap-2 text-[12px] text-[var(--text-muted)]", className)}>
         <Loader2 className="size-3.5 animate-spin" />
         Signatur-Status wird geladen…
       </div>
@@ -74,7 +74,7 @@ export function DocumentSignatureStatus({
   return (
     <div
       className={cn(
-        "rounded-[12px] border border-[#E2E8F0] bg-[#FAFAF8] px-4 py-3",
+        "rounded-[12px] border border-[var(--border)] bg-[#FAFAF8] px-4 py-3",
         className
       )}
     >
@@ -90,7 +90,7 @@ export function DocumentSignatureStatus({
             </Badge>
           </div>
           {primarySigner ? (
-            <p className="text-[12px] text-[#64748B]">
+            <p className="text-[12px] text-[var(--text-secondary)]">
               {primarySigner.name} · Gesendet {formatSentAt(signature.signature_sent_at)}
             </p>
           ) : null}
@@ -101,7 +101,7 @@ export function DocumentSignatureStatus({
           signature.signed_document_url ? (
             <a
               href={`/api/signatures/${encodeURIComponent(documentId)}/download`}
-              className="inline-flex h-8 items-center gap-1.5 rounded-[10px] border border-[#CBD5E1]/60 bg-white px-3 text-[11px] font-semibold text-[#334155] hover:border-[#2563EB]/30 hover:bg-[#EFF6FF] hover:text-[#2563EB]"
+              className="inline-flex h-8 items-center gap-1.5 rounded-[10px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-[11px] font-semibold text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:bg-[var(--accent-light)] hover:text-[var(--accent)]"
             >
               <Download className="size-3.5" />
               Signiertes PDF

@@ -10,11 +10,11 @@ const STORAGE_ROWS = [
 export function DataPrivacySettingsPanel() {
   return (
     <div className="max-w-2xl space-y-6">
-      <section className="rounded-[20px] border border-[#CBD5E1]/50 bg-white/90 p-6 shadow-[0_2px_8px_rgba(15,23,42,0.04)]">
-        <h3 className="text-[15px] font-semibold text-[#0F172A]">
+      <section className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] p-6 shadow-[0_2px_8px_rgba(15,23,42,0.04)]">
+        <h3 className="text-[15px] font-semibold text-[var(--text-primary)]">
           Wo werden deine Daten gespeichert?
         </h3>
-        <p className="mt-2 text-[13px] leading-relaxed text-[#64748B]">
+        <p className="mt-2 text-[13px] leading-relaxed text-[var(--text-secondary)]">
           HELPY speichert und verarbeitet Daten bevorzugt in der EU. Die
           folgenden Angaben gelten für den produktiven Betrieb.
         </p>
@@ -23,12 +23,12 @@ export function DataPrivacySettingsPanel() {
           {STORAGE_ROWS.map((row) => (
             <div
               key={row.label}
-              className="rounded-[14px] border border-[#E2E8F0]/80 bg-[#F8FAFC]/80 px-4 py-3"
+              className="rounded-[14px] border border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-3"
             >
-              <dt className="text-[11px] font-semibold tracking-[0.04em] text-[#64748B] uppercase">
+              <dt className="text-[11px] font-semibold tracking-[0.04em] text-[var(--text-secondary)] uppercase">
                 {row.label}
               </dt>
-              <dd className="mt-1 text-[13px] leading-relaxed text-[#334155]">
+              <dd className="mt-1 text-[13px] leading-relaxed text-[var(--text-secondary)]">
                 {row.value}
               </dd>
             </div>
@@ -36,7 +36,7 @@ export function DataPrivacySettingsPanel() {
         </dl>
       </section>
 
-      <p className="text-[12px] leading-relaxed text-[#94A3B8]">
+      <p className="text-[12px] leading-relaxed text-[var(--text-muted)]">
         Fragen zum Datenschutz? Wende dich an deinen HELPY-Ansprechpartner oder
         an die in den Unternehmenseinstellungen hinterlegte Kontaktadresse.
       </p>

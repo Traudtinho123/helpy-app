@@ -41,19 +41,19 @@ export function HelpyObjectWorkspaceCard() {
   if (!object || object.source !== "object-memory") return null;
 
   return (
-    <div className="rounded-[16px] border border-[#BFDBFE]/60 bg-gradient-to-br from-[#EFF6FF]/70 to-white/90 px-4 py-3.5 shadow-[0_2px_12px_rgba(37,99,235,0.06)]">
+    <div className="rounded-[16px] border border-[var(--border-accent)] bg-gradient-to-br from-[#EFF6FF]/70 to-white/90 px-4 py-3.5 shadow-[0_2px_12px_rgba(37,99,235,0.06)]">
       <div className="flex items-center gap-2">
-        <Building2 className="size-4 text-[#2563EB]" strokeWidth={2} />
-        <p className="text-[12px] font-semibold text-[#0F172A]">
+        <Building2 className="size-4 text-[var(--accent)]" strokeWidth={2} />
+        <p className="text-[12px] font-semibold text-[var(--text-primary)]">
           {HELPY_OBJECT_CARD_TITLE}
         </p>
       </div>
 
-      <p className="mt-2 text-[11px] leading-relaxed text-[#64748B]">
+      <p className="mt-2 text-[11px] leading-relaxed text-[var(--text-secondary)]">
         {HELPY_OBJECT_CARD_HINT}
       </p>
 
-      <div className="mt-3 rounded-[12px] border border-[#BFDBFE]/50 bg-white/80 px-3.5 py-3">
+      <div className="mt-3 rounded-[12px] border border-[var(--border-accent)]/50 bg-[var(--bg-surface)] px-3.5 py-3">
         <FieldGrid
           fields={[
             { label: "Titel", value: object.titel, highlight: true },

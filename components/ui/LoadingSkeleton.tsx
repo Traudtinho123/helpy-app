@@ -25,7 +25,7 @@ function LoadingSkeletonCard({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "animate-pulse rounded-[20px] border border-[#CBD5E1]/40 bg-white/90 p-5",
+        "animate-pulse rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] p-5",
         className
       )}
     >

@@ -13,20 +13,20 @@ export function GmailOriginalMessageCard() {
     <SectionCard title={isPlatformInquiry ? "Original-Anfrage" : "Original-Nachricht"} icon={Mail}>
       <div className="space-y-4">
         <div>
-          <p className="text-[15px] font-semibold text-[#0F172A]">
+          <p className="text-[15px] font-semibold text-[var(--text-primary)]">
             {mail.betreff}
           </p>
-          <p className="mt-1 text-[12px] text-[#64748B]">
+          <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
             {mail.absender}
           </p>
-          <p className="mt-0.5 text-[11px] text-[#94A3B8]">{mail.datum}</p>
+          <p className="mt-0.5 text-[11px] text-[var(--text-muted)]">{mail.datum}</p>
         </div>
 
-        <div className="rounded-[14px] border border-[#CBD5E1]/40 bg-[#F8FAFC] px-3.5 py-3">
-          <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+        <div className="rounded-[14px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3.5 py-3">
+          <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
             Nachrichtenauszug
           </p>
-          <p className="mt-1.5 whitespace-pre-line text-[12px] leading-[1.65] text-[#475569]">
+          <p className="mt-1.5 whitespace-pre-line text-[12px] leading-[1.65] text-[var(--text-muted)]">
             {mail.inhalt || "—"}
           </p>
         </div>

@@ -104,29 +104,29 @@ function ActionCardsContent({
 
   return (
     <div className={cn("space-y-4", className)}>
-      <div className="rounded-[16px] border border-[#BFDBFE]/50 bg-gradient-to-br from-[#EFF6FF]/80 to-white/60 px-4 py-3.5 backdrop-blur-md">
+      <div className="rounded-[16px] border border-[var(--border-accent)]/50 bg-gradient-to-br from-[#EFF6FF]/80 to-white/60 px-4 py-3.5 backdrop-blur-md">
         <div className="flex items-center gap-2">
           {isAnalyzing ? (
             <BrainCircuit
-              className="size-4 animate-pulse text-[#2563EB]"
+              className="size-4 animate-pulse text-[var(--accent)]"
               strokeWidth={2.25}
             />
           ) : (
-            <Sparkles className="size-4 text-[#2563EB]" strokeWidth={2.25} />
+            <Sparkles className="size-4 text-[var(--accent)]" strokeWidth={2.25} />
           )}
-          <p className="text-[12px] font-semibold text-[#2563EB]">
+          <p className="text-[12px] font-semibold text-[var(--accent)]">
             {isAnalyzing ? "HELPY analysiert den Vorgang…" : analysis.scenarioLabel}
           </p>
         </div>
 
         {!isAnalyzing && (
-          <p className="helpy-fade-in mt-2 text-[11px] leading-relaxed text-[#64748B]">
+          <p className="helpy-fade-in mt-2 text-[11px] leading-relaxed text-[var(--text-secondary)]">
             {HELPY_PREPARED_LABEL}
           </p>
         )}
 
         {!isAnalyzing && (
-          <p className="helpy-fade-in mt-2 text-[12px] leading-relaxed text-[#334155]">
+          <p className="helpy-fade-in mt-2 text-[12px] leading-relaxed text-[var(--text-secondary)]">
             {analysis.analysisText}
           </p>
         )}

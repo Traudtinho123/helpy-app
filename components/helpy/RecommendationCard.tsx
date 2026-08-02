@@ -26,11 +26,11 @@ export const RecommendationCard = memo(function RecommendationCard({
   return (
     <article
       className={cn(
-        "group relative overflow-hidden rounded-[18px] border bg-white/70 p-4 shadow-[0_4px_24px_rgba(15,23,42,0.06)] backdrop-blur-xl transition-all duration-500",
+        "group relative overflow-hidden rounded-[18px] border bg-[var(--bg-surface)] p-4 shadow-[0_4px_24px_rgba(15,23,42,0.06)] backdrop-blur-xl transition-all duration-500",
         isDone
           ? "border-[#A7F3D0]/70 bg-[#ECFDF5]/50"
-          : "border-[#CBD5E1]/55 hover:border-[#2563EB]/25 hover:bg-white/85 hover:shadow-[0_8px_32px_rgba(37,99,235,0.1)]",
-        isPreparing && "helpy-action-preparing border-[#BFDBFE]/70",
+          : "border-[var(--border)]/55 hover:border-[#2563EB]/25 hover:bg-[var(--bg-elevated)]/85 hover:shadow-[0_8px_32px_rgba(37,99,235,0.1)]",
+        isPreparing && "helpy-action-preparing border-[var(--border-accent)]/70",
         className
       )}
     >
@@ -54,24 +54,24 @@ export const RecommendationCard = memo(function RecommendationCard({
 
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-[13px] font-semibold tracking-[-0.02em] text-[#0F172A]">
+            <h3 className="text-[13px] font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
               {action.title}
             </h3>
             {!isDone && (
-              <span className="shrink-0 rounded-full bg-[#F1F5F9] px-2 py-0.5 text-[10px] font-semibold text-[#64748B]">
+              <span className="shrink-0 rounded-full bg-[var(--bg-elevated)] px-2 py-0.5 text-[10px] font-semibold text-[var(--text-secondary)]">
                 {action.benefit}
               </span>
             )}
           </div>
 
           {isPreparing ? (
-            <div className="helpy-fade-in mt-3 rounded-[12px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/70 px-3 py-2.5">
+            <div className="helpy-fade-in mt-3 rounded-[12px] border border-[var(--border-accent)] bg-[var(--accent-light)] px-3 py-2.5">
               <div className="flex items-center gap-2">
                 <Sparkles
-                  className="size-3.5 animate-pulse text-[#2563EB]"
+                  className="size-3.5 animate-pulse text-[var(--accent)]"
                   strokeWidth={2.25}
                 />
-                <p className="text-[12px] font-medium text-[#2563EB]">
+                <p className="text-[12px] font-medium text-[var(--accent)]">
                   Ich bereite den nächsten Schritt vor…
                 </p>
               </div>
@@ -84,7 +84,7 @@ export const RecommendationCard = memo(function RecommendationCard({
               Bestätigt — {action.title} ist vorbereitet.
             </p>
           ) : (
-            <p className="mt-1.5 text-[12px] leading-relaxed text-[#64748B]">
+            <p className="mt-1.5 text-[12px] leading-relaxed text-[var(--text-secondary)]">
               {action.description}
             </p>
           )}
@@ -100,7 +100,7 @@ export const RecommendationCard = memo(function RecommendationCard({
                 onClick={() => onExecute(action)}
               />
               {action.disabled && action.disabledReason ? (
-                <p className="text-[10px] leading-relaxed text-[#94A3B8]">
+                <p className="text-[10px] leading-relaxed text-[var(--text-muted)]">
                   {action.disabledReason}
                 </p>
               ) : null}

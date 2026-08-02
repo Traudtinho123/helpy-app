@@ -26,11 +26,11 @@ export function OfferPreviewDocument({ offer }: OfferPreviewProps) {
   const document = getOfferDocument(offer);
 
   return (
-    <article className="mx-auto w-full max-w-[820px] bg-white px-10 py-12 shadow-[0_8px_40px_rgba(15,23,42,0.08)] sm:px-14 sm:py-14">
+    <article className="mx-auto w-full max-w-[820px] bg-[var(--bg-surface)] px-10 py-12 shadow-[0_8px_40px_rgba(15,23,42,0.08)] sm:px-14 sm:py-14">
       <OfferHeader offer={offer} profile={profile} />
 
       <section className="mt-8">
-        <p className="whitespace-pre-line text-[12px] leading-[1.85] text-[#334155]">
+        <p className="whitespace-pre-line text-[12px] leading-[1.85] text-[var(--text-secondary)]">
           {document.intro}
         </p>
       </section>
@@ -82,12 +82,12 @@ export function OfferPreviewModal({
 
   return (
     <div className="fixed inset-0 z-[120] flex flex-col bg-[#0F172A]/40 backdrop-blur-sm">
-      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[#CBD5E1]/40 bg-white/95 px-5 py-4 backdrop-blur-xl sm:px-8">
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--border)] bg-[var(--bg-surface)]/95 px-5 py-4 backdrop-blur-xl sm:px-8">
         <div className="min-w-0">
-          <p className="truncate text-[14px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+          <p className="truncate text-[14px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
             PDF-Vorschau · {offer.number}
           </p>
-          <p className="mt-0.5 text-[12px] text-[#64748B]">
+          <p className="mt-0.5 text-[12px] text-[var(--text-secondary)]">
             {offer.customer.company} · {offer.title}
           </p>
         </div>
@@ -106,7 +106,7 @@ export function OfferPreviewModal({
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="h-9 gap-2 rounded-[10px] border-[#CBD5E1]/60 text-[12px] font-medium"
+            className="h-9 gap-2 rounded-[10px] border-[var(--border)] text-[12px] font-medium"
           >
             <Pencil className="size-4" />
             Angebot bearbeiten
@@ -116,7 +116,7 @@ export function OfferPreviewModal({
             variant="outline"
             size="icon-sm"
             onClick={() => onOpenChange(false)}
-            className="size-9 rounded-[10px] border-[#CBD5E1]/60"
+            className="size-9 rounded-[10px] border-[var(--border)]"
             aria-label="Schließen"
           >
             <X className="size-4" />
@@ -128,7 +128,7 @@ export function OfferPreviewModal({
         <OfferPreviewDocument offer={offer} />
       </div>
 
-      <div className="flex shrink-0 flex-col gap-2 border-t border-[#CBD5E1]/40 bg-white/95 px-5 py-4 backdrop-blur-xl sm:hidden">
+      <div className="flex shrink-0 flex-col gap-2 border-t border-[var(--border)] bg-[var(--bg-surface)]/95 px-5 py-4 backdrop-blur-xl sm:hidden">
         <DocumentPdfActions
           payload={pdfPayload}
           branding={profile}

@@ -21,20 +21,20 @@ export function HelpyActivityTimeline({
   return (
     <Card
       className={cn(
-        "rounded-[24px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-[0_2px_8px_rgba(15,23,42,0.04),0_12px_40px_rgba(15,23,42,0.06)] ring-1 ring-white backdrop-blur-xl",
+        "rounded-[24px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-[0_2px_8px_rgba(15,23,42,0.04),0_12px_40px_rgba(15,23,42,0.06)] ring-1 ring-white backdrop-blur-xl",
         className
       )}
     >
       <CardContent className="p-7 lg:p-8">
         <div className="mb-5 flex items-center gap-3">
-          <div className="flex size-9 items-center justify-center rounded-[12px] bg-[#EFF6FF]">
-            <Clock className="size-4 text-[#2563EB]" strokeWidth={2} />
+          <div className="flex size-9 items-center justify-center rounded-[12px] bg-[var(--accent-light)]">
+            <Clock className="size-4 text-[var(--accent)]" strokeWidth={2} />
           </div>
           <div>
-            <h2 className="text-[1.125rem] font-semibold tracking-[-0.02em] text-[#0F172A]">
+            <h2 className="text-[1.125rem] font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
               HELPY Verlauf
             </h2>
-            <p className="text-[12px] text-[#64748B]">Heute</p>
+            <p className="text-[12px] text-[var(--text-secondary)]">Heute</p>
           </div>
         </div>
 
@@ -48,11 +48,11 @@ export function HelpyActivityTimeline({
               {index < entries.length - 1 && (
                 <span className="absolute left-[3.35rem] top-6 h-[calc(100%-0.5rem)] w-px bg-gradient-to-b from-[#BFDBFE] to-transparent" />
               )}
-              <time className="w-10 shrink-0 pt-0.5 text-[12px] font-semibold tabular-nums text-[#2563EB]">
+              <time className="w-10 shrink-0 pt-0.5 text-[12px] font-semibold tabular-nums text-[var(--accent)]">
                 {entry.time}
               </time>
               <span className="relative z-[1] mt-1.5 size-2 shrink-0 rounded-full bg-[#2563EB] ring-4 ring-[#EFF6FF]" />
-              <p className="min-w-0 flex-1 pt-0.5 text-[13px] font-medium text-[#334155]">
+              <p className="min-w-0 flex-1 pt-0.5 text-[13px] font-medium text-[var(--text-secondary)]">
                 {entry.label}
               </p>
             </li>

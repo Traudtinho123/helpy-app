@@ -26,11 +26,11 @@ export function VorgangSenderBanner({
 
   if (intelligence.case === "known_customer_no_object") {
     return (
-      <div className="rounded-[16px] border border-[#BFDBFE] bg-[#EFF6FF] px-4 py-4">
-        <p className="text-[14px] font-semibold text-[#0F172A]">
+      <div className="rounded-[16px] border border-[var(--border-accent)] bg-[var(--accent-light)] px-4 py-4">
+        <p className="text-[14px] font-semibold text-[var(--text-primary)]">
           {intelligence.kundeName ?? intelligence.fromName}
         </p>
-        <p className="mt-1 text-[13px] text-[#64748B]">
+        <p className="mt-1 text-[13px] text-[var(--text-secondary)]">
           Kunde erkannt — Objekt bitte verknüpfen.
         </p>
         <Button type="button" size="sm" className="mt-3" onClick={onLinkObjekt}>
@@ -44,16 +44,16 @@ export function VorgangSenderBanner({
   if (intelligence.case === "unknown_sender_known_object") {
     return (
       <div className="rounded-[16px] border border-[#FDE68A] bg-[#FFFBEB] px-4 py-4">
-        <p className="flex items-center gap-2 text-[14px] font-semibold text-[#0F172A]">
+        <p className="flex items-center gap-2 text-[14px] font-semibold text-[var(--text-primary)]">
           <UserPlus className="size-4 text-[#D97706]" />
           Neuer Interessent
         </p>
-        <p className="mt-1 text-[13px] text-[#64748B]">{intelligence.fromName}</p>
+        <p className="mt-1 text-[13px] text-[var(--text-secondary)]">{intelligence.fromName}</p>
         {intelligence.fromEmail ? (
-          <p className="text-[13px] text-[#64748B]">{intelligence.fromEmail}</p>
+          <p className="text-[13px] text-[var(--text-secondary)]">{intelligence.fromEmail}</p>
         ) : null}
         {intelligence.objektTitel ? (
-          <p className="mt-2 text-[13px] text-[#0F172A]">
+          <p className="mt-2 text-[13px] text-[var(--text-primary)]">
             Interesse an: {intelligence.objektTitel}
           </p>
         ) : null}
@@ -67,11 +67,11 @@ export function VorgangSenderBanner({
   }
 
   return (
-    <div className="rounded-[16px] border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-4">
-      <p className="text-[14px] font-semibold text-[#0F172A]">Neue Anfrage</p>
-      <p className="mt-1 text-[13px] text-[#64748B]">Von: {intelligence.fromName}</p>
+    <div className="rounded-[16px] border border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-4">
+      <p className="text-[14px] font-semibold text-[var(--text-primary)]">Neue Anfrage</p>
+      <p className="mt-1 text-[13px] text-[var(--text-secondary)]">Von: {intelligence.fromName}</p>
       {intelligence.fromEmail ? (
-        <p className="text-[13px] text-[#64748B]">{intelligence.fromEmail}</p>
+        <p className="text-[13px] text-[var(--text-secondary)]">{intelligence.fromEmail}</p>
       ) : null}
       <div className="mt-3 flex flex-wrap gap-2">
         <Button type="button" size="sm" onClick={onCreateKunde}>

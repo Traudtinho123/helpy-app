@@ -151,7 +151,7 @@ export function KundenakteWorkspaceCard({
                 "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold",
                 isConfirmed
                   ? "border-[#A7F3D0]/60 bg-[#ECFDF5]/70 text-[#047857]"
-                  : "border-[#BFDBFE]/60 bg-[#EFF6FF]/80 text-[#2563EB]"
+                  : "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--accent)]"
               )}
             >
               {isConfirmed && <BadgeCheck className="size-3" strokeWidth={2.5} />}
@@ -178,7 +178,7 @@ export function KundenakteWorkspaceCard({
                   type="button"
                   variant="outline"
                   onClick={() => setEditing(false)}
-                  className="h-8 rounded-[10px] border-[#CBD5E1]/60 px-3 text-[11px] font-medium"
+                  className="h-8 rounded-[10px] border-[var(--border)] px-3 text-[11px] font-medium"
                 >
                   Abbrechen
                 </Button>
@@ -212,12 +212,12 @@ export function KundenakteWorkspaceCard({
             customerEmail={kundenakte.email}
           />
 
-          <div className="rounded-[12px] border border-[#BFDBFE]/50 bg-[#EFF6FF]/40 px-3.5 py-3">
-            <p className="text-[11px] font-semibold text-[#2563EB]">Hinweis von HELPY</p>
-            <p className="mt-1.5 text-[12px] leading-relaxed text-[#334155]">
+          <div className="rounded-[12px] border border-[var(--border-accent)]/50 bg-[var(--accent-light)]/40 px-3.5 py-3">
+            <p className="text-[11px] font-semibold text-[var(--accent)]">Hinweis von HELPY</p>
+            <p className="mt-1.5 text-[12px] leading-relaxed text-[var(--text-secondary)]">
               {kundenakte.helpyHint || HELPY_KUNDENAKTE_HINT}
             </p>
-            <p className="mt-2 text-[11px] leading-relaxed text-[#64748B]">
+            <p className="mt-2 text-[11px] leading-relaxed text-[var(--text-secondary)]">
               {kundenakte.zusammenfassung}
             </p>
           </div>
@@ -234,7 +234,7 @@ export function KundenakteWorkspaceCard({
                 type="button"
                 variant="outline"
                 onClick={handleStartEdit}
-                className="h-8 rounded-[10px] border-[#CBD5E1]/60 px-3 text-[11px] font-medium"
+                className="h-8 rounded-[10px] border-[var(--border)] px-3 text-[11px] font-medium"
               >
                 {HELPY_BUTTON_BEARBEITEN}
               </Button>
@@ -249,7 +249,7 @@ export function KundenakteWorkspaceCard({
                 type="button"
                 variant="outline"
                 onClick={handleDirectConfirm}
-                className="h-8 rounded-[10px] border-[#CBD5E1]/60 px-3 text-[11px] font-medium"
+                className="h-8 rounded-[10px] border-[var(--border)] px-3 text-[11px] font-medium"
               >
                 {HELPY_BUTTON_KUNDENAKTE_BESTAETIGEN}
               </Button>
@@ -272,13 +272,13 @@ function EditField({
 }) {
   return (
     <div>
-      <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+      <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
         {label}
       </p>
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1 w-full rounded-[10px] border border-[#CBD5E1]/60 bg-white px-3 py-2 text-[12px] text-[#0F172A] outline-none focus:border-[#BFDBFE]"
+        className="mt-1 w-full rounded-[10px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-[12px] text-[var(--text-primary)] outline-none focus:border-[var(--border-accent)]"
       />
     </div>
   );

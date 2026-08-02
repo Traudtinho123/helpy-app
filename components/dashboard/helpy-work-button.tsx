@@ -32,14 +32,14 @@ const stateConfig: Record<
     statusLabel: "Neue Vorgänge vorhanden",
     buttonClass:
       "bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white shadow-[0_4px_20px_rgba(37,99,235,0.35)] hover:shadow-[0_6px_28px_rgba(37,99,235,0.45)]",
-    statusClass: "text-[#2563EB]",
+    statusClass: "text-[var(--accent)]",
   },
   updating: {
     emoji: "🧠",
     statusLabel: "HELPY aktualisiert…",
     buttonClass:
-      "border-[#BFDBFE]/60 bg-gradient-to-r from-[#EFF6FF] to-white text-[#2563EB] opacity-90",
-    statusClass: "text-[#2563EB]",
+      "border-[var(--border-accent)] bg-gradient-to-r from-[#EFF6FF] to-white text-[var(--accent)] opacity-90",
+    statusClass: "text-[var(--accent)]",
   },
 };
 

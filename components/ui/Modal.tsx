@@ -80,15 +80,15 @@ function Modal({
           className
         )}
       >
-        <div className="flex shrink-0 flex-col items-center border-b border-[#CBD5E1]/40 px-6 pb-4 pt-3 sm:items-stretch sm:pb-0 sm:pt-0">
+        <div className="flex shrink-0 flex-col items-center border-b border-[var(--border)] px-6 pb-4 pt-3 sm:items-stretch sm:pb-0 sm:pt-0">
           <div className="mb-3 h-1 w-10 rounded-full bg-[#CBD5E1] sm:hidden" />
           <div className="flex w-full items-start justify-between sm:px-0 sm:py-5">
             <div>
-              <h2 id="helpy-modal-title" className="text-[14px] font-semibold text-[#0F172A]">
+              <h2 id="helpy-modal-title" className="text-[14px] font-semibold text-[var(--text-primary)]">
                 {title}
               </h2>
               {description && (
-                <p className="mt-1 text-[13px] text-[#64748B]">{description}</p>
+                <p className="mt-1 text-[13px] text-[var(--text-secondary)]">{description}</p>
               )}
             </div>
             <Button
@@ -109,7 +109,7 @@ function Modal({
         </div>
 
         {footer && (
-          <div className="border-t border-[#CBD5E1]/40 bg-[#F8FAFC]/80 px-6 py-4">
+          <div className="border-t border-[var(--border)] bg-[var(--bg-elevated)] px-6 py-4">
             {footer}
           </div>
         )}

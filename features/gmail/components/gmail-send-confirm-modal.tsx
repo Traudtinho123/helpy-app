@@ -34,15 +34,15 @@ function ReviewField({
 }) {
   return (
     <div>
-      <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+      <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
         {label}
       </p>
       {multiline ? (
-        <p className="mt-1.5 whitespace-pre-line rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC]/80 px-3.5 py-3 text-[12px] leading-relaxed text-[#334155]">
+        <p className="mt-1.5 whitespace-pre-line rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3.5 py-3 text-[12px] leading-relaxed text-[var(--text-secondary)]">
           {value}
         </p>
       ) : (
-        <p className="mt-1 text-[13px] font-medium text-[#0F172A]">{value}</p>
+        <p className="mt-1 text-[13px] font-medium text-[var(--text-primary)]">{value}</p>
       )}
     </div>
   );
@@ -91,15 +91,15 @@ export function GmailSendConfirmModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="gmail-send-title"
-        className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[24px] border border-[#CBD5E1]/50 bg-white shadow-[0_24px_64px_rgba(15,23,42,0.18)] sm:max-h-[94vh] sm:rounded-[24px]"
+        className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[24px] border border-[var(--border)] bg-[var(--bg-surface)] shadow-[0_24px_64px_rgba(15,23,42,0.18)] sm:max-h-[94vh] sm:rounded-[24px]"
       >
-        <div className="flex items-start justify-between border-b border-[#CBD5E1]/40 px-6 py-5">
+        <div className="flex items-start justify-between border-b border-[var(--border)] px-6 py-5">
           <div>
             <div className="flex items-center gap-2">
-              <Mail className="size-4 text-[#2563EB]" strokeWidth={2} />
+              <Mail className="size-4 text-[var(--accent)]" strokeWidth={2} />
               <p
                 id="gmail-send-title"
-                className="text-[14px] font-semibold tracking-[-0.01em] text-[#0F172A]"
+                className="text-[14px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]"
               >
                 {GMAIL_SEND_MODAL_TITLE}
               </p>
@@ -111,7 +111,7 @@ export function GmailSendConfirmModal({
             size="icon-sm"
             onClick={onCancel}
             disabled={loading}
-            className="size-9 rounded-[10px] border-[#CBD5E1]/60"
+            className="size-9 rounded-[10px] border-[var(--border)]"
             aria-label="Schließen"
           >
             <X className="size-4" />
@@ -120,7 +120,7 @@ export function GmailSendConfirmModal({
 
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
           <div className="rounded-[14px] border border-[#FECACA]/50 bg-[#FEF2F2]/60 px-4 py-3.5">
-            <p className="text-[12px] leading-relaxed text-[#334155]">
+            <p className="text-[12px] leading-relaxed text-[var(--text-secondary)]">
               {GMAIL_SEND_MODAL_HINT}
             </p>
           </div>
@@ -132,7 +132,7 @@ export function GmailSendConfirmModal({
           </div>
 
           {loading && (
-            <p className="mt-4 rounded-[12px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/60 px-3.5 py-2.5 text-[11px] leading-relaxed text-[#2563EB]">
+            <p className="mt-4 rounded-[12px] border border-[var(--border-accent)] bg-[var(--accent-light)] px-3.5 py-2.5 text-[11px] leading-relaxed text-[var(--accent)]">
               <Loader2 className="mr-1.5 inline size-3 animate-spin" />
               {GMAIL_SEND_LOADING_MESSAGE}
             </p>
@@ -145,7 +145,7 @@ export function GmailSendConfirmModal({
           )}
         </div>
 
-        <div className="flex flex-wrap gap-2 border-t border-[#CBD5E1]/40 bg-[#F8FAFC]/80 px-6 py-4">
+        <div className="flex flex-wrap gap-2 border-t border-[var(--border)] bg-[var(--bg-elevated)] px-6 py-4">
           <Button
             type="button"
             onClick={handleSendClick}
@@ -166,7 +166,7 @@ export function GmailSendConfirmModal({
             variant="outline"
             onClick={onCancel}
             disabled={loading}
-            className="h-9 flex-1 rounded-[10px] border-[#CBD5E1]/60 text-[12px] font-medium text-[#64748B]"
+            className="h-9 flex-1 rounded-[10px] border-[var(--border)] text-[12px] font-medium text-[var(--text-secondary)]"
           >
             {HELPY_BUTTON_ABBRECHEN}
           </Button>

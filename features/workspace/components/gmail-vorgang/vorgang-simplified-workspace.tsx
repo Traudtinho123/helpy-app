@@ -103,23 +103,23 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
 
   return (
     <div className="mx-auto flex min-h-full max-w-6xl flex-col">
-      <header className="sticky top-0 z-10 border-b border-[#E2E8F0] bg-white/95 px-4 py-4 backdrop-blur-md lg:px-8">
+      <header className="sticky top-0 z-10 border-b border-[var(--border)] bg-[var(--bg-surface)]/95 px-4 py-4 backdrop-blur-md lg:px-8">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <Link
               href="/vorgaenge"
-              className="mb-2 inline-flex items-center gap-1.5 text-[13px] font-medium text-[#64748B] hover:text-[#0F172A]"
+              className="mb-2 inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             >
               <ArrowLeft className="size-4" />
               Zurück
             </Link>
-            <h1 className="truncate text-[1.25rem] font-semibold text-[#0F172A]">
+            <h1 className="truncate text-[1.25rem] font-semibold text-[var(--text-primary)]">
               {sender.name}
             </h1>
             {sender.email ? (
-              <p className="truncate text-[13px] text-[#64748B]">{sender.email}</p>
+              <p className="truncate text-[13px] text-[var(--text-secondary)]">{sender.email}</p>
             ) : null}
-            <p className="mt-1 text-[12px] text-[#94A3B8]">
+            <p className="mt-1 text-[12px] text-[var(--text-muted)]">
               {listeVorgang?.receivedLabel ?? "—"}
               {linkedObject ? ` · ${linkedObject.titel}` : ""}
             </p>
@@ -128,7 +128,7 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
             trigger={
               <button
                 type="button"
-                className="flex size-9 items-center justify-center rounded-full border border-[#E2E8F0] text-[#64748B] hover:bg-[#F8FAFC]"
+                className="flex size-9 items-center justify-center rounded-full border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"
                 aria-label="Mehr"
               >
                 <MoreHorizontal className="size-4" />
@@ -139,7 +139,7 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
               <button
                 key={item.label}
                 type="button"
-                className="flex w-full rounded-[10px] px-3 py-2 text-left text-[13px] text-[#0F172A] hover:bg-[#F8FAFC]"
+                className="flex w-full rounded-[10px] px-3 py-2 text-left text-[13px] text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]"
                 onClick={item.onClick}
               >
                 {item.label}
@@ -166,18 +166,18 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
         </div>
 
         <aside className="w-full shrink-0 space-y-4 lg:w-[360px]">
-          <div className="rounded-[20px] border border-[#E2E8F0] bg-white p-5 shadow-sm">
-            <p className="text-[12px] font-bold uppercase tracking-[0.08em] text-[#94A3B8]">
+          <div className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] p-5 shadow-sm">
+            <p className="text-[12px] font-bold uppercase tracking-[0.08em] text-[var(--text-muted)]">
               HELPY
             </p>
 
             <section className="mt-4 space-y-1">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-[#94A3B8]">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
                 Absender
               </p>
-              <p className="text-[14px] font-medium text-[#0F172A]">{sender.name}</p>
+              <p className="text-[14px] font-medium text-[var(--text-primary)]">{sender.name}</p>
               {sender.email ? (
-                <p className="text-[13px] text-[#64748B]">{sender.email}</p>
+                <p className="text-[13px] text-[var(--text-secondary)]">{sender.email}</p>
               ) : null}
               {linkedKundeId ? (
                 <Link
@@ -190,19 +190,19 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
             </section>
 
             <section className="mt-5 space-y-2">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-[#94A3B8]">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
                 Objekt
               </p>
               {linkedObject ? (
                 <>
-                  <p className="text-[14px] font-medium text-[#0F172A]">
+                  <p className="text-[14px] font-medium text-[var(--text-primary)]">
                     {linkedObject.titel}
                   </p>
-                  <p className="text-[13px] text-[#64748B]">
+                  <p className="text-[13px] text-[var(--text-secondary)]">
                     {linkedObject.adresse}, {linkedObject.ort}
                   </p>
                   {linkedObject.zimmer || linkedObject.preis ? (
-                    <p className="text-[13px] text-[#64748B]">
+                    <p className="text-[13px] text-[var(--text-secondary)]">
                       {[linkedObject.zimmer ? `${linkedObject.zimmer} Zi` : null, linkedObject.preis]
                         .filter(Boolean)
                         .join(" · ")}
@@ -216,9 +216,9 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
                   </Link>
                 </>
               ) : intelligence?.objektTitel ? (
-                <div className="rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC] p-3">
-                  <p className="text-[13px] text-[#0F172A]">{intelligence.objektTitel}</p>
-                  <p className="mt-1 text-[12px] text-[#64748B]">KI-erkannt aus Mailinhalt</p>
+                <div className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] p-3">
+                  <p className="text-[13px] text-[var(--text-primary)]">{intelligence.objektTitel}</p>
+                  <p className="mt-1 text-[12px] text-[var(--text-secondary)]">KI-erkannt aus Mailinhalt</p>
                   <div className="mt-2 flex gap-2">
                     <Button
                       type="button"
@@ -247,7 +247,7 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
                 </div>
               ) : (
                 <>
-                  <p className="text-[13px] text-[#64748B]">Nicht erkannt</p>
+                  <p className="text-[13px] text-[var(--text-secondary)]">Nicht erkannt</p>
                   <Button type="button" size="sm" onClick={() => setShowObjektModal(true)}>
                     + Objekt verknüpfen
                   </Button>
@@ -256,10 +256,10 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
             </section>
 
             <section className="mt-5 space-y-1">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-[#94A3B8]">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
                 Anliegen (KI-erkannt)
               </p>
-              <p className="text-[14px] text-[#0F172A]">🏠 {intentLabel}</p>
+              <p className="text-[14px] text-[var(--text-primary)]">🏠 {intentLabel}</p>
             </section>
 
             <div className="mt-5 space-y-3">

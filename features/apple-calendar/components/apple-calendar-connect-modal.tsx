@@ -146,7 +146,7 @@ export function AppleCalendarConnectModal({
         <div>
           <label
             htmlFor="apple-id-email"
-            className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase"
+            className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase"
           >
             Apple-ID E-Mail
           </label>
@@ -165,7 +165,7 @@ export function AppleCalendarConnectModal({
         <div>
           <label
             htmlFor="app-specific-password"
-            className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase"
+            className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase"
           >
             App-Zugangscode
           </label>
@@ -179,7 +179,7 @@ export function AppleCalendarConnectModal({
             className="mt-1.5 h-10"
             disabled={connecting}
           />
-          <p className="mt-2 rounded-[12px] border border-[#BFDBFE]/50 bg-[#EFF6FF]/60 px-3.5 py-2.5 text-[11px] leading-relaxed text-[#2563EB]">
+          <p className="mt-2 rounded-[12px] border border-[var(--border-accent)]/50 bg-[var(--accent-light)] px-3.5 py-2.5 text-[11px] leading-relaxed text-[var(--accent)]">
             Erstelle einen Zugangscode in deinen Apple-Einstellungen. Dein
             normales Apple-ID Passwort wird nicht verwendet.
           </p>
@@ -189,7 +189,7 @@ export function AppleCalendarConnectModal({
           <div className="flex items-center justify-between gap-3">
             <label
               htmlFor="apple-calendar-select"
-              className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase"
+              className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase"
             >
               Kalender auswählen
             </label>
@@ -208,7 +208,7 @@ export function AppleCalendarConnectModal({
             </Button>
           </div>
           {calendars.length === 0 ? (
-            <p className="mt-2 text-[12px] text-[#64748B]">
+            <p className="mt-2 text-[12px] text-[var(--text-secondary)]">
               Zuerst Zugangsdaten eingeben und Kalender laden.
             </p>
           ) : (
@@ -217,7 +217,7 @@ export function AppleCalendarConnectModal({
               value={calendarId}
               onChange={(event) => setCalendarId(event.target.value)}
               disabled={connecting || calendars.length === 0}
-              className="mt-1.5 h-10 w-full rounded-[12px] border border-[#CBD5E1]/60 bg-white px-3 text-[13px] text-[#0F172A] outline-none focus-visible:border-[#2563EB] focus-visible:ring-3 focus-visible:ring-[#2563EB]/20 disabled:opacity-50"
+              className="mt-1.5 h-10 w-full rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-[13px] text-[var(--text-primary)] outline-none focus-visible:border-[#2563EB] focus-visible:ring-3 focus-visible:ring-[#2563EB]/20 disabled:opacity-50"
             >
               {calendars.map((calendar) => (
                 <option key={calendar.id} value={calendar.id}>

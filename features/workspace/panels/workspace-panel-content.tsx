@@ -136,7 +136,7 @@ export function WorkspacePanelContent({ panel, onClose }: WorkspacePanelContentP
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
         <div className="mb-5 flex flex-wrap items-center gap-2">
-          <span className="rounded-full border border-[#BFDBFE]/60 bg-[#EFF6FF]/80 px-3 py-1 text-[11px] font-semibold text-[#2563EB]">
+          <span className="rounded-full border border-[var(--border-accent)] bg-[var(--accent-light)] px-3 py-1 text-[11px] font-semibold text-[var(--accent)]">
             {view.status}
           </span>
         </div>
@@ -163,7 +163,7 @@ export function WorkspacePanelContent({ panel, onClose }: WorkspacePanelContentP
         ) : null}
 
         {view.fields.length === 0 ? (
-          <p className="text-[13px] leading-relaxed text-[#64748B]">
+          <p className="text-[13px] leading-relaxed text-[var(--text-secondary)]">
             Keine Informationen verfügbar.
           </p>
         ) : (
@@ -171,12 +171,12 @@ export function WorkspacePanelContent({ panel, onClose }: WorkspacePanelContentP
             {view.fields.map((field) => (
               <div
                 key={field.label}
-                className="rounded-[12px] border border-[#CBD5E1]/50 bg-[#F8FAFC]/80 px-3.5 py-3"
+                className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3.5 py-3"
               >
-                <dt className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+                <dt className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
                   {field.label}
                 </dt>
-                <dd className="mt-1 break-words text-[13px] font-medium text-[#0F172A]">
+                <dd className="mt-1 break-words text-[13px] font-medium text-[var(--text-primary)]">
                   {editing ? (
                     <input
                       value={draftValues[field.label] ?? field.value}
@@ -186,10 +186,10 @@ export function WorkspacePanelContent({ panel, onClose }: WorkspacePanelContentP
                           [field.label]: event.target.value,
                         }))
                       }
-                      className="w-full rounded-[10px] border border-[#CBD5E1]/60 bg-white px-3 py-2 text-[12px] font-normal text-[#0F172A] outline-none focus:border-[#BFDBFE]"
+                      className="w-full rounded-[10px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-[12px] font-normal text-[var(--text-primary)] outline-none focus:border-[var(--border-accent)]"
                     />
                   ) : (
-                    <span className={cn(field.highlight && "font-semibold text-[#2563EB]")}>
+                    <span className={cn(field.highlight && "font-semibold text-[var(--accent)]")}>
                       {field.value}
                     </span>
                   )}
@@ -200,23 +200,23 @@ export function WorkspacePanelContent({ panel, onClose }: WorkspacePanelContentP
         )}
 
         {view.helpyHint && (
-          <div className="mt-5 rounded-[12px] border border-[#BFDBFE]/50 bg-[#EFF6FF]/40 px-3.5 py-3">
-            <p className="text-[11px] font-semibold text-[#2563EB]">Hinweis von HELPY</p>
-            <p className="mt-1.5 text-[12px] leading-relaxed text-[#334155]">
+          <div className="mt-5 rounded-[12px] border border-[var(--border-accent)]/50 bg-[var(--accent-light)]/40 px-3.5 py-3">
+            <p className="text-[11px] font-semibold text-[var(--accent)]">Hinweis von HELPY</p>
+            <p className="mt-1.5 text-[12px] leading-relaxed text-[var(--text-secondary)]">
               {view.helpyHint}
             </p>
           </div>
         )}
       </div>
 
-      <div className="flex shrink-0 flex-wrap gap-2 border-t border-[#CBD5E1]/40 px-6 py-4">
+      <div className="flex shrink-0 flex-wrap gap-2 border-t border-[var(--border)] px-6 py-4">
         {!editing ? (
           <Button
             type="button"
             variant="outline"
             onClick={startEditing}
             disabled={view.fields.length === 0}
-            className="h-9 rounded-[10px] border-[#CBD5E1]/60 px-4 text-[12px] font-medium"
+            className="h-9 rounded-[10px] border-[var(--border)] px-4 text-[12px] font-medium"
           >
             Bearbeiten
           </Button>
@@ -235,7 +235,7 @@ export function WorkspacePanelContent({ panel, onClose }: WorkspacePanelContentP
               panel.payload.objectId,
               panel.payload.vorgangId
             )}
-            className="inline-flex h-9 items-center justify-center rounded-[10px] border border-[#CBD5E1]/60 bg-white px-4 text-[12px] font-medium text-[#334155] transition-colors hover:border-[#BFDBFE]/60 hover:bg-[#EFF6FF]"
+            className="inline-flex h-9 items-center justify-center rounded-[10px] border border-[var(--border)] bg-[var(--bg-surface)] px-4 text-[12px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--border-accent)] hover:bg-[var(--accent-light)]"
           >
             Objektakte öffnen
           </Link>
@@ -244,7 +244,7 @@ export function WorkspacePanelContent({ panel, onClose }: WorkspacePanelContentP
           type="button"
           variant="outline"
           onClick={onClose}
-          className="h-9 rounded-[10px] border-[#CBD5E1]/60 px-4 text-[12px] font-medium"
+          className="h-9 rounded-[10px] border-[var(--border)] px-4 text-[12px] font-medium"
         >
           Schließen
         </Button>

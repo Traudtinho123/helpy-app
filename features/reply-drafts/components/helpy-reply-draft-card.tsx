@@ -343,14 +343,14 @@ export function HelpyReplyDraftCard({
 
       <div
         className={cn(
-          "rounded-[18px] border border-[#CBD5E1]/45 bg-gradient-to-br from-white/95 to-[#F8FAFC]/90 p-4 shadow-sm backdrop-blur-sm",
+          "rounded-[18px] border border-[var(--border)]/45 bg-gradient-to-br from-white/95 to-[#F8FAFC]/90 p-4 shadow-sm backdrop-blur-sm",
           className
         )}
       >
         <div className="mb-3 flex items-start justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Mail className="size-4 text-[#2563EB]" strokeWidth={2} />
-            <p className="text-[12px] font-semibold text-[#0F172A]">
+            <Mail className="size-4 text-[var(--accent)]" strokeWidth={2} />
+            <p className="text-[12px] font-semibold text-[var(--text-primary)]">
               Antwort von HELPY vorbereitet
             </p>
           </div>
@@ -377,13 +377,13 @@ export function HelpyReplyDraftCard({
           />
           {editing ? (
             <div>
-              <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+              <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
                 Betreff
               </p>
               <input
                 value={editSubject}
                 onChange={(event) => setEditSubject(event.target.value)}
-                className="mt-1 w-full rounded-[10px] border border-[#CBD5E1]/60 bg-white px-3 py-2 text-[12px] text-[#0F172A] outline-none focus:border-[#BFDBFE]"
+                className="mt-1 w-full rounded-[10px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-[12px] text-[var(--text-primary)] outline-none focus:border-[var(--border-accent)]"
               />
             </div>
           ) : (
@@ -391,7 +391,7 @@ export function HelpyReplyDraftCard({
           )}
 
           <div>
-            <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+            <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
               Antworttext
             </p>
 
@@ -419,7 +419,7 @@ export function HelpyReplyDraftCard({
             )}
 
             {draft.generationState === "loading" && (
-              <p className="mt-2 flex items-center gap-2 text-[11px] text-[#2563EB]">
+              <p className="mt-2 flex items-center gap-2 text-[11px] text-[var(--accent)]">
                 <Loader2 className="size-3 animate-spin" />
                 HELPY erstellt eine kontextreiche Antwort…
               </p>
@@ -443,10 +443,10 @@ export function HelpyReplyDraftCard({
                 value={editText}
                 onChange={(event) => setEditText(event.target.value)}
                 rows={8}
-                className="mt-1.5 w-full resize-y rounded-[12px] border border-[#CBD5E1]/60 bg-white px-3.5 py-3 text-[12px] leading-relaxed text-[#334155] outline-none focus:border-[#BFDBFE]"
+                className="mt-1.5 w-full resize-y rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] px-3.5 py-3 text-[12px] leading-relaxed text-[var(--text-secondary)] outline-none focus:border-[var(--border-accent)]"
               />
             ) : (
-              <p className="mt-1.5 whitespace-pre-line rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC]/80 px-3.5 py-3 text-[12px] leading-relaxed text-[#334155]">
+              <p className="mt-1.5 whitespace-pre-line rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3.5 py-3 text-[12px] leading-relaxed text-[var(--text-secondary)]">
                 {draft.draftText}
               </p>
             )}
@@ -454,7 +454,7 @@ export function HelpyReplyDraftCard({
 
           {draft.missingInfo.length > 0 && (
             <div>
-              <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+              <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
                 Fehlende Angaben
               </p>
               <ul className="mt-2 space-y-1">
@@ -474,9 +474,9 @@ export function HelpyReplyDraftCard({
             className={cn(
               "mt-3 rounded-[10px] border px-3 py-2 text-[11px] leading-relaxed",
               sendState === "loading"
-                ? "border-[#BFDBFE]/60 bg-[#EFF6FF]/60 text-[#2563EB]"
+                ? "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--accent)]"
                 : sendState === "success"
-                  ? "border-[#BFDBFE]/60 bg-[#EFF6FF]/60 text-[#2563EB]"
+                  ? "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--accent)]"
                   : "border-[#A7F3D0]/50 bg-[#ECFDF5]/60 text-[#047857]"
             )}
           >
@@ -507,7 +507,7 @@ export function HelpyReplyDraftCard({
                 type="button"
                 variant="outline"
                 onClick={() => setEditing(false)}
-                className="h-8 rounded-[10px] border-[#CBD5E1]/60 px-3 text-[11px] font-medium"
+                className="h-8 rounded-[10px] border-[var(--border)] px-3 text-[11px] font-medium"
               >
                 Abbrechen
               </Button>
@@ -520,7 +520,7 @@ export function HelpyReplyDraftCard({
                     type="button"
                     variant="outline"
                     onClick={handleStartEdit}
-                    className="h-8 rounded-[10px] border-[#CBD5E1]/60 px-3 text-[11px] font-medium"
+                    className="h-8 rounded-[10px] border-[var(--border)] px-3 text-[11px] font-medium"
                   >
                     {HELPY_BUTTON_BEARBEITEN}
                   </Button>
@@ -561,10 +561,10 @@ function Field({
 }) {
   return (
     <div>
-      <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+      <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
         {label}
       </p>
-      <p className="mt-1 text-[12px] font-medium text-[#0F172A]">{value}</p>
+      <p className="mt-1 text-[12px] font-medium text-[var(--text-primary)]">{value}</p>
       {error && (
         <p className="mt-1.5 text-[11px] leading-relaxed text-[#B91C1C]">
           {error}

@@ -140,7 +140,7 @@ export function CreateVorgangModal({
     <Modal open={open} title="Neuen Vorgang erstellen" onClose={onClose} maxWidth="lg">
       <div className="space-y-4">
         <div>
-          <label className="mb-1.5 block text-[12px] font-semibold text-[#64748B]">
+          <label className="mb-1.5 block text-[12px] font-semibold text-[var(--text-secondary)]">
             Titel *
           </label>
           <Input
@@ -151,7 +151,7 @@ export function CreateVorgangModal({
         </div>
 
         <div>
-          <label className="mb-1.5 block text-[12px] font-semibold text-[#64748B]">
+          <label className="mb-1.5 block text-[12px] font-semibold text-[var(--text-secondary)]">
             Beschreibung *
           </label>
           <Textarea
@@ -164,7 +164,7 @@ export function CreateVorgangModal({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1.5 block text-[12px] font-semibold text-[#64748B]">
+            <label className="mb-1.5 block text-[12px] font-semibold text-[var(--text-secondary)]">
               Priorität
             </label>
             <Select
@@ -182,7 +182,7 @@ export function CreateVorgangModal({
           </div>
 
           <div>
-            <label className="mb-1.5 block text-[12px] font-semibold text-[#64748B]">
+            <label className="mb-1.5 block text-[12px] font-semibold text-[var(--text-secondary)]">
               Status
             </label>
             <Select
@@ -201,7 +201,7 @@ export function CreateVorgangModal({
         </div>
 
         <div>
-          <label className="mb-1.5 block text-[12px] font-semibold text-[#64748B]">
+          <label className="mb-1.5 block text-[12px] font-semibold text-[var(--text-secondary)]">
             Kunde verknüpfen
           </label>
           <Input
@@ -210,7 +210,7 @@ export function CreateVorgangModal({
             placeholder="Kunde suchen…"
           />
           {filteredCustomers.length > 0 ? (
-            <ul className="mt-2 max-h-36 overflow-y-auto rounded-lg border border-[#E2E8F0]">
+            <ul className="mt-2 max-h-36 overflow-y-auto rounded-lg border border-[var(--border)]">
               {filteredCustomers.map((customer) => (
                 <li key={customer.id}>
                   <button
@@ -231,7 +231,7 @@ export function CreateVorgangModal({
         </div>
 
         <div>
-          <label className="mb-1.5 block text-[12px] font-semibold text-[#64748B]">
+          <label className="mb-1.5 block text-[12px] font-semibold text-[var(--text-secondary)]">
             Objekt verknüpfen
           </label>
           <Input
@@ -240,7 +240,7 @@ export function CreateVorgangModal({
             placeholder="Objekt suchen…"
           />
           {filteredObjects.length > 0 ? (
-            <ul className="mt-2 max-h-36 overflow-y-auto rounded-lg border border-[#E2E8F0]">
+            <ul className="mt-2 max-h-36 overflow-y-auto rounded-lg border border-[var(--border)]">
               {filteredObjects.map((object) => (
                 <li key={object.objectId}>
                   <button
@@ -260,7 +260,7 @@ export function CreateVorgangModal({
           ) : null}
         </div>
 
-        <p className="text-[12px] text-[#64748B]">Quelle: Manuell</p>
+        <p className="text-[12px] text-[var(--text-secondary)]">Quelle: Manuell</p>
 
         {error ? (
           <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[13px] text-red-800">
@@ -268,7 +268,7 @@ export function CreateVorgangModal({
           </p>
         ) : null}
 
-        <div className="flex justify-end gap-2 border-t border-[#E2E8F0] pt-4">
+        <div className="flex justify-end gap-2 border-t border-[var(--border)] pt-4">
           <Button variant="ghost" onClick={onClose} disabled={loading}>
             Abbrechen
           </Button>
@@ -292,7 +292,7 @@ function cnCustomerButton(active: boolean): string {
   return [
     "block w-full px-3 py-2 text-left text-[13px] transition-colors",
     active
-      ? "bg-[#EFF6FF] font-semibold text-[#2563EB]"
-      : "text-[#0F172A] hover:bg-[#F8FAFC]",
+      ? "bg-[var(--accent-light)] font-semibold text-[var(--accent)]"
+      : "text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]",
   ].join(" ");
 }

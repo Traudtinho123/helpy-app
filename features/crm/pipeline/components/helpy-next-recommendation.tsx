@@ -34,14 +34,14 @@ export function HelpyNextRecommendation({
   if (!record?.recommendationText) return null;
 
   return (
-    <div className="rounded-[16px] border border-[#BFDBFE]/50 bg-gradient-to-br from-[#EFF6FF]/70 to-white/90 px-4 py-3.5 shadow-[0_2px_12px_rgba(37,99,235,0.06)]">
+    <div className="rounded-[16px] border border-[var(--border-accent)]/50 bg-gradient-to-br from-[#EFF6FF]/70 to-white/90 px-4 py-3.5 shadow-[0_2px_12px_rgba(37,99,235,0.06)]">
       <div className="flex items-center gap-2">
-        <Sparkles className="size-4 text-[#2563EB]" strokeWidth={2} />
-        <p className="text-[12px] font-semibold text-[#0F172A]">
+        <Sparkles className="size-4 text-[var(--accent)]" strokeWidth={2} />
+        <p className="text-[12px] font-semibold text-[var(--text-primary)]">
           Nächste Empfehlung
         </p>
       </div>
-      <p className="mt-2 text-[12px] leading-relaxed text-[#334155]">
+      <p className="mt-2 text-[12px] leading-relaxed text-[var(--text-secondary)]">
         {record.recommendationText}
       </p>
     </div>

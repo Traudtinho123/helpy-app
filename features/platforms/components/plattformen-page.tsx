@@ -92,13 +92,13 @@ function PlattformenContent() {
   return (
     <div className="mx-auto max-w-6xl px-8 py-12 lg:px-12 lg:py-14">
       <header className="mb-10">
-        <p className="text-[11px] font-semibold tracking-[0.06em] text-[#2563EB] uppercase">
+        <p className="text-[11px] font-semibold tracking-[0.06em] text-[var(--accent)] uppercase">
           Verbindungen
         </p>
-        <h1 className="mt-2 text-[2rem] font-semibold tracking-[-0.035em] text-[#0F172A] lg:text-[2.25rem]">
+        <h1 className="mt-2 text-[2rem] font-semibold tracking-[-0.035em] text-[var(--text-primary)] lg:text-[2.25rem]">
           Plattformen
         </h1>
-        <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[#64748B]">
+        <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[var(--text-secondary)]">
           Alle Anbindungen an einem Ort — einheitlich verwalten und verbinden.
         </p>
       </header>

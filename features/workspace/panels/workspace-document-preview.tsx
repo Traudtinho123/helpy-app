@@ -85,11 +85,11 @@ export function WorkspaceDocumentPreview({
 
   return (
     <>
-      <section className="mb-5 rounded-[14px] border border-[#CBD5E1]/50 bg-[#F8FAFC]/80 p-3.5">
+      <section className="mb-5 rounded-[14px] border border-[var(--border)] bg-[var(--bg-elevated)] p-3.5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>
-            <p className="text-[12px] font-semibold text-[#0F172A]">{attachment.name}</p>
-            <p className="mt-0.5 text-[10px] text-[#94A3B8]">
+            <p className="text-[12px] font-semibold text-[var(--text-primary)]">{attachment.name}</p>
+            <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">
               {formatAttachmentSize(attachment.size)} · {resolvedContentType}
             </p>
           </div>
@@ -101,7 +101,7 @@ export function WorkspaceDocumentPreview({
                 "inline-flex h-8 items-center gap-1.5 rounded-[10px] px-3 text-[11px] font-semibold transition-colors",
                 isOffice
                   ? "bg-[#2563EB] text-white hover:bg-[#1D4ED8]"
-                  : "border border-[#CBD5E1]/60 bg-white font-medium text-[#334155] hover:border-[#BFDBFE]/60 hover:bg-[#EFF6FF]"
+                  : "border border-[var(--border)] bg-[var(--bg-surface)] font-medium text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:bg-[var(--accent-light)]"
               )}
             >
               <Download className="size-3.5" />
@@ -111,21 +111,21 @@ export function WorkspaceDocumentPreview({
         </div>
 
         {loading || imageLoading || officePreview.status === "loading" ? (
-          <div className="flex h-40 items-center justify-center rounded-[12px] border border-dashed border-[#CBD5E1]/60 bg-white/70">
-            <Loader2 className="size-5 animate-spin text-[#64748B]" />
+          <div className="flex h-40 items-center justify-center rounded-[12px] border border-dashed border-[var(--border)] bg-[var(--bg-surface)]">
+            <Loader2 className="size-5 animate-spin text-[var(--text-secondary)]" />
           </div>
         ) : isPdf ? (
           <iframe
             title={attachment.name}
             src={openUrl}
-            className="h-[min(420px,50vh)] w-full rounded-[12px] border border-[#E2E8F0] bg-white"
+            className="h-[min(420px,50vh)] w-full rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)]"
           />
         ) : isImage && imageUrl ? (
           <button
             type="button"
             onClick={() => setLightboxOpen(true)}
             className={cn(
-              "group relative block w-full overflow-hidden rounded-[12px] border border-[#E2E8F0] bg-white",
+              "group relative block w-full overflow-hidden rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)]",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40"
             )}
           >
@@ -145,20 +145,20 @@ export function WorkspaceDocumentPreview({
             note={officePreview.note}
           />
         ) : (
-          <div className="rounded-[12px] border border-dashed border-[#CBD5E1]/60 bg-white/70 px-4 py-6 text-center">
+          <div className="rounded-[12px] border border-dashed border-[var(--border)] bg-[var(--bg-surface)] px-4 py-6 text-center">
             <AttachmentTypeIcon
               mimeType={attachment.contentType}
               fileName={attachment.name}
               className="mx-auto size-8"
             />
-            <p className="mt-2 text-[12px] font-medium text-[#334155]">
+            <p className="mt-2 text-[12px] font-medium text-[var(--text-secondary)]">
               {officePreview.status === "error"
                 ? "Vorschau konnte nicht geladen werden"
                 : isOffice
                   ? `${typeLabel}-Datei — keine Vorschau verfügbar`
                   : "Keine Inline-Vorschau für diesen Dateityp"}
             </p>
-            <p className="mt-1 text-[11px] text-[#64748B]">
+            <p className="mt-1 text-[11px] text-[var(--text-secondary)]">
               {officePreview.status === "error"
                 ? officePreview.message
                 : officePreview.status === "unsupported"
@@ -181,7 +181,7 @@ export function WorkspaceDocumentPreview({
             type="button"
             variant="outline"
             onClick={() => setLightboxOpen(false)}
-            className="absolute top-4 right-4 h-9 rounded-[10px] border-white/20 bg-white/10 px-3 text-white hover:bg-white/20"
+            className="absolute top-4 right-4 h-9 rounded-[10px] border-white/20 bg-[var(--bg-surface)]/10 px-3 text-white hover:bg-[var(--bg-elevated)]/20"
           >
             <X className="size-4" />
           </Button>
@@ -205,21 +205,21 @@ export function WorkspaceDocumentPreviewUnavailable({
   loading?: boolean;
 }) {
   return (
-    <section className="mb-5 rounded-[14px] border border-dashed border-[#CBD5E1]/60 bg-[#F8FAFC]/60 px-4 py-5 text-center">
+    <section className="mb-5 rounded-[14px] border border-dashed border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-5 text-center">
       {loading ? (
-        <Loader2 className="mx-auto size-5 animate-spin text-[#64748B]" />
+        <Loader2 className="mx-auto size-5 animate-spin text-[var(--text-secondary)]" />
       ) : (
-        <AttachmentTypeIcon className="mx-auto size-7 text-[#94A3B8]" />
+        <AttachmentTypeIcon className="mx-auto size-7 text-[var(--text-muted)]" />
       )}
-      <p className="mt-2 text-[12px] font-medium text-[#334155]">
+      <p className="mt-2 text-[12px] font-medium text-[var(--text-secondary)]">
         {loading
           ? "Anhang wird geladen …"
           : "Datei noch nicht verfügbar"}
       </p>
-      <p className="mt-1 text-[11px] leading-relaxed text-[#64748B]">
+      <p className="mt-1 text-[11px] leading-relaxed text-[var(--text-secondary)]">
         {fileName ? (
           <>
-            <span className="font-medium text-[#475569]">{fileName}</span>
+            <span className="font-medium text-[var(--text-muted)]">{fileName}</span>
             {" · "}
           </>
         ) : null}

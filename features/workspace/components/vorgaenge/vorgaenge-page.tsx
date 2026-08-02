@@ -363,16 +363,16 @@ export function VorgaengePage() {
       >
         <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-[11px] font-semibold tracking-[0.06em] text-[#2563EB] uppercase">
+            <p className="text-[11px] font-bold tracking-[0.15em] text-[var(--text-accent)] uppercase">
               Arbeit zentral
             </p>
-            <h1 className="mt-2 text-[2rem] font-semibold tracking-[-0.035em] text-[#0F172A] lg:text-[2.25rem]">
+            <h1 className="helpy-display mt-2 text-[2rem] font-semibold tracking-[-0.035em] text-[var(--text-primary)] lg:text-[2.25rem]">
               {vorgaengeLabel}
             </h1>
-            <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-[#64748B]">
+            <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-[var(--text-secondary)]">
               Schnell erledigen, antworten und planen — direkt auf der Karte.
               <span className="hidden lg:inline"> Tastatur: </span>
-              <kbd className="ml-1 hidden rounded border border-[#E2E8F0] bg-[#F8FAFC] px-1.5 py-0.5 font-mono text-[10px] lg:inline">
+              <kbd className="ml-1 hidden rounded border border-[var(--border)] bg-[var(--bg-elevated)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--text-muted)] lg:inline">
                 ?
               </kbd>
             </p>
@@ -384,7 +384,7 @@ export function VorgaengePage() {
         </header>
 
         {successMessage ? (
-          <p className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-[13px] text-emerald-800">
+          <p className="mb-4 rounded-lg border border-[var(--success-light)] bg-[var(--success-light)] px-4 py-3 text-[13px] text-[var(--success)]">
             {successMessage}
           </p>
         ) : null}
@@ -403,10 +403,10 @@ export function VorgaengePage() {
                 type="button"
                 onClick={() => setActiveFilter(filter)}
                 className={cn(
-                  "rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-all duration-300",
+                  "rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-all duration-150",
                   isActive
-                    ? "border-[#2563EB]/30 bg-[#EFF6FF] text-[#2563EB] shadow-sm"
-                    : "border-transparent bg-white/80 text-[#64748B] hover:border-[#CBD5E1]/60 hover:bg-white"
+                    ? "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--text-accent)] shadow-[var(--shadow-accent)]"
+                    : "border-transparent bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-overlay)] hover:text-[var(--text-primary)]"
                 )}
               >
                 {filter === "helpy_reports" && (
@@ -420,7 +420,7 @@ export function VorgaengePage() {
                 {filterLabels[filter]}
                 {mounted && filter === "helpy_reports" ? (
                   unreadReports > 0 ? (
-                    <span className="ml-1.5 rounded-full bg-[#E2E8F0] px-1.5 py-0.5 text-[10px] tabular-nums font-medium text-[#64748B]">
+                    <span className="ml-1.5 rounded-full bg-[var(--bg-overlay)] px-1.5 py-0.5 text-[10px] tabular-nums font-medium text-[var(--text-muted)]">
                       {unreadReports}
                     </span>
                   ) : count > 0 ? (
@@ -446,8 +446,8 @@ export function VorgaengePage() {
             className={cn(
               "inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-all",
               quickFilter === "heute"
-                ? "border-[#F59E0B]/40 bg-[#FFFBEB] text-[#B45309] shadow-sm"
-                : "border-[#E2E8F0] bg-white text-[#64748B] hover:border-[#CBD5E1]"
+                ? "border-[var(--warning-light)] bg-[var(--warning-light)] text-[var(--warning)]"
+                : "border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:border-[var(--border-strong)]"
             )}
           >
             <Sparkles className="size-3.5" />
@@ -469,24 +469,24 @@ export function VorgaengePage() {
         >
           <div className={cn("space-y-3", isSplitView && "lg:max-h-[calc(100vh-12rem)] lg:overflow-y-auto lg:pr-1")}>
             {isLoading ? (
-              <div className="rounded-[20px] border border-dashed border-[#CBD5E1] bg-white/70 px-8 py-16 text-center backdrop-blur-xl">
-                <p className="text-sm font-medium text-[#64748B]">
+              <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--bg-surface)] px-8 py-16 text-center">
+                <p className="text-sm font-medium text-[var(--text-secondary)]">
                   HELPY lädt deine Vorgänge…
                 </p>
               </div>
             ) : showAllDoneEmpty ? (
-              <div className="rounded-[24px] border border-[#A7F3D0]/50 bg-gradient-to-br from-[#ECFDF5]/80 to-white px-8 py-20 text-center backdrop-blur-xl">
+              <div className="rounded-xl border border-[var(--success-light)] bg-[var(--bg-surface)] px-8 py-20 text-center">
                 <p className="text-4xl">🎉</p>
-                <p className="mt-4 text-xl font-semibold text-[#0F172A]">
+                <p className="mt-4 text-xl font-semibold text-[var(--text-primary)]">
                   Alle Vorgänge erledigt!
                 </p>
-                <p className="mt-2 text-[14px] text-[#64748B]">
+                <p className="mt-2 text-[14px] text-[var(--text-secondary)]">
                   HELPY überwacht weiter deine Mails.
                 </p>
               </div>
             ) : filteredVorgaenge.length === 0 ? (
-              <div className="rounded-[20px] border border-dashed border-[#CBD5E1] bg-white/70 px-8 py-16 text-center backdrop-blur-xl">
-                <p className="text-sm font-medium text-[#64748B]">
+              <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--bg-surface)] px-8 py-16 text-center">
+                <p className="text-sm font-medium text-[var(--text-secondary)]">
                   Keine Vorgänge in diesem Filter.
                 </p>
               </div>
@@ -539,7 +539,7 @@ export function VorgaengePage() {
       </div>
 
       {selectedVorgang && selectedDetailId ? (
-        <div className="fixed inset-0 z-40 flex flex-col bg-white lg:hidden">
+        <div className="fixed inset-0 z-40 flex flex-col bg-[var(--bg-surface)] lg:hidden">
           <MobileBackHeader
             title={selectedVorgang.titel}
             subtitle={selectedVorgang.kunde}

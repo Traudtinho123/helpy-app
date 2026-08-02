@@ -67,10 +67,10 @@ export function HelpyRecognizedDocumentsCard() {
   }
 
   return (
-    <div className="rounded-[16px] border border-[#CBD5E1]/50 bg-white/90 px-4 py-3.5 shadow-[0_2px_8px_rgba(15,23,42,0.04)]">
+    <div className="rounded-[16px] border border-[var(--border)] bg-[var(--bg-surface)] px-4 py-3.5 shadow-[0_2px_8px_rgba(15,23,42,0.04)]">
       <div className="flex items-center gap-2">
-        <Paperclip className="size-4 text-[#2563EB]" strokeWidth={2} />
-        <p className="text-[12px] font-semibold text-[#0F172A]">
+        <Paperclip className="size-4 text-[var(--accent)]" strokeWidth={2} />
+        <p className="text-[12px] font-semibold text-[var(--text-primary)]">
           Dokumente von HELPY erkannt
         </p>
       </div>
@@ -100,7 +100,7 @@ export function HelpyRecognizedDocumentsCard() {
           return (
             <div
               key={document.id}
-              className="rounded-[12px] border border-[#CBD5E1]/50 bg-[#F8FAFC]/80 px-3 py-2.5"
+              className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3 py-2.5"
             >
               <div className="flex items-start gap-2">
                 <AttachmentTypeIcon
@@ -108,34 +108,34 @@ export function HelpyRecognizedDocumentsCard() {
                   fileName={document.fileName}
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="text-[12px] font-semibold text-[#0F172A]">
+                  <p className="text-[12px] font-semibold text-[var(--text-primary)]">
                     {document.fileName}
                   </p>
-                  <p className="mt-1 text-[11px] text-[#64748B]">
+                  <p className="mt-1 text-[11px] text-[var(--text-secondary)]">
                     {document.categoryLabel}
                     {direction ? (
                       <>
                         {" · "}
-                        <span className="font-medium text-[#2563EB]">
+                        <span className="font-medium text-[var(--accent)]">
                           {attachmentDirectionLabel(direction)}
                         </span>
                       </>
                     ) : null}
                   </p>
                   {(sizeLabel || receivedAt) && (
-                    <p className="mt-0.5 text-[10px] text-[#94A3B8]">
+                    <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">
                       {[sizeLabel, receivedAt].filter(Boolean).join(" · ")}
                     </p>
                   )}
                   {(document.messageSubject ?? mailAttachment?.messageSubject) && (
-                    <p className="mt-0.5 line-clamp-1 text-[10px] text-[#64748B]">
+                    <p className="mt-0.5 line-clamp-1 text-[10px] text-[var(--text-secondary)]">
                       {document.messageSubject ?? mailAttachment?.messageSubject}
                     </p>
                   )}
                 </div>
               </div>
 
-              <p className="mt-1.5 text-[11px] leading-relaxed text-[#475569]">
+              <p className="mt-1.5 text-[11px] leading-relaxed text-[var(--text-muted)]">
                 {document.recommendation}
               </p>
 
@@ -152,8 +152,8 @@ export function HelpyRecognizedDocumentsCard() {
                     href={downloadUrl}
                     download={document.fileName}
                     className={cn(
-                      "inline-flex h-8 items-center gap-1.5 rounded-[10px] border border-[#CBD5E1]/60 bg-white px-3",
-                      "text-[11px] font-medium text-[#334155] transition-colors hover:border-[#BFDBFE]/60 hover:bg-[#EFF6FF]"
+                      "inline-flex h-8 items-center gap-1.5 rounded-[10px] border border-[var(--border)] bg-[var(--bg-surface)] px-3",
+                      "text-[11px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--border-accent)] hover:bg-[var(--accent-light)]"
                     )}
                   >
                     <Download className="size-3.5" />
@@ -163,7 +163,7 @@ export function HelpyRecognizedDocumentsCard() {
                 <button
                   type="button"
                   onClick={() => handleReviewAssignment()}
-                  className="inline-flex h-8 items-center rounded-[10px] border border-[#CBD5E1]/60 bg-white px-3 text-[11px] font-medium text-[#334155] transition-colors hover:border-[#BFDBFE]/60 hover:bg-[#EFF6FF]"
+                  className="inline-flex h-8 items-center rounded-[10px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-[11px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--border-accent)] hover:bg-[var(--accent-light)]"
                 >
                   Zuordnung prüfen
                 </button>

@@ -28,10 +28,10 @@ import { useWorkspaceContext } from "@/features/workspace/context";
 import { cn } from "@/lib/utils";
 
 const STATUS_BADGE_STYLES: Record<GmailWorkflowStepVisualStatus, string> = {
-  vorbereitet: "border-[#E2E8F0] bg-[#F8FAFC] text-[#64748B]",
-  "in-pruefung": "border-[#BFDBFE] bg-[#EFF6FF] text-[#2563EB]",
+  vorbereitet: "border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-secondary)]",
+  "in-pruefung": "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--accent)]",
   bestaetigt: "border-[#A7F3D0] bg-[#ECFDF5] text-[#047857]",
-  erledigt: "border-[#CBD5E1] bg-[#F1F5F9] text-[#475569]",
+  erledigt: "border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-muted)]",
 };
 
 function scrollToAnchor(id: string): void {
@@ -158,25 +158,25 @@ export function GmailWorkflowStepsCard() {
   return (
     <Card
       id="helpy-gmail-arbeitsablauf"
-      className="scroll-mt-6 rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-[0_2px_8px_rgba(15,23,42,0.04)] backdrop-blur-xl"
+      className="scroll-mt-6 rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-[0_2px_8px_rgba(15,23,42,0.04)] backdrop-blur-xl"
     >
       <button
         type="button"
         onClick={() => setExpanded((value) => !value)}
-        className="flex w-full items-center gap-3 border-b border-[#CBD5E1]/30 px-5 py-4 text-left"
+        className="flex w-full items-center gap-3 border-b border-[var(--border)] px-5 py-4 text-left"
         aria-expanded={expanded}
       >
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-[12px] bg-[#EFF6FF] text-[#2563EB]">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-[12px] bg-[var(--accent-light)] text-[var(--accent)]">
           <ListChecks className="size-4" strokeWidth={2} />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[14px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+          <p className="text-[14px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
             Workflow
           </p>
-          <p className="text-[12px] text-[#64748B]">
+          <p className="text-[12px] text-[var(--text-secondary)]">
             HELPY hat die nächsten Schritte vorbereitet.
             {!expanded && preparedCount > 0 && (
-              <span className="text-[#94A3B8]">
+              <span className="text-[var(--text-muted)]">
                 {" "}
                 · {preparedCount} offen
               </span>
@@ -185,7 +185,7 @@ export function GmailWorkflowStepsCard() {
         </div>
         <ChevronDown
           className={cn(
-            "size-5 shrink-0 text-[#94A3B8] transition-transform duration-200",
+            "size-5 shrink-0 text-[var(--text-muted)] transition-transform duration-200",
             expanded && "rotate-180"
           )}
         />
@@ -200,14 +200,14 @@ export function GmailWorkflowStepsCard() {
                 className={cn(
                   "rounded-[14px] border px-3.5 py-3",
                   step.status === "erledigt" || step.status === "bestaetigt"
-                    ? "border-[#E2E8F0]/80 bg-[#F8FAFC]/80"
-                    : "border-[#E2E8F0]/70 bg-white/80"
+                    ? "border-[var(--border)] bg-[var(--bg-elevated)]"
+                    : "border-[var(--border)] bg-[var(--bg-surface)]"
                 )}
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-[13px] font-semibold text-[#0F172A]">
+                      <p className="text-[13px] font-semibold text-[var(--text-primary)]">
                         {step.title}
                       </p>
                       <span
@@ -219,7 +219,7 @@ export function GmailWorkflowStepsCard() {
                         {WORKFLOW_STEP_STATUS_LABELS[step.status]}
                       </span>
                     </div>
-                    <p className="mt-1 text-[11px] leading-relaxed text-[#64748B]">
+                    <p className="mt-1 text-[11px] leading-relaxed text-[var(--text-secondary)]">
                       {step.description}
                     </p>
                   </div>

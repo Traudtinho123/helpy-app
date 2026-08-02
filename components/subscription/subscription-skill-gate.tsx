@@ -54,7 +54,7 @@ export function SubscriptionSkillGate({ children }: { children: React.ReactNode 
     }
 
     return (
-      <div className="flex min-h-full items-center justify-center bg-[#EEF4FC] text-[13px] text-[#64748B]">
+      <div className="flex min-h-full items-center justify-center bg-[#EEF4FC] text-[13px] text-[var(--text-secondary)]">
         Zugang wird geprüft…
       </div>
     );

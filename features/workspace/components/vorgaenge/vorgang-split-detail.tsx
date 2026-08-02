@@ -28,7 +28,7 @@ const priorityStyles = {
   kritisch: "border-[#FCA5A5] bg-[#FEF2F2] text-[#B91C1C]",
   hoch: "border-[#FECACA] bg-[#FEF2F2] text-[#DC2626]",
   mittel: "border-[#FDE68A] bg-[#FFFBEB] text-[#B45309]",
-  niedrig: "border-[#CBD5E1] bg-[#F8FAFC] text-[#64748B]",
+  niedrig: "border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-secondary)]",
 } as const;
 
 export function VorgangSplitDetail({
@@ -46,12 +46,12 @@ export function VorgangSplitDetail({
   return (
     <div
       className={cn(
-        "flex h-full min-h-0 flex-col overflow-hidden rounded-[20px] border border-[#CBD5E1]/40 bg-white/95 shadow-lg backdrop-blur-xl",
+        "flex h-full min-h-0 flex-col overflow-hidden rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)]/95 shadow-lg backdrop-blur-xl",
         className
       )}
     >
       {showHeader ? (
-      <header className="flex shrink-0 items-start justify-between gap-3 border-b border-[#E2E8F0]/80 px-5 py-4">
+      <header className="flex shrink-0 items-start justify-between gap-3 border-b border-[var(--border)] px-5 py-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <VorgangStatusBadge status={currentStatus} />
@@ -64,17 +64,17 @@ export function VorgangSplitDetail({
               {VORGANG_PRIORITY_LABELS[vorgang.prioritaet]}
             </span>
           </div>
-          <h2 className="mt-2 text-[17px] font-semibold tracking-[-0.02em] text-[#0F172A]">
+          <h2 className="mt-2 text-[17px] font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
             {vorgang.titel}
           </h2>
-          <p className="mt-1 text-[12px] text-[#64748B]">
+          <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
             {vorgang.kunde} · {vorgang.receivedLabel}
           </p>
         </div>
         <button
           type="button"
           onClick={onClose}
-          className="rounded-[10px] p-2 text-[#64748B] transition-colors hover:bg-[#F1F5F9] hover:text-[#0F172A]"
+          className="rounded-[10px] p-2 text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]"
           aria-label="Detail schliessen"
         >
           <X className="size-4" />
@@ -84,15 +84,15 @@ export function VorgangSplitDetail({
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
         {vorgang.summary ? (
-          <p className="text-[13px] leading-relaxed text-[#475569]">
+          <p className="text-[13px] leading-relaxed text-[var(--text-muted)]">
             {vorgang.summary}
           </p>
         ) : null}
 
         {vorgang.detectedContext && vorgang.detectedContext.length > 0 ? (
-          <ul className="mt-4 space-y-1 rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
+          <ul className="mt-4 space-y-1 rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-3">
             {vorgang.detectedContext.map((line) => (
-              <li key={line} className="text-[12px] text-[#64748B]">
+              <li key={line} className="text-[12px] text-[var(--text-secondary)]">
                 {line}
               </li>
             ))}
@@ -115,7 +115,7 @@ export function VorgangSplitDetail({
             </>
           ) : (
             <div className="rounded-[14px] border border-[#FDE68A]/50 bg-[#FFFBEB]/50 px-4 py-3">
-              <p className="text-[12px] text-[#334155]">{vorgang.helpyEmpfehlung}</p>
+              <p className="text-[12px] text-[var(--text-secondary)]">{vorgang.helpyEmpfehlung}</p>
             </div>
           )}
         </div>

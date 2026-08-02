@@ -46,7 +46,7 @@ function Dropdown({ trigger, children, align = "end", className }: DropdownProps
         <div
           role="menu"
           className={cn(
-            "absolute top-[calc(100%+8px)] z-[200] min-w-[12rem] border border-[#CBD5E1]/50 bg-white p-1.5",
+            "absolute top-[calc(100%+8px)] z-[200] min-w-[12rem] border border-[var(--border)] bg-[var(--bg-surface)] p-1.5",
             radiusClass.lg,
             shadowClass.lg,
             align === "end" ? "right-0" : "left-0"
@@ -68,7 +68,7 @@ function DropdownItem({
       type="button"
       role="menuitem"
       className={cn(
-        "flex w-full items-center rounded-[12px] px-3 py-2 text-left text-[13px] text-[#334155] transition-colors hover:bg-[#F8FAFC]",
+        "flex w-full items-center rounded-[12px] px-3 py-2 text-left text-[13px] text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-elevated)]",
         className
       )}
       {...props}

@@ -37,21 +37,21 @@ export function UserDropdown({
   return (
     <div
       role="menu"
-      className="user-menu-enter min-w-[280px] overflow-hidden rounded-[16px] border border-[#CBD5E1]/60 bg-white/95 shadow-[0_16px_48px_rgba(15,23,42,0.14)] backdrop-blur-xl"
+      className="user-menu-enter min-w-[280px] overflow-hidden rounded-[16px] border border-[var(--border)] bg-[var(--bg-surface)]/95 shadow-[0_16px_48px_rgba(15,23,42,0.14)] backdrop-blur-xl"
     >
-      <div className="border-b border-[#CBD5E1]/40 px-4 py-3.5">
-        <p className="text-[13px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+      <div className="border-b border-[var(--border)] px-4 py-3.5">
+        <p className="text-[13px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
           {name}
         </p>
-        <p className="mt-1 text-[11px] text-[#64748B]">{email}</p>
+        <p className="mt-1 text-[11px] text-[var(--text-secondary)]">{email}</p>
         {companyName && (
-          <p className="mt-1 text-[11px] font-medium text-[#475569]">
+          <p className="mt-1 text-[11px] font-medium text-[var(--text-muted)]">
             {companyName}
           </p>
         )}
       </div>
 
-      <div className="border-b border-[#CBD5E1]/40">
+      <div className="border-b border-[var(--border)]">
         <SkillSwitcher />
       </div>
 
@@ -67,7 +67,7 @@ export function UserDropdown({
             href="/einstellungen/admin"
             role="menuitem"
             onClick={onClose}
-            className="group flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-[13px] font-medium text-[#334155] transition-all duration-200 hover:bg-[#F8FAFC] hover:pl-[1.125rem]"
+            className="group flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-[13px] font-medium text-[var(--text-secondary)] transition-all duration-200 hover:bg-[var(--bg-elevated)] hover:pl-[1.125rem]"
           >
             <span className="text-[14px] leading-none">🛡️</span>
             Admin Panel
@@ -79,7 +79,7 @@ export function UserDropdown({
             href={href}
             role="menuitem"
             onClick={onClose}
-            className="group flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-[13px] font-medium text-[#334155] transition-all duration-200 hover:bg-[#F8FAFC] hover:pl-[1.125rem]"
+            className="group flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-[13px] font-medium text-[var(--text-secondary)] transition-all duration-200 hover:bg-[var(--bg-elevated)] hover:pl-[1.125rem]"
           >
             <span className="text-[14px] leading-none transition-transform duration-200 group-hover:scale-110">
               {emoji}
@@ -89,19 +89,19 @@ export function UserDropdown({
         ))}
       </div>
 
-      <div className="border-t border-[#CBD5E1]/40 py-1">
+      <div className="border-t border-[var(--border)] py-1">
         <button
           type="button"
           role="menuitem"
           disabled={isSigningOut}
           onClick={onSignOut}
           className={cn(
-            "group flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-[13px] font-medium text-[#334155] transition-all duration-200 hover:bg-[#F8FAFC] hover:pl-[1.125rem]",
+            "group flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-[13px] font-medium text-[var(--text-secondary)] transition-all duration-200 hover:bg-[var(--bg-elevated)] hover:pl-[1.125rem]",
             isSigningOut && "opacity-70"
           )}
         >
           {isSigningOut ? (
-            <Loader2 className="size-4 animate-spin text-[#64748B]" />
+            <Loader2 className="size-4 animate-spin text-[var(--text-secondary)]" />
           ) : (
             <span className="text-[14px] leading-none transition-transform duration-200 group-hover:scale-110">
               🚪

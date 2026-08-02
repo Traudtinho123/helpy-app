@@ -69,10 +69,10 @@ function HelpyDetectedAppointmentInner({
 
   if (cardState === "adopting") {
     return (
-      <div className="helpy-fade-in rounded-[16px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/80 p-5">
+      <div className="helpy-fade-in rounded-[16px] border border-[var(--border-accent)] bg-[var(--accent-light)] p-5">
         <div className="flex flex-col items-center gap-3 text-center">
-          <Loader2 className="size-6 animate-spin text-[#2563EB]" />
-          <p className="text-[13px] font-semibold text-[#0F172A]">
+          <Loader2 className="size-6 animate-spin text-[var(--accent)]" />
+          <p className="text-[13px] font-semibold text-[var(--text-primary)]">
             HELPY trägt den Termin ein…
           </p>
           <div className="flex gap-1">
@@ -90,13 +90,13 @@ function HelpyDetectedAppointmentInner({
   }
 
   return (
-    <div className="helpy-fade-in rounded-[16px] border border-[#BFDBFE]/60 bg-gradient-to-br from-[#EFF6FF]/80 to-white/90 p-5 shadow-sm">
+    <div className="helpy-fade-in rounded-[16px] border border-[var(--border-accent)] bg-gradient-to-br from-[#EFF6FF]/80 to-white/90 p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[11px] font-semibold tracking-[0.04em] text-[#2563EB] uppercase">
+          <p className="text-[11px] font-semibold tracking-[0.04em] text-[var(--accent)] uppercase">
             Termin erkannt
           </p>
-          <p className="mt-2 text-[13px] font-semibold text-[#0F172A]">
+          <p className="mt-2 text-[13px] font-semibold text-[var(--text-primary)]">
             {appointment.title}
           </p>
         </div>
@@ -104,7 +104,7 @@ function HelpyDetectedAppointmentInner({
           variant="ghost"
           size="icon-sm"
           onClick={handleDismiss}
-          className="size-8 shrink-0 rounded-[10px] text-[#64748B] hover:text-[#DC2626]"
+          className="size-8 shrink-0 rounded-[10px] text-[var(--text-secondary)] hover:text-[#DC2626]"
           aria-label="Terminvorschlag ausblenden"
         >
           <X className="size-4" />
@@ -112,10 +112,10 @@ function HelpyDetectedAppointmentInner({
       </div>
 
       <div className="mt-4 space-y-1.5">
-        <p className="text-[13px] font-medium text-[#2563EB]">
+        <p className="text-[13px] font-medium text-[var(--accent)]">
           {appointment.time}
         </p>
-        <p className="text-[13px] text-[#334155]">{appointment.company}</p>
+        <p className="text-[13px] text-[var(--text-secondary)]">{appointment.company}</p>
       </div>
 
       <div className="mt-4 flex flex-col gap-2">
@@ -128,7 +128,7 @@ function HelpyDetectedAppointmentInner({
         </Button>
         <Button
           variant="outline"
-          className="h-9 w-full justify-start gap-2 rounded-[12px] border-[#CBD5E1]/60 bg-white text-[12px] font-medium"
+          className="h-9 w-full justify-start gap-2 rounded-[12px] border-[var(--border)] bg-[var(--bg-surface)] text-[12px] font-medium"
         >
           <Pencil className="size-4" />
           Termin bearbeiten
@@ -136,7 +136,7 @@ function HelpyDetectedAppointmentInner({
         <Button
           variant="ghost"
           onClick={handleDismiss}
-          className="h-9 w-full justify-start gap-2 rounded-[12px] text-[12px] font-medium text-[#64748B] hover:text-[#DC2626]"
+          className="h-9 w-full justify-start gap-2 rounded-[12px] text-[12px] font-medium text-[var(--text-secondary)] hover:text-[#DC2626]"
         >
           <X className="size-4" />
           Vorschlag verwerfen

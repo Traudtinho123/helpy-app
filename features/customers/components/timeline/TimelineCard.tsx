@@ -14,7 +14,7 @@ type TimelineCardProps = {
 };
 
 const statusStyles: Record<string, string> = {
-  neu: "border-[#BFDBFE] bg-[#EFF6FF] text-[#2563EB]",
+  neu: "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--accent)]",
   offen: "border-[#FDE68A] bg-[#FFFBEB] text-[#B45309]",
   erledigt: "border-[#A7F3D0] bg-[#ECFDF5] text-[#047857]",
   versendet: "border-[#E9D5FF] bg-[#FAF5FF] text-[#7C3AED]",
@@ -27,7 +27,7 @@ export function TimelineCard({ entry, className }: TimelineCardProps) {
   return (
     <article
       className={cn(
-        "rounded-[18px] border border-[#CBD5E1]/45 bg-white/90 p-4 shadow-[0_2px_8px_rgba(15,23,42,0.04)] backdrop-blur-sm transition-all duration-300 hover:border-[#BFDBFE]/60 hover:shadow-[0_6px_20px_rgba(37,99,235,0.08)]",
+        "rounded-[18px] border border-[var(--border)]/45 bg-[var(--bg-surface)] p-4 shadow-[0_2px_8px_rgba(15,23,42,0.04)] backdrop-blur-sm transition-all duration-300 hover:border-[var(--border-accent)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.08)]",
         className
       )}
     >
@@ -43,7 +43,7 @@ export function TimelineCard({ entry, className }: TimelineCardProps) {
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-semibold text-[#94A3B8]">
+            <span className="text-[11px] font-semibold text-[var(--text-muted)]">
               {formatTimelineTime(entry.time)}
             </span>
             <span
@@ -67,20 +67,20 @@ export function TimelineCard({ entry, className }: TimelineCardProps) {
             )}
           </div>
 
-          <h4 className="mt-1.5 text-[13px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+          <h4 className="mt-1.5 text-[13px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
             {entry.title}
           </h4>
 
-          <p className="mt-1 text-[12px] leading-relaxed text-[#64748B]">
+          <p className="mt-1 text-[12px] leading-relaxed text-[var(--text-secondary)]">
             {entry.description}
           </p>
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-medium text-[#94A3B8]">
+            <span className="text-[11px] font-medium text-[var(--text-muted)]">
               {entry.source}
             </span>
             {entry.helpyDetected && (
-              <span className="rounded-full bg-[#EFF6FF] px-2 py-0.5 text-[10px] font-semibold text-[#2563EB]">
+              <span className="rounded-full bg-[var(--accent-light)] px-2 py-0.5 text-[10px] font-semibold text-[var(--accent)]">
                 Von HELPY erkannt
               </span>
             )}

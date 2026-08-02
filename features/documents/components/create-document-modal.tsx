@@ -220,7 +220,7 @@ function CreateDocumentModalBody({
       }
     >
       <div className="space-y-4">
-        <div className="rounded-[12px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/50 px-4 py-3">
+        <div className="rounded-[12px] border border-[var(--border-accent)] bg-[var(--accent-light)]/50 px-4 py-3">
           <p className="flex items-center gap-2 text-[12px] text-[#1E40AF]">
             <Sparkles className="size-4 shrink-0" />
             HELPY hat den Text aus Vorgang und Objektdaten vorbereitet.
@@ -229,7 +229,7 @@ function CreateDocumentModalBody({
 
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <label className="text-[11px] font-medium text-[#64748B]">
+            <label className="text-[11px] font-medium text-[var(--text-secondary)]">
               Empfänger
             </label>
             <Input
@@ -239,7 +239,7 @@ function CreateDocumentModalBody({
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-[11px] font-medium text-[#64748B]">
+            <label className="text-[11px] font-medium text-[var(--text-secondary)]">
               E-Mail
             </label>
             <Input
@@ -252,11 +252,11 @@ function CreateDocumentModalBody({
           </div>
         </div>
 
-        <div className="rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-[#94A3B8]">
+        <div className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-3">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
             Objekt
           </p>
-          <p className="mt-1 text-[13px] font-medium text-[#0F172A]">
+          <p className="mt-1 text-[13px] font-medium text-[var(--text-primary)]">
             {objectLabel}
           </p>
         </div>
@@ -265,7 +265,7 @@ function CreateDocumentModalBody({
           {sections.map((section, index) => (
             <div key={section.heading ?? index} className="space-y-1.5">
               {section.heading ? (
-                <label className="text-[11px] font-semibold text-[#64748B]">
+                <label className="text-[11px] font-semibold text-[var(--text-secondary)]">
                   {section.heading}
                 </label>
               ) : null}
@@ -277,7 +277,7 @@ function CreateDocumentModalBody({
                   setSections(next);
                 }}
                 rows={Math.min(8, Math.max(3, section.content.split("\n").length + 1))}
-                className="w-full rounded-[12px] border border-[#CBD5E1]/60 bg-white px-3 py-2.5 text-[13px] leading-relaxed text-[#334155] outline-none focus-visible:border-[#2563EB] focus-visible:ring-3 focus-visible:ring-[#2563EB]/20"
+                className="w-full rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2.5 text-[13px] leading-relaxed text-[var(--text-secondary)] outline-none focus-visible:border-[#2563EB] focus-visible:ring-3 focus-visible:ring-[#2563EB]/20"
               />
             </div>
           ))}

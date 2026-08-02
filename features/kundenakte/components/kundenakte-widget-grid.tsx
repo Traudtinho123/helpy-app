@@ -64,18 +64,18 @@ function KundenakteWidgetTile({ widget }: { widget: KundenakteWidgetSnapshot }) 
   return (
     <Link
       href={widget.href}
-      className="group rounded-[20px] border border-[#CBD5E1]/40 bg-white/90 p-4 shadow-[0_2px_8px_rgba(15,23,42,0.04)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)]"
+      className="group rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] p-4 shadow-[0_2px_8px_rgba(15,23,42,0.04)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)]"
     >
       <div className="flex items-center gap-2.5">
-        <span className="flex size-8 items-center justify-center rounded-[10px] bg-[#EFF6FF] text-[#2563EB]">
+        <span className="flex size-8 items-center justify-center rounded-[10px] bg-[var(--accent-light)] text-[var(--accent)]">
           <Icon className="size-4" strokeWidth={2} />
         </span>
-        <p className="text-[12px] font-semibold text-[#64748B]">{widget.label}</p>
+        <p className="text-[12px] font-semibold text-[var(--text-secondary)]">{widget.label}</p>
       </div>
-      <p className="mt-3 text-[13px] font-semibold leading-snug text-[#0F172A]">
+      <p className="mt-3 text-[13px] font-semibold leading-snug text-[var(--text-primary)]">
         {widget.status}
       </p>
-      <p className="mt-1.5 text-[11px] leading-relaxed text-[#64748B]">
+      <p className="mt-1.5 text-[11px] leading-relaxed text-[var(--text-secondary)]">
         {widget.detail}
       </p>
     </Link>

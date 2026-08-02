@@ -79,7 +79,7 @@ export function SlideUpSheet({
         role="dialog"
         aria-modal="true"
         className={cn(
-          "flex w-full flex-col overflow-hidden rounded-t-[24px] border border-[#E2E8F0]/80 bg-white shadow-[0_-8px_40px_rgba(15,23,42,0.15)]",
+          "flex w-full flex-col overflow-hidden rounded-t-[24px] border border-[var(--border)] bg-[var(--bg-surface)] shadow-[0_-8px_40px_rgba(15,23,42,0.15)]",
           className
         )}
         style={{
@@ -89,7 +89,7 @@ export function SlideUpSheet({
         }}
       >
         <div
-          className="flex shrink-0 cursor-grab flex-col items-center border-b border-[#E2E8F0]/60 px-4 pb-3 pt-3 active:cursor-grabbing"
+          className="flex shrink-0 cursor-grab flex-col items-center border-b border-[var(--border)]/60 px-4 pb-3 pt-3 active:cursor-grabbing"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -97,11 +97,11 @@ export function SlideUpSheet({
           <div className="mb-3 h-1 w-10 rounded-full bg-[#CBD5E1]" />
           {title ? (
             <div className="flex w-full items-center justify-between">
-              <h2 className="text-[15px] font-semibold text-[#0F172A]">{title}</h2>
+              <h2 className="text-[15px] font-semibold text-[var(--text-primary)]">{title}</h2>
               <button
                 type="button"
                 onClick={onClose}
-                className="flex size-11 items-center justify-center rounded-[12px] text-[#64748B] hover:bg-[#F1F5F9]"
+                className="flex size-11 items-center justify-center rounded-[12px] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"
                 aria-label="Schliessen"
               >
                 <X className="size-5" />

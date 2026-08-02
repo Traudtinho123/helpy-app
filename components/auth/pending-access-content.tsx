@@ -33,15 +33,15 @@ export function PendingAccessContent({ email }: PendingAccessContentProps) {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-[16px] border border-[#BFDBFE]/70 bg-[#EFF6FF]/60 px-4 py-4">
-        <p className="text-[13px] leading-relaxed text-[#334155]">
+      <div className="rounded-[16px] border border-[var(--border-accent)]/70 bg-[var(--accent-light)] px-4 py-4">
+        <p className="text-[13px] leading-relaxed text-[var(--text-secondary)]">
           Nach Eingang deiner Zahlung schalten wir dein HELPY-Produkt manuell
           frei. Das dauert in der Regel nur kurz.
         </p>
         {email ? (
-          <p className="mt-3 text-[12px] text-[#64748B]">
+          <p className="mt-3 text-[12px] text-[var(--text-secondary)]">
             Angemeldet als{" "}
-            <span className="font-medium text-[#0F172A]">{email}</span>
+            <span className="font-medium text-[var(--text-primary)]">{email}</span>
           </p>
         ) : null}
       </div>
@@ -54,11 +54,11 @@ export function PendingAccessContent({ email }: PendingAccessContentProps) {
         Kontakt aufnehmen
       </a>
 
-      <p className="text-center text-[12px] text-[#64748B]">
+      <p className="text-center text-[12px] text-[var(--text-secondary)]">
         Oder schreib an{" "}
         <a
           href={`mailto:${SKILL_ACCESS_CONTACT_EMAIL}`}
-          className="font-semibold text-[#2563EB] hover:underline"
+          className="font-semibold text-[var(--accent)] hover:underline"
         >
           {SKILL_ACCESS_CONTACT_EMAIL}
         </a>
@@ -69,7 +69,7 @@ export function PendingAccessContent({ email }: PendingAccessContentProps) {
         variant="outline"
         disabled={isSigningOut}
         onClick={() => void handleSignOut()}
-        className="h-11 w-full rounded-[14px] border-[#CBD5E1]/70 text-[13px]"
+        className="h-11 w-full rounded-[14px] border-[var(--border)]/70 text-[13px]"
       >
         {isSigningOut ? (
           <>

@@ -34,7 +34,7 @@ export function SocialPostHistory({ posts }: SocialPostHistoryProps) {
 
   if (published.length === 0) {
     return (
-      <p className="text-[12px] text-[#64748B]">
+      <p className="text-[12px] text-[var(--text-secondary)]">
         📱 Noch nicht auf Social Media gepostet.
       </p>
     );
@@ -42,12 +42,12 @@ export function SocialPostHistory({ posts }: SocialPostHistoryProps) {
 
   return (
     <div className="space-y-2">
-      <p className="text-[12px] font-semibold text-[#334155]">📱 Zuletzt gepostet</p>
+      <p className="text-[12px] font-semibold text-[var(--text-secondary)]">📱 Zuletzt gepostet</p>
       <ul className="space-y-1.5">
         {published.map((post) => (
           <li
             key={post.id}
-            className="text-[12px] text-[#475569]"
+            className="text-[12px] text-[var(--text-muted)]"
           >
             {SOCIAL_PLATFORM_EMOJI[post.platform]}{" "}
             {SOCIAL_PLATFORM_LABELS[post.platform]} · {formatShortDate(post.publishedAt)} ·{" "}

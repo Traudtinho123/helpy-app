@@ -138,17 +138,17 @@ export function SuchprofilSection({ kundeId, kundeName, initialEditing = false }
   };
 
   return (
-    <section className="rounded-[20px] border border-[#CBD5E1]/40 bg-white/90 p-5 shadow-[0_2px_8px_rgba(15,23,42,0.04)]">
+    <section className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] p-5 shadow-[0_2px_8px_rgba(15,23,42,0.04)]">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <span className="flex size-8 items-center justify-center rounded-[10px] bg-[#EFF6FF] text-[#2563EB]">
+          <span className="flex size-8 items-center justify-center rounded-[10px] bg-[var(--accent-light)] text-[var(--accent)]">
             <Search className="size-4" strokeWidth={2} />
           </span>
           <div>
-            <h3 className="text-[14px] font-semibold text-[#0F172A]">
+            <h3 className="text-[14px] font-semibold text-[var(--text-primary)]">
               🔍 Suchprofil
             </h3>
-            <p className="text-[11px] text-[#64748B]">
+            <p className="text-[11px] text-[var(--text-secondary)]">
               {kundeName ? `Suchkriterien für ${kundeName}` : "Automatisches Objekt-Matching"}
             </p>
           </div>
@@ -158,7 +158,7 @@ export function SuchprofilSection({ kundeId, kundeName, initialEditing = false }
             type="button"
             variant="outline"
             onClick={() => setEditing(true)}
-            className="h-8 rounded-[10px] border-[#CBD5E1]/60 px-3 text-[11px]"
+            className="h-8 rounded-[10px] border-[var(--border)] px-3 text-[11px]"
           >
             <Pencil className="mr-1.5 size-3" />
             {profil ? "Bearbeiten" : "Anlegen"}
@@ -177,8 +177,8 @@ export function SuchprofilSection({ kundeId, kundeName, initialEditing = false }
                 className={cn(
                   "rounded-full border px-3 py-1 text-[11px] font-semibold capitalize transition-all",
                   form.art === art
-                    ? "border-[#2563EB]/30 bg-[#EFF6FF] text-[#2563EB]"
-                    : "border-[#CBD5E1]/60 bg-white text-[#64748B]"
+                    ? "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--accent)]"
+                    : "border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-secondary)]"
                 )}
               >
                 {art}
@@ -187,7 +187,7 @@ export function SuchprofilSection({ kundeId, kundeName, initialEditing = false }
           </div>
 
           <div>
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#94A3B8]">
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
               Objekttyp
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -199,8 +199,8 @@ export function SuchprofilSection({ kundeId, kundeName, initialEditing = false }
                   className={cn(
                     "rounded-full border px-2.5 py-0.5 text-[10px] font-medium transition-all",
                     form.objekttyp.includes(typ)
-                      ? "border-[#2563EB]/30 bg-[#EFF6FF] text-[#2563EB]"
-                      : "border-[#CBD5E1]/60 text-[#64748B]"
+                      ? "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--accent)]"
+                      : "border-[var(--border)] text-[var(--text-secondary)]"
                   )}
                 >
                   {typ}
@@ -227,7 +227,7 @@ export function SuchprofilSection({ kundeId, kundeName, initialEditing = false }
           </div>
 
           <div>
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#94A3B8]">
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
               Preis max (CHF)
             </p>
             <input
@@ -236,12 +236,12 @@ export function SuchprofilSection({ kundeId, kundeName, initialEditing = false }
                 setForm((prev) => ({ ...prev, preis_max: e.target.value }))
               }
               placeholder="z.B. 800000"
-              className="w-full rounded-[10px] border border-[#CBD5E1]/60 px-3 py-2 text-[12px]"
+              className="w-full rounded-[10px] border border-[var(--border)] px-3 py-2 text-[12px]"
             />
           </div>
 
           <div>
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#94A3B8]">
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
               Lagen
             </p>
             <div className="mb-2 flex flex-wrap gap-1.5">
@@ -249,7 +249,7 @@ export function SuchprofilSection({ kundeId, kundeName, initialEditing = false }
                 <Badge
                   key={lage}
                   variant="outline"
-                  className="gap-1 rounded-full border-[#BFDBFE]/60 bg-[#EFF6FF]/80 px-2 text-[10px]"
+                  className="gap-1 rounded-full border-[var(--border-accent)] bg-[var(--accent-light)] px-2 text-[10px]"
                 >
                   {lage}
                   <button
@@ -277,7 +277,7 @@ export function SuchprofilSection({ kundeId, kundeName, initialEditing = false }
                   }
                 }}
                 placeholder="Ort hinzufügen…"
-                className="min-w-0 flex-1 rounded-[10px] border border-[#CBD5E1]/60 px-3 py-2 text-[12px]"
+                className="min-w-0 flex-1 rounded-[10px] border border-[var(--border)] px-3 py-2 text-[12px]"
               />
               <Button
                 type="button"
@@ -295,7 +295,7 @@ export function SuchprofilSection({ kundeId, kundeName, initialEditing = false }
                     key={suggestion}
                     type="button"
                     onClick={() => addLage(suggestion)}
-                    className="rounded-full border border-dashed border-[#CBD5E1]/60 px-2 py-0.5 text-[10px] text-[#64748B] hover:border-[#2563EB]/30 hover:text-[#2563EB]"
+                    className="rounded-full border border-dashed border-[var(--border)] px-2 py-0.5 text-[10px] text-[var(--text-secondary)] hover:border-[var(--border-accent)] hover:text-[var(--accent)]"
                   >
                     + {suggestion}
                   </button>
@@ -305,7 +305,7 @@ export function SuchprofilSection({ kundeId, kundeName, initialEditing = false }
           </div>
 
           <div>
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#94A3B8]">
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
               Muss-Kriterien
             </p>
             <div className="mb-2 flex flex-wrap gap-1.5">
@@ -343,7 +343,7 @@ export function SuchprofilSection({ kundeId, kundeName, initialEditing = false }
                   }
                 }}
                 placeholder="z.B. Balkon, Garage…"
-                className="min-w-0 flex-1 rounded-[10px] border border-[#CBD5E1]/60 px-3 py-2 text-[12px]"
+                className="min-w-0 flex-1 rounded-[10px] border border-[var(--border)] px-3 py-2 text-[12px]"
               />
               <Button
                 type="button"
@@ -357,7 +357,7 @@ export function SuchprofilSection({ kundeId, kundeName, initialEditing = false }
           </div>
 
           <div>
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#94A3B8]">
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
               Notizen
             </p>
             <textarea
@@ -366,11 +366,11 @@ export function SuchprofilSection({ kundeId, kundeName, initialEditing = false }
                 setForm((prev) => ({ ...prev, notizen: e.target.value }))
               }
               rows={2}
-              className="w-full rounded-[10px] border border-[#CBD5E1]/60 px-3 py-2 text-[12px]"
+              className="w-full rounded-[10px] border border-[var(--border)] px-3 py-2 text-[12px]"
             />
           </div>
 
-          <label className="flex items-center gap-2 text-[12px] text-[#334155]">
+          <label className="flex items-center gap-2 text-[12px] text-[var(--text-secondary)]">
             <input
               type="checkbox"
               checked={form.aktiv}
@@ -408,7 +408,7 @@ export function SuchprofilSection({ kundeId, kundeName, initialEditing = false }
       ) : profil ? (
         <SuchprofilSummary profil={profil} />
       ) : (
-        <p className="text-[13px] text-[#64748B]">
+        <p className="text-[13px] text-[var(--text-secondary)]">
           Noch kein Suchprofil hinterlegt. HELPY kann Kriterien aus E-Mails
           vorschlagen oder du legst sie manuell an.
         </p>
@@ -419,7 +419,7 @@ export function SuchprofilSection({ kundeId, kundeName, initialEditing = false }
 
 function SuchprofilSummary({ profil }: { profil: SuchprofilRecord }) {
   return (
-    <div className="space-y-2 text-[12px] text-[#334155]">
+    <div className="space-y-2 text-[12px] text-[var(--text-secondary)]">
       <div className="flex flex-wrap gap-2">
         <Badge variant="outline" className="rounded-full text-[10px] capitalize">
           {profil.art}
@@ -466,7 +466,7 @@ function SuchprofilSummary({ profil }: { profil: SuchprofilRecord }) {
         <SummaryRow label="Muss" value={profil.muss_kriterien.join(", ")} />
       )}
       {profil.notizen && (
-        <p className="mt-2 text-[11px] italic text-[#64748B]">{profil.notizen}</p>
+        <p className="mt-2 text-[11px] italic text-[var(--text-secondary)]">{profil.notizen}</p>
       )}
     </div>
   );
@@ -475,7 +475,7 @@ function SuchprofilSummary({ profil }: { profil: SuchprofilRecord }) {
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex gap-2">
-      <span className="w-20 shrink-0 text-[#94A3B8]">{label}</span>
+      <span className="w-20 shrink-0 text-[var(--text-muted)]">{label}</span>
       <span className="font-medium">{value}</span>
     </div>
   );
@@ -496,7 +496,7 @@ function FieldPair({
 }) {
   return (
     <div>
-      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#94A3B8]">
+      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
         {label}
       </p>
       <div className="flex gap-2">
@@ -504,13 +504,13 @@ function FieldPair({
           value={min}
           onChange={(e) => onMinChange(e.target.value)}
           placeholder="Min"
-          className="w-full rounded-[10px] border border-[#CBD5E1]/60 px-3 py-2 text-[12px]"
+          className="w-full rounded-[10px] border border-[var(--border)] px-3 py-2 text-[12px]"
         />
         <input
           value={max}
           onChange={(e) => onMaxChange(e.target.value)}
           placeholder="Max"
-          className="w-full rounded-[10px] border border-[#CBD5E1]/60 px-3 py-2 text-[12px]"
+          className="w-full rounded-[10px] border border-[var(--border)] px-3 py-2 text-[12px]"
         />
       </div>
     </div>

@@ -135,8 +135,8 @@ export function DocumentPdfActions({
   }, [branding, ensurePayload, message, payload, recipient, subject]);
 
   const buttonClass = compact
-    ? "h-9 gap-2 rounded-[10px] border-[#CBD5E1]/60 text-[12px] font-medium"
-    : "h-9 gap-2 rounded-[10px] border-[#CBD5E1]/60 text-[12px] font-medium";
+    ? "h-9 gap-2 rounded-[10px] border-[var(--border)] text-[12px] font-medium"
+    : "h-9 gap-2 rounded-[10px] border-[var(--border)] text-[12px] font-medium";
 
   return (
     <>
@@ -190,7 +190,7 @@ export function DocumentPdfActions({
           <p className="mt-2 text-[11px] text-[#047857]">{sendFeedback}</p>
         ) : null}
         {!payload ? (
-          <p className="mt-2 text-[11px] text-[#94A3B8]">
+          <p className="mt-2 text-[11px] text-[var(--text-muted)]">
             PDF-Export ist für diesen Dokumenttyp noch nicht verfügbar.
           </p>
         ) : null}
@@ -228,7 +228,7 @@ export function DocumentPdfActions({
       >
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <label className="text-[11px] font-medium text-[#64748B]">
+            <label className="text-[11px] font-medium text-[var(--text-secondary)]">
               Empfänger
             </label>
             <Input
@@ -239,7 +239,7 @@ export function DocumentPdfActions({
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-[11px] font-medium text-[#64748B]">
+            <label className="text-[11px] font-medium text-[var(--text-secondary)]">
               Betreff
             </label>
             <Input
@@ -249,14 +249,14 @@ export function DocumentPdfActions({
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-[11px] font-medium text-[#64748B]">
+            <label className="text-[11px] font-medium text-[var(--text-secondary)]">
               Nachricht
             </label>
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={4}
-              className="w-full rounded-[12px] border border-[#CBD5E1]/60 bg-white px-3 py-2 text-[13px] text-[#0F172A] outline-none focus-visible:border-[#2563EB] focus-visible:ring-3 focus-visible:ring-[#2563EB]/20"
+              className="w-full rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-[13px] text-[var(--text-primary)] outline-none focus-visible:border-[#2563EB] focus-visible:ring-3 focus-visible:ring-[#2563EB]/20"
             />
           </div>
           {error ? (

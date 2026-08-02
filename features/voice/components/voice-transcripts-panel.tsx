@@ -7,7 +7,7 @@ export function VoiceTranscriptsPanel() {
 
   if (sessions.length === 0) {
     return (
-      <div className="rounded-[16px] border border-dashed border-[#CBD5E1] bg-[#F8FAFC] px-6 py-12 text-center text-[13px] text-[#64748B]">
+      <div className="rounded-[16px] border border-dashed border-[var(--border)] bg-[var(--bg-elevated)] px-6 py-12 text-center text-[13px] text-[var(--text-secondary)]">
         Noch keine Transkripte.
       </div>
     );
@@ -18,12 +18,12 @@ export function VoiceTranscriptsPanel() {
       {sessions.map((session) => (
         <article
           key={session.conversationId}
-          className="rounded-[16px] border border-[#E2E8F0] bg-white px-4 py-3 shadow-sm"
+          className="rounded-[16px] border border-[var(--border)] bg-[var(--bg-surface)] px-4 py-3 shadow-sm"
         >
-          <p className="text-[12px] font-semibold text-[#0F172A]">
+          <p className="text-[12px] font-semibold text-[var(--text-primary)]">
             {new Date(session.startedAt).toLocaleString("de-CH")} · {session.providerId}
           </p>
-          <pre className="mt-2 whitespace-pre-wrap text-[12px] leading-relaxed text-[#475569]">
+          <pre className="mt-2 whitespace-pre-wrap text-[12px] leading-relaxed text-[var(--text-muted)]">
             {session.transcript}
           </pre>
         </article>

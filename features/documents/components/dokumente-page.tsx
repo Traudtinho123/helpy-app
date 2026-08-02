@@ -166,10 +166,10 @@ export function DokumentePage() {
         }
       >
         {focusVorgangId && (
-          <div className="border-b border-[#BFDBFE]/40 bg-gradient-to-br from-[#EFF6FF]/60 to-white/90 px-8 py-4 backdrop-blur-sm">
+          <div className="border-b border-[var(--border-accent)] bg-gradient-to-br from-[#EFF6FF]/60 to-white/90 px-8 py-4 backdrop-blur-sm">
             <Link
               href={getVorgangPath(focusVorgangId)}
-              className="inline-flex items-center gap-2 text-[12px] font-medium text-[#64748B] transition-colors hover:text-[#2563EB]"
+              className="inline-flex items-center gap-2 text-[12px] font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--accent)]"
             >
               <ArrowLeft className="size-3.5" />
               Zurück zum Vorgang

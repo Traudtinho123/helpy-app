@@ -135,7 +135,7 @@ export function RegisterForm() {
           Bereits registriert?{" "}
           <Link
             href={AUTH_ROUTES.login}
-            className="font-semibold text-[#2563EB] hover:underline"
+            className="font-semibold text-[var(--accent)] hover:underline"
           >
             Anmelden
           </Link>
@@ -144,7 +144,7 @@ export function RegisterForm() {
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <label className="text-[12px] font-medium text-[#334155]">
+          <label className="text-[12px] font-medium text-[var(--text-secondary)]">
             Firmenname *
           </label>
           <Input
@@ -152,12 +152,12 @@ export function RegisterForm() {
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
             placeholder="Traudt Immobilien AG"
-            className="h-11 rounded-[14px] border-[#CBD5E1]/60 bg-white text-[13px]"
+            className="h-11 rounded-[14px] border-[var(--border)] bg-[var(--bg-surface)] text-[13px]"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-[12px] font-medium text-[#334155]">
+          <label className="text-[12px] font-medium text-[var(--text-secondary)]">
             Branche / HELPY Skill *
           </label>
           <Select
@@ -175,35 +175,35 @@ export function RegisterForm() {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <label className="text-[12px] font-medium text-[#334155]">
+            <label className="text-[12px] font-medium text-[var(--text-secondary)]">
               Vorname *
             </label>
             <Input
               required
               value={vorname}
               onChange={(e) => setVorname(e.target.value)}
-              className="h-11 rounded-[14px] border-[#CBD5E1]/60 bg-white text-[13px]"
+              className="h-11 rounded-[14px] border-[var(--border)] bg-[var(--bg-surface)] text-[13px]"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[12px] font-medium text-[#334155]">
+            <label className="text-[12px] font-medium text-[var(--text-secondary)]">
               Nachname *
             </label>
             <Input
               required
               value={nachname}
               onChange={(e) => setNachname(e.target.value)}
-              className="h-11 rounded-[14px] border-[#CBD5E1]/60 bg-white text-[13px]"
+              className="h-11 rounded-[14px] border-[var(--border)] bg-[var(--bg-surface)] text-[13px]"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <label className="text-[12px] font-medium text-[#334155]">
+          <label className="text-[12px] font-medium text-[var(--text-secondary)]">
             E-Mail (wird Firmen-Admin) *
           </label>
           <div className="relative">
-            <Mail className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#94A3B8]" />
+            <Mail className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[var(--text-muted)]" />
             <Input
               type="email"
               autoComplete="email"
@@ -211,25 +211,25 @@ export function RegisterForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@unternehmen.de"
-              className="h-11 rounded-[14px] border-[#CBD5E1]/60 bg-white pl-10 text-[13px]"
+              className="h-11 rounded-[14px] border-[var(--border)] bg-[var(--bg-surface)] pl-10 text-[13px]"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <label className="text-[12px] font-medium text-[#334155]">
+          <label className="text-[12px] font-medium text-[var(--text-secondary)]">
             Telefon (optional)
           </label>
           <Input
             value={telefon}
             onChange={(e) => setTelefon(e.target.value)}
             placeholder="+41 79 000 00 00"
-            className="h-11 rounded-[14px] border-[#CBD5E1]/60 bg-white text-[13px]"
+            className="h-11 rounded-[14px] border-[var(--border)] bg-[var(--bg-surface)] text-[13px]"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-[12px] font-medium text-[#334155]">
+          <label className="text-[12px] font-medium text-[var(--text-secondary)]">
             Passwort *
           </label>
           <Input
@@ -239,12 +239,12 @@ export function RegisterForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Mindestens 8 Zeichen"
-            className="h-11 rounded-[14px] border-[#CBD5E1]/60 bg-white text-[13px]"
+            className="h-11 rounded-[14px] border-[var(--border)] bg-[var(--bg-surface)] text-[13px]"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-[12px] font-medium text-[#334155]">
+          <label className="text-[12px] font-medium text-[var(--text-secondary)]">
             Passwort bestätigen *
           </label>
           <Input
@@ -254,11 +254,11 @@ export function RegisterForm() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Passwort wiederholen"
-            className="h-11 rounded-[14px] border-[#CBD5E1]/60 bg-white text-[13px]"
+            className="h-11 rounded-[14px] border-[var(--border)] bg-[var(--bg-surface)] text-[13px]"
           />
         </div>
 
-        <label className="flex items-start gap-2 text-[12px] text-[#64748B]">
+        <label className="flex items-start gap-2 text-[12px] text-[var(--text-secondary)]">
           <input
             type="checkbox"
             checked={acceptedTerms}
@@ -306,10 +306,10 @@ export function RegisterForm() {
 
       <div className="relative my-6">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-[#CBD5E1]/60" />
+          <div className="w-full border-t border-[var(--border)]" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-white/85 px-3 text-[11px] font-medium text-[#94A3B8]">
+          <span className="bg-[var(--bg-surface)]/85 px-3 text-[11px] font-medium text-[var(--text-muted)]">
             oder
           </span>
         </div>

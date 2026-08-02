@@ -62,10 +62,10 @@ const accentStyles = {
     badge: "border-[#A7F3D0] bg-[#ECFDF5] text-[#047857]",
   },
   blue: {
-    card: "hover:border-[#BFDBFE]/60 hover:bg-[#EFF6FF]/40",
+    card: "hover:border-[var(--border-accent)] hover:bg-[var(--accent-light)]/40",
     icon: "from-[#2563EB] to-[#1D4ED8] shadow-[#2563EB]/20",
     stripe: "bg-[#2563EB]",
-    badge: "border-[#BFDBFE] bg-[#EFF6FF] text-[#2563EB]",
+    badge: "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--accent)]",
   },
 } as const;
 
@@ -83,7 +83,7 @@ function WorkQueueCard({
     <Button
       variant="outline"
       className={cn(
-        "group h-auto w-full justify-start gap-0 rounded-[24px] border-[#CBD5E1]/50 bg-white/90 p-0 text-left shadow-[0_2px_8px_rgba(15,23,42,0.04),0_4px_24px_rgba(15,23,42,0.04)] backdrop-blur-xl transition-all duration-500 ease-out hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(15,23,42,0.06),0_16px_40px_rgba(15,23,42,0.08)]",
+        "group h-auto w-full justify-start gap-0 rounded-[24px] border-[var(--border)] bg-[var(--bg-surface)] p-0 text-left shadow-[0_2px_8px_rgba(15,23,42,0.04),0_4px_24px_rgba(15,23,42,0.04)] backdrop-blur-xl transition-all duration-500 ease-out hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(15,23,42,0.06),0_16px_40px_rgba(15,23,42,0.08)]",
         styles.card
       )}
     >
@@ -99,7 +99,7 @@ function WorkQueueCard({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2.5">
-            <p className="font-medium tracking-[-0.01em] text-[#0F172A]">
+            <p className="font-medium tracking-[-0.01em] text-[var(--text-primary)]">
               {title}
             </p>
             <Badge
@@ -112,13 +112,13 @@ function WorkQueueCard({
               {priority}
             </Badge>
           </div>
-          <p className="mt-1.5 text-[13px] leading-relaxed text-[#64748B]">
+          <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--text-secondary)]">
             {description}
           </p>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-2.5">
-          <span className="text-[11px] font-medium text-[#94A3B8]">{time}</span>
-          <span className="flex size-9 items-center justify-center rounded-[12px] bg-[#F1F5F9]/80 text-[#94A3B8] transition-all duration-300 group-hover:bg-[#0F172A] group-hover:text-white group-hover:shadow-md">
+          <span className="text-[11px] font-medium text-[var(--text-muted)]">{time}</span>
+          <span className="flex size-9 items-center justify-center rounded-[12px] bg-[var(--bg-elevated)]/80 text-[var(--text-muted)] transition-all duration-300 group-hover:bg-[#0F172A] group-hover:text-white group-hover:shadow-md">
             <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
           </span>
         </div>
@@ -132,16 +132,16 @@ export function WorkQueue() {
     <section>
       <div className="mb-8 flex items-end justify-between">
         <div>
-          <h2 className="text-[1.375rem] font-semibold tracking-[-0.02em] text-[#0F172A]">
+          <h2 className="text-[1.375rem] font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
             Heute wichtig
           </h2>
-          <p className="mt-1.5 text-sm text-[#64748B]">
+          <p className="mt-1.5 text-sm text-[var(--text-secondary)]">
             Priorisierte Aufgaben für deinen Tag
           </p>
         </div>
         <Badge
           variant="secondary"
-          className="h-7 rounded-full border-white/80 bg-white/60 px-3 text-xs font-medium text-[#64748B] backdrop-blur-sm"
+          className="h-7 rounded-full border-white/80 bg-[var(--bg-surface)] px-3 text-xs font-medium text-[var(--text-secondary)] backdrop-blur-sm"
         >
           {queueItems.length} Einträge
         </Badge>

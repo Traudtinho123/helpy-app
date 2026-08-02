@@ -40,19 +40,19 @@ const HelpyActionCard = memo(function HelpyActionCard({
   return (
     <div
       className={cn(
-        "rounded-[16px] border bg-white/90 p-4 transition-all duration-300",
+        "rounded-[16px] border bg-[var(--bg-surface)] p-4 transition-all duration-300",
         isConfirmed
           ? "border-[#A7F3D0]/60 bg-[#ECFDF5]/40"
-          : "border-[#CBD5E1]/45 hover:border-[#BFDBFE]/60 hover:shadow-[0_4px_16px_rgba(37,99,235,0.06)]"
+          : "border-[var(--border)]/45 hover:border-[var(--border-accent)] hover:shadow-[0_4px_16px_rgba(37,99,235,0.06)]"
       )}
     >
       <div className="flex items-start gap-3">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-[11px] bg-[#F8FAFC] text-[16px]">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-[11px] bg-[var(--bg-elevated)] text-[16px]">
           {action.icon}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[12px] font-semibold text-[#0F172A]">{action.title}</p>
-          <p className="mt-1 text-[11px] leading-relaxed text-[#64748B]">
+          <p className="text-[12px] font-semibold text-[var(--text-primary)]">{action.title}</p>
+          <p className="mt-1 text-[11px] leading-relaxed text-[var(--text-secondary)]">
             {action.description}
           </p>
         </div>
@@ -154,14 +154,14 @@ function HelpyPreparedActionsInner({ vorgang }: HelpyPreparedActionsInnerProps) 
         onEdit={handleCancel}
       />
 
-      <div className="mt-4 rounded-[18px] border border-[#BFDBFE]/40 bg-gradient-to-br from-[#EFF6FF]/50 to-white/80 p-4">
+      <div className="mt-4 rounded-[18px] border border-[var(--border-accent)] bg-gradient-to-br from-[#EFF6FF]/50 to-white/80 p-4">
         <div className="mb-3 flex items-center gap-2">
-          <Sparkles className="size-4 text-[#2563EB]" strokeWidth={2} />
-          <p className="text-[12px] font-semibold text-[#2563EB]">
+          <Sparkles className="size-4 text-[var(--accent)]" strokeWidth={2} />
+          <p className="text-[12px] font-semibold text-[var(--accent)]">
             {PREPARED_ACTIONS_SECTION_TITLE}
           </p>
         </div>
-        <p className="mb-3 text-[11px] leading-relaxed text-[#64748B]">
+        <p className="mb-3 text-[11px] leading-relaxed text-[var(--text-secondary)]">
           {HELPY_PANEL_REVIEW_INTRO}
         </p>
 

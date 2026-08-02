@@ -55,11 +55,11 @@ export function WhatsappHelpyPanel({
   return (
     <HelpyPanelShell variant="helpy" subtitle="WhatsApp-Inbox">
       <div className="space-y-4 px-1">
-        <Card className="border-[#E2E8F0]/80 bg-white/90 shadow-none">
+        <Card className="border-[var(--border)] bg-[var(--bg-surface)] shadow-none">
           <CardContent className="p-4">
             <div className="flex items-start gap-2">
               <WhatsappIcon size={16} className="mt-0.5" />
-              <p className="text-[13px] leading-relaxed text-[#334155]">
+              <p className="text-[13px] leading-relaxed text-[var(--text-secondary)]">
                 {openMessages.length > 0
                   ? `${openMessages.length} offene WhatsApp-Nachricht${openMessages.length === 1 ? "" : "en"} — getrennt von E-Mail-Vorgängen.`
                   : "Keine offenen WhatsApp-Nachrichten. Neue Anfragen erscheinen hier automatisch."}
@@ -77,12 +77,12 @@ export function WhatsappHelpyPanel({
         </Card>
 
         {selectedMessage?.recommendedAction ? (
-          <div className="rounded-[14px] border border-[#DBEAFE] bg-[#EFF6FF] p-4">
-            <div className="flex items-center gap-2 text-[#2563EB]">
+          <div className="rounded-[14px] border border-[#DBEAFE] bg-[var(--accent-light)] p-4">
+            <div className="flex items-center gap-2 text-[var(--accent)]">
               <Lightbulb className="size-4" strokeWidth={2.25} />
               <p className="text-[12px] font-semibold">Empfehlung für Auswahl</p>
             </div>
-            <p className="mt-2 text-[13px] leading-relaxed text-[#334155]">
+            <p className="mt-2 text-[13px] leading-relaxed text-[var(--text-secondary)]">
               {selectedMessage.recommendedAction}
             </p>
           </div>
@@ -90,16 +90,16 @@ export function WhatsappHelpyPanel({
 
         {recommendations.length > 0 ? (
           <div className="space-y-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[#64748B]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--text-secondary)]">
               Nächste Schritte
             </p>
             {recommendations.map((item) => (
               <div
                 key={item.id}
-                className="rounded-[12px] border border-[#E2E8F0] bg-white px-3 py-2.5"
+                className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2.5"
               >
-                <p className="text-[12px] font-semibold text-[#0F172A]">{item.title}</p>
-                <p className="mt-1 text-[12px] leading-relaxed text-[#64748B]">
+                <p className="text-[12px] font-semibold text-[var(--text-primary)]">{item.title}</p>
+                <p className="mt-1 text-[12px] leading-relaxed text-[var(--text-secondary)]">
                   {item.text}
                 </p>
               </div>

@@ -57,10 +57,10 @@ export function KalenderVorgangFocusPanel({
     focus === "besichtigung" ? "Besichtigung prüfen" : "Termin prüfen";
 
   return (
-    <div className="border-b border-[#BFDBFE]/40 bg-gradient-to-br from-[#EFF6FF]/60 to-white/90 px-5 py-5 backdrop-blur-sm lg:px-8">
+    <div className="border-b border-[var(--border-accent)] bg-gradient-to-br from-[#EFF6FF]/60 to-white/90 px-5 py-5 backdrop-blur-sm lg:px-8">
       <Link
         href={getWorkspacePath(vorgangId)}
-        className="mb-4 inline-flex items-center gap-2 text-[12px] font-medium text-[#64748B] transition-colors hover:text-[#2563EB]"
+        className="mb-4 inline-flex items-center gap-2 text-[12px] font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--accent)]"
       >
         <ArrowLeft className="size-3.5" />
         Zurück zum Vorgang

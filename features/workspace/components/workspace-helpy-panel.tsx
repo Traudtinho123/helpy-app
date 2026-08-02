@@ -147,7 +147,7 @@ export function WorkspaceHelpyPanel({ vorgang }: WorkspaceHelpyPanelProps) {
       }
       footer={
         <>
-          <p className="mb-3 text-[12px] font-semibold text-[#475569]">
+          <p className="mb-3 text-[12px] font-semibold text-[var(--text-muted)]">
             Frage HELPY zu diesem Vorgang
           </p>
           <HelpyChatComposer
@@ -163,12 +163,12 @@ export function WorkspaceHelpyPanel({ vorgang }: WorkspaceHelpyPanelProps) {
       <div className="flex gap-3.5 px-1">
           <HelpyAvatar size="sm" pose="typing" />
           <div className="min-w-0 flex-1">
-            <p className="mb-2 text-[11px] font-semibold text-[#64748B]">
+            <p className="mb-2 text-[11px] font-semibold text-[var(--text-secondary)]">
               HELPY · Workspace
             </p>
 
-            <div className="rounded-[20px] rounded-tl-[8px] border border-[#CBD5E1]/50 bg-[#F8FAFC] px-5 py-4 shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
-              <p className="text-[13px] leading-[1.65] text-[#334155]">{intro}</p>
+            <div className="rounded-[20px] rounded-tl-[8px] border border-[var(--border)] bg-[var(--bg-elevated)] px-5 py-4 shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
+              <p className="text-[13px] leading-[1.65] text-[var(--text-secondary)]">{intro}</p>
               <HelpyPanelResponseTimerHint listeVorgang={listeVorgang} />
             </div>
 
@@ -179,24 +179,24 @@ export function WorkspaceHelpyPanel({ vorgang }: WorkspaceHelpyPanelProps) {
               />
             )}
 
-            <div className="mt-4 rounded-[16px] border border-[#E2E8F0]/70 bg-white/90 px-4 py-3.5">
-              <p className="text-[11px] font-semibold text-[#64748B]">
+            <div className="mt-4 rounded-[16px] border border-[var(--border)] bg-[var(--bg-surface)] px-4 py-3.5">
+              <p className="text-[11px] font-semibold text-[var(--text-secondary)]">
                 Ich habe erkannt…
               </p>
-              <p className="mt-2 text-[12px] leading-relaxed text-[#334155]">
+              <p className="mt-2 text-[12px] leading-relaxed text-[var(--text-secondary)]">
                 {erkannt}
               </p>
             </div>
 
-            <div className="mt-3 rounded-[16px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/50 px-4 py-3.5">
-              <p className="text-[11px] font-semibold text-[#2563EB]">
+            <div className="mt-3 rounded-[16px] border border-[var(--border-accent)] bg-[var(--accent-light)]/50 px-4 py-3.5">
+              <p className="text-[11px] font-semibold text-[var(--accent)]">
                 Ich empfehle…
               </p>
-              <p className="mt-2 text-[12px] leading-relaxed text-[#334155]">
+              <p className="mt-2 text-[12px] leading-relaxed text-[var(--text-secondary)]">
                 {empfehlung}
               </p>
               {isConnectedMail && mailDecision && !isArchiveCandidate && (
-                <p className="mt-2 text-[11px] leading-relaxed text-[#64748B]">
+                <p className="mt-2 text-[11px] leading-relaxed text-[var(--text-secondary)]">
                   {mailDecision.reason}
                 </p>
               )}
@@ -209,21 +209,21 @@ export function WorkspaceHelpyPanel({ vorgang }: WorkspaceHelpyPanelProps) {
                   Nächster Schritt…
                 </p>
               </div>
-              <p className="mt-2 text-[12px] leading-relaxed text-[#334155]">
+              <p className="mt-2 text-[12px] leading-relaxed text-[var(--text-secondary)]">
                 {naechsterSchritt}
               </p>
             </div>
 
             {isConnectedMail && mailDecision && !isArchiveCandidate && (
-              <div className="mt-3 rounded-[16px] border border-[#E2E8F0]/70 bg-white/90 px-4 py-3.5">
-                <p className="text-[11px] font-semibold text-[#64748B]">
+              <div className="mt-3 rounded-[16px] border border-[var(--border)] bg-[var(--bg-surface)] px-4 py-3.5">
+                <p className="text-[11px] font-semibold text-[var(--text-secondary)]">
                   Von HELPY vorbereitet
                 </p>
                 <ul className="mt-2 space-y-1">
                   {mailDecision.preparedItems.map((item) => (
                     <li
                       key={item}
-                      className="flex gap-2 text-[11px] leading-relaxed text-[#64748B]"
+                      className="flex gap-2 text-[11px] leading-relaxed text-[var(--text-secondary)]"
                     >
                       <span className="mt-1.5 size-1 shrink-0 rounded-full bg-[#2563EB]" />
                       {item}
@@ -245,7 +245,7 @@ export function WorkspaceHelpyPanel({ vorgang }: WorkspaceHelpyPanelProps) {
 
             {!isArchiveCandidate && (
               <div className="mt-5">
-                <p className="mb-3 text-[12px] font-semibold text-[#475569]">
+                <p className="mb-3 text-[12px] font-semibold text-[var(--text-muted)]">
                   HELPY Aktionen
                 </p>
                 <ActionCards

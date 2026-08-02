@@ -15,19 +15,19 @@ export function HelpyErinnertSichCard({ hints }: HelpyErinnertSichCardProps) {
       {hints.map((hint) => (
         <div
           key={hint.id}
-          className="rounded-[16px] border border-[#E2E8F0]/70 bg-[#F8FAFC]/80 px-4 py-3.5"
+          className="rounded-[16px] border border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-3.5"
         >
           <div className="flex items-center gap-2">
-            <Sparkles className="size-3.5 text-[#64748B]" strokeWidth={2} />
-            <p className="text-[11px] font-semibold text-[#64748B]">
+            <Sparkles className="size-3.5 text-[var(--text-secondary)]" strokeWidth={2} />
+            <p className="text-[11px] font-semibold text-[var(--text-secondary)]">
               HELPY erinnert sich
             </p>
           </div>
-          <p className="mt-2 text-[12px] leading-relaxed text-[#334155]">
+          <p className="mt-2 text-[12px] leading-relaxed text-[var(--text-secondary)]">
             {hint.rememberText}
           </p>
           {hint.tipText && (
-            <p className="mt-1.5 text-[11px] leading-relaxed text-[#64748B]">
+            <p className="mt-1.5 text-[11px] leading-relaxed text-[var(--text-secondary)]">
               {hint.tipText}
             </p>
           )}

@@ -255,21 +255,21 @@ export function OperatorAccessPanel() {
         )}
 
         <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
-          <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
-            <CardHeader className="border-b border-[#CBD5E1]/30 pb-4">
-              <CardTitle className="flex items-center gap-2 text-[13px] font-semibold text-[#0F172A]">
-                <Building2 className="size-4 text-[#2563EB]" />
+          <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
+            <CardHeader className="border-b border-[var(--border)] pb-4">
+              <CardTitle className="flex items-center gap-2 text-[13px] font-semibold text-[var(--text-primary)]">
+                <Building2 className="size-4 text-[var(--accent)]" />
                 Unternehmen
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 p-3">
               {loadingCompanies ? (
-                <div className="flex items-center gap-2 px-2 py-4 text-[12px] text-[#64748B]">
+                <div className="flex items-center gap-2 px-2 py-4 text-[12px] text-[var(--text-secondary)]">
                   <Loader2 className="size-4 animate-spin" />
                   Lade Unternehmen…
                 </div>
               ) : companies.length === 0 ? (
-                <p className="px-2 py-4 text-[12px] text-[#64748B]">
+                <p className="px-2 py-4 text-[12px] text-[var(--text-secondary)]">
                   Noch keine Unternehmen vorhanden.
                 </p>
               ) : (
@@ -283,14 +283,14 @@ export function OperatorAccessPanel() {
                       className={cn(
                         "w-full rounded-[12px] px-3 py-2.5 text-left transition-colors",
                         active
-                          ? "bg-[#EFF6FF] ring-1 ring-[#BFDBFE]/70"
-                          : "hover:bg-[#F8FAFC]"
+                          ? "bg-[var(--accent-light)] ring-1 ring-[#BFDBFE]/70"
+                          : "hover:bg-[var(--bg-elevated)]"
                       )}
                     >
-                      <p className="text-[12px] font-semibold text-[#0F172A]">
+                      <p className="text-[12px] font-semibold text-[var(--text-primary)]">
                         {company.name}
                       </p>
-                      <p className="mt-0.5 text-[10px] text-[#64748B]">
+                      <p className="mt-0.5 text-[10px] text-[var(--text-secondary)]">
                         {company.memberCount} Nutzer · {company.activeSkillCount} freigeschaltet
                       </p>
                     </button>
@@ -298,8 +298,8 @@ export function OperatorAccessPanel() {
                 })
               )}
 
-              <div className="border-t border-[#CBD5E1]/30 pt-3">
-                <p className="mb-2 px-1 text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+              <div className="border-t border-[var(--border)] pt-3">
+                <p className="mb-2 px-1 text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
                   Neues Unternehmen
                 </p>
                 <div className="flex gap-2">
@@ -326,32 +326,32 @@ export function OperatorAccessPanel() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
-            <CardHeader className="border-b border-[#CBD5E1]/30 pb-4">
-              <CardTitle className="flex items-center gap-2 text-[13px] font-semibold text-[#0F172A]">
-                <Users className="size-4 text-[#2563EB]" />
+          <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
+            <CardHeader className="border-b border-[var(--border)] pb-4">
+              <CardTitle className="flex items-center gap-2 text-[13px] font-semibold text-[var(--text-primary)]">
+                <Users className="size-4 text-[var(--accent)]" />
                 {selectedCompany
                   ? `Nutzer — ${selectedCompany.name}`
                   : "Nutzerprofile"}
               </CardTitle>
               {selectedCompany && (
-                <p className="text-[11px] text-[#64748B]">
+                <p className="text-[11px] text-[var(--text-secondary)]">
                   Angelegt am {formatDate(selectedCompany.createdAt)}
                 </p>
               )}
             </CardHeader>
             <CardContent className="p-0">
               {!selectedCompanyId ? (
-                <p className="px-5 py-8 text-[12px] text-[#64748B]">
+                <p className="px-5 py-8 text-[12px] text-[var(--text-secondary)]">
                   Wähle links ein Unternehmen aus.
                 </p>
               ) : loadingMembers ? (
-                <div className="flex items-center gap-2 px-5 py-8 text-[12px] text-[#64748B]">
+                <div className="flex items-center gap-2 px-5 py-8 text-[12px] text-[var(--text-secondary)]">
                   <Loader2 className="size-4 animate-spin" />
                   Lade Nutzer…
                 </div>
               ) : members.length === 0 ? (
-                <p className="px-5 py-8 text-[12px] text-[#64748B]">
+                <p className="px-5 py-8 text-[12px] text-[var(--text-secondary)]">
                   Dieses Unternehmen hat noch keine Nutzerprofile.
                 </p>
               ) : (
@@ -360,19 +360,19 @@ export function OperatorAccessPanel() {
                     <div key={member.userId} className="px-5 py-4">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="flex items-center gap-2 text-[13px] font-semibold text-[#0F172A]">
+                          <p className="flex items-center gap-2 text-[13px] font-semibold text-[var(--text-primary)]">
                             {member.fullName}
                             {member.isPlatformOperator && (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-[#EFF6FF] px-2 py-0.5 text-[10px] font-medium text-[#2563EB]">
+                              <span className="inline-flex items-center gap-1 rounded-full bg-[var(--accent-light)] px-2 py-0.5 text-[10px] font-medium text-[var(--accent)]">
                                 <ShieldCheck className="size-3" />
                                 Betreiber
                               </span>
                             )}
                           </p>
-                          <p className="mt-0.5 text-[11px] text-[#64748B]">
+                          <p className="mt-0.5 text-[11px] text-[var(--text-secondary)]">
                             {member.email ?? "Keine E-Mail"}
                           </p>
-                          <p className="mt-1 text-[10px] text-[#94A3B8]">
+                          <p className="mt-1 text-[10px] text-[var(--text-muted)]">
                             Rolle: {member.role}
                           </p>
                         </div>
@@ -390,7 +390,7 @@ export function OperatorAccessPanel() {
                       </div>
 
                       <div className="mt-3 max-w-sm">
-                        <label className="mb-1 block text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+                        <label className="mb-1 block text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
                           HELPY-Skill
                         </label>
                         <Select
@@ -399,7 +399,7 @@ export function OperatorAccessPanel() {
                           onChange={(event) =>
                             void handleSkillChange(member, event.target.value)
                           }
-                          className="h-10 w-full rounded-[12px] border-[#CBD5E1]/60 bg-[#F8FAFC]/80 text-[12px]"
+                          className="h-10 w-full rounded-[12px] border-[var(--border)] bg-[var(--bg-elevated)] text-[12px]"
                         >
                           {SKILL_OPTIONS.map((option) => (
                             <option key={option.value || "none"} value={option.value}>

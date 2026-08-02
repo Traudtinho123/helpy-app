@@ -31,36 +31,36 @@ export function HelpyReportCard({ vorgang }: HelpyReportCardProps) {
   return (
     <article
       className={cn(
-        "group rounded-[24px] border border-[#BFDBFE]/50 bg-gradient-to-br from-[#EFF6FF]/90 to-[#F8FAFC]/90 p-6",
+        "group rounded-[24px] border border-[var(--border-accent)]/50 bg-gradient-to-br from-[#EFF6FF]/90 to-[#F8FAFC]/90 p-6",
         "shadow-[0_2px_8px_rgba(37,99,235,0.04),0_12px_40px_rgba(37,99,235,0.06)] ring-1 ring-[#DBEAFE]/80 backdrop-blur-xl",
         "transition-all duration-300 hover:-translate-y-0.5 hover:border-[#93C5FD]/60"
       )}
     >
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#BFDBFE]/60 bg-white/70 px-2.5 py-1 text-[10px] font-semibold tracking-[0.04em] text-[#2563EB] uppercase">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-accent)] bg-[var(--bg-surface)] px-2.5 py-1 text-[10px] font-semibold tracking-[0.04em] text-[var(--accent)] uppercase">
           HELPY Report
         </span>
         {unread ? (
-          <span className="rounded-full bg-[#E2E8F0] px-2 py-0.5 text-[10px] font-medium text-[#64748B]">
+          <span className="rounded-full bg-[#E2E8F0] px-2 py-0.5 text-[10px] font-medium text-[var(--text-secondary)]">
             Neu
           </span>
         ) : (
-          <span className="text-[10px] font-medium text-[#94A3B8]">Gelesen</span>
+          <span className="text-[10px] font-medium text-[var(--text-muted)]">Gelesen</span>
         )}
       </div>
 
       <div className="flex min-w-0 flex-1 items-start gap-4">
-        <div className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-white/80 shadow-sm ring-1 ring-[#DBEAFE]/80">
+        <div className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-[var(--bg-surface)] shadow-sm ring-1 ring-[#DBEAFE]/80">
           <HelpyAvatar size="sm" pose="typing" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-semibold tracking-[0.04em] text-[#64748B] uppercase">
+          <p className="text-[11px] font-semibold tracking-[0.04em] text-[var(--text-secondary)] uppercase">
             {vorgang.intentLabel ?? "HELPY Report"}
           </p>
-          <h3 className="mt-1 text-[15px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+          <h3 className="mt-1 text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
             {vorgang.titel}
           </h3>
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] text-[#64748B]">
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] text-[var(--text-secondary)]">
             <span>HELPY</span>
             <span className="text-[#CBD5E1]">·</span>
             <span>{vorgang.receivedLabel}</span>
@@ -69,7 +69,7 @@ export function HelpyReportCard({ vorgang }: HelpyReportCardProps) {
       </div>
 
       {vorgang.summary && (
-        <p className="mt-4 text-[12px] leading-relaxed text-[#475569] line-clamp-3">
+        <p className="mt-4 text-[12px] leading-relaxed text-[var(--text-muted)] line-clamp-3">
           {vorgang.summary}
         </p>
       )}
@@ -78,7 +78,7 @@ export function HelpyReportCard({ vorgang }: HelpyReportCardProps) {
         <Link
           href={workspacePath}
           onClick={handleOpen}
-          className="inline-flex h-9 items-center gap-2 rounded-[12px] border border-[#BFDBFE]/70 bg-white/90 px-4 text-[12px] font-semibold text-[#2563EB] shadow-sm transition-all duration-300 hover:bg-white"
+          className="inline-flex h-9 items-center gap-2 rounded-[12px] border border-[var(--border-accent)]/70 bg-[var(--bg-surface)] px-4 text-[12px] font-semibold text-[var(--accent)] shadow-sm transition-all duration-300 hover:bg-[var(--bg-elevated)]"
         >
           <ExternalLink className="size-3.5" />
           Report lesen

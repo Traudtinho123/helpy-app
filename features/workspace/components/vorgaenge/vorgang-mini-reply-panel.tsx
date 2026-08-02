@@ -68,12 +68,12 @@ export function VorgangMiniReplyPanel({
 
   if (!draft) {
     return (
-      <div className={cn("rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC] p-3", className)}>
-        <p className="text-[12px] text-[#64748B]">HELPY bereitet die Antwort vor…</p>
+      <div className={cn("rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] p-3", className)}>
+        <p className="text-[12px] text-[var(--text-secondary)]">HELPY bereitet die Antwort vor…</p>
         <button
           type="button"
           onClick={onClose}
-          className="mt-2 text-[11px] font-medium text-[#2563EB]"
+          className="mt-2 text-[11px] font-medium text-[var(--accent)]"
         >
           Schliessen
         </button>
@@ -84,19 +84,19 @@ export function VorgangMiniReplyPanel({
   return (
     <div
       className={cn(
-        "rounded-[12px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/50 p-3",
+        "rounded-[12px] border border-[var(--border-accent)] bg-[var(--accent-light)]/50 p-3",
         className
       )}
       onClick={(event) => event.stopPropagation()}
     >
-      <p className="text-[10px] font-semibold tracking-[0.05em] text-[#2563EB] uppercase">
+      <p className="text-[10px] font-semibold tracking-[0.05em] text-[var(--accent)] uppercase">
         Vorbereitete Antwort
       </p>
-      <p className="mt-2 text-[11px] text-[#64748B]">
-        <span className="font-medium text-[#475569]">An: </span>
+      <p className="mt-2 text-[11px] text-[var(--text-secondary)]">
+        <span className="font-medium text-[var(--text-muted)]">An: </span>
         {draft.recipientEmail ?? draft.recipient}
       </p>
-      <p className="mt-2 line-clamp-3 text-[12px] leading-relaxed text-[#334155]">
+      <p className="mt-2 line-clamp-3 text-[12px] leading-relaxed text-[var(--text-secondary)]">
         {draft.draftText}
       </p>
       {!draft.recipientValid ? (

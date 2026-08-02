@@ -52,24 +52,24 @@ export function WeeklyReportSettingsCard() {
   }, [enabled]);
 
   return (
-    <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
-      <CardHeader className="border-b border-[#CBD5E1]/30 pb-4">
+    <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
+      <CardHeader className="border-b border-[var(--border)] pb-4">
         <div className="flex items-center gap-2">
-          <Mail className="size-4 text-[#2563EB]" strokeWidth={2} />
-          <CardTitle className="text-[13px] font-semibold text-[#0F172A]">
+          <Mail className="size-4 text-[var(--accent)]" strokeWidth={2} />
+          <CardTitle className="text-[13px] font-semibold text-[var(--text-primary)]">
             Wöchentlicher HELPY-Bericht
           </CardTitle>
         </div>
       </CardHeader>
       <CardContent className="space-y-3 p-5">
-        <p className="text-[13px] leading-relaxed text-[#64748B]">
+        <p className="text-[13px] leading-relaxed text-[var(--text-secondary)]">
           Jeden Montag um 05:30 Uhr (Europe/Zurich) sendet HELPY dir eine
           Zusammenfassung über deine verbundene Gmail-Adresse — Kennzahlen,
           offene Vorgänge und Empfehlungen.
         </p>
 
-        <label className="flex cursor-pointer items-center justify-between gap-4 rounded-[14px] border border-[#CBD5E1]/50 bg-[#F8FAFC]/80 px-4 py-3">
-          <span className="text-[13px] font-medium text-[#0F172A]">
+        <label className="flex cursor-pointer items-center justify-between gap-4 rounded-[14px] border border-[var(--border)] bg-[var(--bg-elevated)] px-4 py-3">
+          <span className="text-[13px] font-medium text-[var(--text-primary)]">
             Wochenbericht per E-Mail erhalten
           </span>
           <button
@@ -85,7 +85,7 @@ export function WeeklyReportSettingsCard() {
             } ${loading || saving ? "opacity-60" : ""}`}
           >
             <span
-              className={`inline-block size-5 transform rounded-full bg-white shadow transition-transform ${
+              className={`inline-block size-5 transform rounded-full bg-[var(--bg-surface)] shadow transition-transform ${
                 enabled ? "translate-x-6" : "translate-x-1"
               }`}
             />

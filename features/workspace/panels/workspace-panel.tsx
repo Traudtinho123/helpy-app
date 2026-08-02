@@ -70,7 +70,7 @@ export function WorkspacePanelSlideOver({
       <aside
         aria-hidden={!isOpen}
         className={cn(
-          "fixed inset-y-0 right-0 z-[110] flex w-[min(42vw,640px)] min-w-[320px] max-w-[45vw] flex-col border-l border-[#CBD5E1]/50 bg-white/95 shadow-[-8px_0_32px_rgba(15,23,42,0.08)] backdrop-blur-2xl transition-transform duration-300 ease-out",
+          "fixed inset-y-0 right-0 z-[110] flex w-[min(42vw,640px)] min-w-[320px] max-w-[45vw] flex-col border-l border-[var(--border)] bg-[var(--bg-surface)]/95 shadow-[-8px_0_32px_rgba(15,23,42,0.08)] backdrop-blur-2xl transition-transform duration-300 ease-out",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
@@ -78,17 +78,17 @@ export function WorkspacePanelSlideOver({
           <>
             <PanelHeader className="h-auto min-h-[4.75rem] shrink-0 items-start py-4">
               <div className="flex min-w-0 items-start gap-3">
-                <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-[#EFF6FF] text-[#2563EB]">
+                <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--accent-light)] text-[var(--accent)]">
                   <Icon className="size-4.5" strokeWidth={2} />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-[11px] font-semibold tracking-[0.06em] text-[#2563EB] uppercase">
+                  <p className="text-[11px] font-semibold tracking-[0.06em] text-[var(--accent)] uppercase">
                     Workspace-Panel
                   </p>
-                  <h2 className="mt-0.5 text-[15px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+                  <h2 className="mt-0.5 text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
                     {panel.title}
                   </h2>
-                  <p className="mt-1 text-[12px] text-[#64748B]">
+                  <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
                     {WORKSPACE_PANEL_DESCRIPTIONS[panel.kind]}
                   </p>
                 </div>
@@ -99,7 +99,7 @@ export function WorkspacePanelSlideOver({
                 variant="outline"
                 size="icon-sm"
                 onClick={onClose}
-                className="size-9 shrink-0 rounded-[10px] border-[#CBD5E1]/60"
+                className="size-9 shrink-0 rounded-[10px] border-[var(--border)]"
                 aria-label="Panel schließen"
               >
                 <X className="size-4" />

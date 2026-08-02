@@ -35,7 +35,7 @@ function StatusBadge({ status }: { status: TeamMemberStatus }) {
   }
 
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-[#CBD5E1]/60 bg-[#F8FAFC]/80 px-2.5 py-0.5 text-[10px] font-semibold text-[#64748B]">
+    <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--bg-elevated)] px-2.5 py-0.5 text-[10px] font-semibold text-[var(--text-secondary)]">
       ⚪ Deaktiviert
     </span>
   );
@@ -85,31 +85,31 @@ function TeamMemberRow({ member, isSelf }: TeamMemberRowProps) {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-[13px] font-semibold text-[#0F172A]">
+              <p className="text-[13px] font-semibold text-[var(--text-primary)]">
                 {member.fullName}
                 {isSelf && (
-                  <span className="ml-2 text-[11px] font-medium text-[#64748B]">(Du)</span>
+                  <span className="ml-2 text-[11px] font-medium text-[var(--text-secondary)]">(Du)</span>
                 )}
               </p>
-              <p className="mt-0.5 text-[11px] text-[#64748B]">{member.email}</p>
+              <p className="mt-0.5 text-[11px] text-[var(--text-secondary)]">{member.email}</p>
             </div>
             <StatusBadge status={member.status} />
           </div>
 
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             <div>
-              <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+              <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
                 Rolle
               </p>
-              <p className="mt-0.5 text-[12px] font-medium text-[#334155]">
+              <p className="mt-0.5 text-[12px] font-medium text-[var(--text-secondary)]">
                 {ROLE_LABELS[member.role]}
               </p>
-              <p className="mt-1 text-[10px] leading-relaxed text-[#94A3B8]">
+              <p className="mt-1 text-[10px] leading-relaxed text-[var(--text-muted)]">
                 {ROLE_HELP_TEXT[member.role]}
               </p>
             </div>
             <div>
-              <p className="text-[10px] font-semibold tracking-[0.06em] text-[#94A3B8] uppercase">
+              <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
                 Verbunden
               </p>
               <div className="mt-1.5">
@@ -118,7 +118,7 @@ function TeamMemberRow({ member, isSelf }: TeamMemberRowProps) {
             </div>
           </div>
 
-          <p className="mt-3 text-[11px] text-[#64748B]">
+          <p className="mt-3 text-[11px] text-[var(--text-secondary)]">
             {member.status === "pending"
               ? "Status: Warten auf Bestätigung"
               : `Letzte Aktivität: ${member.lastActivity}`}
@@ -276,20 +276,20 @@ export function TeamSettingsForm() {
           </p>
         )}
 
-        <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
-          <CardHeader className="border-b border-[#CBD5E1]/30 pb-4">
-            <CardTitle className="text-[13px] font-semibold text-[#0F172A]">
+        <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
+          <CardHeader className="border-b border-[var(--border)] pb-4">
+            <CardTitle className="text-[13px] font-semibold text-[var(--text-primary)]">
               Teammitglieder
             </CardTitle>
           </CardHeader>
           <CardContent className="divide-y divide-[#CBD5E1]/30 p-0">
             {loading ? (
-              <div className="flex items-center gap-2 px-5 py-8 text-[13px] text-[#64748B]">
+              <div className="flex items-center gap-2 px-5 py-8 text-[13px] text-[var(--text-secondary)]">
                 <Loader2 className="size-4 animate-spin" />
                 Team wird geladen…
               </div>
             ) : sortedMembers.length === 0 ? (
-              <div className="px-5 py-8 text-[13px] text-[#64748B]">
+              <div className="px-5 py-8 text-[13px] text-[var(--text-secondary)]">
                 Noch keine Teammitglieder gefunden.
                 {canInvite ? " Lade jetzt das erste Teammitglied ein." : null}
               </div>

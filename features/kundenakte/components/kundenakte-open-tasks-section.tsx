@@ -48,7 +48,7 @@ export function KundenakteOpenTasksSection({
   if (tasks.length === 0) {
     return (
       <SectionCard title="Offene Aufgaben" icon={ListTodo}>
-        <p className="text-[12px] leading-relaxed text-[#64748B]">
+        <p className="text-[12px] leading-relaxed text-[var(--text-secondary)]">
           Keine offenen Aufgaben — alles erledigt für diesen Kunden.
         </p>
       </SectionCard>
@@ -72,14 +72,14 @@ function OpenTaskItem({ task }: { task: KundenakteOpenTask }) {
       <Link
         href={task.href}
         className={cn(
-          "block rounded-[12px] border px-3.5 py-3 transition-colors hover:bg-[#F8FAFC]",
+          "block rounded-[12px] border px-3.5 py-3 transition-colors hover:bg-[var(--bg-elevated)]",
           task.urgent
             ? "border-[#FECACA]/70 bg-[#FEF2F2]/50"
-            : "border-[#CBD5E1]/50 bg-white/80"
+            : "border-[var(--border)] bg-[var(--bg-surface)]"
         )}
       >
-        <p className="text-[12px] font-semibold text-[#0F172A]">{task.label}</p>
-        <p className="mt-1 text-[11px] leading-relaxed text-[#64748B]">
+        <p className="text-[12px] font-semibold text-[var(--text-primary)]">{task.label}</p>
+        <p className="mt-1 text-[11px] leading-relaxed text-[var(--text-secondary)]">
           {task.detail}
         </p>
       </Link>

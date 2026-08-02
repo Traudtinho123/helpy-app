@@ -181,15 +181,15 @@ export function HelpyTerminstatusSection() {
   if (!suggestion || suggestion.slots.length === 0) return null;
 
   return (
-    <div className="rounded-[16px] border border-[#BFDBFE]/50 bg-gradient-to-br from-[#EFF6FF]/60 to-white/90 px-4 py-3.5">
+    <div className="rounded-[16px] border border-[var(--border-accent)]/50 bg-gradient-to-br from-[#EFF6FF]/60 to-white/90 px-4 py-3.5">
       <div className="flex items-center gap-2">
-        <CalendarDays className="size-4 text-[#2563EB]" />
-        <p className="text-[12px] font-semibold text-[#0F172A]">Terminstatus</p>
+        <CalendarDays className="size-4 text-[var(--accent)]" />
+        <p className="text-[12px] font-semibold text-[var(--text-primary)]">Terminstatus</p>
       </div>
-      <p className="mt-1 text-[11px] text-[#64748B]">
+      <p className="mt-1 text-[11px] text-[var(--text-secondary)]">
         📅 Besichtigungstermin — {HELPY_VIEWING_SLOTS_OFFERED_LABEL}
       </p>
-      <p className="mt-2 text-[11px] font-medium text-[#334155]">
+      <p className="mt-2 text-[11px] font-medium text-[var(--text-secondary)]">
         Welchen Termin hat der Kunde gewählt?
       </p>
 
@@ -203,8 +203,8 @@ export function HelpyTerminstatusSection() {
               className={cn(
                 "flex cursor-pointer items-center gap-2.5 rounded-[12px] border px-3 py-2.5 text-[12px] transition-colors",
                 active
-                  ? "border-[#2563EB]/50 bg-[#EFF6FF]/80 text-[#0F172A]"
-                  : "border-[#E2E8F0]/80 bg-white/80 text-[#475569] hover:bg-[#F8FAFC]"
+                  ? "border-[#2563EB]/50 bg-[var(--accent-light)] text-[var(--text-primary)]"
+                  : "border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-muted)] hover:bg-[var(--bg-elevated)]"
               )}
             >
               <input
@@ -226,8 +226,8 @@ export function HelpyTerminstatusSection() {
           className={cn(
             "flex cursor-pointer items-start gap-2.5 rounded-[12px] border px-3 py-2.5 text-[12px] transition-colors",
             useCustom
-              ? "border-[#2563EB]/50 bg-[#EFF6FF]/80"
-              : "border-[#E2E8F0]/80 bg-white/80 hover:bg-[#F8FAFC]"
+              ? "border-[#2563EB]/50 bg-[var(--accent-light)]"
+              : "border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--bg-elevated)]"
           )}
         >
           <input
@@ -238,7 +238,7 @@ export function HelpyTerminstatusSection() {
             className="mt-0.5 size-3.5 accent-[#2563EB]"
           />
           <span className="flex-1 space-y-2">
-            <span className="block font-medium text-[#334155]">
+            <span className="block font-medium text-[var(--text-secondary)]">
               Anderer Termin
             </span>
             <div className="grid grid-cols-2 gap-2">

@@ -53,7 +53,7 @@ export function VoiceAppointmentSlots({
 
   if (suggestion.status === "loading") {
     return (
-      <div className={cn("flex items-center gap-2 text-[12px] text-[#64748B]", className)}>
+      <div className={cn("flex items-center gap-2 text-[12px] text-[var(--text-secondary)]", className)}>
         <Loader2 className="size-4 animate-spin" />
         Kalender-Verfügbarkeit wird geprüft…
       </div>
@@ -88,7 +88,7 @@ export function VoiceAppointmentSlots({
 
   return (
     <div className={cn("space-y-3", className)}>
-      <div className="flex items-center gap-2 text-[11px] font-semibold text-[#64748B]">
+      <div className="flex items-center gap-2 text-[11px] font-semibold text-[var(--text-secondary)]">
         <CalendarDays className="size-3.5" />
         Terminvorschläge ({suggestion.calendarLabel ?? "Kalender"})
       </div>
@@ -103,8 +103,8 @@ export function VoiceAppointmentSlots({
               className={cn(
                 "flex w-full items-center justify-between rounded-[12px] border px-3 py-2 text-left text-[12px] transition-colors",
                 selected
-                  ? "border-[#2563EB] bg-[#EFF6FF] text-[#1D4ED8]"
-                  : "border-[#E2E8F0] bg-white text-[#475569] hover:border-[#2563EB]/40"
+                  ? "border-[#2563EB] bg-[var(--accent-light)] text-[#1D4ED8]"
+                  : "border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-muted)] hover:border-[#2563EB]/40"
               )}
             >
               <span>{slot.label}</span>
@@ -127,7 +127,7 @@ export function VoiceAppointmentSlots({
         Termin bestätigen & in Kalender speichern
       </Button>
       {feedback && (
-        <p className="text-[11px] text-[#64748B]">{feedback}</p>
+        <p className="text-[11px] text-[var(--text-secondary)]">{feedback}</p>
       )}
     </div>
   );

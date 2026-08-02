@@ -144,10 +144,10 @@ export function WhatsappPage() {
               Kommunikation
             </p>
           </div>
-          <h1 className="mt-2 text-[2rem] font-semibold tracking-[-0.035em] text-[#0F172A] lg:text-[2.25rem]">
+          <h1 className="mt-2 text-[2rem] font-semibold tracking-[-0.035em] text-[var(--text-primary)] lg:text-[2.25rem]">
             Helpy-WhatsApp
           </h1>
-          <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[#64748B]">
+          <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[var(--text-secondary)]">
             WhatsApp Business Nachrichten — eigenständige Inbox mit HELPY-Klassifikation,
             ohne Vermischung mit E-Mail-Vorgängen.
           </p>
@@ -173,7 +173,7 @@ export function WhatsappPage() {
                   "rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-all duration-300",
                   isActive
                     ? "border-[#25D366]/30 bg-[#ECFDF3] text-[#15803D] shadow-sm"
-                    : "border-transparent bg-white/80 text-[#64748B] hover:border-[#CBD5E1]/60 hover:bg-white"
+                    : "border-transparent bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:border-[var(--border)] hover:bg-[var(--bg-elevated)]"
                 )}
               >
                 {WHATSAPP_FILTER_LABELS[filter]}
@@ -186,15 +186,15 @@ export function WhatsappPage() {
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
           <div className="space-y-3">
             {loading ? (
-              <div className="rounded-[24px] border border-dashed border-[#CBD5E1] bg-white/70 px-8 py-16 text-center backdrop-blur-xl">
-                <p className="text-sm font-medium text-[#64748B]">
+              <div className="rounded-[24px] border border-dashed border-[var(--border)] bg-[var(--bg-surface)] px-8 py-16 text-center backdrop-blur-xl">
+                <p className="text-sm font-medium text-[var(--text-secondary)]">
                   WhatsApp-Inbox wird geladen…
                 </p>
               </div>
             ) : messages.length === 0 ? (
-              <div className="rounded-[24px] border border-dashed border-[#CBD5E1] bg-white/70 px-8 py-16 text-center backdrop-blur-xl">
+              <div className="rounded-[24px] border border-dashed border-[var(--border)] bg-[var(--bg-surface)] px-8 py-16 text-center backdrop-blur-xl">
                 <WhatsappIcon size={28} className="mx-auto opacity-60" />
-                <p className="mt-4 text-sm font-medium text-[#64748B]">
+                <p className="mt-4 text-sm font-medium text-[var(--text-secondary)]">
                   Keine WhatsApp-Nachrichten in diesem Filter.
                 </p>
               </div>

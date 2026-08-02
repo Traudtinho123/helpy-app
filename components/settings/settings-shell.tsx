@@ -47,12 +47,12 @@ export function SettingsShell({
   return (
     <DashboardShell activeHref={mainActiveHref}>
       <div className="flex h-full min-h-0">
-        <aside className="hidden w-[240px] shrink-0 border-r border-[#CBD5E1]/50 bg-white/60 backdrop-blur-xl lg:block">
-          <div className="border-b border-[#CBD5E1]/40 px-5 py-5">
-            <p className="text-[11px] font-semibold tracking-[0.08em] text-[#64748B] uppercase">
+        <aside className="hidden w-[240px] shrink-0 border-r border-[var(--border)] bg-[var(--bg-surface)] backdrop-blur-xl lg:block">
+          <div className="border-b border-[var(--border)] px-5 py-5">
+            <p className="text-[11px] font-semibold tracking-[0.08em] text-[var(--text-secondary)] uppercase">
               Einstellungen
             </p>
-            <h1 className="mt-1 text-sm font-semibold text-[#0F172A]">
+            <h1 className="mt-1 text-sm font-semibold text-[var(--text-primary)]">
               System
             </h1>
           </div>
@@ -66,8 +66,8 @@ export function SettingsShell({
                   className={cn(
                     "flex items-center gap-2.5 rounded-[12px] px-3 py-2.5 text-[13px] font-medium transition-all duration-300",
                     isActive
-                      ? "bg-[#EFF6FF] text-[#2563EB] ring-1 ring-[#BFDBFE]/60"
-                      : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
+                      ? "bg-[var(--accent-light)] text-[var(--accent)] ring-1 ring-[#BFDBFE]/60"
+                      : "text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]"
                   )}
                 >
                   <span className="text-[14px]">{emoji}</span>
@@ -79,14 +79,14 @@ export function SettingsShell({
         </aside>
 
         <div className="min-w-0 flex-1 overflow-y-auto">
-          <div className="border-b border-[#CBD5E1]/50 bg-white/70 px-6 py-5 lg:px-8">
-            <p className="text-[11px] font-semibold tracking-[0.08em] text-[#64748B] uppercase lg:hidden">
+          <div className="border-b border-[var(--border)] bg-[var(--bg-surface)] px-6 py-5 lg:px-8">
+            <p className="text-[11px] font-semibold tracking-[0.08em] text-[var(--text-secondary)] uppercase lg:hidden">
               Einstellungen
             </p>
-            <h2 className="mt-0.5 text-xl font-semibold tracking-[-0.02em] text-[#0F172A] lg:mt-0">
+            <h2 className="mt-0.5 text-xl font-semibold tracking-[-0.02em] text-[var(--text-primary)] lg:mt-0">
               {title}
             </h2>
-            <p className="mt-1 text-[13px] text-[#64748B]">{description}</p>
+            <p className="mt-1 text-[13px] text-[var(--text-secondary)]">{description}</p>
           </div>
           <div className="px-6 py-6 lg:px-8">{children}</div>
         </div>

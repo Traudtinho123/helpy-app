@@ -32,8 +32,8 @@ export function QuoteGenerator({
 }: QuoteGeneratorProps) {
   if (!offer) {
     return (
-      <div className="flex h-full flex-1 items-center justify-center bg-white/40 p-8">
-        <p className="text-sm font-medium text-[#64748B]">
+      <div className="flex h-full flex-1 items-center justify-center bg-[var(--bg-surface)] p-8">
+        <p className="text-sm font-medium text-[var(--text-secondary)]">
           Wähle ein Angebot aus der Übersicht.
         </p>
       </div>
@@ -46,12 +46,12 @@ export function QuoteGenerator({
   );
 
   return (
-    <div className="flex h-full min-w-0 flex-1 flex-col overflow-y-auto bg-white/40">
-      <div className="border-b border-[#CBD5E1]/50 bg-white/70 px-8 py-5">
+    <div className="flex h-full min-w-0 flex-1 flex-col overflow-y-auto bg-[var(--bg-surface)]">
+      <div className="border-b border-[var(--border)] bg-[var(--bg-surface)] px-8 py-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-lg font-semibold tracking-[-0.02em] text-[#0F172A]">
+              <h1 className="text-lg font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
                 Angebot {offer.number}
               </h1>
               <Badge
@@ -64,15 +64,15 @@ export function QuoteGenerator({
                 {offerStatusLabels[offer.status]}
               </Badge>
             </div>
-            <p className="mt-1 text-[13px] text-[#64748B]">{offer.title}</p>
+            <p className="mt-1 text-[13px] text-[var(--text-secondary)]">{offer.title}</p>
             {offer.sourceEmail && (
-              <p className="mt-1 text-[11px] text-[#94A3B8]">
+              <p className="mt-1 text-[11px] text-[var(--text-muted)]">
                 Quelle: {offer.sourceEmail}
               </p>
             )}
           </div>
           <div className="text-right">
-            <p className="text-[11px] font-medium text-[#94A3B8]">Deadline</p>
+            <p className="text-[11px] font-medium text-[var(--text-muted)]">Deadline</p>
             <p className="text-[13px] font-semibold text-[#DC2626]">
               {offer.deadline}
             </p>
@@ -81,59 +81,59 @@ export function QuoteGenerator({
       </div>
 
       <div className="space-y-6 px-8 py-6">
-        <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
-          <CardHeader className="border-b border-[#CBD5E1]/30 pb-4">
-            <CardTitle className="text-[13px] font-semibold text-[#0F172A]">
+        <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
+          <CardHeader className="border-b border-[var(--border)] pb-4">
+            <CardTitle className="text-[13px] font-semibold text-[var(--text-primary)]">
               Kundendaten
             </CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4 p-5 sm:grid-cols-2">
             <div className="space-y-1.5 sm:col-span-2">
-              <label className="text-[11px] font-medium text-[#64748B]">
+              <label className="text-[11px] font-medium text-[var(--text-secondary)]">
                 Firma
               </label>
               <Input
                 readOnly
                 value={offer.customer.company}
-                className="h-10 rounded-[12px] border-[#CBD5E1]/60 bg-[#F8FAFC] text-[13px]"
+                className="h-10 rounded-[12px] border-[var(--border)] bg-[var(--bg-elevated)] text-[13px]"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[11px] font-medium text-[#64748B]">
+              <label className="text-[11px] font-medium text-[var(--text-secondary)]">
                 Ansprechpartner
               </label>
               <Input
                 readOnly
                 value={offer.customer.contact}
-                className="h-10 rounded-[12px] border-[#CBD5E1]/60 bg-[#F8FAFC] text-[13px]"
+                className="h-10 rounded-[12px] border-[var(--border)] bg-[var(--bg-elevated)] text-[13px]"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[11px] font-medium text-[#64748B]">
+              <label className="text-[11px] font-medium text-[var(--text-secondary)]">
                 E-Mail
               </label>
               <Input
                 readOnly
                 value={offer.customer.email}
-                className="h-10 rounded-[12px] border-[#CBD5E1]/60 bg-[#F8FAFC] text-[13px]"
+                className="h-10 rounded-[12px] border-[var(--border)] bg-[var(--bg-elevated)] text-[13px]"
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <label className="text-[11px] font-medium text-[#64748B]">
+              <label className="text-[11px] font-medium text-[var(--text-secondary)]">
                 Adresse
               </label>
               <Input
                 readOnly
                 value={offer.customer.address}
-                className="h-10 rounded-[12px] border-[#CBD5E1]/60 bg-[#F8FAFC] text-[13px]"
+                className="h-10 rounded-[12px] border-[var(--border)] bg-[var(--bg-elevated)] text-[13px]"
               />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="rounded-[20px] border-[#CBD5E1]/40 bg-white/90 py-0 shadow-sm">
-          <CardHeader className="border-b border-[#CBD5E1]/30 pb-4">
-            <CardTitle className="text-[13px] font-semibold text-[#0F172A]">
+        <Card className="rounded-[20px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
+          <CardHeader className="border-b border-[var(--border)] pb-4">
+            <CardTitle className="text-[13px] font-semibold text-[var(--text-primary)]">
               Angebotspositionen
             </CardTitle>
           </CardHeader>
@@ -141,17 +141,17 @@ export function QuoteGenerator({
             <div className="overflow-x-auto">
               <table className="w-full min-w-[640px] text-left">
                 <thead>
-                  <tr className="border-b border-[#CBD5E1]/30 bg-[#F8FAFC]/80">
-                    <th className="px-5 py-3 text-[10px] font-semibold tracking-wide text-[#64748B] uppercase">
+                  <tr className="border-b border-[var(--border)] bg-[var(--bg-elevated)]">
+                    <th className="px-5 py-3 text-[10px] font-semibold tracking-wide text-[var(--text-secondary)] uppercase">
                       Menge
                     </th>
-                    <th className="px-5 py-3 text-[10px] font-semibold tracking-wide text-[#64748B] uppercase">
+                    <th className="px-5 py-3 text-[10px] font-semibold tracking-wide text-[var(--text-secondary)] uppercase">
                       Beschreibung
                     </th>
-                    <th className="px-5 py-3 text-right text-[10px] font-semibold tracking-wide text-[#64748B] uppercase">
+                    <th className="px-5 py-3 text-right text-[10px] font-semibold tracking-wide text-[var(--text-secondary)] uppercase">
                       Einzelpreis
                     </th>
-                    <th className="px-5 py-3 text-right text-[10px] font-semibold tracking-wide text-[#64748B] uppercase">
+                    <th className="px-5 py-3 text-right text-[10px] font-semibold tracking-wide text-[var(--text-secondary)] uppercase">
                       Gesamtpreis
                     </th>
                   </tr>
@@ -160,18 +160,18 @@ export function QuoteGenerator({
                   {offer.lineItems.map((item) => (
                     <tr
                       key={item.id}
-                      className="border-b border-[#CBD5E1]/20 last:border-0"
+                      className="border-b border-[var(--border)]/20 last:border-0"
                     >
-                      <td className="px-5 py-4 text-[13px] font-medium text-[#0F172A]">
+                      <td className="px-5 py-4 text-[13px] font-medium text-[var(--text-primary)]">
                         {item.quantity}
                       </td>
-                      <td className="px-5 py-4 text-[13px] text-[#334155]">
+                      <td className="px-5 py-4 text-[13px] text-[var(--text-secondary)]">
                         {item.description}
                       </td>
-                      <td className="px-5 py-4 text-right text-[13px] text-[#64748B]">
+                      <td className="px-5 py-4 text-right text-[13px] text-[var(--text-secondary)]">
                         {formatCurrency(item.unitPrice)}
                       </td>
-                      <td className="px-5 py-4 text-right text-[13px] font-semibold text-[#0F172A]">
+                      <td className="px-5 py-4 text-right text-[13px] font-semibold text-[var(--text-primary)]">
                         {formatCurrency(item.quantity * item.unitPrice)}
                       </td>
                     </tr>
@@ -180,25 +180,25 @@ export function QuoteGenerator({
               </table>
             </div>
 
-            <div className="border-t border-[#CBD5E1]/30 bg-[#F8FAFC]/50 px-5 py-4">
+            <div className="border-t border-[var(--border)] bg-[var(--bg-elevated)]/50 px-5 py-4">
               <div className="ml-auto max-w-xs space-y-2">
                 <div className="flex justify-between text-[13px]">
-                  <span className="text-[#64748B]">Zwischensumme</span>
-                  <span className="font-medium text-[#0F172A]">
+                  <span className="text-[var(--text-secondary)]">Zwischensumme</span>
+                  <span className="font-medium text-[var(--text-primary)]">
                     {formatCurrency(subtotal)}
                   </span>
                 </div>
                 <div className="flex justify-between text-[13px]">
-                  <span className="text-[#64748B]">MwSt. ({offer.vatRate} %)</span>
-                  <span className="font-medium text-[#0F172A]">
+                  <span className="text-[var(--text-secondary)]">MwSt. ({offer.vatRate} %)</span>
+                  <span className="font-medium text-[var(--text-primary)]">
                     {formatCurrency(vat)}
                   </span>
                 </div>
-                <div className="flex justify-between border-t border-[#CBD5E1]/40 pt-2 text-[15px]">
-                  <span className="font-semibold text-[#0F172A]">
+                <div className="flex justify-between border-t border-[var(--border)] pt-2 text-[15px]">
+                  <span className="font-semibold text-[var(--text-primary)]">
                     Gesamtsumme
                   </span>
-                  <span className="font-bold text-[#2563EB]">
+                  <span className="font-bold text-[var(--accent)]">
                     {formatCurrency(total)}
                   </span>
                 </div>
@@ -210,7 +210,7 @@ export function QuoteGenerator({
         <div className="flex flex-wrap gap-3 pb-6">
           <Button
             variant="outline"
-            className="h-10 gap-2 rounded-[12px] border-[#CBD5E1]/60 bg-white px-4 text-[12px] font-medium shadow-sm"
+            className="h-10 gap-2 rounded-[12px] border-[var(--border)] bg-[var(--bg-surface)] px-4 text-[12px] font-medium shadow-sm"
           >
             <Save className="size-4" />
             Angebot speichern
@@ -218,7 +218,7 @@ export function QuoteGenerator({
           <Button
             variant="outline"
             onClick={onOpenPreview}
-            className="h-10 gap-2 rounded-[12px] border-[#CBD5E1]/60 bg-white px-4 text-[12px] font-medium shadow-sm"
+            className="h-10 gap-2 rounded-[12px] border-[var(--border)] bg-[var(--bg-surface)] px-4 text-[12px] font-medium shadow-sm"
           >
             <FileDown className="size-4" />
             PDF Vorschau öffnen
@@ -226,7 +226,7 @@ export function QuoteGenerator({
           <Button
             variant="outline"
             onClick={onImproveWithHelpy}
-            className="h-10 gap-2 rounded-[12px] border-[#2563EB]/30 bg-[#EFF6FF] px-4 text-[12px] font-medium text-[#2563EB] shadow-sm hover:bg-[#EFF6FF]"
+            className="h-10 gap-2 rounded-[12px] border-[var(--border-accent)] bg-[var(--accent-light)] px-4 text-[12px] font-medium text-[var(--accent)] shadow-sm hover:bg-[var(--accent-light)]"
           >
             <Sparkles className="size-4" />
             Mit HELPY verbessern

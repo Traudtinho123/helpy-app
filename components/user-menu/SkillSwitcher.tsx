@@ -25,14 +25,14 @@ export function SkillSwitcher() {
     const config = getSkillConfig(activeSkill);
     return (
       <div className="px-3 py-2.5">
-        <p className="mb-2 px-1 text-[10px] font-semibold tracking-[0.08em] text-[#94A3B8] uppercase">
+        <p className="mb-2 px-1 text-[10px] font-semibold tracking-[0.08em] text-[var(--text-muted)] uppercase">
           Aktiver HELPY
         </p>
-        <div className="rounded-[12px] border border-[#E2E8F0]/80 bg-[#F8FAFC]/80 px-3 py-2.5">
-          <p className="text-[13px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+        <div className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] px-3 py-2.5">
+          <p className="text-[13px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
             {config.emoji} {config.label}
           </p>
-          <p className="mt-2 text-[11px] leading-relaxed text-[#64748B]">
+          <p className="mt-2 text-[11px] leading-relaxed text-[var(--text-secondary)]">
             Dieser HELPY ist mit deinem Paket verbunden.
           </p>
         </div>
@@ -42,7 +42,7 @@ export function SkillSwitcher() {
 
   return (
     <div className="px-3 py-2.5">
-      <p className="mb-2 px-1 text-[10px] font-semibold tracking-[0.08em] text-[#94A3B8] uppercase">
+      <p className="mb-2 px-1 text-[10px] font-semibold tracking-[0.08em] text-[var(--text-muted)] uppercase">
         HELPY Vorschau
       </p>
       <ul className="max-h-[280px] space-y-1 overflow-y-auto">
@@ -65,8 +65,8 @@ export function SkillSwitcher() {
                 className={cn(
                   "flex w-full items-center gap-2 rounded-[10px] px-2.5 py-2 text-left text-[12px] font-medium transition-colors",
                   isActive
-                    ? "bg-[#EFF6FF] text-[#2563EB]"
-                    : "text-[#334155] hover:bg-[#F8FAFC]"
+                    ? "bg-[var(--accent-light)] text-[var(--accent)]"
+                    : "text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]"
                 )}
               >
                 <span>{isActive ? "●" : "○"}</span>
@@ -80,7 +80,7 @@ export function SkillSwitcher() {
         })}
       </ul>
       {isPreviewMode ? (
-        <p className="mt-2 px-1 text-[10px] leading-relaxed text-[#64748B]">
+        <p className="mt-2 px-1 text-[10px] leading-relaxed text-[var(--text-secondary)]">
           Vorschau-Modus — deine Daten bleiben {getSkillConfig(profileSkill).label}.
         </p>
       ) : null}

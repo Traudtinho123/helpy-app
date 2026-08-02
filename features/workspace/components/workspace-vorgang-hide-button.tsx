@@ -29,7 +29,7 @@ export function WorkspaceVorgangHideButton({
         type="button"
         variant="ghost"
         onClick={() => setConfirming(true)}
-        className="h-8 rounded-[10px] px-2.5 text-[11px] font-medium text-[#94A3B8] hover:bg-[#F8FAFC] hover:text-[#64748B]"
+        className="h-8 rounded-[10px] px-2.5 text-[11px] font-medium text-[var(--text-muted)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-secondary)]"
       >
         <EyeOff className="mr-1.5 size-3.5" />
         Vorgang ausblenden
@@ -38,8 +38,8 @@ export function WorkspaceVorgangHideButton({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-[10px] border border-[#E2E8F0] bg-[#F8FAFC]/80 px-2.5 py-1.5">
-      <span className="text-[11px] text-[#64748B]">Vorgang wirklich ausblenden?</span>
+    <div className="flex flex-wrap items-center gap-2 rounded-[10px] border border-[var(--border)] bg-[var(--bg-elevated)] px-2.5 py-1.5">
+      <span className="text-[11px] text-[var(--text-secondary)]">Vorgang wirklich ausblenden?</span>
       <Button
         type="button"
         variant="outline"

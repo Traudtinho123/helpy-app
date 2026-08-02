@@ -50,11 +50,11 @@ function HelpyLiveStatus({
   isWorking: boolean;
 }) {
   return (
-    <div className="rounded-[16px] border border-[#CBD5E1]/40 bg-white/90 p-4 shadow-sm">
+    <div className="rounded-[16px] border border-[var(--border)] bg-[var(--bg-surface)] p-4 shadow-sm">
       {isWorking && (
         <div className="mb-3 flex items-center gap-2.5">
           <HelpyIconBadge size={16} pose="typing" />
-          <span className="text-[12px] font-medium text-[#334155]">
+          <span className="text-[12px] font-medium text-[var(--text-secondary)]">
             HELPY arbeitet gerade…
           </span>
           <span className="flex gap-1">
@@ -77,7 +77,7 @@ function HelpyLiveStatus({
           return (
             <li
               key={step}
-              className="helpy-fade-in flex items-center gap-2.5 text-[12px] text-[#334155]"
+              className="helpy-fade-in flex items-center gap-2.5 text-[12px] text-[var(--text-secondary)]"
               style={{ animationDelay: `${index * 0.05}s` }}
             >
               <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[#ECFDF5]">
@@ -105,11 +105,11 @@ function ReplyOverlay({
 
   return (
     <div className="absolute inset-0 z-20 flex items-end justify-center bg-[#0F172A]/25 p-5 backdrop-blur-[2px] sm:items-center">
-      <div className="w-full max-w-[320px] rounded-[20px] border border-[#CBD5E1]/40 bg-white p-6 shadow-[0_16px_48px_rgba(15,23,42,0.18)]">
+      <div className="w-full max-w-[320px] rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] p-6 shadow-[0_16px_48px_rgba(15,23,42,0.18)]">
         {state === "loading" ? (
           <div className="flex flex-col items-center gap-4 py-4 text-center">
-            <Loader2 className="size-8 animate-spin text-[#2563EB]" />
-            <p className="text-[13px] font-semibold text-[#0F172A]">
+            <Loader2 className="size-8 animate-spin text-[var(--accent)]" />
+            <p className="text-[13px] font-semibold text-[var(--text-primary)]">
               HELPY erstellt gerade deine Antwort…
             </p>
             <div className="flex gap-1">
@@ -126,12 +126,12 @@ function ReplyOverlay({
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <HelpyAvatar size="sm" />
-              <p className="text-[13px] font-semibold text-[#0F172A]">
+              <p className="text-[13px] font-semibold text-[var(--text-primary)]">
                 Deine Antwort ist fertig
               </p>
             </div>
-            <div className="rounded-[14px] border border-[#BFDBFE]/60 bg-[#EFF6FF]/50 p-4">
-              <p className="text-[12px] leading-[1.7] text-[#334155]">{reply}</p>
+            <div className="rounded-[14px] border border-[var(--border-accent)] bg-[var(--accent-light)]/50 p-4">
+              <p className="text-[12px] leading-[1.7] text-[var(--text-secondary)]">{reply}</p>
             </div>
             <Button
               onClick={onClose}
@@ -238,19 +238,19 @@ function EmailAnalysisPanelShell({
         }
       >
         {!email ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-[#CBD5E1] bg-[#F8FAFC]/80 p-8 text-center">
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-[20px] border border-dashed border-[var(--border)] bg-[var(--bg-elevated)] p-8 text-center">
             <HelpyCharacter size={88} pose="wave" animated showLabel={false} />
-            <p className="text-sm font-medium text-[#64748B]">
+            <p className="text-sm font-medium text-[var(--text-secondary)]">
               Wähle eine E-Mail — ich analysiere sie für dich.
             </p>
           </div>
         ) : (
           <div className="space-y-5 px-1">
             <div className="helpy-fade-in">
-              <h3 className="text-[15px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+              <h3 className="text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
                 Hallo Viktor 👋
               </h3>
-              <p className="mt-1.5 text-[13px] leading-relaxed text-[#64748B]">
+              <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--text-secondary)]">
                 Ich habe deine E-Mail bereits analysiert.
               </p>
             </div>
@@ -276,27 +276,27 @@ function EmailAnalysisPanelShell({
                       Meine Empfehlung
                     </p>
                   </div>
-                  <p className="mt-2.5 text-[12px] leading-[1.65] text-[#334155]">
+                  <p className="mt-2.5 text-[12px] leading-[1.65] text-[var(--text-secondary)]">
                     {getRecommendation(email)}
                   </p>
                 </div>
 
                 {email.analysis.tasks.length > 0 && (
                   <div className="helpy-fade-in space-y-3">
-                    <p className="text-[12px] font-semibold text-[#0F172A]">
+                    <p className="text-[12px] font-semibold text-[var(--text-primary)]">
                       Ich habe folgende Aufgaben erkannt
                     </p>
                     <ul className="space-y-2">
                       {email.analysis.tasks.map((task) => (
                         <li
                           key={task}
-                          className="flex items-center gap-3 rounded-[12px] border border-[#CBD5E1]/40 bg-white px-3.5 py-2.5 shadow-sm"
+                          className="flex items-center gap-3 rounded-[12px] border border-[var(--border)] bg-[var(--bg-surface)] px-3.5 py-2.5 shadow-sm"
                         >
                           <Square
-                            className="size-4 shrink-0 text-[#94A3B8]"
+                            className="size-4 shrink-0 text-[var(--text-muted)]"
                             strokeWidth={2}
                           />
-                          <span className="text-[12px] font-medium text-[#334155]">
+                          <span className="text-[12px] font-medium text-[var(--text-secondary)]">
                             {task}
                           </span>
                         </li>
@@ -308,27 +308,27 @@ function EmailAnalysisPanelShell({
                 {email.analysis.offerDetail && (
                   <div className="helpy-fade-in space-y-3">
                     <div className="flex items-center gap-2">
-                      <FileText className="size-4 text-[#2563EB]" strokeWidth={2} />
-                      <p className="text-[12px] font-semibold text-[#0F172A]">
+                      <FileText className="size-4 text-[var(--accent)]" strokeWidth={2} />
+                      <p className="text-[12px] font-semibold text-[var(--text-primary)]">
                         Ich habe folgendes Angebot erkannt
                       </p>
                     </div>
-                    <Card className="rounded-[16px] border-[#CBD5E1]/40 bg-white py-0 shadow-sm">
+                    <Card className="rounded-[16px] border-[var(--border)] bg-[var(--bg-surface)] py-0 shadow-sm">
                       <CardContent className="space-y-3 p-4">
                         <div className="flex justify-between gap-2 text-[12px]">
-                          <span className="text-[#64748B]">Firmenname</span>
-                          <span className="font-semibold text-[#0F172A]">
+                          <span className="text-[var(--text-secondary)]">Firmenname</span>
+                          <span className="font-semibold text-[var(--text-primary)]">
                             {email.analysis.offerDetail.company}
                           </span>
                         </div>
                         <div className="flex justify-between gap-2 text-[12px]">
-                          <span className="text-[#64748B]">Angebotssumme</span>
-                          <span className="font-semibold text-[#2563EB]">
+                          <span className="text-[var(--text-secondary)]">Angebotssumme</span>
+                          <span className="font-semibold text-[var(--accent)]">
                             {email.analysis.offerDetail.amount}
                           </span>
                         </div>
                         <div className="flex justify-between gap-2 text-[12px]">
-                          <span className="text-[#64748B]">Deadline</span>
+                          <span className="text-[var(--text-secondary)]">Deadline</span>
                           <Badge
                             variant="outline"
                             className="h-5 border-[#FECACA] bg-[#FEF2F2] text-[10px] font-semibold text-[#DC2626]"
@@ -343,22 +343,22 @@ function EmailAnalysisPanelShell({
 
                 {email.analysis.suggestedReply && (
                   <div className="helpy-fade-in space-y-3">
-                    <p className="text-[12px] font-semibold text-[#0F172A]">
+                    <p className="text-[12px] font-semibold text-[var(--text-primary)]">
                       Ich habe bereits eine Antwort vorbereitet
                     </p>
-                    <div className="rounded-[16px] border border-[#CBD5E1]/50 bg-gradient-to-br from-[#F8FAFC] to-white p-4 shadow-[0_2px_12px_rgba(15,23,42,0.04)]">
-                      <div className="mb-3 flex items-center gap-2 border-b border-[#CBD5E1]/30 pb-3">
+                    <div className="rounded-[16px] border border-[var(--border)] bg-gradient-to-br from-[#F8FAFC] to-white p-4 shadow-[0_2px_12px_rgba(15,23,42,0.04)]">
+                      <div className="mb-3 flex items-center gap-2 border-b border-[var(--border)] pb-3">
                         <HelpyAvatar size="sm" pose="typing" />
                         <div>
-                          <p className="text-[11px] font-semibold text-[#0F172A]">
+                          <p className="text-[11px] font-semibold text-[var(--text-primary)]">
                             HELPY
                           </p>
-                          <p className="text-[10px] text-[#94A3B8]">
+                          <p className="text-[10px] text-[var(--text-muted)]">
                             Entwurf · {email.sender}
                           </p>
                         </div>
                       </div>
-                      <p className="text-[12px] leading-[1.7] text-[#334155]">
+                      <p className="text-[12px] leading-[1.7] text-[var(--text-secondary)]">
                         {email.analysis.suggestedReply}
                       </p>
                     </div>

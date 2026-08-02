@@ -24,17 +24,23 @@ const STATUS_LABELS: Record<StatusBadgeVariant, string> = {
   niedrig: "Niedrig",
 };
 
-/** Tailwind braucht vollständige Klassen — fest codiert für JIT. */
 const STATUS_CLASS: Record<StatusBadgeVariant, string> = {
-  neu: "border-[#BFDBFE] bg-[#EFF6FF] text-[#2563EB]",
-  vorbereitet: "border-[#C4B5FD] bg-[#F5F3FF] text-[#7C3AED]",
-  "in-pruefung": "border-[#FDE68A] bg-[#FFFBEB] text-[#B45309]",
-  bestaetigt: "border-[#A7F3D0] bg-[#ECFDF5] text-[#047857]",
-  erledigt: "border-[#CBD5E1] bg-[#F8FAFC] text-[#64748B]",
-  kritisch: "border-[#FECACA] bg-[#FEF2F2] text-[#DC2626]",
-  hoch: "border-[#FDE68A] bg-[#FFFBEB] text-[#B45309]",
-  mittel: "border-[#BFDBFE] bg-[#EFF6FF] text-[#2563EB]",
-  niedrig: "border-[#CBD5E1] bg-[#F8FAFC] text-[#64748B]",
+  neu: "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--text-accent)]",
+  vorbereitet:
+    "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--text-accent)]",
+  "in-pruefung":
+    "border-[var(--warning-light)] bg-[var(--warning-light)] text-[var(--warning)]",
+  bestaetigt:
+    "border-[var(--success-light)] bg-[var(--success-light)] text-[var(--success)]",
+  erledigt:
+    "border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-muted)]",
+  kritisch:
+    "border-[var(--danger-light)] bg-[var(--danger-light)] text-[var(--danger)]",
+  hoch: "border-[var(--warning-light)] bg-[var(--warning-light)] text-[var(--warning)]",
+  mittel:
+    "border-[var(--border-accent)] bg-[var(--accent-light)] text-[var(--text-accent)]",
+  niedrig:
+    "border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-muted)]",
 };
 
 type StatusBadgeProps = {

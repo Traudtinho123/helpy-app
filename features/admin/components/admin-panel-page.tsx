@@ -89,7 +89,7 @@ export function AdminPanelPage() {
       description="Registrierte Firmen verwalten und Skills freischalten."
     >
         {loading ? (
-          <div className="flex items-center gap-2 text-[13px] text-[#64748B]">
+          <div className="flex items-center gap-2 text-[13px] text-[var(--text-secondary)]">
             <Loader2 className="size-4 animate-spin" />
             Firmen laden…
           </div>
@@ -98,23 +98,23 @@ export function AdminPanelPage() {
             {error}
           </p>
         ) : companies.length === 0 ? (
-          <p className="text-[13px] text-[#64748B]">Keine Firmen gefunden.</p>
+          <p className="text-[13px] text-[var(--text-secondary)]">Keine Firmen gefunden.</p>
         ) : (
           <ul className="space-y-3">
             {companies.map((company) => (
               <li
                 key={company.id}
-                className="rounded-[16px] border border-[#E2E8F0] bg-white px-4 py-4"
+                className="rounded-[16px] border border-[var(--border)] bg-[var(--bg-surface)] px-4 py-4"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p className="text-[15px] font-semibold text-[#0F172A]">
+                    <p className="text-[15px] font-semibold text-[var(--text-primary)]">
                       {company.name}
                     </p>
-                    <p className="mt-1 text-[12px] text-[#64748B]">
+                    <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
                       {company.adminName ?? "—"} · {company.adminEmail ?? "—"}
                     </p>
-                    <p className="mt-1 text-[12px] text-[#64748B]">
+                    <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
                       Skill:{" "}
                       {SKILL_LABELS[company.requestedSkill ?? ""] ??
                         company.requestedSkill ??

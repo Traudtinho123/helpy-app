@@ -40,7 +40,7 @@ export function DashboardHeader() {
   const pageTitle = resolvePageTitle(pathname, skillConfig.label);
 
   return (
-    <header className="helpy-layout-desktop-header relative z-30 hidden h-14 shrink-0 items-center justify-between gap-6 border-b border-[var(--border)] bg-[var(--bg-surface)] px-6 lg:flex">
+    <header className="helpy-layout-desktop-header relative z-30 hidden h-14 shrink-0 items-center justify-between gap-6 border-b border-[var(--border-strong)] bg-[var(--sidebar-bg)] px-6 lg:flex">
       <h1 className="shrink-0 text-[16px] font-bold tracking-[-0.02em] text-[var(--text-primary)]">
         {pageTitle}
       </h1>

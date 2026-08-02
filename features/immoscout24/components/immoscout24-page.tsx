@@ -13,7 +13,7 @@ export function ImmoScout24Page() {
 
   return (
     <div className="flex min-h-[40vh] items-center justify-center px-6">
-      <p className="text-[13px] text-[#64748B]">
+      <p className="text-[13px] text-[var(--text-secondary)]">
         ImmoScout24-Anfragen werden geladen …
       </p>
     </div>

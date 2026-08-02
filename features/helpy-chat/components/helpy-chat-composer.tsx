@@ -43,7 +43,7 @@ export function HelpyChatComposer({
   const containerClass =
     variant === "glass"
       ? "helpy-glass-card rounded-[20px] p-2.5 transition-all duration-200 focus-within:shadow-[var(--button-primary-shadow)]"
-      : "rounded-[20px] border border-[#CBD5E1]/50 bg-white p-2.5 shadow-sm";
+      : "rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] p-2.5 shadow-sm";
 
   return (
     <div className={cn("space-y-3", className)}>
