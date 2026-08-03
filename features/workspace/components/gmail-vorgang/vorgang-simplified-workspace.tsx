@@ -200,7 +200,7 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
           <GmailOriginalMessageCard />
         </div>
 
-        <aside className="w-full shrink-0 space-y-4 lg:w-[360px]">
+        <aside className="w-full shrink-0 space-y-4 lg:sticky lg:top-24 lg:w-[360px] lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
           <div className="rounded-[20px] border border-[var(--border)] bg-[var(--bg-surface)] p-5 shadow-sm">
             <p className="text-[12px] font-bold uppercase tracking-[0.08em] text-[var(--text-muted)]">
               HELPY

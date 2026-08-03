@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { BadgeCheck, Loader2, Mail } from "lucide-react";
+import { BadgeCheck, Loader2, Mail, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { recordCrmGmailReplySent } from "@/features/crm/services/crm-sync";
 import { HelpyReviewModal } from "@/features/review/components";
@@ -459,6 +459,47 @@ export function HelpyReplyDraftCard({
             )}
           </div>
 
+          {!editing && !isSent ? (
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                onClick={handleConfirmReview}
+                disabled={sendDisabled || sendState === "loading"}
+                className="h-9 flex-1 rounded-[10px] bg-[#2563EB] px-4 text-[12px] font-semibold text-white disabled:opacity-50"
+              >
+                {sendState === "loading" ? (
+                  <>
+                    <Loader2 className="mr-1.5 size-3.5 animate-spin" />
+                    Wird gesendet…
+                  </>
+                ) : (
+                  <>
+                    <Send className="mr-1.5 size-3.5" />
+                    Senden
+                  </>
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleStartEdit}
+                disabled={sendState === "loading"}
+                className="h-9 rounded-[10px] border-[var(--border)] px-3 text-[12px] font-medium"
+              >
+                {HELPY_BUTTON_BEARBEITEN}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleOpenReview}
+                disabled={sendState === "loading"}
+                className="h-9 rounded-[10px] border-[var(--border)] px-3 text-[12px] font-medium"
+              >
+                {HELPY_BUTTON_PRUEFEN}
+              </Button>
+            </div>
+          ) : null}
+
           {draft.missingInfo.length > 0 && (
             <div>
               <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--text-muted)] uppercase">
@@ -531,36 +572,15 @@ export function HelpyReplyDraftCard({
               </Button>
             </>
           ) : (
-            <>
-              {!isSent && (
-                <>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleStartEdit}
-                    className="h-8 rounded-[10px] border-[var(--border)] px-3 text-[11px] font-medium"
-                  >
-                    {HELPY_BUTTON_BEARBEITEN}
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={handleOpenReview}
-                    className="h-8 rounded-[10px] bg-[#2563EB] px-3 text-[11px] font-semibold text-white"
-                  >
-                    {HELPY_BUTTON_PRUEFEN}
-                  </Button>
-                </>
-              )}
-              {sendState === "error" && (
-                <Button
-                  type="button"
-                  onClick={handleRetrySend}
-                  className="h-8 rounded-[10px] bg-[#2563EB] px-3 text-[11px] font-semibold text-white"
-                >
-                  {retryButtonLabel}
-                </Button>
-              )}
-            </>
+            sendState === "error" && (
+              <Button
+                type="button"
+                onClick={handleRetrySend}
+                className="h-8 rounded-[10px] bg-[#2563EB] px-3 text-[11px] font-semibold text-white"
+              >
+                {retryButtonLabel}
+              </Button>
+            )
           )}
         </div>
       </div>
