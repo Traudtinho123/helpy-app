@@ -298,8 +298,13 @@ export const GMAIL_SEND_MODAL_HINT =
 
 export const GMAIL_RETRY_BUTTON_LABEL = "Erneut versuchen";
 
-export const GMAIL_SEND_SUCCESS_MESSAGE =
-  "E-Mail erfolgreich über Gmail versendet.";
+export const GMAIL_SEND_SUCCESS_MESSAGE = "✓ Antwort gesendet";
+
+export const GMAIL_NOT_CONNECTED_MESSAGE =
+  "Gmail nicht verbunden. Bitte zuerst Gmail in Plattformen verbinden.";
+
+export const GMAIL_RECONNECT_MESSAGE =
+  "Gmail-Verbindung abgelaufen. Bitte Gmail in Plattformen erneut verbinden.";
 
 export const GMAIL_SEND_STATUS = "Gesendet";
 

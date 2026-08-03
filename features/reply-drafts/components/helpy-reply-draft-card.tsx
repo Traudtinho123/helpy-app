@@ -11,8 +11,11 @@ import {
   GMAIL_SEND_LOADING_MESSAGE,
   GMAIL_SEND_SUCCESS_MESSAGE,
   GMAIL_WAITING_FOR_REPLY_STATUS,
-  sendGmailMessage,
 } from "@/features/gmail/services/gmail-drafts";
+import {
+  sendGmailMessageViaApi,
+  type GmailSendApiErrorCode,
+} from "@/features/gmail/services/gmail-send-service";
 import {
   OUTLOOK_RETRY_BUTTON_LABEL,
   OUTLOOK_SEND_ERROR_MESSAGE,
@@ -54,6 +57,8 @@ import {
   recordReviewOpened,
 } from "@/features/workspace/services/status";
 import type { Vorgang } from "@/features/workspace/services/vorgaenge/types";
+import { persistReplySentVorgangStatus } from "@/features/reply-drafts/services/persist-reply-sent-status";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useExternalStore } from "@/lib/hooks/use-external-store";
 import { cn } from "@/lib/utils";
@@ -95,6 +100,8 @@ export function HelpyReplyDraftCard({
     "idle" | "loading" | "success" | "error"
   >("idle");
   const [sendError, setSendError] = useState<string | null>(null);
+  const [sendErrorCode, setSendErrorCode] =
+    useState<GmailSendApiErrorCode | null>(null);
   const [ownEmail, setOwnEmail] = useState<string | null>(null);
   const gptRequestedRef = useRef<string | null>(null);
 
@@ -189,17 +196,6 @@ export function HelpyReplyDraftCard({
     onRegisterOpenReview(handleOpenReview);
   }, [draft, handleOpenReview, onRegisterOpenReview]);
 
-  const getGoogleAccessToken = useCallback(async () => {
-    const supabase = createClient();
-    if (!supabase) return null;
-
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    return session?.provider_token ?? null;
-  }, []);
-
   const canSendDraft = useCallback(
     (currentDraft: ReplyDraft, ownEmail: string | null) => {
       if (!currentDraft.recipientValid || !currentDraft.recipientEmail) {
@@ -229,6 +225,7 @@ export function HelpyReplyDraftCard({
 
     setSendState("loading");
     setSendError(null);
+    setSendErrorCode(null);
     setFeedback(sendLoadingMessage);
 
     const result = isOutlook
@@ -237,25 +234,18 @@ export function HelpyReplyDraftCard({
           subject: draft.subject,
           body: draft.draftText,
         })
-      : await (async () => {
-          const accessToken = await getGoogleAccessToken();
-          if (!accessToken) {
-            return { ok: false as const, error: sendErrorMessage };
-          }
-
-          return sendGmailMessage({
-            accessToken,
-            to: draft.recipientEmail!,
-            subject: draft.subject,
-            body: draft.draftText,
-            threadId: vorgang.threadId,
-          });
-        })();
+      : await sendGmailMessageViaApi({
+          to: draft.recipientEmail!,
+          subject: draft.subject,
+          body: draft.draftText,
+          threadId: vorgang.threadId,
+        });
 
     if (result.ok) {
       confirmReplyDraft(vorgang.id);
       recordReviewConfirmed(vorgang.id);
       recordGmailReplySent(vorgang.id);
+      await persistReplySentVorgangStatus(vorgang);
       recordCrmGmailReplySent(vorgang.id, draft.subject);
       processBackgroundMemoryEvent({
         type: "antwort-gesendet",
@@ -274,14 +264,19 @@ export function HelpyReplyDraftCard({
       return true;
     }
 
+    const gmailErrorCode =
+      !isOutlook && !result.ok
+        ? ((result as { errorCode?: GmailSendApiErrorCode }).errorCode ??
+          null)
+        : null;
     setSendState("error");
     setSendError(result.error);
+    setSendErrorCode(gmailErrorCode);
     setFeedback(null);
     return false;
   }, [
     canSendDraft,
     draft,
-    getGoogleAccessToken,
     getOwnEmail,
     isOutlook,
     sendErrorMessage,
@@ -293,8 +288,15 @@ export function HelpyReplyDraftCard({
   ]);
 
   const handleConfirmReview = useCallback(() => {
+    console.info("[HelpyReplyDraftCard] confirm send clicked", {
+      vorgangId: vorgang.id,
+      recipient: draft?.recipientEmail,
+      subject: draft?.subject,
+      provider: isOutlook ? "outlook" : "gmail",
+      recipientValid: draft?.recipientValid ?? false,
+    });
     void sendViaMailProvider();
-  }, [sendViaMailProvider]);
+  }, [draft?.recipientEmail, draft?.recipientValid, draft?.subject, isOutlook, sendViaMailProvider, vorgang.id]);
 
   const handleRetrySend = useCallback(() => {
     void sendViaMailProvider();
@@ -335,6 +337,7 @@ export function HelpyReplyDraftCard({
             setReviewOpen(false);
             setActiveReview(null);
             setSendError(null);
+            setSendErrorCode(null);
           }
         }}
         onEdit={() => {
@@ -492,9 +495,20 @@ export function HelpyReplyDraftCard({
         )}
 
         {sendError && (
-          <p className="mt-3 rounded-[10px] border border-[#FECACA]/60 bg-[#FEF2F2]/70 px-3 py-2 text-[11px] leading-relaxed text-[#B91C1C]">
-            {sendError}
-          </p>
+          <div className="mt-3 rounded-[10px] border border-[#FECACA]/60 bg-[#FEF2F2]/70 px-3 py-2 text-[11px] leading-relaxed text-[#B91C1C]">
+            <p>{sendError}</p>
+            {(sendErrorCode === "not_connected" ||
+              sendErrorCode === "token_expired") && (
+              <Link
+                href="/plattformen"
+                className="mt-2 inline-flex font-semibold text-[#2563EB] underline-offset-2 hover:underline"
+              >
+                {sendErrorCode === "not_connected"
+                  ? "Gmail in Plattformen verbinden"
+                  : "Gmail Verbindung erneuern"}
+              </Link>
+            )}
+          </div>
         )}
 
         <div className="mt-4 flex flex-wrap gap-2">
