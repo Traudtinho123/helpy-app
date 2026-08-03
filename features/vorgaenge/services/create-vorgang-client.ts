@@ -8,6 +8,10 @@ import type { GmailVorgangBundle } from "@/features/brain/services/brain-result-
 import {
   ingestDbVorgangBundle,
 } from "@/features/vorgaenge/services/db-vorgaenge-store";
+import {
+  hasPersistedMailMessageId,
+  rememberPersistedMailMessageId,
+} from "@/features/vorgaenge/services/mail-vorgang-persist-dedup";
 import type {
   CreateVorgangInput,
   CreateVorgangPriority,
@@ -61,6 +65,8 @@ export async function createVorgangClient(
     workspace: payload.workspace,
   });
 
+  rememberPersistedMailMessageId(input.gmail_message_id);
+
   return {
     ok: true,
     id: payload.id,
@@ -80,6 +86,10 @@ function mapMailStatusToCreate(status: ListeVorgang["status"]): CreateVorgangSta
 export async function persistMailBundleToDb(
   bundle: GmailVorgangBundle
 ): Promise<void> {
+  if (hasPersistedMailMessageId(bundle.message.id)) {
+    return;
+  }
+
   const source = resolveMailSourceFromQuelle(bundle.liste.quelle);
   const fromHeader =
     bundle.message.from?.trim() ||
@@ -111,6 +121,7 @@ export async function persistMailBundleToDb(
       absender_email: sender.email,
       archiv_kategorie: bundle.liste.archiveCategory ?? "spam",
     });
+    rememberPersistedMailMessageId(bundle.message.id);
 
     if (source === "gmail" && bundle.message.id) {
       const supabase = createClient();
@@ -206,4 +217,6 @@ export async function persistMailBundleToDb(
     absender_name: sender.name,
     absender_email: sender.email,
   });
+
+  rememberPersistedMailMessageId(bundle.message.id);
 }

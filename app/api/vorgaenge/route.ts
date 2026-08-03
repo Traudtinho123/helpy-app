@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { mapVorgangDbRecordToBundle } from "@/features/vorgaenge/services/vorgang-db-mapper";
+import {
+  mapVorgangDbRecordToBundle,
+  mapVorgangDbRecordToListBundle,
+} from "@/features/vorgaenge/services/vorgang-db-mapper";
 import type {
   CreateVorgangInput,
   CreateVorgangPriority,
@@ -7,7 +10,10 @@ import type {
   VorgangSource,
 } from "@/features/vorgaenge/types/create-vorgang-types";
 import { createVorgang } from "@/lib/vorgaenge/create-vorgang";
-import { listVorgaengeForCompany } from "@/lib/vorgaenge/vorgang-repository";
+import {
+  listVorgaengeForCompany,
+  listVorgaengePageForCompany,
+} from "@/lib/vorgaenge/vorgang-repository";
 import {
   createDevCompanyContext,
   requireCompanyContext,
@@ -79,12 +85,46 @@ function parseCreateInput(
   };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const auth = await requireCompanyContext();
   const context = auth.ok ? auth.context : createDevCompanyContext();
 
   if (!auth.ok && isSupabaseConfigured()) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const viewParam = searchParams.get("view");
+  const usePaginatedList =
+    searchParams.has("cursor") ||
+    searchParams.has("limit") ||
+    viewParam === "list";
+
+  if (usePaginatedList) {
+    const view = viewParam === "full" ? "full" : "list";
+    const cursor = searchParams.get("cursor");
+    const parsedLimit = Number.parseInt(searchParams.get("limit") ?? "50", 10);
+    const limit = Number.isFinite(parsedLimit)
+      ? Math.min(Math.max(parsedLimit, 1), 100)
+      : 50;
+
+    const { records, nextCursor } = await listVorgaengePageForCompany(
+      context.companyId,
+      { limit, cursor }
+    );
+
+    const mapRecord =
+      view === "full" ? mapVorgangDbRecordToBundle : mapVorgangDbRecordToListBundle;
+
+    const vorgaenge = records.map((record) => {
+      const bundle = mapRecord(record);
+      if (view === "full") {
+        return { ...bundle, record };
+      }
+      return bundle;
+    });
+
+    return NextResponse.json({ vorgaenge, nextCursor });
   }
 
   const records = await listVorgaengeForCompany(context.companyId, 200);
@@ -93,7 +133,7 @@ export async function GET() {
     record,
   }));
 
-  return NextResponse.json({ vorgaenge });
+  return NextResponse.json({ vorgaenge, nextCursor: null });
 }
 
 export async function POST(request: Request) {

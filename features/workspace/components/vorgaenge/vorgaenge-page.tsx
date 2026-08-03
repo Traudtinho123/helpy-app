@@ -16,6 +16,7 @@ import { VorgangArchiveCard } from "@/features/workspace/components/vorgaenge/vo
 import { HelpyReportCard } from "@/features/workspace/components/vorgaenge/helpy-report-card";
 import { HelpyVorgaengePanel } from "@/features/workspace/components/vorgaenge/helpy-vorgaenge-panel";
 import { VorgangCard } from "@/features/workspace/components/vorgaenge/vorgang-card";
+import { VorgaengeIncrementalList } from "@/features/workspace/components/vorgaenge/vorgaenge-incremental-list";
 import { VorgaengeBulkBar } from "@/features/workspace/components/vorgaenge/vorgaenge-bulk-bar";
 import {
   ShortcutsHelpModal,
@@ -266,6 +267,12 @@ export function VorgaengePage() {
   );
 
   const focusedVorgang = actionableVorgaenge[focusedIndex] ?? null;
+
+  const listResetKey = useMemo(
+    () =>
+      `${mainArea}:${mainArea === "archiv" ? archiveFilter : realFilter}:${quickFilter}:${filteredVorgaenge.length}`,
+    [archiveFilter, filteredVorgaenge.length, mainArea, quickFilter, realFilter]
+  );
 
   useEffect(() => {
     if (focusedIndex >= actionableVorgaenge.length) {
@@ -586,47 +593,51 @@ export function VorgaengePage() {
                 </p>
               </div>
             ) : (
-              filteredVorgaenge.map((vorgang) => {
-                const actionIndex = actionableVorgaenge.findIndex(
-                  (item) => item.id === vorgang.id
-                );
-                const isFocused = actionIndex === focusedIndex;
+              <VorgaengeIncrementalList
+                items={filteredVorgaenge}
+                resetKey={listResetKey}
+                renderItem={(vorgang) => {
+                  const actionIndex = actionableVorgaenge.findIndex(
+                    (item) => item.id === vorgang.id
+                  );
+                  const isFocused = actionIndex === focusedIndex;
 
-                if (mainArea === "archiv") {
-                  return (
-                    <VorgangArchiveCard
+                  if (mainArea === "archiv") {
+                    return (
+                      <VorgangArchiveCard
+                        key={vorgang.id}
+                        vorgang={vorgang}
+                        onChanged={() => setMailRevision((tick) => tick + 1)}
+                      />
+                    );
+                  }
+
+                  return isHelpyReportVorgang(vorgang) ? (
+                    <HelpyReportCard key={vorgang.id} vorgang={vorgang} />
+                  ) : (
+                    <VorgangCard
                       key={vorgang.id}
                       vorgang={vorgang}
-                      onChanged={() => setMailRevision((tick) => tick + 1)}
+                      focused={isFocused}
+                      selectedDetailId={selectedDetailId}
+                      externalPanel={cardPanelById[vorgang.id] ?? "none"}
+                      onExternalPanelChange={(panel) => {
+                        setCardPanelById((prev) => ({ ...prev, [vorgang.id]: panel }));
+                      }}
+                      onOpen={(id) => {
+                        router.push(`/workspace/${id}`);
+                      }}
+                      onCompleted={handleCompleted}
+                      onRequestReply={(id) => {
+                        setCardPanelById((prev) => ({ ...prev, [id]: "reply" }));
+                      }}
+                      onRequestAppointment={(id) => {
+                        setCardPanelById((prev) => ({ ...prev, [id]: "appointment" }));
+                      }}
                     />
                   );
-                }
-
-                return isHelpyReportVorgang(vorgang) ? (
-                  <HelpyReportCard key={vorgang.id} vorgang={vorgang} />
-                ) : (
-                  <VorgangCard
-                    key={vorgang.id}
-                    vorgang={vorgang}
-                    focused={isFocused}
-                    selectedDetailId={selectedDetailId}
-                    externalPanel={cardPanelById[vorgang.id] ?? "none"}
-                    onExternalPanelChange={(panel) => {
-                      setCardPanelById((prev) => ({ ...prev, [vorgang.id]: panel }));
-                    }}
-                    onOpen={(id) => {
-                      router.push(`/workspace/${id}`);
-                    }}
-                    onCompleted={handleCompleted}
-                    onRequestReply={(id) => {
-                      setCardPanelById((prev) => ({ ...prev, [id]: "reply" }));
-                    }}
-                    onRequestAppointment={(id) => {
-                      setCardPanelById((prev) => ({ ...prev, [id]: "appointment" }));
-                    }}
-                  />
-                );
-              })
+                }}
+              />
             )}
           </div>
 

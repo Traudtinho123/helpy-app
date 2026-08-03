@@ -195,6 +195,98 @@ export async function listVorgaengeForCompany(
   return (data as Record<string, unknown>[]).map(rowToRecord);
 }
 
+export type VorgaengeListPage = {
+  records: VorgangDbRecord[];
+  nextCursor: string | null;
+};
+
+function compareVorgaengeNewestFirst(a: VorgangDbRecord, b: VorgangDbRecord): number {
+  const byCreated = b.created_at.localeCompare(a.created_at);
+  if (byCreated !== 0) return byCreated;
+  return b.id.localeCompare(a.id);
+}
+
+function isBeforeCursor(record: VorgangDbRecord, cursor: { createdAt: string; id: string }): boolean {
+  if (record.created_at < cursor.createdAt) return true;
+  if (record.created_at > cursor.createdAt) return false;
+  return record.id < cursor.id;
+}
+
+export function encodeVorgangListCursor(record: VorgangDbRecord): string {
+  return `${record.created_at}|${record.id}`;
+}
+
+export function decodeVorgangListCursor(cursor: string): { createdAt: string; id: string } | null {
+  const separator = cursor.indexOf("|");
+  if (separator <= 0) return null;
+
+  const createdAt = cursor.slice(0, separator);
+  const id = cursor.slice(separator + 1);
+  if (!createdAt || !id) return null;
+
+  return { createdAt, id };
+}
+
+export async function listVorgaengePageForCompany(
+  companyId: string,
+  options: { limit?: number; cursor?: string | null } = {}
+): Promise<VorgaengeListPage> {
+  const limit = Math.min(Math.max(options.limit ?? 50, 1), 100);
+  const decodedCursor = options.cursor ? decodeVorgangListCursor(options.cursor) : null;
+
+  if (!isSupabaseAdminConfigured()) {
+    let items = [...devVorgaenge.values()]
+      .filter((item) => item.company_id === companyId)
+      .sort(compareVorgaengeNewestFirst);
+
+    if (decodedCursor) {
+      items = items.filter((item) => isBeforeCursor(item, decodedCursor));
+    }
+
+    const records = items.slice(0, limit);
+    const nextCursor =
+      items.length > limit && records.length > 0
+        ? encodeVorgangListCursor(records[records.length - 1]!)
+        : null;
+
+    return { records, nextCursor };
+  }
+
+  const admin = createAdminClient();
+  if (!admin) return { records: [], nextCursor: null };
+
+  let query = admin
+    .from("vorgaenge")
+    .select("*")
+    .eq("company_id", companyId)
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .limit(limit + 1);
+
+  if (decodedCursor) {
+    query = query.or(
+      `created_at.lt.${decodedCursor.createdAt},and(created_at.eq.${decodedCursor.createdAt},id.lt.${decodedCursor.id})`
+    );
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("[vorgaenge] paginated list failed:", error.message);
+    return { records: [], nextCursor: null };
+  }
+
+  const rows = (data as Record<string, unknown>[]).map(rowToRecord);
+  const hasMore = rows.length > limit;
+  const records = hasMore ? rows.slice(0, limit) : rows;
+  const nextCursor =
+    hasMore && records.length > 0
+      ? encodeVorgangListCursor(records[records.length - 1]!)
+      : null;
+
+  return { records, nextCursor };
+}
+
 export async function getVorgangRecordById(
   vorgangId: string,
   companyId: string

@@ -31,8 +31,14 @@ import { enrichVorgangSender } from "@/features/workspace/services/vorgaenge/res
 import { filterVisibleVorgaenge } from "@/features/workspace/services/vorgang-visibility-store";
 import type { Vorgang } from "@/features/workspace/services/vorgaenge/types";
 
-/** Kombiniert Gmail-, Outlook- und Telefon-Vorgänge ohne Duplikate. */
-export function getAllMailVorgaenge(): Vorgang[] {
+let mergedCacheValid = false;
+let mergedCache: Vorgang[] = [];
+
+function invalidateMergedMailVorgaengeCache(): void {
+  mergedCacheValid = false;
+}
+
+function computeAllMailVorgaenge(): Vorgang[] {
   const combined = [
     ...getGmailVorgaenge(),
     ...getOutlookVorgaenge(),
@@ -45,12 +51,26 @@ export function getAllMailVorgaenge(): Vorgang[] {
   );
 }
 
+/** Kombiniert Gmail-, Outlook- und Telefon-Vorgänge ohne Duplikate. */
+export function getAllMailVorgaenge(): Vorgang[] {
+  if (mergedCacheValid) return mergedCache;
+
+  mergedCache = computeAllMailVorgaenge();
+  mergedCacheValid = true;
+  return mergedCache;
+}
+
 export function subscribeAllMailVorgaenge(listener: () => void): () => void {
+  const wrapped = () => {
+    invalidateMergedMailVorgaengeCache();
+    listener();
+  };
+
   const unsubs = [
-    subscribeGmailVorgaenge(listener),
-    subscribeOutlookVorgaenge(listener),
-    subscribeVoiceVorgaenge(listener),
-    subscribeDbVorgaenge(listener),
+    subscribeGmailVorgaenge(wrapped),
+    subscribeOutlookVorgaenge(wrapped),
+    subscribeVoiceVorgaenge(wrapped),
+    subscribeDbVorgaenge(wrapped),
   ];
   return () => unsubs.forEach((unsub) => unsub());
 }

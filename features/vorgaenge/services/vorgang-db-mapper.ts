@@ -145,3 +145,23 @@ export function mapVorgangDbRecordToBundle(
     },
   };
 }
+
+const LIST_INHALT_PREVIEW_LENGTH = 320;
+
+function truncateInhaltPreview(value: string): string {
+  const trimmed = value.trim();
+  if (trimmed.length <= LIST_INHALT_PREVIEW_LENGTH) return trimmed;
+  return `${trimmed.slice(0, LIST_INHALT_PREVIEW_LENGTH).trimEnd()}…`;
+}
+
+/** Schlankes Bundle für Listen-API — kein voller Mail-Body im Payload. */
+export function mapVorgangDbRecordToListBundle(
+  record: VorgangDbRecord,
+  options?: { kundeName?: string | null }
+): { liste: ListeVorgang; workspace: WorkspaceVorgang } {
+  const preview = truncateInhaltPreview(record.inhalt);
+  return mapVorgangDbRecordToBundle(
+    { ...record, inhalt: preview },
+    options
+  );
+}
