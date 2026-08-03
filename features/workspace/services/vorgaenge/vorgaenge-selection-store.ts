@@ -65,3 +65,31 @@ export function clearVorgangSelection(): void {
   selectedIds.clear();
   notify();
 }
+
+export function areAllVorgangIdsSelected(ids: string[]): boolean {
+  if (ids.length === 0) return false;
+  return ids.every((id) => selectedIds.has(id));
+}
+
+export function toggleSelectAllVorgangIds(ids: string[]): void {
+  if (ids.length === 0) return;
+
+  if (areAllVorgangIdsSelected(ids)) {
+    for (const id of ids) {
+      selectedIds.delete(id);
+    }
+  } else {
+    for (const id of ids) {
+      selectedIds.add(id);
+    }
+  }
+  notify();
+}
+
+export function deselectVorgangIds(ids: string[]): void {
+  let changed = false;
+  for (const id of ids) {
+    if (selectedIds.delete(id)) changed = true;
+  }
+  if (changed) notify();
+}

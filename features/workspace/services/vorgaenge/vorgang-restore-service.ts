@@ -91,6 +91,28 @@ export async function deleteArchivedVorgang(
   return { ok: true };
 }
 
+export async function restoreVorgaengeFromArchive(
+  vorgaenge: Vorgang[]
+): Promise<{ count: number }> {
+  let count = 0;
+  for (const vorgang of vorgaenge) {
+    const result = await restoreVorgangFromArchive(vorgang);
+    if (result.ok) count += 1;
+  }
+  return { count };
+}
+
+export async function deleteArchivedVorgaenge(
+  vorgaenge: Vorgang[]
+): Promise<{ count: number }> {
+  let count = 0;
+  for (const vorgang of vorgaenge) {
+    const result = await deleteArchivedVorgang(vorgang);
+    if (result.ok) count += 1;
+  }
+  return { count };
+}
+
 export async function deleteArchivedVorgaengeOlderThanDays(
   vorgaenge: Vorgang[],
   days: number

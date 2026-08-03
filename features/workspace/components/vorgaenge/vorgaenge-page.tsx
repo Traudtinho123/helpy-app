@@ -19,6 +19,10 @@ import { VorgangCard } from "@/features/workspace/components/vorgaenge/vorgang-c
 import { VorgaengeIncrementalList } from "@/features/workspace/components/vorgaenge/vorgaenge-incremental-list";
 import { VorgaengeBulkBar } from "@/features/workspace/components/vorgaenge/vorgaenge-bulk-bar";
 import {
+  ArchiveSelectAllControl,
+  VorgaengeArchiveBulkBar,
+} from "@/features/workspace/components/vorgaenge/vorgaenge-archive-bulk-bar";
+import {
   ShortcutsHelpModal,
   VorgaengeKeyboardShortcuts,
 } from "@/features/workspace/components/vorgaenge/vorgaenge-keyboard-shortcuts";
@@ -71,6 +75,7 @@ import {
   filterArchiveVorgaenge,
 } from "@/features/workspace/services/vorgaenge/vorgang-archive";
 import { deleteArchivedVorgaengeOlderThanDays, countArchivedVorgaengeOlderThan } from "@/features/workspace/services/vorgaenge/vorgang-restore-service";
+import { clearVorgangSelection } from "@/features/workspace/services/vorgaenge/vorgaenge-selection-store";
 import {
   ARCHIVE_VORGANG_FILTER_LABELS,
   REAL_VORGANG_FILTER_LABELS,
@@ -149,6 +154,12 @@ export function VorgaengePage() {
   useEffect(() => subscribeHelpyReportReads(() => setCountsRevision((tick) => tick + 1)), []);
   useEffect(() => subscribeSnoozedVorgaenge(() => setMailRevision((tick) => tick + 1)), []);
   useEffect(() => subscribePriorityOverrides(() => setMailRevision((tick) => tick + 1)), []);
+
+  useEffect(() => {
+    if (mainArea !== "archiv") {
+      clearVorgangSelection();
+    }
+  }, [mainArea]);
 
   useEffect(() => {
     hydrateMailVorgaengeCaches();
@@ -532,7 +543,8 @@ export function VorgaengePage() {
             </button>
           </div>
         ) : (
-          <div className="mb-5">
+          <div className="mb-5 flex flex-wrap items-center gap-2">
+            <ArchiveSelectAllControl vorgaenge={filteredVorgaenge} />
             <Button
               type="button"
               variant="outline"
@@ -551,7 +563,17 @@ export function VorgaengePage() {
             onCompleted={handleCompleted}
             className="mb-4"
           />
-        ) : null}
+        ) : (
+          <VorgaengeArchiveBulkBar
+            vorgaenge={filteredVorgaenge}
+            onChanged={(message) => {
+              setSuccessMessage(message);
+              setMailRevision((tick) => tick + 1);
+              window.setTimeout(() => setSuccessMessage(null), 4000);
+            }}
+            className="mb-4"
+          />
+        )}
 
         <div
           className={cn(

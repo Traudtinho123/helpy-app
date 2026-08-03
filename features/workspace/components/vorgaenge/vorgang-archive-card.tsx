@@ -1,9 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { RotateCcw, Trash2 } from "lucide-react";
+import { Check, RotateCcw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/Modal";
+import {
+  isVorgangSelected,
+  setVorgangSelected,
+  subscribeVorgaengeSelection,
+} from "@/features/workspace/services/vorgaenge/vorgaenge-selection-store";
 import {
   deleteArchivedVorgang,
   restoreVorgangFromArchive,
@@ -13,6 +18,7 @@ import {
   ARCHIVE_VORGANG_FILTER_LABELS,
   type Vorgang,
 } from "@/features/workspace/services/vorgaenge/types";
+import { useExternalStore } from "@/lib/hooks/use-external-store";
 import { cn } from "@/lib/utils";
 
 type VorgangArchiveCardProps = {
@@ -28,6 +34,11 @@ export function VorgangArchiveCard({
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const category = resolveArchiveCategory(vorgang);
   const sender = vorgang.absenderEmail ?? vorgang.from ?? vorgang.kunde;
+  const isSelected = useExternalStore(
+    subscribeVorgaengeSelection,
+    () => isVorgangSelected(vorgang.id),
+    () => false
+  );
 
   const handleRestore = async () => {
     setBusy("restore");
@@ -48,11 +59,31 @@ export function VorgangArchiveCard({
     <>
       <article
         className={cn(
-          "rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)]/80 p-4",
-          "min-h-[72px]"
+          "rounded-xl border bg-[var(--bg-elevated)]/80 p-4 min-h-[72px] transition-colors",
+          isSelected
+            ? "border-[var(--border-accent)] bg-[var(--accent-light)]/35"
+            : "border-[var(--border)]"
         )}
       >
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <label
+            className={cn(
+              "mt-0.5 flex size-5 shrink-0 cursor-pointer items-center justify-center rounded border border-[var(--border-strong)] bg-[var(--bg-surface)]",
+              isSelected && "border-[var(--accent)] bg-[var(--accent-light)]"
+            )}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <input
+              type="checkbox"
+              checked={isSelected}
+              className="sr-only"
+              onChange={() => setVorgangSelected(vorgang.id, !isSelected)}
+            />
+            {isSelected ? (
+              <Check className="size-3 text-[var(--accent)]" strokeWidth={3} />
+            ) : null}
+          </label>
+
           <div className="min-w-0 flex-1">
             <p className="truncate text-[13px] font-medium text-[var(--text-secondary)]">
               {sender}
