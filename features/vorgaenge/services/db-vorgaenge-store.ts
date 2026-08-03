@@ -81,6 +81,48 @@ export function getDbWorkspaceVorgang(id: string): WorkspaceVorgang | null {
   return cache?.workspaces[id] ?? null;
 }
 
+export function patchDbVorgangInCache(
+  vorgangId: string,
+  patch: Partial<ListeVorgang>
+): boolean {
+  const store = ensureCache();
+  let changed = false;
+
+  store.vorgaenge = store.vorgaenge.map((item) => {
+    if (item.id !== vorgangId) return item;
+    changed = true;
+    return { ...item, ...patch };
+  });
+
+  if (!changed) return false;
+
+  const workspace = store.workspaces[vorgangId];
+  if (workspace && patch.titel) {
+    store.workspaces[vorgangId] = {
+      ...workspace,
+      aufgabe: { ...workspace.aufgabe, titel: patch.titel },
+    };
+  }
+
+  store.loadedAt = new Date().toISOString();
+  persist();
+  notify();
+  return true;
+}
+
+export function removeDbVorgangFromCache(vorgangId: string): boolean {
+  const store = ensureCache();
+  const next = store.vorgaenge.filter((item) => item.id !== vorgangId);
+  if (next.length === store.vorgaenge.length) return false;
+
+  store.vorgaenge = next;
+  delete store.workspaces[vorgangId];
+  store.loadedAt = new Date().toISOString();
+  persist();
+  notify();
+  return true;
+}
+
 export function ingestDbVorgangBundle(input: {
   liste: ListeVorgang;
   workspace: WorkspaceVorgang;

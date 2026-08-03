@@ -33,6 +33,7 @@ import {
   fetchGmailThreadMessages,
   fetchRecentGmailMessages,
 } from "@/features/gmail/services/gmail/connector";
+import { archiveGmailMessages } from "@/features/gmail/services/gmail/archive-message";
 import type { GmailConnectorMessage } from "@/features/gmail/services/gmail/types";
 import {
   analyzeGmailThread,
@@ -117,6 +118,19 @@ async function buildBundlesFromMessages(
   const result = await buildAllMailVorgangBundles(unified, skill);
   markGmailMessagesProcessed(result.processedMessageIds);
   return [...result.customerBundles, ...result.archiveBundles];
+}
+
+async function archiveGmailForZuArchivierenBundles(
+  bundles: GmailVorgangBundle[],
+  accessToken: string | null | undefined
+): Promise<void> {
+  const messageIds = bundles
+    .filter((bundle) => bundle.liste.status === "zu_archivieren")
+    .map((bundle) => bundle.message.id)
+    .filter(Boolean);
+
+  if (messageIds.length === 0) return;
+  await archiveGmailMessages(accessToken, messageIds);
 }
 
 function markGmailMessagesProcessed(messageIds: string[]): void {
@@ -823,6 +837,8 @@ export async function loadGmailVorgaenge(
       applyCacheFromBundles(bundles);
     }
 
+    void archiveGmailForZuArchivierenBundles(bundles, providerToken);
+
     const threadIds = [
       ...new Set(
         (cache?.vorgaenge ?? [])
@@ -896,6 +912,8 @@ export async function syncGmailVorgaengeIncremental(
 
     const bundles = await buildBundlesFromMessages(newMessages, context);
     const newVorgaenge = mergeBundlesIntoCache(bundles);
+
+    void archiveGmailForZuArchivierenBundles(bundles, providerToken);
 
     backfillGmailVorgaengeMailMetadata(messages, context);
 

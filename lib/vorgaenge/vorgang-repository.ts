@@ -308,3 +308,40 @@ export async function deleteVorgangRecord(
 
   return true;
 }
+
+export async function deleteArchivedVorgaengeOlderThanDays(
+  companyId: string,
+  days: number
+): Promise<number> {
+  const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+
+  if (!isSupabaseAdminConfigured()) {
+    let deleted = 0;
+    for (const [id, row] of devVorgaenge.entries()) {
+      if (row.company_id !== companyId) continue;
+      if (row.status !== "zu_archivieren") continue;
+      if (row.created_at >= cutoff) continue;
+      devVorgaenge.delete(id);
+      deleted += 1;
+    }
+    return deleted;
+  }
+
+  const admin = createAdminClient();
+  if (!admin) return 0;
+
+  const { data, error } = await admin
+    .from("vorgaenge")
+    .delete()
+    .eq("company_id", companyId)
+    .eq("status", "zu_archivieren")
+    .lt("created_at", cutoff)
+    .select("id");
+
+  if (error) {
+    console.error("[vorgaenge] bulk archive delete failed:", error.message);
+    return 0;
+  }
+
+  return data?.length ?? 0;
+}

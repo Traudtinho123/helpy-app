@@ -1,4 +1,4 @@
-import { markGmailMessagesAsRead } from "@/features/gmail/services/gmail/mark-message-read";
+import { archiveGmailMessages } from "@/features/gmail/services/gmail/archive-message";
 import { markOutlookMessageReadFromApi } from "@/features/outlook/services/outlook-sync-service";
 import { markVorgangErledigtInOutlookStore, revertVorgangErledigtInOutlookStore } from "@/features/outlook/services/outlook-vorgaenge-store";
 import { resolveMailProviderFromVorgang } from "@/features/mail/mail-brain-adapter";
@@ -9,14 +9,11 @@ import { invalidateVorgaengeSummaryCaches } from "@/features/workspace/services/
 import { processBackgroundMemoryEvent } from "@/features/memory/services/background-memory-engine";
 import { peekRealEstateObjectByVorgangId } from "@/features/real-estate/object/object-memory";
 import { createClient } from "@/lib/supabase/client";
+import { isPersistedVorgangId } from "@/features/workspace/services/vorgaenge/vorgang-store-mutations";
 import type { Vorgang } from "@/features/workspace/services/vorgaenge/types";
 
-function isDbVorgangId(id: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
-}
-
 async function persistVorgangErledigtToDb(vorgangId: string): Promise<void> {
-  if (!isDbVorgangId(vorgangId)) return;
+  if (!isPersistedVorgangId(vorgangId)) return;
 
   try {
     await fetch(`/api/vorgaenge/${vorgangId}`, {
@@ -45,7 +42,7 @@ export const VORGANG_ERLEDIGT_SUCCESS = "Vorgang als erledigt markiert.";
 export const VORGANG_ERLEDIGT_PANEL_MESSAGE =
   "Alles klar, ich habe den Vorgang als erledigt markiert.";
 export const VORGANG_ERLEDIGT_MAIL_PARTIAL =
-  "Vorgang wurde in HELPY erledigt markiert, aber die E-Mail konnte nicht als gelesen markiert werden.";
+  "Vorgang wurde in HELPY erledigt markiert, aber die E-Mail konnte nicht archiviert werden.";
 
 /** Markiert einen Vorgang als erledigt — ohne Löschen oder Archivieren. */
 export async function completeVorgang(
@@ -96,8 +93,8 @@ export async function completeVorgang(
   } else {
     const token = accessToken ?? session?.provider_token ?? null;
     if (token && messageIds.length > 0) {
-      const result = await markGmailMessagesAsRead(token, messageIds);
-      mailUpdated = result.ok.length > 0;
+      const archivedCount = await archiveGmailMessages(token, messageIds);
+      mailUpdated = archivedCount > 0;
     }
   }
 

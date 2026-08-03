@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Plus, Sparkles } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { useTerminology } from "@/hooks/useTerminology";
 import { Button } from "@/components/ui/button";
 import { CreateVorgangModal } from "@/features/vorgaenge/components/create-vorgang-modal";
 import { loadDbVorgaengeFromApi } from "@/features/vorgaenge/services/db-vorgaenge-store";
@@ -74,7 +73,7 @@ import {
   filterEchteVorgaenge,
   filterArchiveVorgaenge,
 } from "@/features/workspace/services/vorgaenge/vorgang-archive";
-import { deleteArchivedVorgaengeOlderThanDays } from "@/features/workspace/services/vorgaenge/vorgang-restore-service";
+import { deleteArchivedVorgaengeOlderThanDays, countArchivedVorgaengeOlderThan } from "@/features/workspace/services/vorgaenge/vorgang-restore-service";
 import {
   ARCHIVE_VORGANG_FILTER_LABELS,
   REAL_VORGANG_FILTER_LABELS,
@@ -84,6 +83,7 @@ import {
 } from "@/features/workspace/services/vorgaenge/types";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import { Modal } from "@/components/ui/Modal";
 
 const realFilterOrder: RealVorgangFilter[] = [
   "alle",
@@ -108,7 +108,6 @@ type ActivePanel = "none" | "reply" | "appointment";
 export function VorgaengePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { vorgaenge: vorgaengeLabel, skill } = useTerminology();
   const [mainArea, setMainArea] = useState<VorgaengeMainArea>("vorgaenge");
   const [realFilter, setRealFilter] = useState<RealVorgangFilter>("alle");
   const [archiveFilter, setArchiveFilter] = useState<ArchiveVorgangFilter>("alle");
@@ -125,7 +124,8 @@ export function VorgaengePage() {
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [shortcutsHelpOpen, setShortcutsHelpOpen] = useState(false);
   const [cardPanelById, setCardPanelById] = useState<Record<string, ActivePanel>>({});
-  const completeInFlightRef = useRef(false);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkDeleteBusy, setBulkDeleteBusy] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -313,6 +313,31 @@ export function VorgaengePage() {
   const showArchiveEmpty =
     !isLoading && mainArea === "archiv" && filteredVorgaenge.length === 0;
 
+  const archiveOlderThan30Count = useMemo(
+    () =>
+      countArchivedVorgaengeOlderThan(
+        filterArchiveVorgaenge(allVorgaenge, "alle"),
+        30
+      ),
+    [allVorgaenge, countsRevision]
+  );
+
+  const handleBulkDeleteOlderThan30 = async () => {
+    setBulkDeleteBusy(true);
+    const count = await deleteArchivedVorgaengeOlderThanDays(
+      filterArchiveVorgaenge(allVorgaenge, "alle"),
+      30
+    );
+    setBulkDeleteBusy(false);
+    setBulkDeleteOpen(false);
+    if (count > 0) {
+      setSuccessMessage(`${count} archivierte Mails gelöscht.`);
+      setMailRevision((tick) => tick + 1);
+    }
+  };
+
+  const completeInFlightRef = useRef(false);
+
   const handleCompleted = useCallback((message: string, helpyPanelMessage: string) => {
     setSuccessMessage(message);
     setPanelMessage(helpyPanelMessage);
@@ -402,14 +427,10 @@ export function VorgaengePage() {
               Arbeit zentral
             </p>
             <h1 className="helpy-display mt-2 text-[2rem] font-semibold tracking-[-0.035em] text-[var(--text-primary)] lg:text-[2.25rem]">
-              {vorgaengeLabel}
+              Aufgaben & To-Dos
             </h1>
             <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-[var(--text-secondary)]">
-              Schnell erledigen, antworten und planen — direkt auf der Karte.
-              <span className="hidden lg:inline"> Tastatur: </span>
-              <kbd className="ml-1 hidden rounded border border-[var(--border)] bg-[var(--bg-elevated)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--text-muted)] lg:inline">
-                ?
-              </kbd>
+              Deine offenen Aufgaben — antworten, erledigen und planen.
             </p>
           </div>
           <Button className="shrink-0" onClick={() => setCreateModalOpen(true)}>
@@ -526,17 +547,8 @@ export function VorgaengePage() {
               type="button"
               variant="outline"
               className="min-h-[44px] rounded-[10px] text-[13px]"
-              onClick={() => {
-                void deleteArchivedVorgaengeOlderThanDays(
-                  filterArchiveVorgaenge(allVorgaenge, "alle"),
-                  30
-                ).then((count) => {
-                  if (count > 0) {
-                    setSuccessMessage(`${count} archivierte Mails gelöscht.`);
-                    setMailRevision((tick) => tick + 1);
-                  }
-                });
-              }}
+              disabled={archiveOlderThan30Count === 0}
+              onClick={() => setBulkDeleteOpen(true)}
             >
               Alle älter als 30 Tage löschen
             </Button>
@@ -677,6 +689,38 @@ export function VorgaengePage() {
           window.setTimeout(() => setSuccessMessage(null), 4000);
         }}
       />
+
+      <Modal
+        open={bulkDeleteOpen}
+        onClose={() => setBulkDeleteOpen(false)}
+        title="Alle älter als 30 Tage löschen?"
+        description={`Alle ${archiveOlderThan30Count} Einträge älter als 30 Tage löschen?`}
+        footer={
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-[44px] rounded-[10px]"
+              disabled={bulkDeleteBusy}
+              onClick={() => setBulkDeleteOpen(false)}
+            >
+              Abbrechen
+            </Button>
+            <Button
+              type="button"
+              className="min-h-[44px] rounded-[10px] bg-[#B91C1C] hover:bg-[#991B1B]"
+              disabled={bulkDeleteBusy}
+              onClick={() => void handleBulkDeleteOlderThan30()}
+            >
+              {bulkDeleteBusy ? "Lösche…" : "Alle löschen"}
+            </Button>
+          </div>
+        }
+      >
+        <p className="text-[13px] text-[var(--text-secondary)]">
+          Diese Einträge werden dauerhaft aus HELPY entfernt.
+        </p>
+      </Modal>
     </DashboardShell>
   );
 }

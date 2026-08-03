@@ -242,6 +242,43 @@ export function getOutlookWorkspaceVorgang(id: string): WorkspaceVorgang | null 
   return workspace ? { ...workspace } : null;
 }
 
+export function patchOutlookVorgangInCache(
+  vorgangId: string,
+  patch: Partial<Vorgang>
+): boolean {
+  hydrateFromSession();
+  if (!cache) return false;
+
+  let changed = false;
+  cache.vorgaenge = cache.vorgaenge.map((item) => {
+    if (item.id !== vorgangId) return item;
+    changed = true;
+    return { ...item, ...patch };
+  });
+
+  if (!changed) return false;
+  persistToSession();
+  notify();
+  return true;
+}
+
+export function removeOutlookVorgangFromCache(vorgangId: string): boolean {
+  hydrateFromSession();
+  if (!cache) return false;
+
+  const next = cache.vorgaenge.filter((item) => item.id !== vorgangId);
+  if (next.length === cache.vorgaenge.length) return false;
+
+  cache = {
+    ...cache,
+    vorgaenge: next,
+  };
+  delete cache.workspaces[vorgangId];
+  persistToSession();
+  notify();
+  return true;
+}
+
 export function markVorgangErledigtInOutlookStore(vorgangId: string): void {
   hydrateFromSession();
   if (!cache) return;

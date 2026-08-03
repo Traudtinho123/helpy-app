@@ -1,4 +1,5 @@
 import { evaluateMailIntake } from "@/features/mail/services/mail-intake-gate";
+import { archiveGmailMessages } from "@/features/gmail/services/gmail/archive-message";
 import { parseFrom, resolveSenderDisplayName, isPlaceholderSenderLabel } from "@/features/gmail/services/parse-from-header";
 import {
   resolveVorgangSenderFromText,
@@ -18,6 +19,7 @@ import {
 } from "@/features/vorgaenge/types/create-vorgang-types";
 import type { Vorgang as ListeVorgang } from "@/features/workspace/services/vorgaenge/types";
 import type { Vorgang as WorkspaceVorgang } from "@/features/workspace/services/workspace/types";
+import { createClient } from "@/lib/supabase/client";
 
 export type CreateVorgangClientResult =
   | {
@@ -109,6 +111,14 @@ export async function persistMailBundleToDb(
       absender_email: sender.email,
       archiv_kategorie: bundle.liste.archiveCategory ?? "spam",
     });
+
+    if (source === "gmail" && bundle.message.id) {
+      const supabase = createClient();
+      const session = supabase
+        ? (await supabase.auth.getSession()).data.session
+        : null;
+      void archiveGmailMessages(session?.provider_token, [bundle.message.id]);
+    }
     return;
   }
 
