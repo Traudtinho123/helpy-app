@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Dropdown } from "@/components/ui/Dropdown";
 import { CreateKundeMiniModal } from "@/features/vorgaenge/components/create-kunde-mini-modal";
 import { LinkObjektModal } from "@/features/vorgaenge/components/link-objekt-modal";
+import { AddObjectDialog } from "@/features/portfolio/components/add-object-dialog";
+import { createDealFromVorgang } from "@/features/deals/services/deal-client-store";
 import { VorgangSenderBanner } from "@/features/vorgaenge/components/vorgang-sender-banner";
 import {
   fetchVorgangIntelligence,
@@ -55,6 +57,7 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
   const [intelligence, setIntelligence] = useState<VorgangSenderIntelligence | null>(null);
   const [showKundeModal, setShowKundeModal] = useState(false);
   const [showObjektModal, setShowObjektModal] = useState(false);
+  const [showCreateObjektModal, setShowCreateObjektModal] = useState(false);
   const [linkedKundeId, setLinkedKundeId] = useState<string | null>(
     context.customer?.id ?? null
   );
@@ -78,6 +81,44 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
   const intentLabel =
     listeVorgang?.intentLabel ??
     (listeVorgang?.intent?.includes("besichtigung") ? "Besichtigungsanfrage" : "Anfrage");
+
+  const createObjectInitialValues = useMemo(() => {
+    const hint = intelligence?.erkanntesObjekt?.trim();
+    if (!hint) return undefined;
+    return {
+      adresse: hint,
+      titel: hint,
+    };
+  }, [intelligence?.erkanntesObjekt]);
+
+  const handleObjectCreated = async ({ objectId }: { objectId: string }) => {
+    linkRealEstateObjectToVorgang(objectId, vorgangId);
+    await patchVorgangLinks({ vorgangId, objektId: objectId });
+
+    if (linkedKundeId) {
+      void createDealFromVorgang({
+        vorgangId,
+        objektId: objectId,
+        kundeId: linkedKundeId,
+      });
+    }
+
+    setShowCreateObjektModal(false);
+    setIntelligence((prev) =>
+      prev
+        ? {
+            ...prev,
+            objektId: objectId,
+            objektTitel: prev.erkanntesObjekt ?? prev.objektTitel,
+            erkanntesObjekt: null,
+            case:
+              prev.kundeId || linkedKundeId
+                ? "known_customer_known_object"
+                : prev.case,
+          }
+        : prev
+    );
+  };
 
   const handleMarkSpam = () => {
     hideVorgang(vorgangId);
@@ -152,6 +193,7 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
               }}
               onCreateKunde={() => setShowKundeModal(true)}
               onLinkObjekt={() => setShowObjektModal(true)}
+              onCreateObjekt={() => setShowCreateObjektModal(true)}
               onMarkSpam={handleMarkSpam}
             />
           ) : null}
@@ -208,7 +250,7 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
                     Objekt öffnen →
                   </Link>
                 </>
-              ) : intelligence?.objektTitel ? (
+              ) : intelligence?.objektTitel && intelligence?.objektId ? (
                 <div className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] p-3">
                   <p className="text-[13px] text-[var(--text-primary)]">{intelligence.objektTitel}</p>
                   <p className="mt-1 text-[12px] text-[var(--text-secondary)]">KI-erkannt aus Mailinhalt</p>
@@ -217,13 +259,11 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
                       type="button"
                       size="sm"
                       onClick={() => {
-                        if (intelligence.objektId) {
-                          linkRealEstateObjectToVorgang(intelligence.objektId, vorgangId);
-                          void patchVorgangLinks({
-                            vorgangId,
-                            objektId: intelligence.objektId,
-                          });
-                        }
+                        linkRealEstateObjectToVorgang(intelligence.objektId!, vorgangId);
+                        void patchVorgangLinks({
+                          vorgangId,
+                          objektId: intelligence.objektId,
+                        });
                       }}
                     >
                       Bestätigen ✓
@@ -237,6 +277,23 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
                       Anderes wählen
                     </Button>
                   </div>
+                </div>
+              ) : intelligence?.erkanntesObjekt ? (
+                <div className="rounded-[12px] border border-[var(--border)] bg-[var(--bg-elevated)] p-3">
+                  <p className="text-[13px] font-medium text-[var(--text-primary)]">
+                    🔍 Erkannt: {intelligence.erkanntesObjekt}
+                  </p>
+                  <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
+                    Objekt noch nicht in HELPY
+                  </p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="mt-3"
+                    onClick={() => setShowCreateObjektModal(true)}
+                  >
+                    + Objekt jetzt anlegen
+                  </Button>
                 </div>
               ) : (
                 <>
@@ -271,7 +328,11 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
         vorgangId={vorgangId}
         defaultName={sender.name}
         defaultEmail={sender.email ?? ""}
-        defaultNote={intelligence?.objektTitel ? `Interesse an ${intelligence.objektTitel}` : ""}
+        defaultNote={
+          intelligence?.objektTitel || intelligence?.erkanntesObjekt
+            ? `Interesse an ${intelligence.objektTitel ?? intelligence.erkanntesObjekt}`
+            : ""
+        }
         onSaved={(customerId) => {
           setLinkedKundeId(customerId);
           setIntelligence((prev) =>
@@ -295,6 +356,15 @@ export function VorgangSimplifiedWorkspace({ vorgangId }: VorgangSimplifiedWorks
               : prev
           );
         }}
+      />
+
+      <AddObjectDialog
+        open={showCreateObjektModal}
+        onOpenChange={setShowCreateObjektModal}
+        skill="real-estate"
+        dialogTitle="Neues Objekt"
+        initialValues={createObjectInitialValues}
+        onSaved={handleObjectCreated}
       />
     </div>
   );

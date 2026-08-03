@@ -8,6 +8,7 @@ type VorgangSenderBannerProps = {
   intelligence: VorgangSenderIntelligence;
   onCreateKunde: () => void;
   onLinkObjekt: () => void;
+  onCreateObjekt?: () => void;
   onMarkSpam: () => void;
 };
 
@@ -15,6 +16,7 @@ export function VorgangSenderBanner({
   intelligence,
   onCreateKunde,
   onLinkObjekt,
+  onCreateObjekt,
   onMarkSpam,
 }: VorgangSenderBannerProps) {
   if (
@@ -30,13 +32,34 @@ export function VorgangSenderBanner({
         <p className="text-[14px] font-semibold text-[var(--text-primary)]">
           {intelligence.kundeName ?? intelligence.fromName}
         </p>
-        <p className="mt-1 text-[13px] text-[var(--text-secondary)]">
-          Kunde erkannt — Objekt bitte verknüpfen.
-        </p>
-        <Button type="button" size="sm" className="mt-3" onClick={onLinkObjekt}>
-          <Link2 className="size-4" />
-          Objekt verknüpfen
-        </Button>
+        {intelligence.erkanntesObjekt ? (
+          <>
+            <p className="mt-1 text-[13px] font-medium text-[var(--text-primary)]">
+              🔍 Erkannt: {intelligence.erkanntesObjekt}
+            </p>
+            <p className="mt-1 text-[13px] text-[var(--text-secondary)]">
+              Objekt noch nicht in HELPY
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              className="mt-3"
+              onClick={onCreateObjekt ?? onLinkObjekt}
+            >
+              + Objekt jetzt anlegen
+            </Button>
+          </>
+        ) : (
+          <>
+            <p className="mt-1 text-[13px] text-[var(--text-secondary)]">
+              Kunde erkannt — Objekt bitte verknüpfen.
+            </p>
+            <Button type="button" size="sm" className="mt-3" onClick={onLinkObjekt}>
+              <Link2 className="size-4" />
+              Objekt verknüpfen
+            </Button>
+          </>
+        )}
       </div>
     );
   }
@@ -73,13 +96,34 @@ export function VorgangSenderBanner({
       {intelligence.fromEmail ? (
         <p className="text-[13px] text-[var(--text-secondary)]">{intelligence.fromEmail}</p>
       ) : null}
+      {intelligence.erkanntesObjekt ? (
+        <>
+          <p className="mt-2 text-[13px] font-medium text-[var(--text-primary)]">
+            🔍 Erkannt: {intelligence.erkanntesObjekt}
+          </p>
+          <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
+            Objekt noch nicht in HELPY
+          </p>
+        </>
+      ) : null}
       <div className="mt-3 flex flex-wrap gap-2">
         <Button type="button" size="sm" onClick={onCreateKunde}>
           + Als Kunde anlegen
         </Button>
-        <Button type="button" size="sm" variant="outline" onClick={onLinkObjekt}>
-          Objekt verknüpfen
-        </Button>
+        {intelligence.erkanntesObjekt ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={onCreateObjekt ?? onLinkObjekt}
+          >
+            + Objekt jetzt anlegen
+          </Button>
+        ) : (
+          <Button type="button" size="sm" variant="outline" onClick={onLinkObjekt}>
+            Objekt verknüpfen
+          </Button>
+        )}
         <Button type="button" size="sm" variant="ghost" onClick={onMarkSpam}>
           <Ban className="size-4" />
           Als Spam markieren

@@ -35,3 +35,19 @@ export function extractNamedObjectsFromMail(subject: string, body: string): stri
 
   return [...objects].slice(0, 5);
 }
+
+const STREET_HINT_PATTERN =
+  /\b(strasse|straße|weg|gasse|platz|str\.)\s*\d+/i;
+
+/** Bevorzugt Straßenadressen gegenüber Betreff-Zeilen. */
+export function pickPrimaryObjectHint(queries: string[]): string | null {
+  if (queries.length === 0) return null;
+
+  const street = queries.find((query) => STREET_HINT_PATTERN.test(query));
+  if (street?.trim()) return street.trim();
+
+  const concise = queries.find(
+    (query) => query.trim().length >= 4 && query.trim().length <= 80
+  );
+  return (concise ?? queries[0])?.trim() ?? null;
+}

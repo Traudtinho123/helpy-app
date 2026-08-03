@@ -23,6 +23,8 @@ type AddObjectDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   skill: HelpySkill;
+  initialValues?: Partial<AddPortfolioObjectInput>;
+  dialogTitle?: string;
   onSaved?: (result: { objectId: string; openDossierTab?: boolean }) => void;
 };
 
@@ -62,6 +64,8 @@ export function AddObjectDialog({
   open,
   onOpenChange,
   skill,
+  initialValues,
+  dialogTitle,
   onSaved,
 }: AddObjectDialogProps) {
   const [form, setForm] = useState<AddPortfolioObjectInput>(EMPTY_FORM);
@@ -91,8 +95,14 @@ export function AddObjectDialog({
       setSaving(false);
       setStep("form");
       setCreatedObject(null);
+      return;
     }
-  }, [open]);
+
+    setForm({ ...EMPTY_FORM, ...initialValues });
+    setSaving(false);
+    setStep("form");
+    setCreatedObject(null);
+  }, [open, initialValues]);
 
   if (!open) return null;
 
@@ -166,7 +176,7 @@ export function AddObjectDialog({
             id="add-object-title"
             className="text-[18px] font-semibold tracking-[-0.02em] text-[var(--text-primary)]"
           >
-            {getDialogTitle(skill)}
+            {dialogTitle ?? getDialogTitle(skill)}
           </h2>
           <button
             type="button"

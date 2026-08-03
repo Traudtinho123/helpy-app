@@ -1,6 +1,9 @@
 import { normalizeEmail } from "@/features/crm/services/crm-merge";
 import { lookupObjectsForMailQueries } from "@/features/reply-drafts/services/reply-object-lookup";
-import { extractNamedObjectsFromMail } from "@/features/vorgaenge/services/mail-object-extraction";
+import {
+  extractNamedObjectsFromMail,
+  pickPrimaryObjectHint,
+} from "@/features/vorgaenge/services/mail-object-extraction";
 import {
   findKundeByEmail,
   findKundeIdFromDealsByEmail,
@@ -23,6 +26,8 @@ export type VorgangSenderIntelligence = {
   objektId: string | null;
   objektTitel: string | null;
   objektAdresse: string | null;
+  /** Aus Mail erkannt, aber noch kein DB-Objekt gefunden. */
+  erkanntesObjekt: string | null;
   objectCandidates: Array<{
     objectId: string;
     titel: string;
@@ -54,6 +59,7 @@ export async function resolveSenderIntelligence(input: {
       objektId: null,
       objektTitel: null,
       objektAdresse: null,
+      erkanntesObjekt: null,
       objectCandidates: [],
       dealId: null,
       isSpam: true,
@@ -85,6 +91,9 @@ export async function resolveSenderIntelligence(input: {
   }));
 
   const topObject = objectCandidates[0] ?? null;
+  const erkanntesObjekt = topObject
+    ? null
+    : pickPrimaryObjectHint(objectQueries);
 
   const knownCustomer = Boolean(kundeId || kundeName);
   const knownObject = Boolean(topObject);
@@ -109,6 +118,7 @@ export async function resolveSenderIntelligence(input: {
     objektId: topObject?.objectId ?? null,
     objektTitel: topObject?.titel ?? null,
     objektAdresse: topObject?.adresse ?? null,
+    erkanntesObjekt,
     objectCandidates,
     dealId: null,
     isSpam: false,
