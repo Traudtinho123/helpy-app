@@ -846,7 +846,12 @@ export async function loadGmailVorgaenge(
           .filter((threadId): threadId is string => Boolean(threadId))
       ),
     ];
-    await applyThreadStatusToCache(providerToken, threadIds, context, messages);
+    void applyThreadStatusToCache(
+      providerToken,
+      threadIds,
+      context,
+      messages
+    ).catch(() => undefined);
 
     backfillGmailVorgaengeMailMetadata(messages, context);
 
@@ -925,12 +930,12 @@ export async function syncGmailVorgaengeIncremental(
             .filter((threadId): threadId is string => Boolean(threadId))
         ),
       ];
-      await applyThreadStatusToCache(
+      void applyThreadStatusToCache(
         providerToken,
         affectedThreadIds,
         context,
         messages
-      );
+      ).catch(() => undefined);
     }
 
     console.log("[HELPY Gmail Auto Sync] Neue Vorgänge:", newVorgaenge.length);

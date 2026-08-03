@@ -6,8 +6,11 @@ import { Plus, Sparkles } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { CreateVorgangModal } from "@/features/vorgaenge/components/create-vorgang-modal";
-import { loadDbVorgaengeFromApi } from "@/features/vorgaenge/services/db-vorgaenge-store";
 import { getDbKundenCustomers, setDbKundenCustomers } from "@/features/customers/services/kunden-store";
+import {
+  hydrateMailVorgaengeCaches,
+  syncMailVorgaengeSources,
+} from "@/features/mail/services/mail-vorgaenge-sync-client";
 import { MobileBackHeader } from "@/components/mobile/mobile-back-header";
 import { VorgangArchiveCard } from "@/features/workspace/components/vorgaenge/vorgang-archive-card";
 import { HelpyReportCard } from "@/features/workspace/components/vorgaenge/helpy-report-card";
@@ -44,13 +47,6 @@ import {
 } from "@/features/mail";
 import { subscribeHiddenVorgaenge } from "@/features/workspace/services/vorgang-visibility-store";
 import { isMailSyncLoading } from "@/features/mail/mail-sync-status";
-import { loadOutlookVorgaenge } from "@/features/outlook/services/outlook-vorgaenge-store";
-import { refreshOutlookConnectionStatus } from "@/features/outlook/services/outlook-auth-service";
-import { ensureCompletedVorgaengeLoaded } from "@/features/workspace/services/vorgaenge/completed-vorgaenge-store";
-import { loadGmailVorgaenge } from "@/features/workspace/services/vorgaenge/gmail-vorgaenge-store";
-import { resolveGmailSyncContext } from "@/features/mail/services/gmail-sync-context-client";
-import { syncGmailViaOAuthApi } from "@/features/oauth/services/oauth-connections-client";
-import { syncGmailVorgaengeFromOAuthAccounts } from "@/features/workspace/services/vorgaenge/gmail-oauth-sync";
 import {
   applyPriorityOverride,
   subscribePriorityOverrides,
@@ -154,39 +150,19 @@ export function VorgaengePage() {
   useEffect(() => subscribePriorityOverrides(() => setMailRevision((tick) => tick + 1)), []);
 
   useEffect(() => {
+    hydrateMailVorgaengeCaches();
+    setMailReady(true);
+    setMailRevision((tick) => tick + 1);
+
     const supabase = createClient();
-    if (!supabase) {
-      setMailReady(true);
-      return;
-    }
+    if (!supabase) return;
 
     void supabase.auth.getSession().then(async ({ data: { session } }) => {
-      await ensureCompletedVorgaengeLoaded(session?.user?.id ?? null);
-
-      const token = session?.provider_token;
-      if (token) {
-        const gmailContext = await resolveGmailSyncContext(session.user?.email ?? null);
-        await loadGmailVorgaenge(token, gmailContext);
-      }
-
       try {
-        const payload = await syncGmailViaOAuthApi();
-        if (payload.accounts.length > 0) {
-          await syncGmailVorgaengeFromOAuthAccounts(payload.accounts);
-        }
-      } catch {
-        // OAuth-Sync optional.
-      }
-
-      const outlookStatus = await refreshOutlookConnectionStatus();
-      if (outlookStatus.status === "connected") {
-        await loadOutlookVorgaenge();
-      }
-
-      setMailReady(true);
-      void loadDbVorgaengeFromApi().then(() => {
+        await syncMailVorgaengeSources(session);
+      } finally {
         setMailRevision((tick) => tick + 1);
-      });
+      }
 
       void fetch("/api/kunden", { cache: "no-store" })
         .then((response) => response.json())
@@ -302,7 +278,14 @@ export function VorgaengePage() {
     [customersRevision, createModalOpen]
   );
 
-  const isLoading = mounted && (!mailReady || isMailSyncLoading());
+  const hasCachedMail = useMemo(() => {
+    if (!mounted || !mailReady) return false;
+    return hasMailVorgaenge();
+  }, [mounted, mailReady, mailRevision]);
+
+  const isLoading =
+    mounted &&
+    (!mailReady || (isMailSyncLoading() && !hasCachedMail));
   const showAllDoneEmpty =
     !isLoading &&
     mainArea === "vorgaenge" &&

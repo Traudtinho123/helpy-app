@@ -47,17 +47,12 @@ import {
 } from "@/features/mail";
 import { isMailSyncLoading } from "@/features/mail/mail-sync-status";
 import {
-  loadOutlookVorgaenge,
-} from "@/features/outlook/services/outlook-vorgaenge-store";
-import { refreshOutlookConnectionStatus } from "@/features/outlook/services/outlook-auth-service";
-import { loadGmailVorgaenge } from "@/features/workspace/services/vorgaenge/gmail-vorgaenge-store";
-import { resolveGmailSyncContext } from "@/features/mail/services/gmail-sync-context-client";
-import { syncGmailViaOAuthApi } from "@/features/oauth/services/oauth-connections-client";
-import { syncGmailVorgaengeFromOAuthAccounts } from "@/features/workspace/services/vorgaenge/gmail-oauth-sync";
+  hydrateMailVorgaengeCaches,
+  syncMailVorgaengeSources,
+} from "@/features/mail/services/mail-vorgaenge-sync-client";
 import { initGmailVorgangStatuses } from "@/features/workspace/services/status";
 import { subscribeVorgaengeCounts } from "@/features/workspace/services/vorgaenge/vorgaenge-summary";
 import { refreshAllFollowUps } from "@/features/followup/services/followup-engine";
-import { ensureCompletedVorgaengeLoaded } from "@/features/workspace/services/vorgaenge/completed-vorgaenge-store";
 import {
   fetchWorkdayAnalytics,
   syncVorgangEventsForAnalytics,
@@ -149,47 +144,36 @@ export function WorkdayExperience() {
   );
 
   useEffect(() => {
+    hydrateMailVorgaengeCaches();
+    setMailReady(true);
+    setMailRevision((tick) => tick + 1);
+
     const supabase = createClient();
-    if (!supabase) {
-      setMailReady(true);
-      return;
-    }
+    if (!supabase) return;
 
     void supabase.auth.getSession().then(async ({ data: { session } }) => {
       const user = session?.user ?? null;
       setFirstName(extractFirstNameFromUser(user));
 
-      await ensureCompletedVorgaengeLoaded(user?.id ?? null);
-
-      const token = session?.provider_token;
-      if (token) {
-        setMailLoadAttempted(true);
-        const gmailContext = await resolveGmailSyncContext(session.user?.email ?? null);
-        await loadGmailVorgaenge(token, gmailContext);
-      }
-
       try {
-        const payload = await syncGmailViaOAuthApi();
-        if (payload.accounts.length > 0) {
+        const { mailAttempted } = await syncMailVorgaengeSources(session);
+        if (mailAttempted) {
           setMailLoadAttempted(true);
-          await syncGmailVorgaengeFromOAuthAccounts(payload.accounts);
         }
-      } catch {
-        // OAuth-Sync optional
+      } finally {
+        setMailRevision((tick) => tick + 1);
       }
-
-      const outlookStatus = await refreshOutlookConnectionStatus();
-      if (outlookStatus.status === "connected") {
-        setMailLoadAttempted(true);
-        await loadOutlookVorgaenge();
-      }
-
-      setMailReady(true);
     });
   }, []);
 
+  const hasCachedMail = useMemo(() => {
+    if (!mounted || !mailReady) return false;
+    return hasMailVorgaenge();
+  }, [mounted, mailReady, mailRevision]);
+
   const isMailLoading =
-    mounted && (!mailReady || isMailSyncLoading());
+    mounted &&
+    (!mailReady || (isMailSyncLoading() && !hasCachedMail));
 
   const mailVorgaenge = useMemo(() => {
     if (!mounted || !mailReady) return [];
