@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/Textarea";
+import { getRealEstateObjectById } from "@/features/real-estate/object/object-memory";
+import { SocialPostImagePicker } from "@/features/social-media/components/social-post-image-picker";
 import { readApiErrorMessage } from "@/lib/http/fetch-errors";
 import {
   SOCIAL_PLATFORM_EMOJI,
@@ -44,6 +46,12 @@ export function SocialPostComposerModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
+
+  const linkedObject = useMemo(() => {
+    const id = initial?.objektId?.trim();
+    if (!id || id === "manual") return null;
+    return getRealEstateObjectById(id);
+  }, [initial?.objektId, open]);
 
   useEffect(() => {
     if (!open) return;
@@ -177,15 +185,13 @@ export function SocialPostComposerModal({
         </div>
 
         <div>
-          <p className="mb-2 text-[12px] font-semibold text-[var(--text-secondary)]">
-            Bild-URL (optional)
-          </p>
-          <input
-            type="url"
-            value={imageUrl ?? ""}
-            onChange={(event) => setImageUrl(event.target.value.trim() || null)}
-            placeholder="https://…"
-            className="w-full rounded-[10px] border border-[var(--border)] px-3 py-2 text-[12px]"
+          <p className="mb-2 text-[12px] font-semibold text-[var(--text-secondary)]">Bild</p>
+          <SocialPostImagePicker
+            value={imageUrl}
+            onChange={setImageUrl}
+            object={linkedObject}
+            objektId={initial?.objektId}
+            platform={platform}
           />
         </div>
 

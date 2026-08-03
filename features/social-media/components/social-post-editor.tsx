@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import {
   Check,
   Loader2,
@@ -20,6 +19,7 @@ import {
   type SocialPlatform,
   type SocialPost,
 } from "@/features/social-media/types/social-media-types";
+import { SocialPostImagePicker } from "@/features/social-media/components/social-post-image-picker";
 
 const STABLE_EMPTY_POSTS: SocialPost[] = [];
 
@@ -62,12 +62,6 @@ export function SocialPostEditor({
     () => posts.find((post) => post.platform === activePlatform) ?? null,
     [activePlatform, posts]
   );
-
-  const coverImage =
-    activePost?.imageUrl ??
-    object.images.find((image) => image.isCover)?.url ??
-    object.images[0]?.url ??
-    null;
 
   const loadPosts = useCallback(async () => {
     setLoading(true);
@@ -355,45 +349,14 @@ export function SocialPostEditor({
           </div>
 
           <p className="mb-2 text-[12px] font-semibold text-[var(--text-secondary)]">Bild</p>
-          <div className="mb-4 flex flex-wrap items-center gap-3">
-            {coverImage ? (
-              <div className="relative size-24 overflow-hidden rounded-[12px] border border-[var(--border)]">
-                {coverImage.startsWith("http") ? (
-                  <Image
-                    src={coverImage}
-                    alt="Objektbild"
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
-                ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={coverImage}
-                    alt="Objektbild"
-                    className="size-full object-cover"
-                  />
-                )}
-              </div>
-            ) : (
-              <div className="flex size-24 items-center justify-center rounded-[12px] border border-dashed border-[var(--border)] text-[11px] text-[var(--text-muted)]">
-                Kein Bild
-              </div>
-            )}
-            <select
-              className="rounded-[10px] border border-[var(--border)] px-3 py-2 text-[12px]"
-              value={activePost.imageUrl ?? ""}
-              onChange={(event) =>
-                updateLocalPost({ imageUrl: event.target.value || null })
-              }
-            >
-              <option value="">Kein Bild</option>
-              {object.images.map((image) => (
-                <option key={image.id} value={image.url}>
-                  {image.fileName || image.id}
-                </option>
-              ))}
-            </select>
+          <div className="mb-4">
+            <SocialPostImagePicker
+              value={activePost.imageUrl}
+              onChange={(url) => updateLocalPost({ imageUrl: url })}
+              object={object}
+              objektId={object.objectId}
+              platform={activePlatform}
+            />
           </div>
 
           <p className="mb-2 text-[12px] font-semibold text-[var(--text-secondary)]">
