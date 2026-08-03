@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { fetchGmailMessageById } from "@/features/gmail/services/gmail/connector";
 import { requireSkillAccessApi } from "@/lib/auth/require-skill-access";
 import {
-  listValidGoogleTokensForCompany,
+  readGoogleTokensFromRequestHeaders,
+  resolveGoogleMailAccounts,
   requireOAuthContext,
 } from "@/lib/oauth";
 
@@ -11,7 +12,7 @@ type RouteParams = {
 };
 
 /** Lädt Original-Mail-Body via Gmail API (on-demand). */
-export async function GET(_request: Request, { params }: RouteParams) {
+export async function GET(request: Request, { params }: RouteParams) {
   const access = await requireSkillAccessApi();
   if (!access.ok) return access.response;
 
@@ -25,7 +26,9 @@ export async function GET(_request: Request, { params }: RouteParams) {
     return NextResponse.json({ error: "messageId fehlt." }, { status: 400 });
   }
 
-  const accounts = await listValidGoogleTokensForCompany(auth.context.companyId);
+  const clientTokens = readGoogleTokensFromRequestHeaders(request);
+
+  const accounts = await resolveGoogleMailAccounts(auth.context, clientTokens);
   if (accounts.length === 0) {
     return NextResponse.json(
       { error: "Kein Gmail-Konto verbunden." },

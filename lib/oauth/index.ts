@@ -32,6 +32,13 @@ export {
   listValidOutlookTokensForCompany,
 } from "@/lib/oauth/token-service";
 
+export {
+  resolveGoogleMailAccounts,
+  resolvePrimaryGoogleMailAccount,
+  readGoogleTokensFromRequestHeaders,
+  type GoogleSessionTokenInput,
+} from "@/lib/oauth/google-token-resolver";
+
 export { requireOAuthContext } from "@/lib/oauth/require-oauth-context";
 
 export {

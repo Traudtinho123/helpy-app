@@ -12,8 +12,20 @@ import type { OAuthConnectionPublic } from "@/lib/oauth/types";
 
 export const dynamic = "force-dynamic";
 
+type MigrateGoogleBody = {
+  accessToken?: string;
+  refreshToken?: string | null;
+  accountEmail?: string | null;
+};
+
+type MigrateRequestBody = {
+  google?: MigrateGoogleBody;
+};
+
 /** Migriert legacy Session-/Cookie-Tokens in oauth_connections. */
-async function runOAuthMigration(): Promise<NextResponse> {
+async function runOAuthMigration(
+  clientGoogle?: MigrateGoogleBody | null
+): Promise<NextResponse> {
   const auth = await requireOAuthContext();
   if (!auth.ok) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
@@ -24,19 +36,24 @@ async function runOAuthMigration(): Promise<NextResponse> {
 
   try {
     const { session } = await getSession();
-    if (session?.provider_token) {
-      const email =
-        session.user?.email?.trim().toLowerCase() ??
-        auth.context.userEmail?.trim().toLowerCase() ??
-        "unknown@gmail.com";
+    const accessToken =
+      clientGoogle?.accessToken?.trim() || session?.provider_token || null;
+    const refreshToken =
+      clientGoogle?.refreshToken ?? session?.provider_refresh_token ?? null;
+    const email =
+      clientGoogle?.accountEmail?.trim().toLowerCase() ??
+      session?.user?.email?.trim().toLowerCase() ??
+      auth.context.userEmail?.trim().toLowerCase() ??
+      "unknown@gmail.com";
 
+    if (accessToken) {
       await upsertOAuthConnection({
         companyId: auth.context.companyId,
         userId: auth.context.userId,
         provider: "google",
         tokens: {
-          accessToken: session.provider_token,
-          refreshToken: session.provider_refresh_token ?? null,
+          accessToken,
+          refreshToken,
           accountEmail: email,
           expiresAt: null,
           scopes: [...GOOGLE_OAUTH_SCOPES],
@@ -98,9 +115,20 @@ async function runOAuthMigration(): Promise<NextResponse> {
   });
 }
 
-export async function POST(): Promise<NextResponse> {
+export async function POST(request: Request): Promise<NextResponse> {
+  let clientGoogle: MigrateGoogleBody | null = null;
+
   try {
-    return await runOAuthMigration();
+    const body = (await request.json()) as MigrateRequestBody;
+    if (body?.google?.accessToken?.trim()) {
+      clientGoogle = body.google;
+    }
+  } catch {
+    // Leerer Body ist ok — Server-Session wird versucht.
+  }
+
+  try {
+    return await runOAuthMigration(clientGoogle);
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "OAuth-Migration fehlgeschlagen.";
@@ -111,5 +139,5 @@ export async function POST(): Promise<NextResponse> {
 
 /** Legacy-Clients riefen teils GET auf — gleiches Verhalten wie POST. */
 export async function GET(): Promise<NextResponse> {
-  return POST();
+  return POST(new Request("http://localhost/api/oauth/migrate", { method: "POST" }));
 }

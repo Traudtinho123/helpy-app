@@ -12,6 +12,7 @@ import {
 import { subscribeAppleCalendarSync } from "@/features/apple-calendar/services/apple-calendar-sync";
 import { subscribeCalendarPlatform } from "@/features/calendar/services/calendar-platform";
 import { syncIntegrationsFromUserProfile } from "@/features/integration-manager/services/integration-manager";
+import { migrateLegacyOAuthTokens } from "@/features/oauth/services/oauth-connections-client";
 import { loadTenantContextForAuthUser } from "@/lib/tenant/services/tenant-bootstrap-service";
 import { loadLiveTenantContextFromSupabase } from "@/lib/tenant/services/supabase-tenant-bootstrap";
 import { MOCK_TENANT_USER_ID } from "@/lib/tenant/mock/tenant-mock";
@@ -85,6 +86,10 @@ async function reconcileLiveConnectionsFromSession(): Promise<void> {
     gmailConnected: Boolean(session?.provider_token),
     gmailAccountEmail: session?.user?.email ?? null,
   });
+
+  if (session?.provider_token) {
+    void migrateLegacyOAuthTokens();
+  }
 }
 
 export function UserProfileProvider({ children }: { children: ReactNode }) {

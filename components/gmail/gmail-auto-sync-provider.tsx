@@ -7,7 +7,7 @@ import {
   markGmailAutoSyncStart,
   markGmailAutoSyncTokenMissing,
 } from "@/features/gmail/services/gmail-auto-sync";
-import { syncGmailViaOAuthApi } from "@/features/oauth/services/oauth-connections-client";
+import { syncGmailViaOAuthApi, migrateLegacyOAuthTokens } from "@/features/oauth/services/oauth-connections-client";
 import { syncOutlookVorgaengeIncremental } from "@/features/outlook/services/outlook-vorgaenge-store";
 import { refreshOutlookConnectionStatus } from "@/features/outlook/services/outlook-auth-service";
 import { ensureCompletedVorgaengeLoaded } from "@/features/workspace/services/vorgaenge/completed-vorgaenge-store";
@@ -36,6 +36,7 @@ async function runGmailAutoSync(): Promise<void> {
   markGmailAutoSyncStart();
 
   try {
+    await migrateLegacyOAuthTokens();
     const payload = await syncGmailViaOAuthApi();
 
     if (!payload.ok && payload.accounts.length === 0) {

@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { sendGmailMessage } from "@/features/gmail/services/gmail-drafts";
 import { requireSkillAccessApi } from "@/lib/auth/require-skill-access";
 import {
-  getValidGoogleTokensForCompany,
+  readGoogleTokensFromRequestHeaders,
+  resolvePrimaryGoogleMailAccount,
   requireOAuthContext,
 } from "@/lib/oauth";
 
@@ -53,7 +54,11 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  const account = await getValidGoogleTokensForCompany(auth.context.companyId);
+  const clientTokens = readGoogleTokensFromRequestHeaders(request);
+  const account = await resolvePrimaryGoogleMailAccount(
+    auth.context,
+    clientTokens
+  );
   if (!account?.tokens.accessToken) {
     console.warn("[gmail/send] no oauth_connections google token for company", {
       companyId: auth.context.companyId,

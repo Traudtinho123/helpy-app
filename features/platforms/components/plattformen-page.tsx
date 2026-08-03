@@ -12,6 +12,7 @@ import {
 } from "@/features/integration-manager/services/integration-manager";
 import { reconcileCalendarPlatformState } from "@/features/calendar/services/calendar-platform";
 import { refreshOutlookConnectionStatus } from "@/features/outlook/services/outlook-auth-service";
+import { migrateLegacyOAuthTokens } from "@/features/oauth/services/oauth-connections-client";
 import { loadOutlookVorgaenge } from "@/features/outlook/services/outlook-vorgaenge-store";
 import {
   getAppleCalendarSyncState,
@@ -51,6 +52,13 @@ function PlattformenContent() {
             lastError: syncResult.ok ? null : syncResult.error,
           });
         }
+      });
+      return;
+    }
+
+    if (oauthState === "connected" && provider === "google") {
+      void migrateLegacyOAuthTokens().then(() => {
+        window.dispatchEvent(new CustomEvent("helpy:oauth-google-connected"));
       });
       return;
     }

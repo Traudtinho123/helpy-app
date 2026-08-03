@@ -1,3 +1,6 @@
+import { createClient } from "@/lib/supabase/client";
+import { migrateLegacyOAuthTokens } from "@/features/oauth/services/oauth-connections-client";
+
 export type GmailSendInput = {
   to: string;
   subject: string;
@@ -15,14 +18,42 @@ export type GmailSendViaApiResult =
   | { ok: true; messageId: string }
   | { ok: false; error: string; errorCode?: GmailSendApiErrorCode };
 
-/** Sendet über POST /api/gmail/send (Server nutzt oauth_connections). */
+async function buildGmailAuthHeaders(): Promise<Record<string, string>> {
+  await migrateLegacyOAuthTokens();
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  const supabase = createClient();
+  if (!supabase) return headers;
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (session?.provider_token) {
+    headers["x-gmail-access-token"] = session.provider_token;
+    if (session.provider_refresh_token) {
+      headers["x-gmail-refresh-token"] = session.provider_refresh_token;
+    }
+    if (session.user?.email) {
+      headers["x-gmail-account-email"] = session.user.email;
+    }
+  }
+
+  return headers;
+}
+
+/** Sendet über POST /api/gmail/send (oauth_connections + Session-Fallback). */
 export async function sendGmailMessageViaApi(
   input: GmailSendInput
 ): Promise<GmailSendViaApiResult> {
   try {
+    const headers = await buildGmailAuthHeaders();
     const response = await fetch("/api/gmail/send", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(input),
       cache: "no-store",
     });

@@ -5,7 +5,9 @@ import { Loader2, Mail } from "lucide-react";
 import { SectionCard } from "@/features/workspace/components/workspace-sections";
 import { isPlatformRealEstateQuelle } from "@/features/brain/services/platform-email-detector";
 import { extractEmailAddress } from "@/features/gmail/services/extract-email-address";
+import { migrateLegacyOAuthTokens } from "@/features/oauth/services/oauth-connections-client";
 import { useWorkspaceContext } from "@/features/workspace/context";
+import { createClient } from "@/lib/supabase/client";
 
 type GmailMessagePayload = {
   from?: string;
@@ -76,18 +78,44 @@ export function GmailOriginalMessageCard() {
     let cancelled = false;
     setLoading(true);
 
-    void fetch(`/api/mail/gmail/message/${encodeURIComponent(mail.gmailMessageId)}`)
-      .then(async (response) => {
+    void (async () => {
+      await migrateLegacyOAuthTokens();
+
+      const headers: Record<string, string> = {};
+      const supabase = createClient();
+      if (supabase) {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session?.provider_token) {
+          headers["x-gmail-access-token"] = session.provider_token;
+          if (session.provider_refresh_token) {
+            headers["x-gmail-refresh-token"] = session.provider_refresh_token;
+          }
+          if (session.user?.email) {
+            headers["x-gmail-account-email"] = session.user.email;
+          }
+        }
+      }
+
+      if (cancelled) return;
+
+      try {
+        const response = await fetch(
+          `/api/mail/gmail/message/${encodeURIComponent(mail.gmailMessageId!)}`,
+          { headers }
+        );
+
         if (!response.ok) {
           const payload = (await response.json().catch(() => null)) as {
             error?: string;
           } | null;
           throw new Error(payload?.error ?? "Mail konnte nicht geladen werden.");
         }
-        return response.json() as Promise<GmailMessagePayload>;
-      })
-      .then((payload) => {
+
+        const payload = (await response.json()) as GmailMessagePayload;
         if (cancelled) return;
+
         if (payload.body?.trim()) {
           setBody(payload.body.trim());
         }
@@ -101,16 +129,15 @@ export function GmailOriginalMessageCard() {
           subject: payload.subject ?? mail.betreff,
           date: formatMailDate(payload.date ?? "") || mail.datum,
         });
-      })
-      .catch((err) => {
+      } catch (err) {
         if (cancelled) return;
         setLoadError(
           err instanceof Error ? err.message : "Mail konnte nicht geladen werden."
         );
-      })
-      .finally(() => {
+      } finally {
         if (!cancelled) setLoading(false);
-      });
+      }
+    })();
 
     return () => {
       cancelled = true;

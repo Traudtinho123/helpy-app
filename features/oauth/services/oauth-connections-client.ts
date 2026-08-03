@@ -1,5 +1,6 @@
 "use client";
 
+import { createClient } from "@/lib/supabase/client";
 import type { OAuthConnectionPublic, OAuthProviderId } from "@/lib/oauth/types";
 
 export type OAuthConnectionsResponse = {
@@ -30,7 +31,37 @@ export async function fetchOAuthConnections(
 
 export async function migrateLegacyOAuthTokens(): Promise<void> {
   try {
-    const response = await fetch("/api/oauth/migrate", { method: "POST" });
+    const supabase = createClient();
+    let body: {
+      google?: {
+        accessToken: string;
+        refreshToken: string | null;
+        accountEmail: string | null;
+      };
+    } = {};
+
+    if (supabase) {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session?.provider_token) {
+        body = {
+          google: {
+            accessToken: session.provider_token,
+            refreshToken: session.provider_refresh_token ?? null,
+            accountEmail: session.user?.email ?? null,
+          },
+        };
+      }
+    }
+
+    const response = await fetch("/api/oauth/migrate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
     if (!response.ok) {
       console.warn("[oauth] migrate failed:", response.status);
     }

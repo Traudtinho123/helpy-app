@@ -6,7 +6,12 @@ import {
   mergeThreadAttachments,
 } from "@/features/mail/services/mail-attachment-mapper";
 import { requireSkillAccessApi } from "@/lib/auth/require-skill-access";
-import { getValidGoogleTokensForCompany, requireOAuthContext } from "@/lib/oauth";
+import {
+  getValidGoogleTokensForCompany,
+  readGoogleTokensFromRequestHeaders,
+  resolvePrimaryGoogleMailAccount,
+  requireOAuthContext,
+} from "@/lib/oauth";
 
 /** Listet Anhänge eines Gmail-Threads on-demand (Metadaten only). */
 export async function GET(request: Request) {
@@ -29,10 +34,20 @@ export async function GET(request: Request) {
     );
   }
 
-  const tokens = await getValidGoogleTokensForCompany(
-    auth.context.companyId,
-    connectionId
-  );
+  let tokens =
+    connectionId !== "session-fallback"
+      ? await getValidGoogleTokensForCompany(
+          auth.context.companyId,
+          connectionId
+        )
+      : null;
+
+  if (!tokens) {
+    tokens = await resolvePrimaryGoogleMailAccount(
+      auth.context,
+      readGoogleTokensFromRequestHeaders(request)
+    );
+  }
 
   if (!tokens) {
     return NextResponse.json(

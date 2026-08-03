@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Loader2, Unplug } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import {
   PlatformCard,
   PlatformCardButton,
@@ -54,6 +55,7 @@ export function MailPlatformCard({
   name,
   description,
 }: MailPlatformCardProps) {
+  const searchParams = useSearchParams();
   const [accounts, setAccounts] = useState<OAuthConnectionPublic[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -69,6 +71,26 @@ export function MailPlatformCard({
   useEffect(() => {
     void reload();
   }, [reload]);
+
+  useEffect(() => {
+    const oauthState = searchParams.get("oauth");
+    const oauthProvider = searchParams.get("provider");
+
+    if (oauthState === "connected" && oauthProvider === provider) {
+      void reload();
+    }
+  }, [provider, reload, searchParams]);
+
+  useEffect(() => {
+    const handler = () => {
+      if (provider === "google") {
+        void reload();
+      }
+    };
+
+    window.addEventListener("helpy:oauth-google-connected", handler);
+    return () => window.removeEventListener("helpy:oauth-google-connected", handler);
+  }, [provider, reload]);
 
   const summary = summarizeAccounts(accounts);
   const primaryAccount = accounts[0] ?? null;

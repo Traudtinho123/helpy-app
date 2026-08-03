@@ -1,7 +1,7 @@
 import { loadDbVorgaengeFromApi } from "@/features/vorgaenge/services/db-vorgaenge-store";
 import { getAllMailVorgaenge } from "@/features/mail/unified-mail-source-service";
 import { resolveGmailSyncContext } from "@/features/mail/services/gmail-sync-context-client";
-import { syncGmailViaOAuthApi } from "@/features/oauth/services/oauth-connections-client";
+import { syncGmailViaOAuthApi, migrateLegacyOAuthTokens } from "@/features/oauth/services/oauth-connections-client";
 import { ensureCompletedVorgaengeLoaded } from "@/features/workspace/services/vorgaenge/completed-vorgaenge-store";
 import { loadGmailVorgaenge } from "@/features/workspace/services/vorgaenge/gmail-vorgaenge-store";
 import { syncGmailVorgaengeFromOAuthAccounts } from "@/features/workspace/services/vorgaenge/gmail-oauth-sync";
@@ -16,6 +16,7 @@ export function hydrateMailVorgaengeCaches(): void {
 
 async function syncGmailAccounts(session: Session | null): Promise<boolean> {
   try {
+    await migrateLegacyOAuthTokens();
     const payload = await syncGmailViaOAuthApi();
     if (payload.accounts.length > 0) {
       await syncGmailVorgaengeFromOAuthAccounts(payload.accounts);
